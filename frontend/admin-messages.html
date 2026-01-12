@@ -1,0 +1,126 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Admin Messages | Power Poly Supplies</title>
+  <link rel="stylesheet" href="./css/styles.css"/>
+  <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
+</head>
+<body>
+  <header class="site-header">
+    <div class="promo-strip">
+      <div class="container promo-inner">
+        <div><strong data-i18n="brand.name">Power Poly Supplies</strong> | <span data-i18n="brand.tagline">Power your packaging</span></div>
+        <div style="font-weight:700;" data-i18n="promo.right">Bulk-ready stock | Fast response | Canada-wide supply</div>
+      </div>
+    </div>
+    <div class="navbar">
+      <div class="container navbar-inner">
+        <a class="brand" href="./index.html">
+          <img src="./assets/poly%20logo%20without%20background.png" alt="Power Poly Supplies"/>
+          <div class="brand-text">
+            <span class="brand-title" data-i18n="brand.name">Power Poly Supplies</span>
+            <span class="brand-tagline" data-i18n="brand.tagline">Power your packaging</span>
+          </div>
+        </a>
+        <button class="menu-btn" id="menuBtn" aria-label="Open menu" data-i18n="nav.menu">Menu</button>
+        <nav class="navlinks" id="navLinks">
+          <a href="./index.html" data-i18n="nav.home">Home</a>
+          <a href="./specials.html" data-i18n="nav.specials">Special Offers</a>
+          <div class="dropdown">
+            <button class="dropbtn" type="button"><span data-i18n="nav.shop">Shop by Category</span> <span class="caret" aria-hidden="true"></span></button>
+            <div class="dropdown-menu">
+              <a href="./products.html?cat=Garment%20Bags" data-i18n="nav.garment">Garment Cover Bags</a>
+              <a href="./products.html?cat=Polybags" data-i18n="nav.polybags">Polybags</a>
+              <a href="./products.html?cat=Hangers" data-i18n="nav.hangers">Hangers</a>
+              <a href="./products.html?cat=Wraps" data-i18n="nav.wraps">Wraps</a>
+              <a href="./products.html?cat=Racks" data-i18n="nav.racks">Racks</a>
+            </div>
+          </div>
+          <a href="./about.html" data-i18n="nav.about">About Us</a>
+          <a href="./contact.html"><span class="nav-icon phone-icon" aria-hidden="true"></span><span data-i18n="nav.contact">Contact</span></a>
+          <a href="./feedback.html"><span class="nav-icon pen-icon" aria-hidden="true"></span><span data-i18n="nav.feedback">Feedback</span></a>
+          <a href="./login.html"><span class="nav-icon user-icon" aria-hidden="true"></span><span data-i18n="nav.account">Account</span></a>
+          <a href="./cart.html"><span class="nav-icon cart-icon" aria-hidden="true"></span><span data-i18n="nav.cart">Cart</span> <span class="badge" data-cart-badge>0</span></a>
+          <form class="search-bar nav-search" action="./products.html" method="get" role="search">
+            <input type="search" name="q" placeholder="Search" aria-label="Search products">
+            <button type="submit">Search</button>
+          </form>
+
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <div class="container page">
+    <section class="hero fade-in">
+      <p style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);" data-i18n="admin.kicker">Admin</p>
+      <h1 data-i18n="admin.messages.title">Messages</h1>
+      <p data-i18n="admin.messages.subtitle">View contact form submissions in one place.</p>
+    </section>
+
+    <div id="status" style="color:var(--muted); font-size:13px; margin:12px 0;"></div>
+    <div id="messages" class="grid" style="gap:12px;"></div>
+
+    <div class="footer">&copy; <span id="y"></span> Power Poly Supplies. Power your packaging.</div>
+  </div>
+
+  <script src="./js/store.js"></script>
+  <script src="./js/i18n.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    document.getElementById("y").textContent = new Date().getFullYear();
+    PPS.updateCartBadge();
+
+    const statusEl = document.getElementById("status");
+    const messagesEl = document.getElementById("messages");
+
+    function escapeHtml(value){
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    async function loadMessages(){
+      statusEl.textContent = window.PPS_I18N?.t("admin.messages.loading") || "Loading messages...";
+      try{
+        const res = await fetch(`${PPS.API_BASE}/api/admin/messages`);
+        const data = await res.json().catch(()=> ({}));
+        if(!res.ok || !data.ok){
+          statusEl.textContent = data?.message || (window.PPS_I18N?.t("admin.messages.failed") || "Unable to load messages.");
+          return;
+        }
+        const messages = data.messages || [];
+        if(messages.length === 0){
+          statusEl.textContent = window.PPS_I18N?.t("admin.messages.empty") || "No messages yet.";
+          messagesEl.innerHTML = "";
+          return;
+        }
+        statusEl.textContent = "";
+        messagesEl.innerHTML = messages.map(msg=>`
+          <div class="card fade-in" style="padding:14px;">
+            <div style="display:flex; justify-content:space-between; gap:10px; align-items:center;">
+              <div style="font-weight:800;">${escapeHtml(msg.name || (window.PPS_I18N?.t("admin.messages.anonymous") || "Anonymous"))}</div>
+              <div style="color:var(--muted); font-size:12px;">${new Date(msg.createdAt).toLocaleString()}</div>
+            </div>
+            <div style="color:var(--muted); font-size:13px; margin-top:6px;">
+              <div>${window.PPS_I18N?.t("admin.messages.email") || "Email:"} <a href="mailto:${escapeHtml(msg.email)}">${escapeHtml(msg.email)}</a></div>
+              ${msg.phone ? `<div>${window.PPS_I18N?.t("admin.messages.phone") || "Phone:"} <a href="tel:${escapeHtml(msg.phone)}">${escapeHtml(msg.phone)}</a></div>` : ""}
+            </div>
+            <div style="margin-top:10px;">${escapeHtml(msg.message)}</div>
+          </div>
+        `).join("");
+        document.querySelectorAll(".fade-in").forEach(el => el.classList.add("show"));
+      }catch(err){
+        statusEl.textContent = window.PPS_I18N?.t("admin.messages.unreachable") || "Server unreachable. Is the backend running?";
+      }
+    }
+
+    loadMessages();
+  </script>
+</body>
+</html>

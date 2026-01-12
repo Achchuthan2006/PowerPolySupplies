@@ -1,0 +1,360 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Product | Power Poly Supplies</title>
+  <link rel="stylesheet" href="./css/styles.css"/>
+  <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
+</head>
+<body>
+  <header class="site-header">
+    <div class="promo-strip">
+      <div class="container promo-inner">
+        <div><strong data-i18n="brand.name">Power Poly Supplies</strong> | <span data-i18n="brand.tagline">Power your packaging</span></div>
+        <div style="font-weight:700;" data-i18n="promo.right">Bulk-ready stock | Fast response | Canada-wide supply</div>
+      </div>
+    </div>
+    <div class="navbar">
+      <div class="container navbar-inner">
+        <a class="brand" href="./index.html">
+          <img src="./assets/poly%20logo%20without%20background.png" alt="Power Poly Supplies"/>
+          <div class="brand-text">
+            <span class="brand-title" data-i18n="brand.name">Power Poly Supplies</span>
+            <span class="brand-tagline" data-i18n="brand.tagline">Power your packaging</span>
+          </div>
+        </a>
+        <button class="menu-btn" id="menuBtn" aria-label="Open menu" data-i18n="nav.menu">Menu</button>
+        <nav class="navlinks" id="navLinks">
+          <a href="./index.html" data-i18n="nav.home">Home</a>
+          <a href="./specials.html" data-i18n="nav.specials">Special Offers</a>
+          <div class="dropdown">
+            <button class="dropbtn" type="button"><span data-i18n="nav.shop">Shop by Category</span> <span class="caret" aria-hidden="true"></span></button>
+            <div class="dropdown-menu">
+              <a href="./products.html?cat=Garment%20Bags" data-i18n="nav.garment">Garment Cover Bags</a>
+              <a href="./products.html?cat=Polybags" data-i18n="nav.polybags">Polybags</a>
+              <a href="./products.html?cat=Hangers" data-i18n="nav.hangers">Hangers</a>
+              <a href="./products.html?cat=Wraps" data-i18n="nav.wraps">Wraps</a>
+              <a href="./products.html?cat=Racks" data-i18n="nav.racks">Racks</a>
+            </div>
+          </div>
+          <a href="./about.html" data-i18n="nav.about">About Us</a>
+          <a href="./contact.html"><span class="nav-icon phone-icon" aria-hidden="true"></span><span data-i18n="nav.contact">Contact</span></a>
+          <a href="./feedback.html"><span class="nav-icon pen-icon" aria-hidden="true"></span><span data-i18n="nav.feedback">Feedback</span></a>
+          <a href="./login.html"><span class="nav-icon user-icon" aria-hidden="true"></span><span data-i18n="nav.account">Account</span></a>
+          <a href="./cart.html"><span class="nav-icon cart-icon" aria-hidden="true"></span><span data-i18n="nav.cart">Cart</span> <span class="badge" data-cart-badge>0</span></a>
+          <form class="search-bar nav-search" action="./products.html" method="get" role="search">
+            <input type="search" name="q" placeholder="Search" aria-label="Search products">
+            <button type="submit">Search</button>
+          </form>
+
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <div class="container page" id="wrap"></div>
+
+  <script src="./js/store.js"></script>
+  <script src="./js/i18n.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    PPS.updateCartBadge();
+
+    function qs(name){ return new URLSearchParams(location.search).get(name); }
+
+    function categoryLabel(category){
+      const lang = window.PPS_I18N?.getLang?.() || "en";
+      if(lang === "fr"){
+        const map = {
+          "Garment Bags": "Housses de vetements",
+          "Hangers": "Cintres",
+          "Polybags": "Sacs en poly",
+          "Wraps": "Films",
+          "Racks": "Portants"
+        };
+        return map[category] || category || "";
+      }
+      if(lang === "ko"){
+        const map = {
+          "Garment Bags": "?? ???",
+          "Hangers": "???",
+          "Polybags": "???",
+          "Wraps": "?",
+          "Racks": "?"
+        };
+        return map[category] || category || "";
+      }
+      return category || "";
+    }
+
+    (async ()=>{
+      const slug = qs("slug");
+      const products = await PPS.loadProducts();
+      const p = products.find(x=>x.slug===slug);
+      const wrap = document.getElementById("wrap");
+
+      if(!p){
+        wrap.innerHTML = `<p>${window.PPS_I18N?.t("product.not_found") || "Product not found."}</p>`;
+        return;
+      }
+
+      function renderStars(value){
+        const full = Math.round(value);
+        return new Array(5).fill(0).map((_, idx)=>`
+          <span class="star ${idx < full ? "filled" : ""}" aria-hidden="true">&#9733;</span>
+        `).join("");
+      }
+
+      function stockClass(stock){
+        const labels = {
+          out: window.PPS_I18N?.t("product.stock.out") || "Out of stock",
+          low: window.PPS_I18N?.t("product.stock.low") || "Almost out of stock",
+          in: window.PPS_I18N?.t("product.stock.in") || "In stock"
+        };
+        if(stock <= 0) return { cls:"out", label: labels.out };
+        if(stock <= 10) return { cls:"low", label: labels.low };
+        return { cls:"in", label: labels.in };
+      }
+
+      async function loadReviews(){
+        const status = document.getElementById("reviewsStatus");
+        const list = document.getElementById("reviewsList");
+        const headerAvg = document.getElementById("reviewsHeader");
+        try{
+          const data = await PPS.fetchReviews(p.id);
+          const { reviews=[], average=0, count=0 } = data;
+          const countTemplate = window.PPS_I18N?.t("product.reviews.count") || "{{count}} reviews";
+          const countLabel = count > 0
+            ? countTemplate.replace("{{count}}", String(count))
+            : (window.PPS_I18N?.t("product.reviews.none") || "No reviews yet");
+          headerAvg.innerHTML = `${renderStars(average)} <span class="review-meta">(${average.toFixed(1)} / 5 - ${countLabel})</span>`;
+          if(reviews.length === 0){
+            const none = window.PPS_I18N?.t("product.reviews.none_desc") || "No reviews yet. Be the first to rate this product.";
+            list.innerHTML = `<div class="card" style="padding:10px;">${none}</div>`;
+            return;
+          }
+          list.innerHTML = reviews.map(r=>`
+            <div class="card" style="padding:12px;">
+              <div style="display:flex; justify-content:space-between; gap:8px; align-items:center;">
+                <div style="font-weight:800;">${r.name || (window.PPS_I18N?.t("product.reviews.anonymous") || "Anonymous")}</div>
+                <div>${renderStars(r.rating)}</div>
+              </div>
+              <div style="color:var(--muted); font-size:13px; margin-top:6px;">${new Date(r.createdAt).toLocaleString()}</div>
+              <div style="margin-top:10px;">${(r.comment || "").replace(/</g,"&lt;")}</div>
+            </div>
+          `).join("");
+        }catch(err){
+          status.textContent = window.PPS_I18N?.t("product.reviews.load_failed") || "Unable to load reviews right now.";
+          status.style.display = "block";
+        }
+      }
+
+      const lang = window.PPS_I18N?.getLang?.() || "en";
+      const desc = lang === "fr"
+        ? (p.description_fr || p.description)
+        : lang === "ko"
+          ? (p.description_ko || p.description)
+          : p.description;
+      wrap.innerHTML = `
+        <section class="hero fade-in" style="margin-bottom:16px;">
+          <p style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);" data-i18n="product.kicker">Product detail</p>
+          <h1 style="margin:4px 0 6px;">${p.name}</h1>
+          <p style="margin:0; color:var(--muted);">${window.PPS_I18N?.t("product.category") || "Category:"} ${p.category || "N/A"}</p>
+        </section>
+        <div class="grid" style="grid-template-columns: 1.1fr .9fr; gap:24px;">
+          <div class="card fade-in">
+            <img src="${p.image}" alt="${p.name}" style="height:420px;">
+          </div>
+          <div class="card fade-in" style="padding:18px;">
+            <h2 style="margin:0;">${p.name}</h2>
+            <p style="color:var(--muted); margin-top:8px;">${categoryLabel(p.category || "")}</p>
+            <div class="price" style="font-size:22px;">${PPS.money(p.priceCents,p.currency)}</div>
+            ${(()=>{ const s = stockClass(p.stock); return `<div class="stock ${s.cls}"><span class="dot"></span>${s.label}</div>`; })()}
+            <p style="margin-top:14px; color:var(--text); line-height:1.5;">${desc || ""}</p>
+
+            <div class="pricing-tiers">
+              <div class="pricing-tiers-header" data-i18n="product.bulk">Bulk pricing</div>
+              <div class="pricing-tiers-grid">
+                ${renderTier(Math.max(0, p.priceCents - 100), p.currency, 10, p.stock)}
+                ${renderTier(Math.max(0, p.priceCents - 200), p.currency, 15, p.stock)}
+                ${renderTier(Math.max(0, p.priceCents - 300), p.currency, 20, p.stock)}
+              </div>
+            </div>
+
+            <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="btn btn-primary" ${p.stock<=0 ? "disabled" : ""} id="add">${window.PPS_I18N?.t("product.add") || "Add to cart"}</button>
+              <a class="btn" href="./cart.html">${window.PPS_I18N?.t("product.go_cart") || "Go to cart"}</a>
+              <a class="btn btn-outline" href="./contact.html">${window.PPS_I18N?.t("product.bulk_quote") || "Bulk quote"}</a>
+            </div>
+
+            <div class="reviews-section">
+              <div class="reviews-header" id="reviewsHeader">${renderStars(0)} <span class="review-meta">(${window.PPS_I18N?.t("product.reviews.none") || "No reviews yet"})</span></div>
+              <div id="reviewsStatus" style="display:none; color:var(--muted); font-size:13px; margin-bottom:8px;"></div>
+              <div id="reviewsList" class="grid" style="gap:10px;"></div>
+
+              <form id="reviewForm" class="grid" style="gap:10px; margin-top:12px;">
+                <div style="font-weight:800;" data-i18n="product.reviews.rate">Rate this product</div>
+                <div class="star-input" id="starInput" aria-label="Select rating out of 5">
+                  ${[1,2,3,4,5].map(val=>`<button type="button" data-val="${val}" class="star-btn">&#9733;</button>`).join("")}
+                </div>
+                <input class="input" name="name" placeholder="Your name (optional)" data-i18n-placeholder="product.reviews.name">
+                <textarea class="input" name="comment" placeholder="Share your feedback" style="min-height:90px;" data-i18n-placeholder="product.reviews.comment"></textarea>
+                <button class="btn btn-primary" type="submit" data-i18n="product.reviews.submit">Submit review</button>
+                <div id="reviewMsg" style="color:var(--muted); font-size:13px;"></div>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="card fade-in" style="margin-top:18px; padding:18px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+            <h3 style="margin:0;" data-i18n="product.related.title">You may also like</h3>
+            <a class="btn btn-outline" href="./products.html" data-i18n="product.related.browse">Browse all</a>
+          </div>
+          <div id="relatedGrid" class="grid grid-4" style="margin-top:12px;"></div>
+        </div>
+        <div class="footer">&copy; <span id="y"></span> Power Poly Supplies. Power your packaging.</div>
+      `;
+
+      window.PPS_I18N?.applyTranslations?.();
+      document.getElementById("y").textContent = new Date().getFullYear();
+      document.querySelectorAll(".fade-in").forEach(el => el.classList.add("show"));
+      if(window.injectFooter) window.injectFooter();
+
+      document.getElementById("add").onclick = ()=>{
+        if(p.stock<=0) return;
+        PPS.addToCart(p);
+      };
+
+      document.querySelectorAll("[data-bulk-qty]").forEach((btn)=>{
+        btn.addEventListener("click", ()=>{
+          if(p.stock<=0) return;
+          const qty = Number(btn.dataset.bulkQty) || 1;
+          PPS.addToCart(p, qty);
+          const original = btn.innerHTML;
+          const addedLabel = window.PPS_I18N?.t("product.added_qty") || "Added {{qty}}";
+          btn.innerHTML = addedLabel.replace("{{qty}}", qty);
+          btn.disabled = true;
+          setTimeout(()=>{
+            btn.innerHTML = original;
+            btn.disabled = false;
+          }, 800);
+        });
+      });
+
+      // Reviews interactions
+      const starButtons = Array.from(document.querySelectorAll(".star-btn"));
+      const starInput = document.getElementById("starInput");
+      const reviewForm = document.getElementById("reviewForm");
+      const reviewMsg = document.getElementById("reviewMsg");
+      let selectedRating = 5;
+
+      function paintStars(val){
+        starButtons.forEach(btn=>{
+          const v = Number(btn.dataset.val);
+          if(v <= val){
+            btn.classList.add("active");
+          }else{
+            btn.classList.remove("active");
+          }
+        });
+      }
+      paintStars(selectedRating);
+
+      starInput.addEventListener("click",(e)=>{
+        if(e.target.matches(".star-btn")){
+          selectedRating = Number(e.target.dataset.val) || 5;
+          paintStars(selectedRating);
+        }
+      });
+
+      reviewForm.addEventListener("submit", async (e)=>{
+        e.preventDefault();
+        reviewMsg.textContent = window.PPS_I18N?.t("product.reviews.submitting") || "Submitting review...";
+        try{
+          await PPS.submitReview(p.id, {
+            rating: selectedRating,
+            name: e.target.name.value.trim(),
+            comment: e.target.comment.value.trim()
+          });
+          reviewMsg.textContent = window.PPS_I18N?.t("product.reviews.thanks") || "Thanks! Your review was added.";
+          e.target.reset();
+          selectedRating = 5;
+          paintStars(selectedRating);
+          loadReviews();
+        }catch(err){
+          reviewMsg.textContent = err.message || (window.PPS_I18N?.t("product.reviews.submit_failed") || "Failed to submit review.");
+        }
+      });
+
+      loadReviews();
+      renderRelated();
+    })();
+
+    function renderTier(priceCents, currency, qty, stock){
+      const price = Math.max(0, priceCents);
+      const labelTpl = window.PPS_I18N?.t("product.bulk_label") || "{{qty}}+ boxes";
+      const label = labelTpl.replace("{{qty}}", qty);
+      const display = PPS.money(price, currency);
+      const disabled = stock <= 0 ? "disabled" : "";
+      return `
+        <button class="pricing-tier" type="button" data-bulk-qty="${qty}" ${disabled}>
+          <strong>${label}</strong>
+          <span>${display}</span>
+        </button>
+      `;
+    }
+
+    function renderRelated(){
+      const grid = document.getElementById("relatedGrid");
+      if(!grid) return;
+      const products = window._products || [];
+      const currentSlug = qs("slug");
+      const current = products.find(x=>x.slug===currentSlug);
+      const sameCat = current ? products.filter(x=>x.category===current.category && x.slug!==current.slug) : [];
+      const others = products.filter(x=>x.slug!==currentSlug && !sameCat.includes(x));
+      const picks = [...sameCat, ...others].slice(0,4);
+
+      if(picks.length === 0){
+        const more = window.PPS_I18N?.t("product.related.more") || "More products coming soon.";
+        grid.innerHTML = `<div class="card" style="padding:14px;">${more}</div>`;
+        return;
+      }
+
+      grid.innerHTML = picks.map(item=>{
+        const s = item.stock<=0 ? "out" : item.stock<=10 ? "low" : "in";
+        const label = item.stock<=0
+          ? (window.PPS_I18N?.t("product.stock.out") || "Out of stock")
+          : item.stock<=10
+            ? (window.PPS_I18N?.t("product.stock.low") || "Almost out of stock")
+            : (window.PPS_I18N?.t("product.stock.in") || "In stock");
+        return `
+          <div class="card fade-in">
+            <a href="./product.html?slug=${encodeURIComponent(item.slug)}">
+              <img src="${item.image}" alt="${item.name}">
+            </a>
+            <div class="card-body">
+              <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(item.slug)}">${item.name}</a>
+              <div class="card-meta">${categoryLabel(item.category || "")}</div>
+              <div class="price">${PPS.money(item.priceCents,item.currency)}</div>
+              <div class="stock ${s}"><span class="dot"></span>${label}</div>
+              <div style="margin-top:12px; display:flex; gap:10px;">
+                <a class="btn" href="./product.html?slug=${encodeURIComponent(item.slug)}">${window.PPS_I18N?.t("product.view") || "View"}</a>
+                <button class="btn btn-primary" ${item.stock<=0 ? "disabled" : ""} onclick="addRelated('${item.id}')">${window.PPS_I18N?.t("product.add") || "Add"}</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      document.querySelectorAll(".fade-in").forEach(el => el.classList.add("show"));
+
+      window.addRelated = (id)=>{
+        const prod = products.find(x=>x.id===id);
+        if(!prod || prod.stock<=0) return;
+        PPS.addToCart(prod);
+      };
+    }
+</script>
+</body>
+</html>

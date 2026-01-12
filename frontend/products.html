@@ -1,0 +1,251 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Products | Power Poly Supplies</title>
+  <link rel="stylesheet" href="./css/styles.css"/>
+  <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
+</head>
+<body>
+  <header class="site-header">
+    <div class="promo-strip">
+      <div class="container promo-inner">
+        <div><strong data-i18n="brand.name">Power Poly Supplies</strong> | <span data-i18n="brand.tagline">Power your packaging</span></div>
+        <div style="font-weight:700;" data-i18n="promo.right">Bulk-ready stock | Fast response | Canada-wide supply</div>
+      </div>
+    </div>
+    <div class="navbar">
+      <div class="container navbar-inner">
+        <a class="brand" href="./index.html">
+          <img src="./assets/poly%20logo%20without%20background.png" alt="Power Poly Supplies"/>
+          <div class="brand-text">
+            <span class="brand-title" data-i18n="brand.name">Power Poly Supplies</span>
+            <span class="brand-tagline" data-i18n="brand.tagline">Power your packaging</span>
+          </div>
+        </a>
+        <button class="menu-btn" id="menuBtn" aria-label="Open menu" data-i18n="nav.menu">Menu</button>
+        <nav class="navlinks" id="navLinks">
+          <a href="./index.html" data-i18n="nav.home">Home</a>
+          <a href="./specials.html" data-i18n="nav.specials">Special Offers</a>
+          <div class="dropdown">
+            <button class="dropbtn" type="button"><span data-i18n="nav.shop">Shop by Category</span> <span class="caret" aria-hidden="true"></span></button>
+            <div class="dropdown-menu">
+              <a href="./products.html?cat=Garment%20Bags" data-i18n="nav.garment">Garment Cover Bags</a>
+              <a href="./products.html?cat=Polybags" data-i18n="nav.polybags">Polybags</a>
+              <a href="./products.html?cat=Hangers" data-i18n="nav.hangers">Hangers</a>
+              <a href="./products.html?cat=Wraps" data-i18n="nav.wraps">Wraps</a>
+              <a href="./products.html?cat=Racks" data-i18n="nav.racks">Racks</a>
+            </div>
+          </div>
+          <a href="./about.html" data-i18n="nav.about">About Us</a>
+          <a href="./contact.html"><span class="nav-icon phone-icon" aria-hidden="true"></span><span data-i18n="nav.contact">Contact</span></a>
+          <a href="./feedback.html"><span class="nav-icon pen-icon" aria-hidden="true"></span><span data-i18n="nav.feedback">Feedback</span></a>
+          <a href="./login.html"><span class="nav-icon user-icon" aria-hidden="true"></span><span data-i18n="nav.account">Account</span></a>
+          <a href="./cart.html"><span class="nav-icon cart-icon" aria-hidden="true"></span><span data-i18n="nav.cart">Cart</span> <span class="badge" data-cart-badge>0</span></a>
+          <form class="search-bar nav-search" action="./products.html" method="get" role="search">
+            <input type="search" name="q" placeholder="Search" aria-label="Search products">
+            <button type="submit">Search</button>
+          </form>
+
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <div class="container page">
+    <section class="hero fade-in">
+      <p style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);" data-i18n="products.kicker">Catalog</p>
+      <h1 data-i18n="products.title">Products built for daily use</h1>
+      <p data-i18n="products.subtitle">Choose garment cover bags, hangers, polybags, wraps, and racks. Bulk-friendly pricing with dependable stock.</p>
+      <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:12px; color:var(--muted); font-size:13px;">
+        <span data-i18n="products.filter_hint">Filter by category to jump in.</span>
+        <span>|</span>
+        <span id="hint" style="font-weight:700;"></span>
+      </div>
+    </section>
+
+    <h2 style="margin:20px 0 12px;" data-i18n="products.list_title">Products</h2>
+    <div class="grid grid-4" id="grid"></div>
+
+    <div class="footer">&copy; <span id="y"></span> Power Poly Supplies. Power your packaging.</div>
+  </div>
+
+  <script src="./js/store.js"></script>
+  <script src="./js/i18n.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    document.getElementById("y").textContent = new Date().getFullYear();
+    PPS.updateCartBadge();
+
+    function qs(name){ return new URLSearchParams(location.search).get(name); }
+
+    function normalizeSearchText(value){
+      return String(value || "")
+        .toLowerCase()
+        .replace(/["'()]/g, "")
+        .replace(/[^a-z0-9]+/g, " ")
+        .trim();
+    }
+
+    function categoryLabel(category){
+      const lang = window.PPS_I18N?.getLang?.() || "en";
+      if(lang === "fr"){
+        const map = {
+          "Garment Bags": "Housses de v?tements",
+          "Hangers": "Cintres",
+          "Polybags": "Sacs en poly",
+          "Wraps": "Films",
+          "Racks": "Portants"
+        };
+        return map[category] || category || "";
+      }
+      if(lang === "ko"){
+        const map = {
+          "Garment Bags": "의류 커버백",
+          "Hangers": "옷걸이",
+          "Polybags": "폴리백",
+          "Wraps": "랩",
+          "Racks": "랙"
+        };
+        return map[category] || category || "";
+      }
+      return category || "";
+    }
+
+    function stockClass(stock){
+      if(stock <= 0) return "out";
+      if(stock <= 10) return "low";
+      return "in";
+    }
+
+    function stockLabel(stock){
+      if(stock <= 0) return window.PPS_I18N?.t("products.stock.out") || "Out of stock";
+      if(stock <= 10) return window.PPS_I18N?.t("products.stock.low") || "Almost out of stock";
+      return window.PPS_I18N?.t("products.stock.in") || "In stock";
+    }
+
+    function renderSkeletons(grid, count=8){
+      grid.innerHTML = new Array(count).fill(0).map(()=>`
+        <div class="card skeleton"></div>
+      `).join("");
+    }
+
+    (async ()=>{
+      const grid = document.getElementById("grid");
+      const hint = document.getElementById("hint");
+
+      renderSkeletons(grid);
+      const products = await PPS.loadProducts();
+
+      const cat = qs("cat");
+      const query = (qs("q") || "").trim();
+      const base = cat
+        ? products.filter(p => (p.category || "").toLowerCase() === cat.toLowerCase())
+        : products;
+      const normQuery = normalizeSearchText(query);
+      const filtered = normQuery
+        ? base.filter(p=>{
+            const haystack = [
+              p.name,
+              p.category,
+              p.description,
+              p.description_fr,
+              p.description_ko,
+              p.slug
+            ].map(normalizeSearchText);
+            return haystack.some(text=>text.includes(normQuery));
+          })
+        : base;
+
+      const showLabel = window.PPS_I18N?.t("products.hint.show") || "Showing category: {{cat}}";
+      const browseLabel = window.PPS_I18N?.t("products.hint.browse") || "Browse all products";
+      const catLabel = cat ? categoryLabel(cat) : "";
+      if(cat && query){
+        hint.textContent = `${showLabel.replace("{{cat}}", catLabel)} · Results for "${query}"`;
+      }else if(query){
+        hint.textContent = `Results for "${query}"`;
+      }else{
+        hint.textContent = cat ? showLabel.replace("{{cat}}", catLabel) : browseLabel;
+      }
+
+      if(filtered.length === 0){
+        const noTitle = window.PPS_I18N?.t("products.no_results") || "No results found";
+        const noBody = window.PPS_I18N?.t("products.no_results_body") || "Try a different search, or browse the full catalog.";
+        grid.innerHTML = `
+          <div class="no-results">
+            <img src="./assets/poly%20logo%20without%20background.png" alt="Power Poly Supplies">
+            <h3>${noTitle}</h3>
+            <p>${noBody}</p>
+            <div class="no-results-actions">
+              <a class="btn btn-primary" href="./products.html">${window.PPS_I18N?.t("products.no_results_all") || "Browse all products"}</a>
+              <a class="btn btn-outline" href="./contact.html">${window.PPS_I18N?.t("products.no_results_help") || "Ask for help"}</a>
+            </div>
+          </div>
+        `;
+      }else{
+          grid.innerHTML = filtered.map(p=>`
+            <div class="card fade-in">
+              <a href="./product.html?slug=${encodeURIComponent(p.slug)}">
+                <img src="${p.image}" alt="${p.name}">
+              </a>
+              <div class="card-body">
+                <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(p.slug)}">${p.name}</a>
+                <div class="card-meta">${categoryLabel(p.category)}</div>
+                <div class="price">${PPS.money(p.priceCents,p.currency)}</div>
+                <div class="stock ${stockClass(p.stock)}">
+                  <span class="dot"></span>
+                  ${stockLabel(p.stock)}
+                </div>
+                <div style="margin-top:12px; display:flex; gap:10px;">
+                  <a class="btn" href="./product.html?slug=${encodeURIComponent(p.slug)}">${window.PPS_I18N?.t("products.action.view") || "View"}</a>
+                  <button class="btn btn-primary" ${p.stock<=0?'disabled':''} onclick='add(event,"${p.id}")'>${window.PPS_I18N?.t("products.action.add") || "Add"}</button>
+                </div>
+                <div class="bulk-quick">
+                  <button class="btn btn-outline" ${p.stock<=0?'disabled':''} onclick='addBulk(event,"${p.id}",10)'>${window.PPS_I18N?.t("products.bulk.10") || "10+ boxes"}</button>
+                  <button class="btn btn-outline" ${p.stock<=0?'disabled':''} onclick='addBulk(event,"${p.id}",15)'>${window.PPS_I18N?.t("products.bulk.15") || "15+ boxes"}</button>
+                  <button class="btn btn-outline" ${p.stock<=0?'disabled':''} onclick='addBulk(event,"${p.id}",20)'>${window.PPS_I18N?.t("products.bulk.20") || "20+ boxes"}</button>
+                </div>
+              </div>
+            </div>
+          `).join("");
+      }
+
+      document.querySelectorAll(".fade-in").forEach(el => el.classList.add("show"));
+
+      window.add = (e,id)=>{
+        const p = filtered.find(x=>x.id===id);
+        if(!p || p.stock<=0) return;
+        PPS.addToCart(p);
+        if(e && e.target){
+          const btn = e.target;
+          const prev = btn.textContent;
+          btn.textContent = window.PPS_I18N?.t("products.action.added") || "Added";
+          btn.disabled = true;
+          setTimeout(()=>{
+            btn.textContent = prev;
+            btn.disabled = false;
+          }, 800);
+        }
+      };
+
+      window.addBulk = (e,id,qty)=>{
+        const p = filtered.find(x=>x.id===id);
+        if(!p || p.stock<=0) return;
+        PPS.addToCart(p, qty);
+        if(e && e.target){
+          const btn = e.target;
+          const prev = btn.textContent;
+          const addedLabel = window.PPS_I18N?.t("products.action.added_qty") || "Added {{qty}}";
+          btn.textContent = addedLabel.replace("{{qty}}", qty);
+          btn.disabled = true;
+          setTimeout(()=>{
+            btn.textContent = prev;
+            btn.disabled = false;
+          }, 800);
+        }
+      };
+    })();
+  </script>
+</body>
+</html>

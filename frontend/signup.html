@@ -1,0 +1,295 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Sign Up | Power Poly Supplies</title>
+  <link rel="stylesheet" href="./css/styles.css"/>
+  <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
+</head>
+<body>
+  <header class="site-header">
+    <div class="promo-strip">
+      <div class="container promo-inner">
+        <div><strong data-i18n="brand.name">Power Poly Supplies</strong> | <span data-i18n="brand.tagline">Power your packaging</span></div>
+        <div style="font-weight:700;" data-i18n="promo.right">Bulk-ready stock | Fast response | Canada-wide supply</div>
+      </div>
+    </div>
+    <div class="navbar">
+      <div class="container navbar-inner">
+        <a class="brand" href="./index.html">
+          <img src="./assets/poly%20logo%20without%20background.png" alt="Power Poly Supplies"/>
+          <div class="brand-text">
+            <span class="brand-title" data-i18n="brand.name">Power Poly Supplies</span>
+            <span class="brand-tagline" data-i18n="brand.tagline">Power your packaging</span>
+          </div>
+        </a>
+        <button class="menu-btn" id="menuBtn" aria-label="Open menu" data-i18n="nav.menu">Menu</button>
+        <nav class="navlinks" id="navLinks">
+          <a href="./index.html" data-i18n="nav.home">Home</a>
+          <a href="./specials.html" data-i18n="nav.specials">Special Offers</a>
+          <div class="dropdown">
+            <button class="dropbtn" type="button"><span data-i18n="nav.shop">Shop by Category</span> <span class="caret" aria-hidden="true"></span></button>
+            <div class="dropdown-menu">
+              <a href="./products.html?cat=Garment%20Bags" data-i18n="nav.garment">Garment Cover Bags</a>
+              <a href="./products.html?cat=Polybags" data-i18n="nav.polybags">Polybags</a>
+              <a href="./products.html?cat=Hangers" data-i18n="nav.hangers">Hangers</a>
+              <a href="./products.html?cat=Wraps" data-i18n="nav.wraps">Wraps</a>
+              <a href="./products.html?cat=Racks" data-i18n="nav.racks">Racks</a>
+            </div>
+          </div>
+          <a href="./about.html" data-i18n="nav.about">About Us</a>
+          <a href="./contact.html"><span class="nav-icon phone-icon" aria-hidden="true"></span><span data-i18n="nav.contact">Contact</span></a>
+          <a href="./feedback.html"><span class="nav-icon pen-icon" aria-hidden="true"></span><span data-i18n="nav.feedback">Feedback</span></a>
+          <a href="./login.html"><span class="nav-icon user-icon" aria-hidden="true"></span><span data-i18n="nav.account">Account</span></a>
+          <a href="./cart.html"><span class="nav-icon cart-icon" aria-hidden="true"></span><span data-i18n="nav.cart">Cart</span> <span class="badge" data-cart-badge>0</span></a>
+          <form class="search-bar nav-search" action="./products.html" method="get" role="search">
+            <input type="search" name="q" placeholder="Search" aria-label="Search products">
+            <button type="submit">Search</button>
+          </form>
+
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <div class="container page">
+    <section class="hero fade-in">
+      <p style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);" data-i18n="signup.kicker">Account</p>
+      <h1 data-i18n="signup.title">Create your account</h1>
+      <p data-i18n="signup.subtitle">Set up your profile to save your details, view orders, and check out faster.</p>
+    </section>
+
+    <section class="card fade-in" style="padding:18px; margin-top:16px;">
+      <form class="grid" style="gap:12px; max-width:720px;">
+        <div style="display:grid; gap:12px; grid-template-columns: repeat(auto-fit, minmax(240px,1fr));">
+          <input class="input" type="text" placeholder="First name" data-i18n-placeholder="signup.form.first" required id="signupName">
+          <input class="input" type="text" placeholder="Last name" data-i18n-placeholder="signup.form.last" required>
+        </div>
+        <input class="input" type="email" placeholder="Email address" data-i18n-placeholder="signup.form.email" required id="signupEmail">
+        <div style="display:grid; gap:12px; grid-template-columns: minmax(0,1fr) 170px; align-items:center;">
+          <div class="code-inputs" id="codeInputs">
+            <input class="input code-box" type="text" inputmode="numeric" maxlength="1" aria-label="Digit 1" data-i18n-title="signup.code.d1" disabled>
+            <input class="input code-box" type="text" inputmode="numeric" maxlength="1" aria-label="Digit 2" data-i18n-title="signup.code.d2" disabled>
+            <input class="input code-box" type="text" inputmode="numeric" maxlength="1" aria-label="Digit 3" data-i18n-title="signup.code.d3" disabled>
+            <input class="input code-box" type="text" inputmode="numeric" maxlength="1" aria-label="Digit 4" data-i18n-title="signup.code.d4" disabled>
+          </div>
+          <div class="code-actions">
+            <button class="btn btn-outline" type="button" id="sendCode" data-i18n="signup.code.send">Send verification code</button>
+            <button class="btn" type="button" id="verifyCode" disabled data-i18n="signup.code.verify">Verify code</button>
+          </div>
+        </div>
+        <div class="password-field">
+          <input class="input" type="password" placeholder="Create password" data-i18n-placeholder="signup.form.password" required id="signupPassword" disabled>
+          <button class="toggle-visibility hidden" type="button" aria-label="Show password" data-i18n-title="signup.password.show" data-toggle="signupPassword" disabled>
+            <span class="eye"></span>
+          </button>
+        </div>
+        <div class="password-field">
+          <input class="input" type="password" placeholder="Re-enter password" data-i18n-placeholder="signup.form.confirm" required id="signupPasswordConfirm" disabled>
+          <button class="toggle-visibility hidden" type="button" aria-label="Show password" data-i18n-title="signup.password.show" data-toggle="signupPasswordConfirm" disabled>
+            <span class="eye"></span>
+          </button>
+        </div>
+        <button class="btn btn-primary" type="button" id="createAccount" disabled data-i18n="signup.form.create">Create account</button>
+        <div id="signupStatus" style="color:var(--muted); font-size:13px;"></div>
+      </form>
+
+      <div style="margin-top:16px; font-size:13px; color:var(--muted);">
+        <span data-i18n="signup.footer.have">Already have an account?</span> <a href="./login.html" style="font-weight:700; color:var(--primary);"><span data-i18n="signup.footer.login">Log in</span></a>
+      </div>
+    </section>
+
+    <div class="footer">&copy; <span id="y"></span> Power Poly Supplies. Power your packaging.</div>
+  </div>
+
+  <script src="./js/store.js"></script>
+  <script src="./js/i18n.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    document.getElementById("y").textContent = new Date().getFullYear();
+    PPS.updateCartBadge();
+
+    const sendBtn = document.querySelector("#sendCode");
+    const statusEl = document.querySelector("#signupStatus");
+    const emailInput = document.querySelector("#signupEmail");
+    const nameInput = document.querySelector("#signupName");
+    const codeInputs = Array.from(document.querySelectorAll(".code-box"));
+    const createBtn = document.querySelector("#createAccount");
+
+    const passInput = document.querySelector("#signupPassword");
+    const passConfirmInput = document.querySelector("#signupPasswordConfirm");
+    const toggleButtons = Array.from(document.querySelectorAll(".toggle-visibility"));
+    const verifyBtn = document.getElementById("verifyCode");
+    let codeVerified = false;
+
+    function getCodeValue(){
+      return codeInputs.map(input => input.value).join("");
+    }
+
+    function setCodeInputsEnabled(enabled, keepValue=false){
+      codeInputs.forEach((input)=>{
+        input.disabled = !enabled;
+        if(!enabled && !keepValue) input.value = "";
+      });
+      if(enabled) codeInputs[0]?.focus();
+      verifyBtn.disabled = !enabled;
+    }
+
+    function setPasswordEnabled(enabled){
+      passInput.disabled = !enabled;
+      passConfirmInput.disabled = !enabled;
+      createBtn.disabled = !enabled;
+      toggleButtons.forEach((btn)=>{ btn.disabled = !enabled; });
+    }
+    setPasswordEnabled(false);
+
+    async function sendCode(){
+      statusEl.textContent = window.PPS_I18N?.t("signup.status.sending") || "Sending code...";
+      const email = emailInput.value.trim();
+      if(!email){
+        statusEl.textContent = window.PPS_I18N?.t("signup.status.email_first") || "Please enter an email first.";
+        return;
+      }
+      const name = nameInput.value.trim();
+      sendBtn.disabled = true;
+      try{
+        const res = await fetch(`${PPS.API_BASE}/api/auth/send-code`,{
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify({ email, name })
+        });
+        const data = await res.json().catch(()=> ({}));
+        if(res.ok && data.ok){
+          if(data.devMode && data.code){
+            statusEl.textContent = `${window.PPS_I18N?.t("signup.status.dev") || "Dev mode: use code"} ${data.code}.`;
+          }else{
+            statusEl.textContent = window.PPS_I18N?.t("signup.status.sent") || "Verification code sent. Check your email.";
+          }
+          codeVerified = false;
+          setPasswordEnabled(false);
+          setCodeInputsEnabled(true);
+          sendBtn.textContent = window.PPS_I18N?.t("signup.code.resend") || "Resend code";
+        }else{
+          statusEl.textContent = data?.message || (window.PPS_I18N?.t("signup.status.failed_send") || "Failed to send code.");
+        }
+      }catch(err){
+        statusEl.textContent = window.PPS_I18N?.t("signup.status.unreachable") || "Server unreachable. Is the backend running?";
+      }finally{
+        sendBtn.disabled = false;
+      }
+    }
+
+    async function verifyCode(){
+      if(codeVerified) return;
+      const email = emailInput.value.trim();
+      const code = getCodeValue();
+      if(code.length !== 4){
+        statusEl.textContent = window.PPS_I18N?.t("signup.status.enter_code") || "Enter the 4-digit code.";
+        return;
+      }
+      statusEl.textContent = window.PPS_I18N?.t("signup.status.verifying") || "Verifying code...";
+      try{
+        const res = await fetch(`${PPS.API_BASE}/api/auth/check-code`,{
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify({ email, code })
+        });
+        const data = await res.json().catch(()=> ({}));
+        if(res.ok && data.ok){
+          codeVerified = true;
+          statusEl.textContent = window.PPS_I18N?.t("signup.status.verified") || "Verification completed. Create your password.";
+          setPasswordEnabled(true);
+          setCodeInputsEnabled(false, true);
+        }else{
+          codeVerified = false;
+          statusEl.textContent = data?.message || (window.PPS_I18N?.t("signup.status.invalid") || "Invalid code. You can resend it.");
+          setPasswordEnabled(false);
+          setCodeInputsEnabled(true);
+        }
+      }catch(err){
+        statusEl.textContent = window.PPS_I18N?.t("signup.status.unreachable") || "Server unreachable. Is the backend running?";
+      }
+    }
+
+    function wireCodeInputs(){
+      codeInputs.forEach((input, idx)=>{
+        input.addEventListener("input", (e)=>{
+          const val = e.target.value.replace(/\D/g, "");
+          e.target.value = val.slice(-1);
+          verifyBtn.disabled = getCodeValue().length !== 4;
+          if(val && codeInputs[idx + 1]){
+            codeInputs[idx + 1].focus();
+          }
+          if(getCodeValue().length === 4){
+            verifyCode();
+          }
+        });
+        input.addEventListener("keydown", (e)=>{
+          if(e.key === "Backspace" && !input.value && codeInputs[idx - 1]){
+            codeInputs[idx - 1].focus();
+          }
+        });
+      });
+    }
+
+    async function createAccount(){
+      const email = emailInput.value.trim();
+      const code = getCodeValue();
+      const password = passInput.value;
+      const confirm = passConfirmInput.value;
+      if(!codeVerified){
+        statusEl.textContent = window.PPS_I18N?.t("signup.status.verify_first") || "Please verify the 4-digit code first.";
+        return;
+      }
+      if(!password || password.length < 6){
+        statusEl.textContent = window.PPS_I18N?.t("signup.status.pass_len") || "Password must be at least 6 characters.";
+        return;
+      }
+      if(password !== confirm){
+        statusEl.textContent = window.PPS_I18N?.t("signup.status.pass_match") || "Passwords do not match.";
+        return;
+      }
+      statusEl.textContent = window.PPS_I18N?.t("signup.status.creating") || "Creating account...";
+      createBtn.disabled = true;
+      try{
+        const res = await fetch(`${PPS.API_BASE}/api/auth/register`,{
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify({ email, code, password, name: nameInput.value.trim() })
+        });
+        const data = await res.json().catch(()=> ({}));
+        if(res.ok && data.ok && data.token){
+          PPS.setSession({ token: data.token, email: data.email, name: data.name || nameInput.value.trim(), expiresAt: data.expiresAt });
+          window.location.href = "./account.html";
+        }else{
+          statusEl.textContent = data?.message || (window.PPS_I18N?.t("signup.status.failed") || "Account creation failed.");
+        }
+      }catch(err){
+        statusEl.textContent = window.PPS_I18N?.t("signup.status.unreachable") || "Server unreachable. Is the backend running?";
+      }finally{
+        createBtn.disabled = false;
+      }
+    }
+
+    wireCodeInputs();
+
+    function togglePassword(e){
+      const btn = e.currentTarget;
+      const id = btn.dataset.toggle;
+      const field = document.getElementById(id);
+      if(!field) return;
+      const nextType = field.type === "password" ? "text" : "password";
+      field.type = nextType;
+      btn.setAttribute("aria-label", nextType === "password" ? (window.PPS_I18N?.t("signup.password.show") || "Show password") : (window.PPS_I18N?.t("signup.password.hide") || "Hide password"));
+      btn.classList.toggle("visible", nextType === "text");
+      btn.classList.toggle("hidden", nextType === "password");
+    }
+
+    toggleButtons.forEach((btn)=> btn.addEventListener("click", togglePassword));
+    if(sendBtn) sendBtn.addEventListener("click", sendCode);
+    if(verifyBtn) verifyBtn.addEventListener("click", verifyCode);
+    if(createBtn) createBtn.addEventListener("click", createAccount);
+  </script>
+</body>
+</html>

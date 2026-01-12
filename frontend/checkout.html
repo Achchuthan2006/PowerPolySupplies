@@ -1,0 +1,134 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Checkout | Power Poly Supplies</title>
+  <link rel="stylesheet" href="./css/styles.css"/>
+  <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
+</head>
+<body>
+  <header class="site-header">
+    <div class="promo-strip">
+      <div class="container promo-inner">
+        <div><strong data-i18n="brand.name">Power Poly Supplies</strong> | <span data-i18n="brand.tagline">Power your packaging</span></div>
+        <div style="font-weight:700;" data-i18n="promo.right">Bulk-ready stock | Fast response | Canada-wide supply</div>
+      </div>
+    </div>
+    <div class="navbar">
+      <div class="container navbar-inner">
+        <a class="brand" href="./index.html">
+          <img src="./assets/poly%20logo%20without%20background.png" alt="Power Poly Supplies"/>
+          <div class="brand-text">
+            <span class="brand-title" data-i18n="brand.name">Power Poly Supplies</span>
+            <span class="brand-tagline" data-i18n="brand.tagline">Power your packaging</span>
+          </div>
+        </a>
+        <button class="menu-btn" id="menuBtn" aria-label="Open menu" data-i18n="nav.menu">Menu</button>
+        <nav class="navlinks" id="navLinks">
+          <a href="./index.html" data-i18n="nav.home">Home</a>
+          <a href="./specials.html" data-i18n="nav.specials">Special Offers</a>
+          <div class="dropdown">
+            <button class="dropbtn" type="button"><span data-i18n="nav.shop">Shop by Category</span> <span class="caret" aria-hidden="true"></span></button>
+            <div class="dropdown-menu">
+              <a href="./products.html?cat=Garment%20Bags" data-i18n="nav.garment">Garment Cover Bags</a>
+              <a href="./products.html?cat=Polybags" data-i18n="nav.polybags">Polybags</a>
+              <a href="./products.html?cat=Hangers" data-i18n="nav.hangers">Hangers</a>
+              <a href="./products.html?cat=Wraps" data-i18n="nav.wraps">Wraps</a>
+              <a href="./products.html?cat=Racks" data-i18n="nav.racks">Racks</a>
+            </div>
+          </div>
+          <a href="./about.html" data-i18n="nav.about">About Us</a>
+          <a href="./contact.html"><span class="nav-icon phone-icon" aria-hidden="true"></span><span data-i18n="nav.contact">Contact</span></a>
+          <a href="./feedback.html"><span class="nav-icon pen-icon" aria-hidden="true"></span><span data-i18n="nav.feedback">Feedback</span></a>
+          <a href="./login.html"><span class="nav-icon user-icon" aria-hidden="true"></span><span data-i18n="nav.account">Account</span></a>
+          <a href="./cart.html"><span class="nav-icon cart-icon" aria-hidden="true"></span><span data-i18n="nav.cart">Cart</span> <span class="badge" data-cart-badge>0</span></a>
+          <form class="search-bar nav-search" action="./products.html" method="get" role="search">
+            <input type="search" name="q" placeholder="Search" aria-label="Search products">
+            <button type="submit">Search</button>
+          </form>
+
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <div class="container page">
+    <section class="hero fade-in">
+      <p style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);" data-i18n="checkout.kicker">Checkout</p>
+      <h1 data-i18n="checkout.title">Secure checkout</h1>
+      <p data-i18n="checkout.subtitle">Confirm your order details. Choose to pay online or place the order now and pay later.</p>
+    </section>
+
+    <section class="grid" style="grid-template-columns: 1.1fr .9fr; gap:16px; margin-top:16px;">
+      <div class="card fade-in" style="padding:18px;">
+      <h2 style="margin:0 0 10px;" data-i18n="checkout.billing.title">Billing & Delivery</h2>
+      <form id="form" class="grid" style="gap:10px;">
+        <input class="input" name="name" placeholder="Full Name" data-i18n-placeholder="checkout.form.name" required>
+        <input class="input" type="email" name="email" placeholder="Email" data-i18n-placeholder="checkout.form.email" required>
+        <input class="input" name="phone" placeholder="Phone (optional)" data-i18n-placeholder="checkout.form.phone">
+        <input class="input" name="postal" id="postal" placeholder="Postal code" required>
+        <select class="input" name="province" id="province" required>
+          <option value="" data-i18n="checkout.form.province">Select province/territory</option>
+          <option value="ON">Ontario</option>
+          <option value="NS">Nova Scotia</option>
+          <option value="NB">New Brunswick</option>
+          <option value="NL">Newfoundland and Labrador</option>
+          <option value="PE">Prince Edward Island</option>
+          <option value="AB">Alberta</option>
+          <option value="BC">British Columbia</option>
+          <option value="SK">Saskatchewan</option>
+          <option value="MB">Manitoba</option>
+          <option value="QC">Quebec</option>
+          <option value="YT">Yukon</option>
+          <option value="NT">Northwest Territories</option>
+          <option value="NU">Nunavut</option>
+        </select>
+        <textarea class="input" name="address" placeholder="Address / Delivery instructions" data-i18n-placeholder="checkout.form.address" style="min-height:120px;" required></textarea>
+        <button class="btn btn-primary" type="submit" data-i18n="checkout.pay_later">Place order (pay later)</button>
+      </form>
+    </div>
+
+      <div class="card fade-in" style="padding:18px;">
+        <h2 style="margin:0 0 10px;" data-i18n="checkout.summary.title">Order summary</h2>
+        <div id="summary" style="display:flex; flex-direction:column; gap:10px;"></div>
+        <div class="summary-totals">
+          <div class="summary-row">
+            <span data-i18n="checkout.summary.subtotal">Subtotal</span>
+            <span id="subtotal"></span>
+          </div>
+          <div class="summary-row">
+            <span id="taxLabel">Tax</span>
+            <span id="taxAmount"></span>
+          </div>
+          <div class="summary-row" id="qstRow" style="display:none;">
+            <span id="qstLabel">QST 9.975%</span>
+            <span id="qstAmount"></span>
+          </div>
+          <div class="summary-row">
+            <span id="shippingLabel">Shipping</span>
+            <span id="shippingAmount"></span>
+          </div>
+          <div class="summary-row summary-total">
+            <span data-i18n="checkout.summary.total">Total</span>
+            <span id="total"></span>
+          </div>
+        </div>
+        <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn btn-outline" type="button" id="payOnline" data-i18n="checkout.pay_online">Pay online with Stripe</button>
+          <a class="btn" href="./cart.html" data-i18n="checkout.back">Back to cart</a>
+        </div>
+        <div id="backendStatus" class="status muted" style="display:none; margin-top:10px;"></div>
+        <div id="msg" class="status muted"></div>
+      </div>
+    </section>
+
+    <div class="footer">&copy; <span id="y"></span> Power Poly Supplies. Power your packaging.</div>
+  </div>
+
+  <script src="./js/store.js"></script>
+  <script src="./js/i18n.js"></script>
+  <script src="./js/ui.js"></script>
+  <script src="./js/checkout.js"></script>
+</body>
+</html>

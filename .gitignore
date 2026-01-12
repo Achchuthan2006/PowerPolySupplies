@@ -1,0 +1,17 @@
+# Node modules
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Env files (SECRET KEYS)
+.env
+backend/.env
+frontend/.env
+
+# logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+

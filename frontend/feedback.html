@@ -1,0 +1,177 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Feedback & Testimonials | Power Poly Supplies</title>
+  <link rel="stylesheet" href="./css/styles.css"/>
+  <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
+</head>
+<body>
+  <header class="site-header">
+    <div class="promo-strip">
+      <div class="container promo-inner">
+        <div><strong data-i18n="brand.name">Power Poly Supplies</strong> | <span data-i18n="brand.tagline">Power your packaging</span></div>
+        <div style="font-weight:700;" data-i18n="promo.right">Bulk-ready stock | Fast response | Canada-wide supply</div>
+      </div>
+    </div>
+    <div class="navbar">
+      <div class="container navbar-inner">
+        <a class="brand" href="./index.html">
+          <img src="./assets/poly%20logo%20without%20background.png" alt="Power Poly Supplies"/>
+          <div class="brand-text">
+            <span class="brand-title" data-i18n="brand.name">Power Poly Supplies</span>
+            <span class="brand-tagline" data-i18n="brand.tagline">Power your packaging</span>
+          </div>
+        </a>
+        <button class="menu-btn" id="menuBtn" aria-label="Open menu" data-i18n="nav.menu">Menu</button>
+        <nav class="navlinks" id="navLinks">
+          <a href="./index.html" data-i18n="nav.home">Home</a>
+          <a href="./specials.html" data-i18n="nav.specials">Special Offers</a>
+          <div class="dropdown">
+            <button class="dropbtn" type="button"><span data-i18n="nav.shop">Shop by Category</span> <span class="caret" aria-hidden="true"></span></button>
+            <div class="dropdown-menu">
+              <a href="./products.html?cat=Garment%20Bags" data-i18n="nav.garment">Garment Cover Bags</a>
+              <a href="./products.html?cat=Polybags" data-i18n="nav.polybags">Polybags</a>
+              <a href="./products.html?cat=Hangers" data-i18n="nav.hangers">Hangers</a>
+              <a href="./products.html?cat=Wraps" data-i18n="nav.wraps">Wraps</a>
+              <a href="./products.html?cat=Racks" data-i18n="nav.racks">Racks</a>
+            </div>
+          </div>
+          <a href="./about.html" data-i18n="nav.about">About Us</a>
+          <a href="./contact.html"><span class="nav-icon phone-icon" aria-hidden="true"></span><span data-i18n="nav.contact">Contact</span></a>
+          <a href="./feedback.html"><span class="nav-icon pen-icon" aria-hidden="true"></span><span data-i18n="nav.feedback">Feedback</span></a>
+          <a href="./login.html"><span class="nav-icon user-icon" aria-hidden="true"></span><span data-i18n="nav.account">Account</span></a>
+          <a href="./cart.html"><span class="nav-icon cart-icon" aria-hidden="true"></span><span data-i18n="nav.cart">Cart</span> <span class="badge" data-cart-badge>0</span></a>
+          <form class="search-bar nav-search" action="./products.html" method="get" role="search">
+            <input type="search" name="q" placeholder="Search" aria-label="Search products">
+            <button type="submit">Search</button>
+          </form>
+
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <div class="container page">
+    <section class="hero fade-in">
+      <p style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);" data-i18n="feedback.kicker">Feedback</p>
+      <h1 data-i18n="feedback.title">What our customers say</h1>
+      <p data-i18n="feedback.subtitle">Real experiences from dry cleaners, laundromats, and retailers who rely on Power Poly Supplies.</p>
+    </section>
+
+    <section class="testimonial-grid fade-in">
+      <div class="testimonial-card">
+        <div class="quote-mark">&ldquo;</div>
+        <p class="testimonial-text"><span data-i18n="feedback.quote.one">Fast shipping, consistent quality, and responsive support. We keep coming back for garment covers and hangers.</span></p>
+        <div class="testimonial-meta"><span data-i18n="feedback.quote.one.meta">Operations Manager - Toronto, ON</span></div>
+      </div>
+      <div class="testimonial-card">
+        <div class="quote-mark">&ldquo;</div>
+        <p class="testimonial-text"><span data-i18n="feedback.quote.two">Reliable stock and clear pricing. The team helped us choose the right sizes for bulk polybags.</span></p>
+        <div class="testimonial-meta"><span data-i18n="feedback.quote.two.meta">Retail Owner - Vancouver, BC</span></div>
+      </div>
+      <div class="testimonial-card">
+        <div class="quote-mark">&ldquo;</div>
+        <p class="testimonial-text"><span data-i18n="feedback.quote.three">Stripe checkout was smooth and our order arrived on schedule. Great experience overall.</span></p>
+        <div class="testimonial-meta"><span data-i18n="feedback.quote.three.meta">Laundry Service - Calgary, AB</span></div>
+      </div>
+      <div class="testimonial-card">
+        <div class="quote-mark">&ldquo;</div>
+        <p class="testimonial-text"><span data-i18n="feedback.quote.four">Support replies quickly and they always have the hangers we need. Highly recommend.</span></p>
+        <div class="testimonial-meta"><span data-i18n="feedback.quote.four.meta">Dry Cleaner - Halifax, NS</span></div>
+      </div>
+    </section>
+
+    <section class="card fade-in" style="padding:18px; margin-top:18px;">
+      <h2 style="margin:0 0 8px;" data-i18n="feedback.form.title">Share your feedback</h2>
+      <p style="margin:0 0 12px; color:var(--muted);"><span data-i18n="feedback.form.desc">Tell us how we're doing - products, service, delivery. Your feedback helps us improve.</span></p>
+      <form class="grid" id="feedbackForm" style="gap:10px; max-width:720px;">
+        <input class="input" id="feedbackName" type="text" placeholder="Your name (optional)" data-i18n-placeholder="feedback.form.name">
+        <input class="input" id="feedbackEmail" type="email" placeholder="Email (optional)" data-i18n-placeholder="feedback.form.email">
+        <textarea class="input" id="feedbackMessage" placeholder="Your feedback..." data-i18n-placeholder="feedback.form.message" style="min-height:120px;"></textarea>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn btn-primary" type="submit" id="feedbackSubmit" data-i18n="feedback.form.submit">Submit feedback</button>
+          <button class="btn btn-outline" type="button" id="feedbackEmailBtn" data-i18n="feedback.form.email_btn">Email us directly</button>
+        </div>
+        <div id="feedbackStatus" class="status muted" style="display:none;"></div>
+        <div style="font-size:13px; color:var(--muted);" data-i18n="feedback.form.note">For order issues, include your order ID so we can help faster.</div>
+      </form>
+    </section>
+
+    <div class="footer">&copy; <span id="y"></span> Power Poly Supplies. Power your packaging.</div>
+  </div>
+
+  <script src="./js/store.js"></script>
+  <script src="./js/i18n.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    document.getElementById("y").textContent = new Date().getFullYear();
+    PPS.updateCartBadge();
+
+    const feedbackForm = document.getElementById("feedbackForm");
+    const feedbackName = document.getElementById("feedbackName");
+    const feedbackEmail = document.getElementById("feedbackEmail");
+    const feedbackMessage = document.getElementById("feedbackMessage");
+    const feedbackStatus = document.getElementById("feedbackStatus");
+    const feedbackSubmit = document.getElementById("feedbackSubmit");
+    const feedbackEmailBtn = document.getElementById("feedbackEmailBtn");
+
+    function setFeedbackStatus(text, type){
+      feedbackStatus.textContent = text;
+      feedbackStatus.className = `status ${type || "muted"}`;
+      feedbackStatus.style.display = "block";
+    }
+
+    async function sendFeedback(){
+      const payload = {
+        name: feedbackName.value.trim(),
+        email: feedbackEmail.value.trim(),
+        message: feedbackMessage.value.trim()
+      };
+
+      if(!payload.message){
+        setFeedbackStatus(window.PPS_I18N?.t("feedback.status.missing") || "Please add your feedback message first.", "error");
+        feedbackMessage.classList.add("error");
+        return;
+      }
+
+      feedbackMessage.classList.remove("error");
+      feedbackSubmit.disabled = true;
+      feedbackEmailBtn.disabled = true;
+      setFeedbackStatus(window.PPS_I18N?.t("feedback.status.sending") || "Sending your feedback...", "muted");
+
+      try{
+        const res = await fetch(`${PPS.API_BASE}/api/feedback`, {
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json().catch(()=> ({}));
+        if(!res.ok || !data.ok){
+          throw new Error(data?.message || (window.PPS_I18N?.t("feedback.status.failed") || "Failed to send feedback."));
+        }
+
+        feedbackMessage.value = "";
+        const note = data.emailSent ? (window.PPS_I18N?.t("feedback.status.copy") || "We also emailed a copy to our team.") : (window.PPS_I18N?.t("feedback.status.review") || "We'll review it shortly.");
+        const thanks = window.PPS_I18N?.t("feedback.status.thanks") || "Thanks! Your feedback was received.";
+        setFeedbackStatus(`${thanks} ${note}`, "success");
+      }catch(err){
+        setFeedbackStatus(err.message || (window.PPS_I18N?.t("feedback.status.failed") || "Failed to send feedback."), "error");
+      }finally{
+        feedbackSubmit.disabled = false;
+        feedbackEmailBtn.disabled = false;
+      }
+    }
+
+    feedbackForm.addEventListener("submit", (event)=>{
+      event.preventDefault();
+      sendFeedback();
+    });
+
+    feedbackEmailBtn.addEventListener("click", ()=>{
+      sendFeedback();
+    });
+  </script>
+</body>
+</html>
