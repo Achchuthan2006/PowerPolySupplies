@@ -71,9 +71,11 @@ function injectLangSwitcher(){
   wrap.className = "lang-switcher";
   wrap.innerHTML = `
     <select id="langSelect" class="lang-select" aria-label="Language">
-      <option value="en" data-i18n="lang.en">English</option>
-      <option value="fr" data-i18n="lang.fr">French</option>
-      <option value="ko" data-i18n="lang.ko">Korean</option>
+      <option value="en">English</option>
+      <option value="fr">French</option>
+      <option value="ko">Korean</option>
+      <option value="hi">Hindi</option>
+      <option value="ta">Tamil</option>
     </select>
   `;
   tools.appendChild(wrap);

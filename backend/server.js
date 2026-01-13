@@ -63,8 +63,47 @@ const PROVINCE_TAX_LABELS = {
   NU: "GST 5%"
 };
 
+const PROVINCE_TAX_RATES = {
+  ON: { rate: 0.13 },
+  NS: { rate: 0.15 },
+  NB: { rate: 0.15 },
+  NL: { rate: 0.15 },
+  PE: { rate: 0.15 },
+  AB: { rate: 0.05 },
+  BC: { rate: 0.05 },
+  SK: { rate: 0.05 },
+  MB: { rate: 0.05 },
+  QC: { rate: 0.05, qstRate: 0.09975 },
+  YT: { rate: 0.05 },
+  NT: { rate: 0.05 },
+  NU: { rate: 0.05 }
+};
+
 function formatMoney(cents, currency){
   return `${(Number(cents || 0) / 100).toFixed(2)} ${currency || "CAD"}`;
+}
+
+function getTieredPriceCents(product, qty){
+  if(!product) return 0;
+  const base = Math.round(Number(product.priceCents) || 0);
+  if((product.category || "") === "Garment Bags"){
+    const count = Math.max(0, Number(qty) || 0);
+    if(count >= 20) return 3699;
+    if(count >= 15) return 3799;
+    if(count >= 10) return 3899;
+  }
+  return base;
+}
+
+function calculateTaxCents(subtotalCents, provinceCode){
+  const info = PROVINCE_TAX_RATES[provinceCode] || { rate: 0 };
+  const gstAmount = Math.round(subtotalCents * info.rate);
+  const qstAmount = info.qstRate ? Math.round(subtotalCents * info.qstRate) : 0;
+  return {
+    taxCents: gstAmount + qstAmount,
+    gstAmount,
+    qstAmount
+  };
 }
 
 function normalizePostal(value){
@@ -166,6 +205,20 @@ function buildReceiptHtml({
   const safePhone = escapeHtml(customer?.phone || "");
   const safeAddress = escapeHtml(customer?.address || "");
   const safeProvince = escapeHtml(customer?.province || "");
+  const savingsCents = (items || []).reduce((sum, item) => {
+    const base = Number(item.priceCentsBase ?? item.priceCents ?? 0);
+    const current = Number(item.priceCents ?? 0);
+    const diff = Math.max(0, base - current);
+    return sum + (diff * (Number(item.qty) || 0));
+  }, 0);
+  const savingsRow = savingsCents > 0
+    ? `
+      <tr>
+        <td style="padding:6px 0; color:#6b7280;">You saved</td>
+        <td style="padding:6px 0; text-align:right;">${formatMoney(savingsCents, currency)}</td>
+      </tr>
+    `
+    : "";
   const lines = (items || []).map((item) => {
     const lineTotal = item.priceCents * item.qty;
     const desc = (language === "fr"
@@ -222,6 +275,7 @@ function buildReceiptHtml({
           <td style="padding:10px 0;">${labels.total}</td>
           <td style="padding:10px 0; text-align:right;">${formatMoney(totalCents, currency)}</td>
         </tr>
+        ${savingsRow}
       </table>
       <div style="margin-top:16px; font-size:13px; color:#6b7280;">
         <div><strong>${labels.orderId}:</strong> ${escapeHtml(orderId)}</div>
@@ -243,21 +297,48 @@ function getSenderAddress(){
   return `"${COMPANY_NAME}" <${sender}>`;
 }
 
-function buildWelcomeHtml(name){
-  const safeName = escapeHtml(name || "there");
+function formatLetterDate(value){
+  const date = value instanceof Date ? value : new Date();
+  return date.toLocaleDateString("en-CA", {
+    year: "numeric",
+    month: "long",
+    day: "numeric"
+  });
+}
+
+function firstNameFrom(value){
+  const text = String(value || "").trim();
+  if(!text) return "there";
+  return text.split(/\s+/)[0];
+}
+
+function buildWelcomeHtml(name, loginDate){
+  const safeFullName = escapeHtml(name || "");
+  const safeFirstName = escapeHtml(firstNameFrom(name));
+  const safeDate = escapeHtml(formatLetterDate(loginDate));
+  const contactLine = "www.powerpolysupplies.com | powerpolysupplies@gmail.com | 647 570 4878";
   const supportEmail = COMPANY_EMAIL || process.env.EMAIL_USER || "";
   const supportLine = supportEmail
     ? `<p>If you ever need help, just reply to this email or reach us at ${escapeHtml(supportEmail)}.</p>`
     : "<p>If you ever need help, just reply to this email.</p>";
   return `
-    <div style="font-family:Arial,sans-serif; color:#1f2933; max-width:600px; margin:0 auto; line-height:1.6;">
-      <h2 style="margin:0 0 8px;">Welcome to Power Poly Supplies!</h2>
-      <p>Hi ${safeName},</p>
-      <p>You are officially part of the Power Poly family. We are excited to have you here!</p>
-      <div style="display:inline-block; margin:10px 0; padding:6px 12px; border-radius:999px; background:#fff3e6; border:1px solid #f3c89a; font-weight:700;">✅ Verified Power Poly Member</div>
-      <p>You now have quick access to bulk pricing, order history, and faster checkout.</p>
+    <div style="font-family:Arial,sans-serif; color:#1f2933; max-width:640px; margin:0 auto; line-height:1.6;">
+      <div style="border-bottom:2px solid #e5e7eb; padding-bottom:12px; margin-bottom:16px;">
+        <div style="font-size:18px; font-weight:700;">Power Poly Supplies Main Head Office</div>
+        <div style="font-size:12px; color:#6b7280;">${escapeHtml(contactLine)}</div>
+      </div>
+      <div style="font-size:12px; color:#6b7280; display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+        ${safeFullName ? `<div><strong>Recipient:</strong> ${safeFullName}</div>` : ""}
+        <div><strong>Date:</strong> ${safeDate}</div>
+      </div>
+      <p style="margin-top:16px;">Dear ${safeFirstName},</p>
+      <p>Welcome to Power Poly Supplies. We are excited to have you with us and ready to support your packaging needs.</p>
+      <p>This account gives you quick access to bulk pricing, order history, and faster checkout.</p>
+      <div style="display:inline-block; margin:10px 0; padding:6px 12px; border-radius:999px; background:#fff3e6; border:1px solid #f3c89a; font-weight:700;">Verified Power Poly Member</div>
       ${supportLine}
-      <p style="margin-top:16px;">Thanks for joining the Power Poly family!</p>
+      <p style="margin-top:18px;">Sincerely,</p>
+      <p style="margin:0; font-weight:700;">Power Poly Supplies</p>
+      <p style="margin:0; font-weight:700;">Main Head Office</p>
     </div>
   `;
 }
@@ -437,14 +518,22 @@ app.post("/api/order", async (req,res)=>{
   try{
     const db = readDB();
 
-    // Reduce stock (basic) + enrich items with descriptions
+    // Reduce stock (basic) + enrich items with descriptions + apply tier pricing
     const normalizedItems = items.map((it)=>{
       const product = db.products.find(x=>x.id===it.id);
       if(product){
         product.stock = Math.max(0, product.stock - it.qty);
       }
+      const unitPriceCents = product ? getTieredPriceCents(product, it.qty) : Number(it.priceCents || 0);
+      const basePriceCents = product ? Number(product.priceCents || unitPriceCents) : Number(it.priceCentsBase ?? it.priceCents ?? 0);
+      const currency = it.currency || product?.currency || "CAD";
+      const currencyBase = product?.currency || it.currencyBase || it.currency || "CAD";
       return {
         ...it,
+        priceCents: unitPriceCents,
+        currency,
+        priceCentsBase: basePriceCents,
+        currencyBase,
         description: it.description || product?.description || "",
         description_fr: it.description_fr || product?.description_fr || "",
         description_ko: it.description_ko || product?.description_ko || ""
@@ -458,6 +547,9 @@ app.post("/api/order", async (req,res)=>{
           amountCents: Number(shipping.costCents ?? shipping.amountCents ?? 0)
         }
       : getShippingForPostal(customer?.postal);
+    const subtotalCents = normalizedItems.reduce((sum, item) => sum + (item.priceCents * item.qty), 0);
+    const taxData = calculateTaxCents(subtotalCents, customer?.province);
+    const totalCentsComputed = subtotalCents + (shippingInfo.amountCents || 0) + taxData.taxCents;
     const orderId = "ORD-" + Date.now();
     const order = {
       id: orderId,
@@ -470,7 +562,7 @@ app.post("/api/order", async (req,res)=>{
         costCents: shippingInfo.amountCents
       },
       items: normalizedItems,
-      totalCents,
+      totalCents: totalCentsComputed,
       currency,
       language: customer?.language === "fr" ? "fr" : (customer?.language === "ko" ? "ko" : "en"),
       createdAt: new Date().toISOString()
@@ -487,8 +579,7 @@ app.post("/api/order", async (req,res)=>{
       }
     }
 
-    const subtotalCents = normalizedItems.reduce((sum, item) => sum + (item.priceCents * item.qty), 0);
-    const taxCents = Math.max(0, (totalCents || 0) - subtotalCents - (shippingInfo.amountCents || 0));
+    const taxCents = taxData.taxCents;
     const taxLabel = `${PROVINCE_TAX_LABELS[customer?.province] || "Tax"}${customer?.province ? ` - ${customer.province}` : ""}`;
 
     let sheetsSynced = false;
@@ -504,7 +595,7 @@ app.post("/api/order", async (req,res)=>{
           shippingInfo.zone,
           formatMoney(shippingInfo.amountCents, currency),
           itemsSummary,
-          formatMoney(totalCents, currency)
+          formatMoney(totalCentsComputed, currency)
         ]);
         sheetsSynced = true;
       }catch(sheetErr){
@@ -547,7 +638,7 @@ app.post("/api/order", async (req,res)=>{
         items: normalizedItems,
         subtotalCents,
         taxCents,
-        totalCents,
+        totalCents: totalCentsComputed,
         currency,
         taxLabel,
         headerText,
@@ -574,10 +665,10 @@ app.post("/api/order", async (req,res)=>{
         const adminHtml = buildReceiptHtml({
           orderId,
           customer,
-          items,
+          items: normalizedItems,
           subtotalCents,
           taxCents,
-          totalCents,
+          totalCents: totalCentsComputed,
           currency,
           taxLabel,
           headerText: "New Order",
@@ -768,17 +859,30 @@ app.post("/api/auth/register", (req,res)=>{
   verificationCodes.delete(email);
 
   const session = createSession(lower);
+  const now = new Date().toISOString();
   const emailConfigured = process.env.EMAIL_USER && process.env.EMAIL_PASS;
-  if(emailConfigured){
+  const shouldSendWelcome = emailConfigured && !user.welcomeEmailSent;
+
+  user.lastLoginAt = now;
+  if(!user.firstLoginAt){
+    user.firstLoginAt = now;
+  }
+  writeDB(db);
+
+  if(shouldSendWelcome){
     transporter.sendMail({
       from: getSenderAddress(),
       to: lower,
       subject: "Welcome to Power Poly Supplies!",
-      html: buildWelcomeHtml(name)
+      html: buildWelcomeHtml(user.name || "", new Date(now))
+    }).then(()=>{
+      user.welcomeEmailSent = true;
+      writeDB(db);
     }).catch((mailErr)=>{
       console.error("Welcome email failed", mailErr);
     });
   }
+
   res.json({ ok:true, token: session.token, email: lower, name: user.name || "", expiresAt: session.expiresAt });
 });
 
@@ -840,17 +944,21 @@ app.post("/api/stripe-checkout", async (req,res)=>{
     }
 
     const language = customer?.language === "fr" ? "fr" : "en";
+    const db = readDB();
+    const productsById = new Map((db.products || []).map(p=>[p.id, p]));
     const line_items = (items || []).map(i=>{
+      const product = productsById.get(i.id);
+      const unitAmount = product ? getTieredPriceCents(product, i.qty) : Number(i.priceCents || 0);
       const description = language === "fr"
-        ? (i.description_fr || i.description || "")
-        : (i.description || i.description_fr || "");
+        ? (product?.description_fr || i.description_fr || product?.description || i.description || "")
+        : (product?.description || i.description || product?.description_fr || i.description_fr || "");
       return {
         quantity: i.qty,
         price_data:{
-          currency: (i.currency || "CAD").toLowerCase(),
-          unit_amount: i.priceCents,
+          currency: (i.currency || product?.currency || "CAD").toLowerCase(),
+          unit_amount: unitAmount,
           product_data:{
-            name: i.name,
+            name: i.name || product?.name || "Item",
             description: description || undefined
           }
         }
@@ -953,6 +1061,8 @@ app.post("/api/stripe-receipt", async (req,res)=>{
         qty: item.quantity || 1,
         priceCents: item.amount_total ? Math.round(item.amount_total / (item.quantity || 1)) : (item.amount_subtotal || 0),
         currency,
+        priceCentsBase: Number(product?.priceCents || 0),
+        currencyBase: product?.currency || currency,
         description: product?.description || "",
         description_fr: product?.description_fr || "",
         description_ko: product?.description_ko || ""

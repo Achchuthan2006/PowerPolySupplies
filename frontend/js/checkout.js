@@ -22,6 +22,8 @@ const qstAmountEl = document.getElementById("qstAmount");
 const shippingLabelEl = document.getElementById("shippingLabel");
 const shippingAmountEl = document.getElementById("shippingAmount");
 const totalEl = document.getElementById("total");
+const savingsRowEl = document.getElementById("savingsRow");
+const savingsAmountEl = document.getElementById("savingsAmount");
 const msg = document.getElementById("msg");
 const backendStatus = document.getElementById("backendStatus");
 const payBtn = document.getElementById("payOnline");
@@ -29,6 +31,19 @@ const submitBtn = document.querySelector("#form button[type='submit']");
 const formEl = document.getElementById("form");
 const provinceSelect = document.getElementById("province");
 const postalInput = document.getElementById("postal");
+
+function getUnitBasePrice(item){
+  const product = productMap?.get(item.id);
+  if(product){
+    return PPS.getTieredPriceCents(product, item.qty);
+  }
+  return item.priceCentsBase ?? item.priceCents;
+}
+
+function getUnitCurrency(item){
+  const product = productMap?.get(item.id);
+  return product?.currency || item.currencyBase || item.currency || "CAD";
+}
 
 // Destination-based tax rules (GST/HST)
 const PROVINCE_RATES = {
@@ -157,15 +172,25 @@ function drawSummary(){
     if(shippingLabelEl) shippingLabelEl.textContent = "Shipping";
     if(shippingAmountEl) shippingAmountEl.textContent = PPS.money(0);
     totalEl.textContent = PPS.money(0);
+    if(savingsRowEl) savingsRowEl.style.display = "none";
     setPending(payBtn, true);
     setPending(submitBtn, true);
     return;
   }
 
   const targetCurrency = PPS.getCurrency();
+  const savingsCents = cart.reduce((sum, i)=>{
+    const product = productMap?.get(i.id);
+    const baseUnit = product?.priceCents ?? i.priceCentsBase ?? i.priceCents ?? 0;
+    const unitCents = getUnitBasePrice(i);
+    const baseCurrency = getUnitCurrency(i);
+    const diff = Math.max(0, baseUnit - unitCents) * i.qty;
+    return sum + PPS.convertCents(diff, baseCurrency, targetCurrency);
+  }, 0);
   const subtotal = cart.reduce((sum,i)=>{
-    const baseCents = (i.priceCentsBase ?? i.priceCents) * i.qty;
-    const baseCurrency = i.currencyBase || i.currency || "CAD";
+    const unitCents = getUnitBasePrice(i);
+    const baseCents = unitCents * i.qty;
+    const baseCurrency = getUnitCurrency(i);
     return sum + PPS.convertCents(baseCents, baseCurrency, targetCurrency);
   }, 0);
   const province = provinceSelect?.value || "";
@@ -183,8 +208,9 @@ function drawSummary(){
     const descHtml = desc
       ? `<div style="color:var(--muted); font-size:12px; margin-top:4px;">${desc}</div>`
       : "";
-    const baseCents = (i.priceCentsBase ?? i.priceCents) * i.qty;
-    const baseCurrency = i.currencyBase || i.currency || "CAD";
+    const unitCents = getUnitBasePrice(i);
+    const baseCents = unitCents * i.qty;
+    const baseCurrency = getUnitCurrency(i);
     const lineTotal = PPS.convertCents(baseCents, baseCurrency, targetCurrency);
     return `
       <div style="display:flex; justify-content:space-between; gap:10px;">
@@ -218,6 +244,14 @@ function drawSummary(){
   if(shippingLabelEl) shippingLabelEl.textContent = shipping.label;
   if(shippingAmountEl) shippingAmountEl.textContent = PPS.money(shippingCents, targetCurrency, targetCurrency);
   totalEl.textContent = PPS.money(taxData.total + shippingCents, targetCurrency, targetCurrency);
+  if(savingsRowEl && savingsAmountEl){
+    if(savingsCents > 0){
+      savingsAmountEl.textContent = PPS.money(savingsCents, targetCurrency, targetCurrency);
+      savingsRowEl.style.display = "flex";
+    }else{
+      savingsRowEl.style.display = "none";
+    }
+  }
   setPending(payBtn, false);
   setPending(submitBtn, false);
 }
@@ -276,8 +310,9 @@ formEl.addEventListener("submit", async (e)=>{
 
   const targetCurrency = PPS.getCurrency();
   const subtotal = cart.reduce((sum,i)=>{
-    const baseCents = (i.priceCentsBase ?? i.priceCents) * i.qty;
-    const baseCurrency = i.currencyBase || i.currency || "CAD";
+    const unitCents = getUnitBasePrice(i);
+    const baseCents = unitCents * i.qty;
+    const baseCurrency = getUnitCurrency(i);
     return sum + PPS.convertCents(baseCents, baseCurrency, targetCurrency);
   }, 0);
   const taxData = calculateTax(subtotal, provinceSelect.value);
@@ -286,17 +321,17 @@ formEl.addEventListener("submit", async (e)=>{
   const totalCents = taxData.total + shippingCents;
 
   const enrichedCart = cart.map((item)=>{
-    const baseCents = item.priceCentsBase ?? item.priceCents;
-    const baseCurrency = item.currencyBase || item.currency || "CAD";
     const product = productMap?.get(item.id);
+    const unitCents = getUnitBasePrice(item);
+    const baseCurrency = getUnitCurrency(item);
     return {
       ...item,
       description: item.description || product?.description || "",
       description_fr: item.description_fr || product?.description_fr || "",
       description_ko: item.description_ko || product?.description_ko || "",
-      priceCentsBase: baseCents,
+      priceCentsBase: unitCents,
       currencyBase: baseCurrency,
-      priceCents: PPS.convertCents(baseCents, baseCurrency, targetCurrency),
+      priceCents: PPS.convertCents(unitCents, baseCurrency, targetCurrency),
       currency: targetCurrency
     };
   });
@@ -359,8 +394,9 @@ document.getElementById("payOnline").addEventListener("click", async ()=>{
     const province = provinceSelect.value;
     const targetCurrency = PPS.getCurrency();
   const subtotal = cart.reduce((sum,i)=>{
-    const baseCents = (i.priceCentsBase ?? i.priceCents) * i.qty;
-    const baseCurrency = i.currencyBase || i.currency || "CAD";
+    const unitCents = getUnitBasePrice(i);
+    const baseCents = unitCents * i.qty;
+    const baseCurrency = getUnitCurrency(i);
     return sum + PPS.convertCents(baseCents, baseCurrency, targetCurrency);
   }, 0);
   const taxData = calculateTax(subtotal, province);
@@ -381,17 +417,17 @@ document.getElementById("payOnline").addEventListener("click", async ()=>{
     qty:1
   }] : [];
     const enrichedCart = cart.map((item)=>{
-      const baseCents = item.priceCentsBase ?? item.priceCents;
-      const baseCurrency = item.currencyBase || item.currency || "CAD";
       const product = productMap?.get(item.id);
+      const unitCents = getUnitBasePrice(item);
+      const baseCurrency = getUnitCurrency(item);
       return {
         ...item,
         description: item.description || product?.description || "",
         description_fr: item.description_fr || product?.description_fr || "",
         description_ko: item.description_ko || product?.description_ko || "",
-        priceCentsBase: baseCents,
+        priceCentsBase: unitCents,
         currencyBase: baseCurrency,
-        priceCents: PPS.convertCents(baseCents, baseCurrency, targetCurrency),
+        priceCents: PPS.convertCents(unitCents, baseCurrency, targetCurrency),
         currency: targetCurrency
       };
     });

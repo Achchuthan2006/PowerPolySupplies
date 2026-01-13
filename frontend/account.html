@@ -61,12 +61,18 @@
       <div class="account-highlight">
         <div id="accountName" style="font-weight:800;"></div>
         <div class="verified-badge" id="accountBadge" style="display:none;">
-          <span class="tick">✓</span>
+          <span class="tick">&#10003;</span>
           <span data-i18n="account.verified">Verified Power Poly Member</span>
         </div>
         <div id="accountProvince" style="color:var(--muted); font-size:13px;"></div>
         <button class="btn btn-outline" type="button" id="logoutBtn" data-i18n="account.logout">Log out</button>
       </div>
+    </section>
+
+    <section style="margin-top:16px;">
+      <h2 style="margin:0 0 10px;">Favorites</h2>
+      <div id="favoritesMsg" style="font-size:13px; color:var(--muted); margin-bottom:8px;"></div>
+      <div id="favoritesGrid" class="grid grid-4"></div>
     </section>
 
     <section style="margin-top:16px;">
@@ -91,6 +97,8 @@
 
     const ordersGrid = document.getElementById("ordersGrid");
     const ordersMsg = document.getElementById("ordersMsg");
+    const favoritesGrid = document.getElementById("favoritesGrid");
+    const favoritesMsg = document.getElementById("favoritesMsg");
     const nameEl = document.getElementById("accountName");
     const badgeEl = document.getElementById("accountBadge");
     const provinceEl = document.getElementById("accountProvince");
@@ -101,12 +109,116 @@
       return String(value || "").trim().split(/\s+/)[0] || "";
     }
 
+    function provinceLabel(code){
+      const lang = window.PPS_I18N?.getLang?.() || "en";
+      const namesEn = {
+        ON:"Ontario", NS:"Nova Scotia", NB:"New Brunswick", NL:"Newfoundland and Labrador", PE:"Prince Edward Island",
+        AB:"Alberta", BC:"British Columbia", SK:"Saskatchewan", MB:"Manitoba", QC:"Quebec",
+        YT:"Yukon", NT:"Northwest Territories", NU:"Nunavut"
+      };
+      const namesFr = {
+        ON:"Ontario", NS:"Nouvelle-Ecosse", NB:"Nouveau-Brunswick", NL:"Terre-Neuve-et-Labrador", PE:"Ile-du-Prince-Edouard",
+        AB:"Alberta", BC:"Colombie-Britannique", SK:"Saskatchewan", MB:"Manitoba", QC:"Quebec",
+        YT:"Yukon", NT:"Territoires du Nord-Ouest", NU:"Nunavut"
+      };
+      const map = lang === "fr" ? namesFr : namesEn;
+      return map[code] || code || "";
+    }
+
+    const heartIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.7-4.4-9.5-7.2A5.6 5.6 0 0 1 12 5.6a5.6 5.6 0 0 1 9.5 8.2C18.7 16.6 12 21 12 21z"/></svg>';
+
+    function favoriteTitle(active){
+      return active
+        ? (window.PPS_I18N?.t("favorite.remove") || "Remove from favorites")
+        : (window.PPS_I18N?.t("favorite.add") || "Add to favorites");
+    }
+
+    function favoriteButton(productId){
+      const active = PPS.isFavorite(productId);
+      return `<button class="favorite-btn ${active ? "active" : ""}" type="button" data-fav-id="${productId}" aria-pressed="${active ? "true" : "false"}" title="${favoriteTitle(active)}">${heartIcon}</button>`;
+    }
+
+    function syncFavoriteButton(btn){
+      const id = btn.dataset.favId;
+      const active = PPS.isFavorite(id);
+      btn.classList.toggle("active", active);
+      btn.setAttribute("aria-pressed", active ? "true" : "false");
+      btn.title = favoriteTitle(active);
+    }
+
+    document.addEventListener("click", (e)=>{
+      const btn = e.target.closest(".favorite-btn");
+      if(!btn) return;
+      e.preventDefault();
+      e.stopPropagation();
+      PPS.toggleFavorite(btn.dataset.favId);
+      syncFavoriteButton(btn);
+    });
+
+    window.addEventListener("pps:favorites", ()=>{
+      document.querySelectorAll(".favorite-btn").forEach(syncFavoriteButton);
+      renderFavorites(window._products || []);
+    });
+
     if(nameEl && session){
       const welcomeName = window.PPS_I18N?.t("account.welcome_name") || "Welcome, {{name}}";
       const welcomeBack = window.PPS_I18N?.t("account.welcome_back") || "Welcome back";
       const displayName = firstName(session.name);
       nameEl.textContent = displayName ? welcomeName.replace("{{name}}", displayName) : welcomeBack;
     }
+
+    function renderFavorites(products){
+      if(!favoritesGrid || !favoritesMsg) return;
+      const ids = PPS.getFavorites();
+      if(!ids.length){
+        favoritesMsg.textContent = window.PPS_I18N?.t("account.favorites.empty") || "No favorite items yet.";
+        favoritesGrid.innerHTML = "";
+        return;
+      }
+      const map = new Map((products || []).map(p=>[p.id, p]));
+      const items = ids.map(id=>map.get(id)).filter(Boolean);
+      if(items.length === 0){
+        favoritesMsg.textContent = window.PPS_I18N?.t("account.favorites.unavailable") || "Favorites will show once products are loaded.";
+        favoritesGrid.innerHTML = "";
+        return;
+      }
+      favoritesMsg.textContent = "";
+      favoritesGrid.innerHTML = items.map(p=>`
+        <div class="card fade-in">
+          <a href="./product.html?slug=${encodeURIComponent(p.slug)}">
+            <img src="${p.image}" alt="${p.name}">
+          </a>
+          <div class="card-body">
+            <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(p.slug)}">${p.name}</a>
+            <div class="price-row"><div class="price">${PPS.money(p.priceCents,p.currency)}</div>${favoriteButton(p.id)}</div>
+            <div style="margin-top:12px; display:flex; gap:10px;">
+              <a class="btn" href="./product.html?slug=${encodeURIComponent(p.slug)}">${window.PPS_I18N?.t("product.view") || "View"}</a>
+              <button class="btn btn-primary" ${p.stock<=0 ? "disabled" : ""} onclick="addFavoriteToCart('${p.id}')">${window.PPS_I18N?.t("product.add") || "Add"}</button>
+            </div>
+          </div>
+        </div>
+      `).join("");
+      document.querySelectorAll(".fade-in").forEach(el => el.classList.add("show"));
+    }
+
+    async function loadFavorites(){
+      if(!favoritesGrid || !favoritesMsg) return;
+      favoritesMsg.textContent = window.PPS_I18N?.t("account.favorites.loading") || "Loading favorites...";
+      try{
+        const products = await PPS.loadProducts();
+        renderFavorites(products);
+      }catch(err){
+        favoritesMsg.textContent = window.PPS_I18N?.t("account.favorites.failed") || "Unable to load favorites right now.";
+      }
+    }
+
+    window.addFavoriteToCart = (productId)=>{
+      const products = window._products || [];
+      const product = products.find(p=>p.id === productId);
+      if(!product || product.stock <= 0) return;
+      PPS.addToCart(product);
+      PPS.updateCartBadge();
+    };
 
     async function loadOrders(){
       if(!session) return;
@@ -135,8 +247,9 @@
           nameEl.textContent = welcomeName.replace("{{name}}", firstName(latest.customer.name));
         }
         if(latest && latest.customer?.province && provinceEl){
-          const provinceLabel = window.PPS_I18N?.t("account.province") || "Province: {{province}}";
-          provinceEl.textContent = provinceLabel.replace("{{province}}", latest.customer.province);
+          const provinceLabelText = window.PPS_I18N?.t("account.province") || "Province: {{province}}";
+          const provinceName = provinceLabel(latest.customer.province);
+          provinceEl.textContent = provinceLabelText.replace("{{province}}", provinceName);
         }
         renderOrders();
       }catch(err){
@@ -220,6 +333,7 @@
     });
 
     loadOrders();
+    loadFavorites();
   </script>
 </body>
 </html>

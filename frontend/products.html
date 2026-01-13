@@ -88,6 +88,53 @@
         .trim();
     }
 
+    function buildQueryTokens(query){
+      let text = normalizeSearchText(query);
+      const replacements = [
+        ["we love", "welove"],
+        ["poly bag", "polybag"],
+        ["poly bags", "polybag"],
+        ["garment bag", "garment"],
+        ["garment bags", "garment"],
+        ["struct", "strut"],
+        ["struc", "strut"]
+      ];
+      replacements.forEach(([from, to])=>{
+        const rx = new RegExp(`\\b${from}\\b`, "g");
+        text = text.replace(rx, to);
+      });
+      const tokens = text.split(" ").filter(t=>t.length >= 2);
+      const expanded = new Set(tokens);
+      tokens.forEach(t=>{
+        if(t.endsWith("s") && t.length > 3){
+          expanded.add(t.slice(0, -1));
+        }
+      });
+      return Array.from(expanded);
+    }
+
+    function isCloseMatch(a, b){
+      if(a === b) return true;
+      if(!a || !b) return false;
+      const al = a.length;
+      const bl = b.length;
+      if(Math.abs(al - bl) > 1) return false;
+      let prev = new Array(bl + 1).fill(0).map((_, i)=>i);
+      for(let i = 1; i <= al; i++){
+        let cur = [i];
+        for(let j = 1; j <= bl; j++){
+          const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+          cur[j] = Math.min(
+            prev[j] + 1,
+            cur[j - 1] + 1,
+            prev[j - 1] + cost
+          );
+        }
+        prev = cur;
+      }
+      return prev[bl] <= 1;
+    }
+
     function categoryLabel(category){
       const lang = window.PPS_I18N?.getLang?.() || "en";
       if(lang === "fr"){
@@ -125,6 +172,40 @@
       return window.PPS_I18N?.t("products.stock.in") || "In stock";
     }
 
+    const heartIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.7-4.4-9.5-7.2A5.6 5.6 0 0 1 12 5.6a5.6 5.6 0 0 1 9.5 8.2C18.7 16.6 12 21 12 21z"/></svg>';
+
+    function favoriteTitle(active){
+      return active
+        ? (window.PPS_I18N?.t("favorite.remove") || "Remove from favorites")
+        : (window.PPS_I18N?.t("favorite.add") || "Add to favorites");
+    }
+
+    function favoriteButton(productId){
+      const active = PPS.isFavorite(productId);
+      return `<button class="favorite-btn ${active ? "active" : ""}" type="button" data-fav-id="${productId}" aria-pressed="${active ? "true" : "false"}" title="${favoriteTitle(active)}">${heartIcon}</button>`;
+    }
+
+    function syncFavoriteButton(btn){
+      const id = btn.dataset.favId;
+      const active = PPS.isFavorite(id);
+      btn.classList.toggle("active", active);
+      btn.setAttribute("aria-pressed", active ? "true" : "false");
+      btn.title = favoriteTitle(active);
+    }
+
+    document.addEventListener("click", (e)=>{
+      const btn = e.target.closest(".favorite-btn");
+      if(!btn) return;
+      e.preventDefault();
+      e.stopPropagation();
+      PPS.toggleFavorite(btn.dataset.favId);
+      syncFavoriteButton(btn);
+    });
+
+    window.addEventListener("pps:favorites", ()=>{
+      document.querySelectorAll(".favorite-btn").forEach(syncFavoriteButton);
+    });
+
     function renderSkeletons(grid, count=8){
       grid.innerHTML = new Array(count).fill(0).map(()=>`
         <div class="card skeleton"></div>
@@ -144,6 +225,7 @@
         ? products.filter(p => (p.category || "").toLowerCase() === cat.toLowerCase())
         : products;
       const normQuery = normalizeSearchText(query);
+      const queryTokens = buildQueryTokens(query);
       const filtered = normQuery
         ? base.filter(p=>{
             const haystack = [
@@ -154,7 +236,17 @@
               p.description_ko,
               p.slug
             ].map(normalizeSearchText);
-            return haystack.some(text=>text.includes(normQuery));
+            const joined = haystack.join(" ");
+            if(joined.includes(normQuery)) return true;
+            const hayTokens = Array.from(new Set(joined.split(" ").filter(Boolean)));
+            if(!queryTokens.length) return false;
+            if(queryTokens.length === 1){
+              const token = queryTokens[0];
+              return hayTokens.some(t=>t.startsWith(token) || token.startsWith(t) || isCloseMatch(token, t));
+            }
+            return queryTokens.every(qt=>{
+              return hayTokens.some(t=>t.startsWith(qt) || qt.startsWith(t) || isCloseMatch(qt, t));
+            });
           })
         : base;
 
@@ -192,7 +284,7 @@
               <div class="card-body">
                 <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(p.slug)}">${p.name}</a>
                 <div class="card-meta">${categoryLabel(p.category)}</div>
-                <div class="price">${PPS.money(p.priceCents,p.currency)}</div>
+                <div class="price-row"><div class="price">${PPS.money(p.priceCents,p.currency)}</div>${favoriteButton(p.id)}</div>
                 <div class="stock ${stockClass(p.stock)}">
                   <span class="dot"></span>
                   ${stockLabel(p.stock)}

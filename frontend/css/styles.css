@@ -174,6 +174,11 @@ a{color:inherit;}
   position:relative;
 }
 
+html[lang="ta"] .navbar-inner,
+html[lang="ta"] .promo-inner{
+  transform: translateX(-14%);
+}
+
 .brand{
   display:flex;
   align-items:center;
@@ -390,6 +395,11 @@ a{color:inherit;}
 }
 .navlinks a:hover::after{
   transform: scaleX(1);
+}
+
+html[lang="ta"] .navlinks a{
+  font-size:12px;
+  padding:8px 10px;
 }
 
 .badge{
@@ -629,6 +639,71 @@ a{color:inherit;}
 .card-title{font-weight:800}
 .card-meta{color:var(--muted); font-size:13px; margin-top:6px}
 .price{font-weight:900; margin-top:8px}
+.legal-section{
+  padding:18px;
+  margin-top:16px;
+}
+.legal-section h2{
+  margin:0 0 8px;
+}
+.legal-section p{
+  margin:0 0 10px;
+  color:var(--muted);
+}
+.legal-section p:last-child{
+  margin-bottom:0;
+}
+.legal-section ul{
+  margin:0;
+  padding-left:18px;
+  color:var(--text);
+}
+.legal-section .legal-note{
+  margin-top:12px;
+}
+.price-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:8px;
+}
+.price-row .price{margin-top:0}
+.favorite-btn{
+  width:26px;
+  height:26px;
+  border:0;
+  background:transparent;
+  color:var(--muted);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  padding:0;
+  transition: transform .15s ease, color .15s ease, filter .2s ease;
+}
+.favorite-btn svg{
+  width:20px;
+  height:20px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.7;
+}
+.favorite-btn:hover{
+  transform: translateY(-1px);
+  color:var(--primary-strong);
+}
+.favorite-btn.active{
+  color:var(--primary);
+  filter: drop-shadow(0 0 6px rgba(240,127,41,.45));
+}
+.favorite-btn.active svg{
+  fill:currentColor;
+}
+.favorite-btn:focus-visible{
+  outline:2px solid var(--primary);
+  outline-offset:2px;
+}
 .stock{
   font-size:12px;
   margin-top:6px;
@@ -1028,7 +1103,15 @@ select.input option:hover{
   opacity:0;
   transform: translateY(10px) scale(.98);
   pointer-events:none;
-  transition: opacity .2s ease, transform .2s ease;
+  transition: opacity .22s ease, transform .22s ease;
+}
+.dropdown-menu::before{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  top:-12px;
+  height:12px;
 }
 
 .dropdown-menu a{
@@ -1049,6 +1132,7 @@ select.input option:hover{
   opacity:1;
   transform: translateY(0);
   pointer-events:auto;
+  transition-delay:.05s;
 }
 
 /* Fade-in on scroll */

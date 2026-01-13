@@ -109,6 +109,40 @@
       if(stock <= 10) return window.PPS_I18N?.t("specials.stock.low") || "Almost out of stock";
       return window.PPS_I18N?.t("specials.stock.in") || "In stock";
     }
+
+    const heartIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.7-4.4-9.5-7.2A5.6 5.6 0 0 1 12 5.6a5.6 5.6 0 0 1 9.5 8.2C18.7 16.6 12 21 12 21z"/></svg>';
+
+    function favoriteTitle(active){
+      return active
+        ? (window.PPS_I18N?.t("favorite.remove") || "Remove from favorites")
+        : (window.PPS_I18N?.t("favorite.add") || "Add to favorites");
+    }
+
+    function favoriteButton(productId){
+      const active = PPS.isFavorite(productId);
+      return `<button class="favorite-btn ${active ? "active" : ""}" type="button" data-fav-id="${productId}" aria-pressed="${active ? "true" : "false"}" title="${favoriteTitle(active)}">${heartIcon}</button>`;
+    }
+
+    function syncFavoriteButton(btn){
+      const id = btn.dataset.favId;
+      const active = PPS.isFavorite(id);
+      btn.classList.toggle("active", active);
+      btn.setAttribute("aria-pressed", active ? "true" : "false");
+      btn.title = favoriteTitle(active);
+    }
+
+    document.addEventListener("click", (e)=>{
+      const btn = e.target.closest(".favorite-btn");
+      if(!btn) return;
+      e.preventDefault();
+      e.stopPropagation();
+      PPS.toggleFavorite(btn.dataset.favId);
+      syncFavoriteButton(btn);
+    });
+
+    window.addEventListener("pps:favorites", ()=>{
+      document.querySelectorAll(".favorite-btn").forEach(syncFavoriteButton);
+    });
     function renderSkeletons(grid, count=8){
       grid.innerHTML = new Array(count).fill(0).map(()=>`<div class="card skeleton"></div>`).join("");
     }
@@ -134,7 +168,7 @@
             <div class="card-body">
               <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(p.slug)}">${p.name}</a>
               <div class="card-meta">${categoryLabel(p.category)}</div>
-              <div class="price">${PPS.money(p.priceCents,p.currency)}</div>
+              <div class="price-row"><div class="price">${PPS.money(p.priceCents,p.currency)}</div>${favoriteButton(p.id)}</div>
               <div class="stock ${stockClass(p.stock)}">
                 <span class="dot"></span>
                 ${stockLabel(p.stock)}

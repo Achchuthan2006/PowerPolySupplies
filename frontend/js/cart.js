@@ -36,16 +36,19 @@ function render(){
 
   const targetCurrency = PPS.getCurrency();
   const total = cart.reduce((sum,i)=>{
-    const baseCents = (i.priceCentsBase ?? i.priceCents) * i.qty;
-    const baseCurrency = i.currencyBase || i.currency || "CAD";
+    const product = productMap?.get(i.id);
+    const unitCents = product ? PPS.getTieredPriceCents(product, i.qty) : (i.priceCentsBase ?? i.priceCents);
+    const baseCents = unitCents * i.qty;
+    const baseCurrency = product?.currency || i.currencyBase || i.currency || "CAD";
     return sum + PPS.convertCents(baseCents, baseCurrency, targetCurrency);
   }, 0);
   totalEl.textContent = PPS.money(total, targetCurrency, targetCurrency);
 
   list.innerHTML = cart.map(i=>{
     const desc = getItemDescription(i);
-    const baseCents = i.priceCentsBase ?? i.priceCents;
-    const baseCurrency = i.currencyBase || i.currency || "CAD";
+    const product = productMap?.get(i.id);
+    const unitCents = product ? PPS.getTieredPriceCents(product, i.qty) : (i.priceCentsBase ?? i.priceCents);
+    const baseCurrency = product?.currency || i.currencyBase || i.currency || "CAD";
     const descHtml = desc
       ? `<div style="color:var(--muted); font-size:13px; margin-top:4px;">${desc}</div>`
       : "";
@@ -53,7 +56,7 @@ function render(){
     <div class="card fade-in" style="padding:14px; display:flex; justify-content:space-between; align-items:center; gap:10px;">
       <div>
         <div style="font-weight:800;">${i.name}</div>
-        <div style="color:var(--muted); font-size:13px;">${PPS.money(baseCents, baseCurrency)}</div>
+        <div style="color:var(--muted); font-size:13px;">${PPS.money(unitCents, baseCurrency)}</div>
         ${descHtml}
       </div>
       <div style="display:flex; align-items:center; gap:8px;">

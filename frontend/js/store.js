@@ -6,6 +6,7 @@
 // 5) localhost:5000 for local dev
 const DEFAULT_API_BASE = "http://127.0.0.1:5000";
 const DEFAULT_CAD_TO_USD = 0.74;
+const FAVORITES_KEY = "pps_favorites";
 
 function inferApiBase(){
   if(window.PPS_API_BASE) return window.PPS_API_BASE;
@@ -66,6 +67,18 @@ function convertCents(cents, fromCurrency="CAD", toCurrency){
   if(from === "CAD" && target === "USD") return Math.round(value * rate);
   if(from === "USD" && target === "CAD") return Math.round(value / rate);
   return value;
+}
+
+function getTieredPriceCents(product, qty){
+  if(!product) return 0;
+  const base = Math.round(Number(product.priceCents) || 0);
+  if((product.category || "") === "Garment Bags"){
+    const count = Math.max(0, Number(qty) || 0);
+    if(count >= 20) return 3699;
+    if(count >= 15) return 3799;
+    if(count >= 10) return 3899;
+  }
+  return base;
 }
 
 function money(cents, currency="CAD", targetCurrency){
@@ -135,6 +148,38 @@ function getCart(){
 function setCart(cart){
   localStorage.setItem("pps_cart", JSON.stringify(cart));
   updateCartBadge();
+}
+
+function getFavorites(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(FAVORITES_KEY) || "[]");
+    return Array.isArray(raw) ? raw.filter(Boolean) : [];
+  }catch(err){
+    return [];
+  }
+}
+
+function setFavorites(list){
+  const unique = Array.from(new Set((list || []).filter(Boolean)));
+  localStorage.setItem(FAVORITES_KEY, JSON.stringify(unique));
+  window.dispatchEvent(new CustomEvent("pps:favorites", { detail:{ favorites: unique } }));
+}
+
+function isFavorite(productId){
+  return getFavorites().includes(productId);
+}
+
+function toggleFavorite(productId){
+  if(!productId) return getFavorites();
+  const list = getFavorites();
+  const idx = list.indexOf(productId);
+  if(idx >= 0){
+    list.splice(idx, 1);
+  }else{
+    list.push(productId);
+  }
+  setFavorites(list);
+  return list;
 }
 
 function updateCartBadge(){
@@ -225,4 +270,4 @@ function addItemsToCart(items){
   });
 }
 
-window.PPS = { API_BASE, money, convertCents, getCurrency, setCurrency, pingBackend, loadProducts, fetchReviews, submitReview, getCart, setCart, updateCartBadge, addToCart, addItemsToCart, getSession, setSession, clearSession, setApiBaseOverride };
+window.PPS = { API_BASE, money, convertCents, getTieredPriceCents, getCurrency, setCurrency, pingBackend, loadProducts, fetchReviews, submitReview, getCart, setCart, updateCartBadge, addToCart, addItemsToCart, getFavorites, isFavorite, toggleFavorite, getSession, setSession, clearSession, setApiBaseOverride };
