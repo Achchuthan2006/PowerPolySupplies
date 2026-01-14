@@ -107,6 +107,7 @@ function injectCurrencySwitcher(){
   const wrap = document.createElement("div");
   wrap.className = "currency-switcher";
   wrap.innerHTML = `
+    <span class="currency-symbol" aria-hidden="true">$</span>
     <select id="currencySelect" class="currency-select" aria-label="Currency">
       <option value="CAD">CAD</option>
       <option value="USD">USD</option>
@@ -539,7 +540,7 @@ function injectHelpWidget(){
 
       try{
         const apiBase = window.PPS?.API_BASE || window.PPS_API_BASE || "";
-        const res = await fetch(`${apiBase}/api/contact`, {
+        const res = await fetch(`${apiBase}/api/help`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name, email, message })

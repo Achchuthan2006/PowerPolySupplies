@@ -176,6 +176,11 @@
             ? (window.PPS_I18N?.autoTranslate?.(p.name || "", "es") || p.name)
             : p.name;
           const compareCents = (Number(p.priceCents) || 0) + 1000;
+          const memberCents = Number(p.priceCents) || 0;
+          const savingsCents = Math.max(0, compareCents - memberCents);
+          const isMember = Boolean(PPS.getSession?.());
+          const bannerTemplate = window.PPS_I18N?.t("member.banner") || "Log in to save {{amount}} with Power Poly Member Pricing";
+          const bannerText = bannerTemplate.replace("{{amount}}", PPS.money(savingsCents, p.currency));
           return `
           <div class="card fade-in">
             <a href="./product.html?slug=${encodeURIComponent(p.slug)}">
@@ -184,13 +189,18 @@
             <div class="card-body">
               <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(p.slug)}">${displayName}</a>
               <div class="card-meta">${categoryLabel(p.category)}</div>
-              <div class="price-row">
+              <div class="member-pricing">
                 <div>
+                  <div class="market-label" data-i18n="market.price.label">Market price</div>
                   <span class="compare-price">${PPS.money(compareCents,p.currency)}</span>
-                  <span class="price">${PPS.money(p.priceCents,p.currency)}</span>
+                </div>
+                <div>
+                  <div class="member-label" data-i18n="member.price.label">Power Poly Member Price</div>
+                  <span class="price">${PPS.money(memberCents,p.currency)}</span>
                 </div>
                 ${favoriteButton(p.id)}
               </div>
+              ${!isMember && savingsCents > 0 ? `<a class="member-banner" href="./login.html">${bannerText}</a>` : ""}
               <div class="stock ${stockClass(p.stock)}">
                 <span class="dot"></span>
                 ${stockLabel(p.stock)}
@@ -198,6 +208,7 @@
               <div style="margin-top:12px; display:flex; gap:10px;">
                 <a class="btn" href="./product.html?slug=${encodeURIComponent(p.slug)}">${window.PPS_I18N?.t("specials.view") || "View"}</a>
                 <button class="btn btn-primary" ${p.stock<=0?'disabled':''} onclick='add(event,"${p.id}")'>${window.PPS_I18N?.t("specials.add") || "Add"}</button>
+                <a class="btn btn-outline" href="./cart.html" data-i18n="specials.action.cart">${window.PPS_I18N?.t("specials.action.cart") || "Go to cart"}</a>
               </div>
               <div class="bulk-quick">
                 <button class="btn btn-outline" ${p.stock<=0?'disabled':''} onclick='addBulk(event,"${p.id}",10)'>${window.PPS_I18N?.t("specials.bulk.10") || "10+ boxes"}</button>

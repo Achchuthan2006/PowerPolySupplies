@@ -155,6 +155,11 @@ export default function Products() {
         <div className="grid grid-4" style={{ marginTop: "16px" }}>
           {filtered.map((p) => {
             const compareCents = (Number(p.priceCents) || 0) + 1000;
+            const memberCents = Number(p.priceCents) || 0;
+            const savingsCents = Math.max(0, compareCents - memberCents);
+            const isMember = Boolean(window.PPS?.getSession?.());
+            const bannerTemplate = window.PPS_I18N?.t("member.banner") || "Log in to save {{amount}} with Power Poly Member Pricing";
+            const bannerText = bannerTemplate.replace("{{amount}}", window.PPS?.money?.(savingsCents, p.currency));
             const displayName = lang === "es"
               ? (window.PPS_I18N?.autoTranslate?.(p.name || "", "es") || p.name)
               : p.name;
@@ -168,12 +173,19 @@ export default function Products() {
                     {displayName}
                   </Link>
                   <div className="card-meta">{categoryLabel(lang, p.category)}</div>
-                  <div className="price-row">
+                  <div className="member-pricing">
                     <div>
+                      <div className="market-label" data-i18n="market.price.label">Market price</div>
                       <span className="compare-price">{window.PPS?.money?.(compareCents, p.currency)}</span>
-                      <span className="price">{window.PPS?.money?.(p.priceCents, p.currency)}</span>
+                    </div>
+                    <div>
+                      <div className="member-label" data-i18n="member.price.label">Power Poly Member Price</div>
+                      <span className="price">{window.PPS?.money?.(memberCents, p.currency)}</span>
                     </div>
                   </div>
+                  {!isMember && savingsCents > 0 ? (
+                    <Link className="member-banner" to="/login">{bannerText}</Link>
+                  ) : null}
                   <div className={`stock ${stockClass(p.stock)}`}>
                     <span className="dot" />
                     {stockLabel(p.stock)}
@@ -189,6 +201,9 @@ export default function Products() {
                     >
                       {window.PPS_I18N?.t("products.action.add") || "Add"}
                     </button>
+                    <Link className="btn btn-outline" to="/cart" data-i18n="products.action.cart">
+                      {window.PPS_I18N?.t("products.action.cart") || "Go to cart"}
+                    </Link>
                   </div>
                   <div className="bulk-quick">
                     <button className="btn btn-outline" disabled={p.stock <= 0} onClick={() => addToCart(p, 10)}>

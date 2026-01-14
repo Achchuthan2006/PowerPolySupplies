@@ -67,6 +67,9 @@
         <input class="input" name="name" placeholder="Full Name" data-i18n-placeholder="checkout.form.name" required>
         <input class="input" type="email" name="email" placeholder="Email" data-i18n-placeholder="checkout.form.email" required>
         <input class="input" name="phone" placeholder="Phone (optional)" data-i18n-placeholder="checkout.form.phone">
+        <input class="input" name="address1" placeholder="Address line 1" required>
+        <input class="input" name="address2" placeholder="Address line 2 (optional)">
+        <input class="input" name="city" placeholder="City" required>
         <input class="input" name="postal" id="postal" placeholder="Postal code" required>
         <select class="input" name="province" id="province" required>
           <option value="" data-i18n="checkout.form.province">Select province/territory</option>
@@ -84,7 +87,7 @@
           <option value="NT">Northwest Territories</option>
           <option value="NU">Nunavut</option>
         </select>
-        <textarea class="input" name="address" placeholder="Address / Delivery instructions" data-i18n-placeholder="checkout.form.address" style="min-height:120px;" required></textarea>
+        <textarea class="input" name="deliveryNotes" placeholder="Delivery instructions (optional)" style="min-height:120px;"></textarea>
         <button class="btn btn-primary" type="submit" data-i18n="checkout.pay_later">Place order (pay later)</button>
       </form>
     </div>

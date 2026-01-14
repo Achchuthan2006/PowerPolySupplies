@@ -220,6 +220,13 @@
               : lang === "es"
                 ? (window.PPS_I18N?.autoTranslate?.(p.description_es || p.description || "", "es") || (p.description_es || p.description || ""))
                 : p.description;
+      const compareCents = (Number(p.priceCents) || 0) + 1000;
+      const memberCents = Number(p.priceCents) || 0;
+      const savingsCents = Math.max(0, compareCents - memberCents);
+      const isMember = Boolean(PPS.getSession?.());
+      const bannerTemplate = window.PPS_I18N?.t("member.banner") || "Log in to save {{amount}} with Power Poly Member Pricing";
+      const bannerText = bannerTemplate.replace("{{amount}}", PPS.money(savingsCents, p.currency));
+
       wrap.innerHTML = `
         <section class="hero fade-in" style="margin-bottom:16px;">
           <p style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);" data-i18n="product.kicker">Product detail</p>
@@ -233,13 +240,18 @@
           <div class="card fade-in" style="padding:18px;">
             <h2 style="margin:0;">${displayName}</h2>
             <p style="color:var(--muted); margin-top:8px;">${displayCategory}</p>
-            <div class="price-row">
+            <div class="member-pricing">
               <div>
-                <span class="compare-price">${PPS.money((Number(p.priceCents) || 0) + 1000, p.currency)}</span>
-                <span class="price" style="font-size:22px;">${PPS.money(p.priceCents,p.currency)}</span>
+                <div class="market-label" data-i18n="market.price.label">Market price</div>
+                <span class="compare-price">${PPS.money(compareCents, p.currency)}</span>
+              </div>
+              <div>
+                <div class="member-label" data-i18n="member.price.label">Power Poly Member Price</div>
+                <span class="price" style="font-size:22px;">${PPS.money(memberCents,p.currency)}</span>
               </div>
               ${favoriteButton(p.id)}
             </div>
+            ${!isMember && savingsCents > 0 ? `<a class="member-banner" href="./login.html">${bannerText}</a>` : ""}
             ${(()=>{ const s = stockClass(p.stock); return `<div class="stock ${s.cls}"><span class="dot"></span>${s.label}</div>`; })()}
             <p style="margin-top:14px; color:var(--text); line-height:1.5;">${desc || ""}</p>
 
@@ -453,6 +465,12 @@
           : item.stock<=10
             ? (window.PPS_I18N?.t("product.stock.low") || "Almost out of stock")
             : (window.PPS_I18N?.t("product.stock.in") || "In stock");
+        const compareCents = (Number(item.priceCents) || 0) + 1000;
+        const memberCents = Number(item.priceCents) || 0;
+        const savingsCents = Math.max(0, compareCents - memberCents);
+        const isMember = Boolean(PPS.getSession?.());
+        const bannerTemplate = window.PPS_I18N?.t("member.banner") || "Log in to save {{amount}} with Power Poly Member Pricing";
+        const bannerText = bannerTemplate.replace("{{amount}}", PPS.money(savingsCents, item.currency));
         return `
           <div class="card fade-in">
             <a href="./product.html?slug=${encodeURIComponent(item.slug)}">
@@ -461,13 +479,18 @@
             <div class="card-body">
               <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(item.slug)}">${displayName}</a>
               <div class="card-meta">${categoryLabel(item.category || "")}</div>
-              <div class="price-row">
+              <div class="member-pricing">
                 <div>
-                  <span class="compare-price">${PPS.money((Number(item.priceCents) || 0) + 1000, item.currency)}</span>
-                  <span class="price">${PPS.money(item.priceCents,item.currency)}</span>
+                  <div class="market-label" data-i18n="market.price.label">Market price</div>
+                  <span class="compare-price">${PPS.money(compareCents, item.currency)}</span>
+                </div>
+                <div>
+                  <div class="member-label" data-i18n="member.price.label">Power Poly Member Price</div>
+                  <span class="price">${PPS.money(memberCents,item.currency)}</span>
                 </div>
                 ${favoriteButton(item.id)}
               </div>
+              ${!isMember && savingsCents > 0 ? `<a class="member-banner" href="./login.html">${bannerText}</a>` : ""}
               <div class="stock ${s}"><span class="dot"></span>${label}</div>
               <div style="margin-top:12px; display:flex; gap:10px;">
                 <a class="btn" href="./product.html?slug=${encodeURIComponent(item.slug)}">${window.PPS_I18N?.t("product.view") || "View"}</a>

@@ -123,6 +123,15 @@
     const verifyBtn = document.getElementById("verifyCode");
     let codeVerified = false;
 
+    function normalizeSignupStatus(message){
+      const raw = String(message || "");
+      if(!raw) return "";
+      if(raw.includes("Supabase not configured")){
+        return window.PPS_I18N?.t("signup.status.unavailable") || "Signup temporarily unavailable. Please try again later.";
+      }
+      return raw;
+    }
+
     function getCodeValue(){
       return codeInputs.map(input => input.value).join("");
     }
@@ -171,7 +180,8 @@
           setCodeInputsEnabled(true);
           sendBtn.textContent = window.PPS_I18N?.t("signup.code.resend") || "Resend code";
         }else{
-          statusEl.textContent = data?.message || (window.PPS_I18N?.t("signup.status.failed_send") || "Failed to send code.");
+          const normalized = normalizeSignupStatus(data?.message);
+          statusEl.textContent = normalized || (window.PPS_I18N?.t("signup.status.failed_send") || "Failed to send code.");
         }
       }catch(err){
         statusEl.textContent = window.PPS_I18N?.t("signup.status.unreachable") || "Server unreachable. Is the backend running?";
@@ -203,7 +213,8 @@
           setCodeInputsEnabled(false, true);
         }else{
           codeVerified = false;
-          statusEl.textContent = data?.message || (window.PPS_I18N?.t("signup.status.invalid") || "Invalid code. You can resend it.");
+          const normalized = normalizeSignupStatus(data?.message);
+          statusEl.textContent = normalized || (window.PPS_I18N?.t("signup.status.invalid") || "Invalid code. You can resend it.");
           setPasswordEnabled(false);
           setCodeInputsEnabled(true);
         }
@@ -263,7 +274,8 @@
           PPS.setSession({ token: data.token, email: data.email, name: data.name || nameInput.value.trim(), expiresAt: data.expiresAt });
           window.location.href = "./account.html";
         }else{
-          statusEl.textContent = data?.message || (window.PPS_I18N?.t("signup.status.failed") || "Account creation failed.");
+          const normalized = normalizeSignupStatus(data?.message);
+          statusEl.textContent = normalized || (window.PPS_I18N?.t("signup.status.failed") || "Account creation failed.");
         }
       }catch(err){
         statusEl.textContent = window.PPS_I18N?.t("signup.status.unreachable") || "Server unreachable. Is the backend running?";

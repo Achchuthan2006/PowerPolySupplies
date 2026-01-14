@@ -7,14 +7,19 @@ import path from "path";
 import { fileURLToPath } from "url";
 import Stripe from "stripe";
 import crypto from "crypto";
-import { supabase } from "./supabaseClient.js";
-import { appendMessageToSheet, appendOrderToSheet, appendReviewToSheet, syncProductsToSheet, isSheetsConfigured } from "./googleSheets.js";
+import { createClient } from "@supabase/supabase-js";
+import { appendMessageToSheet, appendOrderToSheet, appendReviewToSheet, appendFeedbackToSheet, syncProductsToSheet, isSheetsConfigured } from "./googleSheets.js";
 
-dotenv.config();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.join(__dirname, ".env") });
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
 
 const stripeKey = process.env.STRIPE_SECRET_KEY;
 const stripe = stripeKey ? new Stripe(stripeKey) : null;
@@ -22,7 +27,6 @@ const PORT = process.env.PORT || 5000;
 const HOST = process.env.HOST || "0.0.0.0";
 
 // ---- DB helpers ----
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DB_PATH = path.join(__dirname, "db.json");
 const COMPANY_NAME = process.env.COMPANY_NAME || "Power Poly Supplies";
 const COMPANY_SLOGAN = process.env.COMPANY_SLOGAN || "Premium garment packaging and hanger supplies.";
@@ -45,6 +49,79 @@ function writeDB(db){
   }catch(err){
     console.error("Failed to write DB", err);
   }
+}
+
+function requireSupabase(res){
+  if(!supabase){
+    res.status(500).json({ ok:false, message:"Supabase not configured. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY." });
+    return false;
+  }
+  return true;
+}
+
+function normalizeProductRow(row){
+  if(!row) return row;
+  return {
+    ...row,
+    priceCents: row.price_cents ?? row.priceCents,
+    description_fr: row.description_fr ?? row.descriptionFr,
+    description_ko: row.description_ko ?? row.descriptionKo,
+    description_hi: row.description_hi ?? row.descriptionHi,
+    description_ta: row.description_ta ?? row.descriptionTa,
+    description_es: row.description_es ?? row.descriptionEs
+  };
+}
+
+function normalizeOrderRow(row){
+  if(!row) return row;
+  return {
+    ...row,
+    totalCents: row.total_cents ?? row.totalCents,
+    paymentMethod: row.payment_method ?? row.paymentMethod,
+    createdAt: row.created_at ?? row.createdAt
+  };
+}
+
+function normalizeReviewRow(row){
+  if(!row) return row;
+  return {
+    ...row,
+    productId: row.product_id ?? row.productId,
+    createdAt: row.created_at ?? row.createdAt
+  };
+}
+
+function normalizeMessageRow(row){
+  if(!row) return row;
+  return {
+    ...row,
+    createdAt: row.created_at ?? row.createdAt
+  };
+}
+
+function normalizeUserRow(row){
+  if(!row) return row;
+  return {
+    ...row,
+    passwordHash: row.password_hash ?? row.passwordHash,
+    createdAt: row.created_at ?? row.createdAt,
+    lastLoginAt: row.last_login_at ?? row.lastLoginAt,
+    firstLoginAt: row.first_login_at ?? row.firstLoginAt,
+    welcomeEmailSent: row.welcome_email_sent ?? row.welcomeEmailSent
+  };
+}
+
+async function fetchProducts(){
+  const { data, error } = await supabase.from("products").select("*");
+  if(error) throw error;
+  return (data || []).map(normalizeProductRow);
+}
+
+async function fetchProductsByIds(ids){
+  if(!ids.length) return [];
+  const { data, error } = await supabase.from("products").select("*").in("id", ids);
+  if(error) throw error;
+  return (data || []).map(normalizeProductRow);
 }
 
 const PROVINCE_TAX_LABELS = {
@@ -200,7 +277,14 @@ function buildReceiptHtml({
   const safeName = escapeHtml(customer?.name || "");
   const safeEmail = escapeHtml(customer?.email || "");
   const safePhone = escapeHtml(customer?.phone || "");
-  const safeAddress = escapeHtml(customer?.address || "");
+  const addressParts = [
+    customer?.address1 || "",
+    customer?.address2 || "",
+    customer?.city || "",
+    customer?.province || "",
+    customer?.postal || ""
+  ].map(part=> String(part || "").trim()).filter(Boolean);
+  const safeAddress = escapeHtml(addressParts.join(", "));
   const safeProvince = escapeHtml(customer?.province || "");
   const savingsCents = (items || []).reduce((sum, item) => {
     const base = Number(item.priceCentsBase ?? item.priceCents ?? 0);
@@ -419,17 +503,34 @@ app.get("/api/health",(req,res)=>{
 });
 
 // ---- Products endpoint (frontend uses this for real stock) ----
-app.get("/api/products", (req,res)=>{
-  const db = readDB();
-  res.json({ ok:true, products: db.products });
+app.get("/api/products", async (req,res)=>{
+  if(!requireSupabase(res)) return;
+  try{
+    const products = await fetchProducts();
+    res.json({ ok:true, products });
+  }catch(err){
+    console.error("Supabase products fetch failed", err);
+    res.status(500).json({ ok:false, message:"Failed to load products." });
+  }
 });
 
 // ---- Product reviews ----
-app.get("/api/products/:id/reviews", (req,res)=>{
-  const db = readDB();
-  const reviews = (db.reviews || []).filter(r => r.productId === req.params.id);
-  const avg = reviews.length ? (reviews.reduce((s,r)=>s + r.rating,0)/reviews.length) : 0;
-  res.json({ ok:true, reviews, average: Number(avg.toFixed(2)), count: reviews.length });
+app.get("/api/products/:id/reviews", async (req,res)=>{
+  if(!requireSupabase(res)) return;
+  try{
+    const { data, error } = await supabase
+      .from("reviews")
+      .select("*")
+      .eq("product_id", req.params.id)
+      .order("created_at", { ascending: false });
+    if(error) throw error;
+    const reviews = (data || []).map(normalizeReviewRow);
+    const avg = reviews.length ? (reviews.reduce((s,r)=>s + Number(r.rating || 0),0)/reviews.length) : 0;
+    res.json({ ok:true, reviews, average: Number(avg.toFixed(2)), count: reviews.length });
+  }catch(err){
+    console.error("Supabase reviews fetch failed", err);
+    res.status(500).json({ ok:false, message:"Failed to load reviews." });
+  }
 });
 
 app.post("/api/products/:id/reviews", async (req,res)=>{
@@ -440,22 +541,31 @@ app.post("/api/products/:id/reviews", async (req,res)=>{
     return res.status(400).json({ ok:false, message:"Rating must be between 1 and 5." });
   }
 
-  const db = readDB();
-  if(!db.reviews) db.reviews = [];
-
   const entry = {
     id: "REV-" + Date.now(),
-    productId,
+    product_id: productId,
     rating: cleanRating,
     name: (name || "Anonymous").slice(0,64),
     comment: (comment || "").slice(0,500),
-    createdAt: new Date().toISOString()
+    created_at: new Date().toISOString()
   };
-  db.reviews.unshift(entry);
-  writeDB(db);
+  if(!requireSupabase(res)) return;
+  try{
+    const { error } = await supabase.from("reviews").insert(entry);
+    if(error) throw error;
+  }catch(err){
+    console.error("Supabase review insert failed", err);
+    return res.status(500).json({ ok:false, message:"Failed to save review." });
+  }
 
   if(isSheetsConfigured()){
-    const product = db.products.find(x=>x.id===productId);
+    let product = null;
+    try{
+      const products = await fetchProductsByIds([productId]);
+      product = products[0] || null;
+    }catch(err){
+      product = null;
+    }
     try{
       await appendReviewToSheet([
         new Date().toISOString(),
@@ -465,65 +575,120 @@ app.post("/api/products/:id/reviews", async (req,res)=>{
         entry.rating,
         entry.name,
         entry.comment,
-        entry.createdAt
+        entry.created_at
       ]);
     }catch(sheetErr){
       console.error("Review sheet append failed", sheetErr);
     }
   }
 
-  const reviews = db.reviews.filter(r=>r.productId===productId);
-  const avg = reviews.length ? (reviews.reduce((s,r)=>s + r.rating,0)/reviews.length) : 0;
+  let reviews = [];
+  try{
+    const { data, error } = await supabase
+      .from("reviews")
+      .select("*")
+      .eq("product_id", productId)
+      .order("created_at", { ascending: false });
+    if(error) throw error;
+    reviews = (data || []).map(normalizeReviewRow);
+  }catch(err){
+    reviews = [normalizeReviewRow(entry)];
+  }
+  const avg = reviews.length ? (reviews.reduce((s,r)=>s + Number(r.rating || 0),0)/reviews.length) : 0;
 
   res.json({ ok:true, review: entry, average: Number(avg.toFixed(2)), count: reviews.length });
 });
 
 // ---- Account: order history ----
-app.get("/api/account/orders", (req,res)=>{
+app.get("/api/account/orders", async (req,res)=>{
   const session = getSessionFromRequest(req);
   if(!session) return res.status(401).json({ ok:false, message:"Unauthorized" });
+  if(!requireSupabase(res)) return;
 
-  const db = readDB();
-  const email = (session.email || "").toLowerCase();
-  const orders = (db.orders || []).filter(o => (o.customer?.email || "").toLowerCase() === email);
-  res.json({ ok:true, orders });
+  try{
+    const email = (session.email || "").toLowerCase();
+    const { data, error } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("customer_email", email)
+      .order("created_at", { ascending: false });
+    if(error) throw error;
+    res.json({ ok:true, orders: (data || []).map(normalizeOrderRow) });
+  }catch(err){
+    console.error("Supabase account orders fetch failed", err);
+    res.status(500).json({ ok:false, message:"Unable to load orders." });
+  }
 });
 
 // ---- Admin: orders list ----
-app.get("/api/admin/orders", (req,res)=>{
-  const db = readDB();
-  res.json({ ok:true, orders: db.orders });
+app.get("/api/admin/orders", async (req,res)=>{
+  if(!requireSupabase(res)) return;
+  try{
+    const { data, error } = await supabase
+      .from("orders")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if(error) throw error;
+    res.json({ ok:true, orders: (data || []).map(normalizeOrderRow) });
+  }catch(err){
+    console.error("Supabase admin orders fetch failed", err);
+    res.status(500).json({ ok:false, message:"Failed to load orders." });
+  }
 });
 
 // ---- Admin: messages list ----
-app.get("/api/admin/messages", (req,res)=>{
-  const db = readDB();
-  res.json({ ok:true, messages: db.messages || [] });
+app.get("/api/admin/messages", async (req,res)=>{
+  if(!requireSupabase(res)) return;
+  try{
+    const { data, error } = await supabase
+      .from("messages")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if(error) throw error;
+    res.json({ ok:true, messages: (data || []).map(normalizeMessageRow) });
+  }catch(err){
+    console.error("Supabase admin messages fetch failed", err);
+    res.status(500).json({ ok:false, message:"Failed to load messages." });
+  }
 });
 
 // ---- Admin: mark fulfilled ----
-app.post("/api/admin/orders/:id/fulfill",(req,res)=>{
-  const db = readDB();
-  const order = db.orders.find(o=>o.id===req.params.id);
-  if(!order) return res.status(404).json({ ok:false });
-  order.status = "fulfilled";
-  writeDB(db);
-  res.json({ ok:true });
+app.post("/api/admin/orders/:id/fulfill", async (req,res)=>{
+  if(!requireSupabase(res)) return;
+  try{
+    const { data, error } = await supabase
+      .from("orders")
+      .update({ status:"fulfilled" })
+      .eq("id", req.params.id)
+      .select("id")
+      .single();
+    if(error) throw error;
+    if(!data) return res.status(404).json({ ok:false });
+    res.json({ ok:true });
+  }catch(err){
+    console.error("Supabase order fulfill failed", err);
+    res.status(500).json({ ok:false, message:"Failed to update order." });
+  }
 });
 
 // ---- Create pay-later order + reduce stock + email ----
 app.post("/api/order", async (req,res)=>{
   const { customer, items, totalCents, currency, paymentMethod, shipping } = req.body;
   if(!customer?.email || !items?.length) return res.status(400).json({ ok:false, message:"Missing email or items" });
+  if(!requireSupabase(res)) return;
 
   try{
-    const db = readDB();
+    const productIds = items.map(it=>it.id).filter(Boolean);
+    const products = await fetchProductsByIds(productIds);
+    const productsById = new Map(products.map(p=>[p.id, p]));
+    const productUpdates = [];
 
     // Reduce stock (basic) + enrich items with descriptions + apply tier pricing
     const normalizedItems = items.map((it)=>{
-      const product = db.products.find(x=>x.id===it.id);
+      const product = productsById.get(it.id);
       if(product){
-        product.stock = Math.max(0, product.stock - it.qty);
+        const nextStock = Math.max(0, Number(product.stock || 0) - it.qty);
+        productUpdates.push({ id: product.id, stock: nextStock });
       }
       const unitPriceCents = product ? getTieredPriceCents(product, it.qty) : Number(it.priceCents || 0);
       const basePriceCents = product ? Number(product.priceCents || unitPriceCents) : Number(it.priceCentsBase ?? it.priceCents ?? 0);
@@ -537,7 +702,10 @@ app.post("/api/order", async (req,res)=>{
         currencyBase,
         description: it.description || product?.description || "",
         description_fr: it.description_fr || product?.description_fr || "",
-        description_ko: it.description_ko || product?.description_ko || ""
+        description_ko: it.description_ko || product?.description_ko || "",
+        description_hi: it.description_hi || product?.description_hi || "",
+        description_ta: it.description_ta || product?.description_ta || "",
+        description_es: it.description_es || product?.description_es || ""
       };
     });
 
@@ -555,22 +723,51 @@ app.post("/api/order", async (req,res)=>{
     const order = {
       id: orderId,
       status: "pending",
-      paymentMethod: paymentMethod || "pay_later",
+      payment_method: paymentMethod || "pay_later",
       customer,
+      customer_email: (customer?.email || "").toLowerCase(),
       shipping: {
         zone: shippingInfo.zone,
         label: shippingInfo.label,
         costCents: shippingInfo.amountCents
       },
       items: normalizedItems,
-      totalCents: totalCentsComputed,
+      total_cents: totalCentsComputed,
       currency,
       language: customer?.language === "fr" ? "fr" : (customer?.language === "ko" ? "ko" : "en"),
-      createdAt: new Date().toISOString()
+      created_at: new Date().toISOString()
     };
 
-    db.orders.unshift(order);
-    writeDB(db);
+    if(productUpdates.length){
+      for(const update of productUpdates){
+        const { error } = await supabase.from("products").update({ stock: update.stock }).eq("id", update.id);
+        if(error) throw error;
+      }
+    }
+    const { error: orderError } = await supabase.from("orders").insert(order);
+    if(orderError) throw orderError;
+
+    const deliveryId = "DEL-" + Date.now();
+    const delivery = {
+      id: deliveryId,
+      order_id: orderId,
+      customer_email: (customer?.email || "").toLowerCase(),
+      name: customer?.name || "",
+      phone: customer?.phone || "",
+      address_line1: customer?.address1 || "",
+      address_line2: customer?.address2 || "",
+      city: customer?.city || "",
+      province: customer?.province || "",
+      postal: customer?.postal || "",
+      country: customer?.country || "Canada",
+      delivery_notes: customer?.deliveryNotes || "",
+      shipping_zone: shippingInfo.zone || "",
+      shipping_label: shippingInfo.label || "",
+      status: "pending",
+      created_at: new Date().toISOString()
+    };
+    const { error: deliveryError } = await supabase.from("deliveries").insert(delivery);
+    if(deliveryError) throw deliveryError;
 
     res.json({ ok:true, orderId });
 
@@ -578,7 +775,8 @@ app.post("/api/order", async (req,res)=>{
     (async ()=>{
       if(isSheetsConfigured()){
         try{
-          await syncProductsToSheet(db.products || []);
+          const latestProducts = await fetchProducts();
+          await syncProductsToSheet(latestProducts || []);
         }catch(sheetErr){
           console.error("Products sheet sync failed", sheetErr);
         }
@@ -703,24 +901,23 @@ app.post("/api/order", async (req,res)=>{
 app.post("/api/contact", async (req,res)=>{
   const { name, email, phone, message } = req.body;
   if(!email || !message) return res.status(400).json({ ok:false, message:"Email and message required" });
+  if(!requireSupabase(res)) return;
 
   try{
     const emailReady = process.env.EMAIL_USER && process.env.EMAIL_PASS && process.env.ORDER_TO;
     let emailSent = false;
 
-    // Save message to db for record
-    const db = readDB();
-    if(!db.messages) db.messages = [];
     const msgId = "MSG-" + Date.now();
-    db.messages.unshift({
+    const entry = {
       id: msgId,
       name: name || "",
       email,
       phone: phone || "",
       message,
-      createdAt: new Date().toISOString()
-    });
-    writeDB(db);
+      created_at: new Date().toISOString()
+    };
+    const { error } = await supabase.from("messages").insert(entry);
+    if(error) throw error;
 
     if(isSheetsConfigured()){
       try{
@@ -762,6 +959,81 @@ app.post("/api/contact", async (req,res)=>{
   }catch(err){
     console.error("Contact email failed", err);
     res.status(500).json({ ok:false, message:"Failed to send email" });
+  }
+});
+
+// ---- Help widget -> help_requests + messages ----
+app.post("/api/help", async (req,res)=>{
+  const { name, email, message } = req.body;
+  if(!email || !message) return res.status(400).json({ ok:false, message:"Email and message required" });
+  if(!requireSupabase(res)) return;
+
+  try{
+    const emailReady = process.env.EMAIL_USER && process.env.EMAIL_PASS && process.env.ORDER_TO;
+    let emailSent = false;
+
+    const helpId = "HELP-" + Date.now();
+    const entry = {
+      id: helpId,
+      name: name || "",
+      email,
+      message,
+      created_at: new Date().toISOString()
+    };
+    const { error: helpErr } = await supabase.from("help_requests").insert(entry);
+    if(helpErr) throw helpErr;
+
+    const msgId = "MSG-" + Date.now();
+    const messageEntry = {
+      id: msgId,
+      name: name || "",
+      email,
+      phone: "",
+      message: `[Help] ${message}`,
+      created_at: new Date().toISOString()
+    };
+    const { error: msgErr } = await supabase.from("messages").insert(messageEntry);
+    if(msgErr) throw msgErr;
+
+    if(isSheetsConfigured()){
+      try{
+        await appendMessageToSheet([
+          new Date().toISOString(),
+          msgId,
+          name || "",
+          email,
+          "",
+          `[Help] ${message}`
+        ]);
+      }catch(sheetErr){
+        console.error("Help message sheet append failed", sheetErr);
+      }
+    }
+
+    if(emailReady){
+      try{
+        await transporter.sendMail({
+          from: getSenderAddress(),
+          to: process.env.ORDER_TO,
+          subject: "New Help Request - Power Poly Supplies",
+          html: `
+            <h2>New Help Request</h2>
+            <p><b>Name:</b> ${name || ""}</p>
+            <p><b>Email:</b> ${email}</p>
+            <hr/>
+            <p>${(message || "").replace(/\n/g,"<br/>")}</p>
+          `
+        });
+        emailSent = true;
+      }catch(mailErr){
+        console.error("Help email failed", mailErr);
+      }
+    }
+
+    res.json({ ok:true, emailSent });
+  }catch(err){
+    console.error("Help request failed", err);
+    res.status(500).json({ ok:false, message:"Failed to send help request" });
   }
 });
 
@@ -818,7 +1090,7 @@ app.post("/api/auth/check-code", (req,res)=>{
 });
 
 // ---- Auth: register ----
-app.post("/api/auth/register", (req,res)=>{
+app.post("/api/auth/register", async (req,res)=>{
   const { email, code, password, name } = req.body;
   const emailKey = String(email || "").trim().toLowerCase();
   if(!emailKey || !code || !password) return res.status(400).json({ ok:false, message:"Email, code, and password required" });
@@ -833,11 +1105,20 @@ app.post("/api/auth/register", (req,res)=>{
     return res.status(400).json({ ok:false, message:"Invalid code." });
   }
 
-  const db = readDB();
-  if(!db.users) db.users = [];
+  if(!requireSupabase(res)) return;
   const lower = emailKey;
-  const existing = db.users.find(u => (u.email || "").toLowerCase() === lower);
-  if(existing) return res.status(400).json({ ok:false, message:"Account already exists. Please log in." });
+  try{
+    const { data: existing, error: existingErr } = await supabase
+      .from("users")
+      .select("id")
+      .eq("email", lower)
+      .maybeSingle();
+    if(existingErr) throw existingErr;
+    if(existing) return res.status(400).json({ ok:false, message:"Account already exists. Please log in." });
+  }catch(err){
+    console.error("Supabase user lookup failed", err);
+    return res.status(500).json({ ok:false, message:"Unable to create account." });
+  }
 
   const user = {
     id: "USR-" + Date.now(),
@@ -846,20 +1127,29 @@ app.post("/api/auth/register", (req,res)=>{
     passwordHash: hashPassword(password),
     createdAt: new Date().toISOString()
   };
-  db.users.unshift(user);
-  writeDB(db);
+  const now = new Date().toISOString();
+  const userRow = {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    password_hash: user.passwordHash,
+    created_at: now,
+    last_login_at: now,
+    first_login_at: now,
+    welcome_email_sent: false
+  };
+  try{
+    const { error: insertErr } = await supabase.from("users").insert(userRow);
+    if(insertErr) throw insertErr;
+  }catch(err){
+    console.error("Supabase user insert failed", err);
+    return res.status(500).json({ ok:false, message:"Unable to create account." });
+  }
   verificationCodes.delete(email);
 
   const session = createSession(lower);
-  const now = new Date().toISOString();
   const emailConfigured = process.env.EMAIL_USER && process.env.EMAIL_PASS;
-  const shouldSendWelcome = emailConfigured && !user.welcomeEmailSent;
-
-  user.lastLoginAt = now;
-  if(!user.firstLoginAt){
-    user.firstLoginAt = now;
-  }
-  writeDB(db);
+  const shouldSendWelcome = emailConfigured;
 
   if(shouldSendWelcome){
     transporter.sendMail({
@@ -868,8 +1158,12 @@ app.post("/api/auth/register", (req,res)=>{
       subject: "Welcome to Power Poly Supplies!",
       html: buildWelcomeHtml(user.name || "", new Date(now))
     }).then(()=>{
-      user.welcomeEmailSent = true;
-      writeDB(db);
+      supabase.from("users")
+        .update({ welcome_email_sent:true })
+        .eq("email", lower)
+        .then(({ error: updateErr })=>{
+          if(updateErr) console.error("Supabase welcome email flag update failed", updateErr);
+        });
     }).catch((mailErr)=>{
       console.error("Welcome email failed", mailErr);
     });
@@ -900,19 +1194,37 @@ app.post("/api/auth/verify-code", (req,res)=>{
 });
 
 // ---- Auth: login ----
-app.post("/api/auth/login", (req,res)=>{
+app.post("/api/auth/login", async (req,res)=>{
   const { email, password } = req.body;
   const emailKey = String(email || "").trim().toLowerCase();
   if(!emailKey || !password) return res.status(400).json({ ok:false, message:"Email and password required" });
 
-  const db = readDB();
+  if(!requireSupabase(res)) return;
   const lower = emailKey;
-  const user = (db.users || []).find(u => (u.email || "").toLowerCase() === lower);
-  if(!user || !verifyPassword(password, user.passwordHash)){
+  let user = null;
+  try{
+    const { data, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("email", lower)
+      .maybeSingle();
+    if(error) throw error;
+    user = normalizeUserRow(data);
+  }catch(err){
+    console.error("Supabase user login lookup failed", err);
+    return res.status(500).json({ ok:false, message:"Unable to log in." });
+  }
+  if(!user || !verifyPassword(password, user.password_hash)){
     return res.status(400).json({ ok:false, message:"Invalid email or password." });
   }
 
   const session = createSession(lower);
+  supabase.from("users")
+    .update({ last_login_at: new Date().toISOString() })
+    .eq("email", lower)
+    .then(({ error })=>{
+      if(error) console.error("Supabase last login update failed", error);
+    });
   res.json({ ok:true, token: session.token, email: lower, name: user.name || "", expiresAt: session.expiresAt });
 });
 
@@ -936,8 +1248,15 @@ app.post("/api/stripe-checkout", async (req,res)=>{
     }
 
     const language = customer?.language === "fr" ? "fr" : "en";
-    const db = readDB();
-    const productsById = new Map((db.products || []).map(p=>[p.id, p]));
+    if(!requireSupabase(res)) return;
+    const productIds = (items || []).map(i=>i.id).filter(Boolean);
+    let productsById = new Map();
+    try{
+      const products = await fetchProductsByIds(productIds);
+      productsById = new Map(products.map(p=>[p.id, p]));
+    }catch(err){
+      console.error("Supabase products fetch for stripe failed", err);
+    }
     const line_items = (items || []).map(i=>{
       const product = productsById.get(i.id);
       const unitAmount = product ? getTieredPriceCents(product, i.qty) : Number(i.priceCents || 0);
@@ -968,7 +1287,11 @@ app.post("/api/stripe-checkout", async (req,res)=>{
         name: customer?.name || "",
         email: customer?.email || "",
         phone: customer?.phone || "",
-        address: customer?.address || "",
+        address_line1: customer?.address1 || "",
+        address_line2: customer?.address2 || "",
+        city: customer?.city || "",
+        postal: customer?.postal || "",
+        delivery_notes: customer?.deliveryNotes || "",
         province: customer?.province || "",
         language
       }
@@ -985,22 +1308,36 @@ app.post("/api/stripe-checkout", async (req,res)=>{
 app.post("/api/feedback", async (req,res)=>{
   const { name, email, message } = req.body;
   if(!message) return res.status(400).json({ ok:false, message:"Message required" });
+  if(!requireSupabase(res)) return;
 
   try{
     const emailReady = process.env.EMAIL_USER && process.env.EMAIL_PASS && process.env.ORDER_TO;
     let emailSent = false;
 
-    const db = readDB();
-    if(!db.feedback) db.feedback = [];
     const fbId = "FB-" + Date.now();
-    db.feedback.unshift({
+    const entry = {
       id: fbId,
       name: name || "",
       email: email || "",
       message,
-      createdAt: new Date().toISOString()
-    });
-    writeDB(db);
+      created_at: new Date().toISOString()
+    };
+    const { error } = await supabase.from("feedback").insert(entry);
+    if(error) throw error;
+
+    if(isSheetsConfigured()){
+      try{
+        await appendFeedbackToSheet([
+          new Date().toISOString(),
+          fbId,
+          name || "",
+          email || "",
+          message
+        ]);
+      }catch(sheetErr){
+        console.error("Feedback sheet append failed", sheetErr);
+      }
+    }
 
     if(emailReady){
       try{
@@ -1043,8 +1380,14 @@ app.post("/api/stripe-receipt", async (req,res)=>{
     if(!session) return res.status(404).json({ ok:false, message:"Session not found" });
 
     const currency = (session.currency || "cad").toUpperCase();
-    const db = readDB();
-    const productsByName = new Map((db.products || []).map(p=>[(p.name || "").toLowerCase(), p]));
+    if(!requireSupabase(res)) return;
+    let productsByName = new Map();
+    try{
+      const products = await fetchProducts();
+      productsByName = new Map((products || []).map(p=>[(p.name || "").toLowerCase(), p]));
+    }catch(err){
+      console.error("Supabase products fetch for receipt failed", err);
+    }
     const items = (session.line_items?.data || []).map(item=>{
       const name = item.description || item.price?.product?.name || "Item";
       const product = productsByName.get(String(name).toLowerCase());
@@ -1069,12 +1412,59 @@ app.post("/api/stripe-receipt", async (req,res)=>{
       name: meta.name || session.customer_details?.name || "",
       email: meta.email || session.customer_details?.email || "",
       phone: meta.phone || session.customer_details?.phone || "",
-      address: meta.address || "",
+      address1: meta.address_line1 || "",
+      address2: meta.address_line2 || "",
+      city: meta.city || "",
+      postal: meta.postal || "",
+      deliveryNotes: meta.delivery_notes || "",
       province: meta.province || "",
       language: meta.language === "fr" ? "fr" : (meta.language === "ko" ? "ko" : "en")
     };
     const taxLabel = `${PROVINCE_TAX_LABELS[customer?.province] || "Tax"}${customer?.province ? ` - ${customer.province}` : ""}`;
     const orderId = session.id;
+    const nowIso = new Date().toISOString();
+
+    const order = {
+      id: orderId,
+      status: "paid",
+      payment_method: "stripe",
+      customer,
+      customer_email: (customer?.email || "").toLowerCase(),
+      shipping: {
+        zone: "Stripe",
+        label: "Stripe",
+        costCents: 0
+      },
+      items,
+      total_cents: totalCents,
+      currency,
+      language: customer?.language === "fr" ? "fr" : (customer?.language === "ko" ? "ko" : "en"),
+      created_at: nowIso
+    };
+    const { error: orderError } = await supabase.from("orders").upsert([order], { onConflict: "id" });
+    if(orderError) throw orderError;
+
+    const deliveryId = `DEL-${Date.now()}`;
+    const delivery = {
+      id: deliveryId,
+      order_id: orderId,
+      customer_email: (customer?.email || "").toLowerCase(),
+      name: customer?.name || "",
+      phone: customer?.phone || "",
+      address_line1: customer?.address1 || "",
+      address_line2: customer?.address2 || "",
+      city: customer?.city || "",
+      province: customer?.province || "",
+      postal: customer?.postal || "",
+      country: "Canada",
+      delivery_notes: customer?.deliveryNotes || "",
+      shipping_zone: "Stripe",
+      shipping_label: "Stripe",
+      status: "pending",
+      created_at: nowIso
+    };
+    const { error: deliveryError } = await supabase.from("deliveries").upsert([delivery], { onConflict: "id" });
+    if(deliveryError) throw deliveryError;
 
     const emailConfigured = process.env.EMAIL_USER && process.env.EMAIL_PASS;
     const adminEmail = process.env.ORDER_TO;
@@ -1176,9 +1566,12 @@ app.listen(PORT, HOST, ()=>{
   const hostLabel = HOST === "0.0.0.0" ? "localhost" : HOST;
   console.log(`Backend running on http://${hostLabel}:${PORT}`);
   if(isSheetsConfigured()){
-    const db = readDB();
-    syncProductsToSheet(db.products || []).catch((err)=>{
-      console.error("Products sheet sync failed", err);
-    });
+    if(!supabase){
+      console.warn("Supabase not configured; skipping sheets product sync.");
+    }else{
+      fetchProducts()
+        .then((products)=> syncProductsToSheet(products || []))
+        .catch((err)=>{ console.error("Products sheet sync failed", err); });
+    }
   }
 });

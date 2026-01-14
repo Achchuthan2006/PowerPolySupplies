@@ -287,6 +287,21 @@ html[lang="es"] .navbar .container{
   backdrop-filter: blur(6px);
 }
 
+.currency-symbol{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:22px;
+  height:22px;
+  border-radius:8px;
+  font-size:12px;
+  font-weight:800;
+  color:#fff;
+  background:linear-gradient(135deg, var(--primary), var(--primary-strong));
+  box-shadow:0 6px 14px rgba(240,127,41,.22);
+  text-shadow:0 1px 1px rgba(0,0,0,.2);
+}
+
 .lang-select{
   border:none;
   background:rgba(255,255,255,.75);
@@ -774,7 +789,7 @@ html[lang="ta"] .navlinks a{
   transform: scale(1.05);
 }
 .card img[src*="Caped%20we%20love.png"],
-.card img[src*="welovefinal.webp"]{
+.card img[src*="welovecaped%20hanger.webp"]{
   object-fit:contain;
   padding:10px;
   background:#fff7f0;
@@ -819,6 +834,36 @@ html[lang="ta"] .navlinks a{
   color:var(--muted);
   text-decoration:line-through;
   margin-right:8px;
+}
+.member-pricing{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:flex-end;
+  margin-top:10px;
+}
+.member-label,
+.market-label{
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.6px;
+  color:var(--muted);
+  font-weight:800;
+}
+.member-banner{
+  margin-top:10px;
+  padding:8px 10px;
+  border-radius:12px;
+  background:rgba(255,122,26,.14);
+  border:1px solid rgba(255,122,26,.24);
+  color:#c25a00;
+  font-size:12px;
+  font-weight:800;
+  display:inline-block;
+  text-decoration:none;
+}
+.member-banner:hover{
+  background:rgba(255,122,26,.2);
 }
 .favorite-btn{
   width:26px;
@@ -931,7 +976,11 @@ html[lang="ta"] .navlinks a{
   }
 .pricing-tier:first-child{ border-left:none; }
 .pricing-tier strong{ display:block; margin-bottom:6px; }
-.pricing-tier span{ color:var(--muted); font-size:13px; }
+.pricing-tier span{
+  color:var(--muted);
+  font-size:15px;
+  font-weight:800;
+}
 
   .input{
     width:100%;
@@ -1609,3 +1658,4 @@ select.input option:hover{
   .search-bar{ width:100%; }
   .search-bar input{ width:100%; }
 }
+

@@ -316,9 +316,12 @@ formEl.addEventListener("submit", async (e)=>{
     name: form.name.value.trim(),
     email: form.email.value.trim(),
     phone: form.phone.value.trim(),
-    address: form.address.value.trim(),
+    address1: form.address1.value.trim(),
+    address2: form.address2.value.trim(),
+    city: form.city.value.trim(),
     postal: form.postal?.value?.trim() || "",
     province: provinceSelect.value,
+    deliveryNotes: form.deliveryNotes?.value?.trim() || "",
     language: window.PPS_I18N?.getLang?.() || "en"
   };
 
@@ -411,9 +414,12 @@ document.getElementById("payOnline").addEventListener("click", async ()=>{
       name: formEl.name.value.trim(),
       email: formEl.email.value.trim(),
       phone: formEl.phone.value.trim(),
-      address: formEl.address.value.trim(),
+      address1: formEl.address1.value.trim(),
+      address2: formEl.address2.value.trim(),
+      city: formEl.city.value.trim(),
       postal: formEl.postal?.value?.trim() || "",
       province: provinceSelect.value,
+      deliveryNotes: formEl.deliveryNotes?.value?.trim() || "",
       language: window.PPS_I18N?.getLang?.() || "en"
     };
     const province = provinceSelect.value;

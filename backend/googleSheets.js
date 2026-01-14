@@ -177,6 +177,11 @@ export async function appendReviewToSheet(values){
   return appendRow(tab, values);
 }
 
+export async function appendFeedbackToSheet(values){
+  const tab = process.env.GOOGLE_SHEET_FEEDBACK_TAB || "Feedback";
+  return appendRow(tab, values);
+}
+
 export async function syncProductsToSheet(products){
   const tab = process.env.GOOGLE_SHEET_PRODUCTS_TAB || "Products";
   const list = Array.isArray(products) ? products : [];

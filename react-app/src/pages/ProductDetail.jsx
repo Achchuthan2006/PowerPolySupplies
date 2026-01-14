@@ -134,16 +134,35 @@ export default function ProductDetail() {
         <div className="card fade-in" style={{ padding: "18px" }}>
           <h2 style={{ margin: 0 }}>{displayName}</h2>
           <p style={{ color: "var(--muted)", marginTop: "8px" }}>{displayCategory}</p>
-          <div className="price-row">
-            <div>
-              <span className="compare-price">
-                {window.PPS?.money?.((Number(product.priceCents) || 0) + 1000, product.currency)}
-              </span>
-              <span className="price" style={{ fontSize: "22px" }}>
-                {window.PPS?.money?.(product.priceCents, product.currency)}
-              </span>
-            </div>
-          </div>
+          {(() => {
+            const compareCents = (Number(product.priceCents) || 0) + 1000;
+            const memberCents = Number(product.priceCents) || 0;
+            const savingsCents = Math.max(0, compareCents - memberCents);
+            const isMember = Boolean(window.PPS?.getSession?.());
+            const bannerTemplate = window.PPS_I18N?.t("member.banner") || "Log in to save {{amount}} with Power Poly Member Pricing";
+            const bannerText = bannerTemplate.replace("{{amount}}", window.PPS?.money?.(savingsCents, product.currency));
+            return (
+              <>
+                <div className="member-pricing">
+                  <div>
+                    <div className="market-label" data-i18n="market.price.label">Market price</div>
+                    <span className="compare-price">
+                      {window.PPS?.money?.(compareCents, product.currency)}
+                    </span>
+                  </div>
+                  <div>
+                    <div className="member-label" data-i18n="member.price.label">Power Poly Member Price</div>
+                    <span className="price" style={{ fontSize: "22px" }}>
+                      {window.PPS?.money?.(memberCents, product.currency)}
+                    </span>
+                  </div>
+                </div>
+                {!isMember && savingsCents > 0 ? (
+                  <Link className="member-banner" to="/login">{bannerText}</Link>
+                ) : null}
+              </>
+            );
+          })()}
           <div className={`stock ${stockClass(product.stock)}`}>
             <span className="dot" />
             {product.stock <= 0

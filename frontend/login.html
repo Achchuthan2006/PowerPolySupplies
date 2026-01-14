@@ -101,6 +101,15 @@
     const statusEl = document.getElementById("loginStatus");
     const loginBtn = document.getElementById("loginBtn");
 
+    function normalizeLoginStatus(message){
+      const raw = String(message || "");
+      if(!raw) return "";
+      if(raw.includes("Supabase not configured")){
+        return window.PPS_I18N?.t("login.status.unavailable") || "Login temporarily unavailable. Please try again later.";
+      }
+      return raw;
+    }
+
     async function login(){
       const email = emailInput.value.trim();
       const password = passInput.value;
@@ -121,7 +130,8 @@
           PPS.setSession({ token: data.token, email: data.email, name: data.name || "", expiresAt: data.expiresAt });
           window.location.href = "./account.html";
         }else{
-          statusEl.textContent = data?.message || (window.PPS_I18N?.t("login.status.failed") || "Login failed.");
+          const normalized = normalizeLoginStatus(data?.message);
+          statusEl.textContent = normalized || (window.PPS_I18N?.t("login.status.failed") || "Login failed.");
         }
       }catch(err){
         statusEl.textContent = window.PPS_I18N?.t("login.status.unreachable") || "Server unreachable. Is the backend running?";

@@ -276,6 +276,21 @@ html[lang="ta"] .promo-inner{
   backdrop-filter: blur(6px);
 }
 
+.currency-symbol{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:22px;
+  height:22px;
+  border-radius:8px;
+  font-size:12px;
+  font-weight:800;
+  color:#fff;
+  background:linear-gradient(135deg, var(--primary), var(--primary-strong));
+  box-shadow:0 6px 14px rgba(240,127,41,.22);
+  text-shadow:0 1px 1px rgba(0,0,0,.2);
+}
+
 .lang-select{
   border:none;
   background:rgba(255,255,255,.75);
@@ -758,7 +773,7 @@ html[lang="ta"] .navlinks a{
   background:#f8fafc;
 }
 .card img[src*="Caped%20we%20love.png"],
-.card img[src*="welovefinal.webp"]{
+.card img[src*="welovecaped%20hanger.webp"]{
   object-fit:contain;
   padding:10px;
   background:#fff7f0;
