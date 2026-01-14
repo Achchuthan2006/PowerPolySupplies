@@ -78,7 +78,7 @@
       const lang = window.PPS_I18N?.getLang?.() || "en";
       if(lang === "fr"){
         const map = {
-          "Garment Bags": "Housses de v?tements",
+          "Garment Bags": "Housses de vetements",
           "Hangers": "Cintres",
           "Polybags": "Sacs en poly",
           "Wraps": "Films",
@@ -88,11 +88,21 @@
       }
       if(lang === "ko"){
         const map = {
-          "Garment Bags": "의류 커버백",
-          "Hangers": "옷걸이",
-          "Polybags": "폴리백",
-          "Wraps": "랩",
-          "Racks": "랙"
+          "Garment Bags": "Garment Bags",
+          "Hangers": "Hangers",
+          "Polybags": "Polybags",
+          "Wraps": "Wraps",
+          "Racks": "Racks"
+        };
+        return map[category] || category || "";
+      }
+      if(lang === "es"){
+        const map = {
+          "Garment Bags": "Bolsas para prendas",
+          "Hangers": "Ganchos",
+          "Polybags": "Bolsas de polietileno",
+          "Wraps": "Film",
+          "Racks": "Percheros"
         };
         return map[category] || category || "";
       }
@@ -161,14 +171,18 @@
         }
 
         grid.innerHTML = specials.map(p=>{
+          const lang = window.PPS_I18N?.getLang?.() || "en";
+          const displayName = lang === "es"
+            ? (window.PPS_I18N?.autoTranslate?.(p.name || "", "es") || p.name)
+            : p.name;
           const compareCents = (Number(p.priceCents) || 0) + 1000;
           return `
           <div class="card fade-in">
             <a href="./product.html?slug=${encodeURIComponent(p.slug)}">
-              <img src="${p.image}" alt="${p.name}">
+              <img src="${p.image}" alt="${displayName}">
             </a>
             <div class="card-body">
-              <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(p.slug)}">${p.name}</a>
+              <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(p.slug)}">${displayName}</a>
               <div class="card-meta">${categoryLabel(p.category)}</div>
               <div class="price-row">
                 <div>

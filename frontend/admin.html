@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html data-lang-options="en,ta">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
@@ -60,13 +60,12 @@
   <script>
     function itemDescription(item, lang){
       if(!item) return "";
-      if(lang === "fr"){
-        return item.description_fr || item.description || "";
+      if(lang === "ta"){
+        const ta = item.description_ta || "";
+        if(/[\u0B80-\u0BFF]/.test(ta)) return ta;
+        return item.description || "";
       }
-      if(lang === "ko"){
-        return item.description_ko || item.description || "";
-      }
-      return item.description || item.description_fr || item.description_ko || "";
+      return item.description || "";
     }
 
     async function load(){
@@ -83,7 +82,7 @@
         }
 
         wrap.innerHTML = data.orders.map(o=>{
-          const lang = o.language === "fr" ? "fr" : (window.PPS_I18N?.getLang?.() || "en");
+          const lang = o.language === "ta" ? "ta" : "en";
           return `
           <div class="card fade-in" style="padding:14px;">
             <div style="display:flex; justify-content:space-between; gap:10px;">

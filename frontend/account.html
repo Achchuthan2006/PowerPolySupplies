@@ -183,13 +183,18 @@
         return;
       }
       favoritesMsg.textContent = "";
-      favoritesGrid.innerHTML = items.map(p=>`
+      const lang = window.PPS_I18N?.getLang?.() || "en";
+      favoritesGrid.innerHTML = items.map(p=>{
+        const displayName = lang === "es"
+          ? (window.PPS_I18N?.autoTranslate?.(p.name || "", "es") || p.name)
+          : p.name;
+        return `
         <div class="card fade-in">
           <a href="./product.html?slug=${encodeURIComponent(p.slug)}">
-            <img src="${p.image}" alt="${p.name}">
+            <img src="${p.image}" alt="${displayName}">
           </a>
           <div class="card-body">
-            <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(p.slug)}">${p.name}</a>
+            <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(p.slug)}">${displayName}</a>
             <div class="price-row"><div class="price">${PPS.money(p.priceCents,p.currency)}</div>${favoriteButton(p.id)}</div>
             <div style="margin-top:12px; display:flex; gap:10px;">
               <a class="btn" href="./product.html?slug=${encodeURIComponent(p.slug)}">${window.PPS_I18N?.t("product.view") || "View"}</a>
@@ -197,7 +202,7 @@
             </div>
           </div>
         </div>
-      `).join("");
+      `;}).join("");
       document.querySelectorAll(".fade-in").forEach(el => el.classList.add("show"));
     }
 
@@ -266,20 +271,31 @@
       ordersMsg.textContent = "";
       ordersGrid.innerHTML = orders.map(order=>{
         const date = new Date(order.createdAt).toLocaleString();
-        const lang = order.language === "fr" ? "fr" : (window.PPS_I18N?.getLang?.() || "en");
+        const lang = (order.language === "fr" || order.language === "ko" || order.language === "hi" || order.language === "ta" || order.language === "es")
+          ? order.language
+          : (window.PPS_I18N?.getLang?.() || "en");
         const items = (order.items || []).map(item=>{
           const desc = lang === "fr"
             ? (item.description_fr || item.description || "")
             : lang === "ko"
               ? (item.description_ko || item.description || "")
-              : (item.description || item.description_fr || item.description_ko || "");
+              : lang === "hi"
+                ? (item.description_hi || item.description || "")
+                : lang === "ta"
+                  ? (item.description_ta || item.description || "")
+                  : lang === "es"
+                    ? (window.PPS_I18N?.autoTranslate?.(item.description_es || item.description || "", "es") || (item.description_es || item.description || ""))
+                    : (item.description || item.description_fr || item.description_ko || item.description_hi || item.description_ta || item.description_es || "");
+          const displayName = lang === "es"
+            ? (window.PPS_I18N?.autoTranslate?.(item.name || "", "es") || item.name)
+            : item.name;
           const descHtml = desc
             ? `<div style="color:var(--muted); font-size:12px; margin-top:4px;">${desc}</div>`
             : "";
           return `
             <div style="display:flex; justify-content:space-between; gap:10px;">
               <div>
-                <div>${item.name} <span style="color:var(--muted)">x${item.qty}</span></div>
+                <div>${displayName} <span style="color:var(--muted)">x${item.qty}</span></div>
                 ${descHtml}
               </div>
               <div style="font-weight:700;">${PPS.money(item.priceCents * item.qty, item.currency)}</div>

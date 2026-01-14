@@ -209,7 +209,9 @@ function drawSummary(){
           ? (i.description_hi || i.description || productMap?.get(i.id)?.description_hi || productMap?.get(i.id)?.description || "")
           : lang === "ta"
             ? (i.description_ta || i.description || productMap?.get(i.id)?.description_ta || productMap?.get(i.id)?.description || "")
-            : (i.description || i.description_fr || i.description_ko || i.description_hi || i.description_ta || productMap?.get(i.id)?.description || productMap?.get(i.id)?.description_fr || productMap?.get(i.id)?.description_ko || productMap?.get(i.id)?.description_hi || productMap?.get(i.id)?.description_ta || "");
+            : lang === "es"
+              ? (window.PPS_I18N?.autoTranslate?.(i.description_es || i.description || productMap?.get(i.id)?.description_es || productMap?.get(i.id)?.description || "", "es") || (i.description_es || i.description || productMap?.get(i.id)?.description_es || productMap?.get(i.id)?.description || ""))
+              : (i.description || i.description_fr || i.description_ko || i.description_hi || i.description_ta || i.description_es || productMap?.get(i.id)?.description || productMap?.get(i.id)?.description_fr || productMap?.get(i.id)?.description_ko || productMap?.get(i.id)?.description_hi || productMap?.get(i.id)?.description_ta || productMap?.get(i.id)?.description_es || "");
     const descHtml = desc
       ? `<div style="color:var(--muted); font-size:12px; margin-top:4px;">${desc}</div>`
       : "";
@@ -217,10 +219,13 @@ function drawSummary(){
     const baseCents = unitCents * i.qty;
     const baseCurrency = getUnitCurrency(i);
     const lineTotal = PPS.convertCents(baseCents, baseCurrency, targetCurrency);
+    const displayName = lang === "es"
+      ? (window.PPS_I18N?.autoTranslate?.(i.name || "", "es") || i.name)
+      : i.name;
     return `
       <div style="display:flex; justify-content:space-between; gap:10px;">
         <div>
-          <div>${i.name} <span style="color:var(--muted)">x${i.qty}</span></div>
+          <div>${displayName} <span style="color:var(--muted)">x${i.qty}</span></div>
           ${descHtml}
         </div>
         <div style="font-weight:800">${PPS.money(lineTotal, targetCurrency, targetCurrency)}</div>
@@ -340,6 +345,7 @@ formEl.addEventListener("submit", async (e)=>{
       description_ko: item.description_ko || product?.description_ko || "",
       description_hi: item.description_hi || product?.description_hi || "",
       description_ta: item.description_ta || product?.description_ta || "",
+      description_es: item.description_es || product?.description_es || "",
       priceCentsBase: unitCents,
       currencyBase: baseCurrency,
       priceCents: PPS.convertCents(unitCents, baseCurrency, targetCurrency),
@@ -446,6 +452,7 @@ document.getElementById("payOnline").addEventListener("click", async ()=>{
         description_ko: item.description_ko || product?.description_ko || "",
         description_hi: item.description_hi || product?.description_hi || "",
         description_ta: item.description_ta || product?.description_ta || "",
+        description_es: item.description_es || product?.description_es || "",
         priceCentsBase: unitCents,
         currencyBase: baseCurrency,
         priceCents: PPS.convertCents(unitCents, baseCurrency, targetCurrency),

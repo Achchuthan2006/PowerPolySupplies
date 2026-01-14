@@ -16,7 +16,9 @@ function getItemDescription(item){
         ? (item.description_hi || item.description || "")
         : lang === "ta"
           ? (item.description_ta || item.description || "")
-          : (item.description || item.description_fr || item.description_ko || item.description_hi || item.description_ta || "");
+          : lang === "es"
+            ? (window.PPS_I18N?.autoTranslate?.(item.description_es || item.description || "", "es") || (item.description_es || item.description || ""))
+            : (item.description || item.description_fr || item.description_ko || item.description_hi || item.description_ta || item.description_es || "");
   if(stored) return stored;
   if(!productMap) return "";
   const product = productMap.get(item.id);
@@ -29,7 +31,9 @@ function getItemDescription(item){
         ? (product.description_hi || product.description || "")
         : lang === "ta"
           ? (product.description_ta || product.description || "")
-          : (product.description || product.description_fr || product.description_ko || product.description_hi || product.description_ta || "");
+          : lang === "es"
+            ? (window.PPS_I18N?.autoTranslate?.(product.description_es || product.description || "", "es") || (product.description_es || product.description || ""))
+            : (product.description || product.description_fr || product.description_ko || product.description_hi || product.description_ta || product.description_es || "");
 }
 
 function render(){
@@ -55,6 +59,10 @@ function render(){
   totalEl.textContent = PPS.money(total, targetCurrency, targetCurrency);
 
   list.innerHTML = cart.map(i=>{
+    const lang = window.PPS_I18N?.getLang?.() || "en";
+    const displayName = lang === "es"
+      ? (window.PPS_I18N?.autoTranslate?.(i.name || "", "es") || i.name)
+      : i.name;
     const desc = getItemDescription(i);
     const product = productMap?.get(i.id);
     const unitCents = product ? PPS.getTieredPriceCents(product, i.qty) : (i.priceCentsBase ?? i.priceCents);
@@ -65,7 +73,7 @@ function render(){
     return `
     <div class="card fade-in" style="padding:14px; display:flex; justify-content:space-between; align-items:center; gap:10px;">
       <div>
-        <div style="font-weight:800;">${i.name}</div>
+        <div style="font-weight:800;">${displayName}</div>
         <div style="color:var(--muted); font-size:13px;">${PPS.money(unitCents, baseCurrency)}</div>
         ${descHtml}
       </div>

@@ -75,6 +75,7 @@ const PPS_TRANSLATIONS = {
     "help.send": "Send message",
     "help.sent": "Thanks! We'll be in touch.",
     "help.sending": "Sending...",
+    "help.required": "Please fill all required fields.",
     "help.error": "Unable to send right now. Please try again.",
     "legal.kicker": "Legal"
     ,
@@ -98,6 +99,7 @@ const PPS_TRANSLATIONS = {
     "contact.business.hours.sat": "Saturday delivery | 9:00 AM - 10:00 PM",
     "contact.business.address": "Address",
     "contact.status.sending": "Sending...",
+    "contact.status.required": "Please fill all required fields.",
     "contact.status.sent": "Message sent. We'll get back to you.",
     "contact.status.failed": "Failed to send. Check backend/email settings.",
     "contact.status.unreachable": "Server unreachable. Is the backend running on 127.0.0.1:5000?"
@@ -156,6 +158,7 @@ const PPS_TRANSLATIONS = {
     "feedback.status.missing": "Please add your feedback message first.",
     "feedback.status.sending": "Sending your feedback...",
     "feedback.status.failed": "Failed to send feedback.",
+    "feedback.status.unreachable": "Server unreachable. Is the backend running on 127.0.0.1:5000?",
     "feedback.status.copy": "We also emailed a copy to our team.",
     "feedback.status.review": "We'll review it shortly.",
     "feedback.status.thanks": "Thanks! Your feedback was received."
@@ -203,6 +206,7 @@ const PPS_TRANSLATIONS = {
     "legal.shipping.li1": "Express delivery is available on request; contact us for delivery charges.",
     "legal.shipping.li2": "Delivery timing is confirmed after we review your order and address.",
     "legal.shipping.li3": "For large or bulk orders, our team may contact you to confirm delivery details.",
+    "legal.shipping.li4": "If you choose \"place order and pay later\" and cancel after delivery is attempted or completed, you are responsible for any delivery or service charges already incurred.",
     "legal.shipping.li4": "If you choose \"place order and pay later\" and cancel after delivery is attempted or completed, you are responsible for any delivery or service charges already incurred.",
     "legal.returns.section": "Returns",
     "legal.returns.blurb": "We accept returns within 30 days of delivery for unused items in original packaging.",
@@ -261,6 +265,7 @@ const PPS_TRANSLATIONS = {
     "cart.total": "Total",
     "cart.continue": "Continue shopping",
     "cart.checkout": "Go to checkout",
+    "cart.browse": "Browse products",
     "cart.account.title": "Have an account?",
     "cart.account.desc": "Log in to check out faster and track orders.",
     "cart.account.login": "Log in",
@@ -282,6 +287,7 @@ const PPS_TRANSLATIONS = {
     "checkout.summary.subtotal": "Subtotal",
     "checkout.summary.total": "Total",
     "checkout.summary.empty": "Your cart is empty.",
+    "checkout.summary.savings": "You saved",
     "checkout.shipping.label.gta": "Standard delivery (GTA)",
     "checkout.shipping.label.contact": "Delivery charges",
     "checkout.shipping.free": "Free",
@@ -326,6 +332,11 @@ const PPS_TRANSLATIONS = {
     "products.bulk.10": "10+ boxes",
     "products.bulk.15": "15+ boxes",
     "products.bulk.20": "20+ boxes"
+    ,
+    "products.no_results": "No results found",
+    "products.no_results_body": "Try a different search, or browse the full catalog.",
+    "products.no_results_all": "Browse all products",
+    "products.no_results_help": "Ask for help"
     ,
     
     "account.favorites.title": "Favorites",
@@ -407,6 +418,8 @@ const PPS_TRANSLATIONS = {
     "admin.nav.admin": "Admin",
     "admin.orders.title": "Admin Orders",
     "admin.orders.subtitle": "Review incoming orders, confirm payment method, and mark them fulfilled.",
+    "admin.orders.loading": "Loading orders...",
+    "admin.orders.empty": "No orders yet.",
     "admin.orders.refresh": "Refresh",
     "admin.orders.failed": "Failed to load orders.",
     "admin.orders.fulfill": "Mark Fulfilled",
@@ -2016,6 +2029,26 @@ const PPS_I18N = (() => {
     return allowed.includes(lang) ? lang : "en";
   };
 
+  function fixMojibake(text){
+    if(!text) return text;
+    const raw = String(text);
+    if(!/(?:Ã|Â|â|à¤|à®)/.test(raw)) return raw;
+    try{
+      if(typeof TextDecoder !== "undefined"){
+        const bytes = Uint8Array.from(raw, (c)=> c.charCodeAt(0));
+        const decoded = new TextDecoder("utf-8", { fatal:false }).decode(bytes);
+        if(decoded && decoded !== raw) return decoded;
+      }
+    }catch(err){
+      // ignore
+    }
+    try{
+      return decodeURIComponent(escape(raw));
+    }catch(err){
+      return raw;
+    }
+  }
+
   function readCookie(name){
     const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
     return match ? decodeURIComponent(match[1]) : "";
@@ -2183,7 +2216,7 @@ const PPS_I18N = (() => {
       const i = Number(index);
       return Number.isInteger(i) && placeholders[i] ? placeholders[i] : "";
     });
-    return out;
+    return fixMojibake(out);
   }
 
   function autoTranslate(text, lang){
@@ -2207,7 +2240,7 @@ const PPS_I18N = (() => {
         value = PPS_TRANSLATIONS.en[key];
       }
     }
-    return value;
+    return fixMojibake(value);
   }
 
   function interpolate(text){

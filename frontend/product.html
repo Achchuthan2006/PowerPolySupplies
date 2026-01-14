@@ -77,11 +77,21 @@
       }
       if(lang === "ko"){
         const map = {
-          "Garment Bags": "?? ???",
-          "Hangers": "???",
-          "Polybags": "???",
-          "Wraps": "?",
-          "Racks": "?"
+          "Garment Bags": "Garment Bags",
+          "Hangers": "Hangers",
+          "Polybags": "Polybags",
+          "Wraps": "Wraps",
+          "Racks": "Racks"
+        };
+        return map[category] || category || "";
+      }
+      if(lang === "es"){
+        const map = {
+          "Garment Bags": "Bolsas para prendas",
+          "Hangers": "Ganchos",
+          "Polybags": "Bolsas de polietileno",
+          "Wraps": "Film",
+          "Racks": "Percheros"
         };
         return map[category] || category || "";
       }
@@ -195,6 +205,10 @@
       }
 
       const lang = window.PPS_I18N?.getLang?.() || "en";
+      const displayName = lang === "es"
+        ? (window.PPS_I18N?.autoTranslate?.(p.name || "", "es") || p.name)
+        : p.name;
+      const displayCategory = categoryLabel(p.category || "");
       const desc = lang === "fr"
         ? (p.description_fr || p.description)
         : lang === "ko"
@@ -203,20 +217,22 @@
             ? (p.description_hi || p.description)
             : lang === "ta"
               ? (p.description_ta || p.description)
-              : p.description;
+              : lang === "es"
+                ? (window.PPS_I18N?.autoTranslate?.(p.description_es || p.description || "", "es") || (p.description_es || p.description || ""))
+                : p.description;
       wrap.innerHTML = `
         <section class="hero fade-in" style="margin-bottom:16px;">
           <p style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);" data-i18n="product.kicker">Product detail</p>
-          <h1 style="margin:4px 0 6px;">${p.name}</h1>
-          <p style="margin:0; color:var(--muted);">${window.PPS_I18N?.t("product.category") || "Category:"} ${p.category || "N/A"}</p>
+          <h1 style="margin:4px 0 6px;">${displayName}</h1>
+          <p style="margin:0; color:var(--muted);">${window.PPS_I18N?.t("product.category") || "Category:"} ${displayCategory || "N/A"}</p>
         </section>
         <div class="grid" style="grid-template-columns: 1.1fr .9fr; gap:24px;">
           <div class="card fade-in">
-            <img src="${p.image}" alt="${p.name}" style="height:420px;">
+            <img src="${p.image}" alt="${displayName}" style="height:420px;">
           </div>
           <div class="card fade-in" style="padding:18px;">
-            <h2 style="margin:0;">${p.name}</h2>
-            <p style="color:var(--muted); margin-top:8px;">${categoryLabel(p.category || "")}</p>
+            <h2 style="margin:0;">${displayName}</h2>
+            <p style="color:var(--muted); margin-top:8px;">${displayCategory}</p>
             <div class="price-row">
               <div>
                 <span class="compare-price">${PPS.money((Number(p.priceCents) || 0) + 1000, p.currency)}</span>
@@ -295,8 +311,8 @@
       const shareBtn = document.getElementById("shareBtn");
       const shareMsg = document.getElementById("shareMsg");
       const shareData = {
-        title: p.name,
-        text: `${p.name} - Power Poly Supplies`,
+        title: displayName,
+        text: `${displayName} - Power Poly Supplies`,
         url: window.location.href
       };
 
@@ -427,6 +443,10 @@
       }
 
       grid.innerHTML = picks.map(item=>{
+        const lang = window.PPS_I18N?.getLang?.() || "en";
+        const displayName = lang === "es"
+          ? (window.PPS_I18N?.autoTranslate?.(item.name || "", "es") || item.name)
+          : item.name;
         const s = item.stock<=0 ? "out" : item.stock<=10 ? "low" : "in";
         const label = item.stock<=0
           ? (window.PPS_I18N?.t("product.stock.out") || "Out of stock")
@@ -436,10 +456,10 @@
         return `
           <div class="card fade-in">
             <a href="./product.html?slug=${encodeURIComponent(item.slug)}">
-              <img src="${item.image}" alt="${item.name}">
+              <img src="${item.image}" alt="${displayName}">
             </a>
             <div class="card-body">
-              <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(item.slug)}">${item.name}</a>
+              <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(item.slug)}">${displayName}</a>
               <div class="card-meta">${categoryLabel(item.category || "")}</div>
               <div class="price-row">
                 <div>

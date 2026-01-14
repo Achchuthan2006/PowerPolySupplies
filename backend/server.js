@@ -151,18 +151,18 @@ function getReceiptLabels(language){
   }
   if(lang === "ko"){
     return {
-      item: "??",
-      qty: "??",
-      price: "??",
-      line: "??",
-      subtotal: "??",
-      total: "??",
-      orderId: "?? ID",
-      province: "?/??",
-      address: "??",
-      customer: "??",
-      email: "???",
-      phone: "????"
+      item: "Item",
+      qty: "Qty",
+      price: "Price",
+      line: "Line Total",
+      subtotal: "Subtotal",
+      total: "Total",
+      orderId: "Order ID",
+      province: "Province",
+      address: "Address",
+      customer: "Customer",
+      email: "Email",
+      phone: "Phone"
     };
   }
   return {
@@ -619,17 +619,17 @@ app.post("/api/order", async (req,res)=>{
         const headerText = customer?.language === "fr"
           ? "Recu"
           : customer?.language === "ko"
-            ? "???"
+            ? "Receipt"
             : "Receipt";
         const introText = customer?.language === "fr"
           ? "Merci pour votre commande chez Power Poly Supplies. Nous la preparons avec soin. Voici votre recu."
           : customer?.language === "ko"
-            ? "Power Poly Supplies? ??? ??? ?????. ??? ?? ?????. ???? ??? ???."
+            ? "Thanks for choosing Power Poly Supplies. We are getting your order ready now. Here is your receipt."
             : "Thanks for choosing Power Poly Supplies. We are getting your order ready now. Here is your receipt.";
         const subjectText = customer?.language === "fr"
           ? `Merci pour votre commande ! Power Poly Supplies - ${orderId}`
           : customer?.language === "ko"
-            ? `Power Poly Supplies ?? ?? - ${orderId}`
+            ? `Thanks for your order! Power Poly Supplies receipt - ${orderId}`
             : `Thanks for your order! Power Poly Supplies receipt - ${orderId}`;
 
         const receiptHtml = buildReceiptHtml({
@@ -1092,17 +1092,17 @@ app.post("/api/stripe-receipt", async (req,res)=>{
       const headerText = customer?.language === "fr"
         ? "Recu"
         : customer?.language === "ko"
-          ? "???"
+          ? "Receipt"
           : "Receipt";
       const introText = customer?.language === "fr"
         ? "Merci pour votre commande chez Power Poly Supplies. Nous la preparons avec soin. Voici votre recu."
         : customer?.language === "ko"
-          ? "Power Poly Supplies? ??? ??? ?????. ??? ?? ?????. ???? ??? ???."
+          ? "Thanks for choosing Power Poly Supplies. We are getting your order ready now. Here is your receipt."
           : "Thanks for choosing Power Poly Supplies. We are getting your order ready now. Here is your receipt.";
       const subjectText = customer?.language === "fr"
         ? `Merci pour votre commande ! Power Poly Supplies - ${orderId}`
         : customer?.language === "ko"
-          ? `Power Poly Supplies ?? ?? - ${orderId}`
+          ? `Thanks for your order! Power Poly Supplies receipt - ${orderId}`
           : `Thanks for your order! Power Poly Supplies receipt - ${orderId}`;
 
       const receiptHtml = buildReceiptHtml({

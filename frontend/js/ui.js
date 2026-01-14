@@ -67,15 +67,23 @@ function injectLangSwitcher(){
   if(navLinks.querySelector(".lang-switcher")) return;
 
   const tools = getNavTools(navLinks);
+  const langOptions = (document.documentElement?.dataset?.langOptions || "en,fr,es,ko,hi,ta")
+    .split(",")
+    .map(value => value.trim())
+    .filter(Boolean);
+  const langLabels = {
+    en: "English",
+    fr: "French",
+    es: "Spanish",
+    ko: "Korean",
+    hi: "Hindi",
+    ta: "Tamil"
+  };
   const wrap = document.createElement("div");
   wrap.className = "lang-switcher";
   wrap.innerHTML = `
     <select id="langSelect" class="lang-select" aria-label="Language">
-      <option value="en">English</option>
-      <option value="fr">French</option>
-      <option value="ko">Korean</option>
-      <option value="hi">Hindi</option>
-      <option value="ta">Tamil</option>
+      ${langOptions.map(code => `<option value="${code}">${langLabels[code] || code}</option>`).join("")}
     </select>
   `;
   tools.appendChild(wrap);
@@ -387,7 +395,7 @@ function injectHelpWidget(){
     <div class="help-panel" id="helpPanel" aria-hidden="true">
       <div class="help-panel-header">
         <div data-i18n="help.title">Live customer support</div>
-        <button class="help-close" type="button" id="helpClose" aria-label="Close">–</button>
+        <button class="help-close" type="button" id="helpClose" aria-label="Close">X</button>
       </div>
       <div class="help-panel-body">
         <p data-i18n="help.subtitle">We're offline right now. Leave a message and we'll get back to you.</p>
@@ -460,6 +468,18 @@ function injectHelpWidget(){
         sending: "\u0b85\u0ba9\u0bc1\u0baa\u0bcd\u0baa\u0bc1\u0b95\u0bbf\u0bb1\u0b9f\u0bc1...",
         sent: "\u0ba8\u0ba9\u0bcd\u0bb1\u0bbf! \u0ba8\u0bbe\u0b99\u0bcd\u0b95\u0bb3\u0bcd \u0ba4\u0bca\u0b9f\u0bb0\u0bcd\u0baa\u0bc1 \u0b95\u0bca\u0bb3\u0bcd\u0bb5\u0bcb\u0bae\u0bcd.",
         error: "\u0ba4\u0bb1\u0bcd\u0baa\u0bcb\u0ba4\u0bc1 \u0b85\u0ba9\u0bc1\u0baa\u0bcd\u0baa \u0bae\u0bc1\u0b9f\u0bbf\u0baf\u0bb5\u0bbf\u0bb2\u0bcd\u0bb2\u0bc8. \u0ba4\u0baf\u0bb5\u0bc1 \u0b9a\u0bc6\u0baf\u0bcd\u0b95."
+      },
+      es: {
+        fab: "Ayuda",
+        title: "Soporte al cliente en vivo",
+        subtitle: "Ahora mismo estamos fuera de línea. Deja un mensaje y nos pondremos en contacto.",
+        name: "Nombre",
+        email: "Correo",
+        message: "Mensaje",
+        send: "Enviar mensaje",
+        sending: "Enviando...",
+        sent: "¡Gracias! Nos pondremos en contacto.",
+        error: "No se pudo enviar en este momento. Inténtalo de nuevo."
       }
     };
     return localized[lang] || null;
