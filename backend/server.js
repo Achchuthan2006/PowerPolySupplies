@@ -113,16 +113,13 @@ function normalizePostal(value){
 function getShippingForPostal(postal){
   const clean = normalizePostal(postal);
   if(!clean){
-    return { zone: "Unknown", label: "Shipping", amountCents: 0 };
+    return { zone: "Unknown", label: "Delivery charges - Contact us", amountCents: 0 };
   }
   const prefix = clean[0];
   if(prefix === "M" || prefix === "L"){
-    return { zone: "GTA", label: "Shipping - GTA (Free)", amountCents: 0 };
+    return { zone: "GTA", label: "Standard delivery (GTA) - Free", amountCents: 0 };
   }
-  if(prefix === "N"){
-    return { zone: "Ontario", label: "Shipping - Ontario", amountCents: 1999 };
-  }
-  return { zone: "Other provinces", label: "Shipping - Other provinces", amountCents: 4999 };
+  return { zone: "Canada", label: "Delivery charges - Contact us", amountCents: 0 };
 }
 
 function escapeHtml(value){
@@ -227,8 +224,12 @@ function buildReceiptHtml({
         ? (item.description_ko || item.description || "")
         : (item.description || item.description_fr || item.description_ko || "")
     ).trim();
-    const descHtml = desc
-      ? `<div style="margin-top:4px; font-size:12px; color:#6b7280;">${escapeHtml(desc)}</div>`
+    const shortDesc = desc
+      ? (desc.split(/[.!?]/)[0] || desc).trim()
+      : "";
+    const trimmedDesc = shortDesc.length > 120 ? `${shortDesc.slice(0, 120)}...` : shortDesc;
+    const descHtml = trimmedDesc
+      ? `<div style="margin-top:4px; font-size:12px; color:#6b7280;">${escapeHtml(trimmedDesc)}</div>`
       : "";
     return `
       <tr>
@@ -571,98 +572,67 @@ app.post("/api/order", async (req,res)=>{
     db.orders.unshift(order);
     writeDB(db);
 
-    if(isSheetsConfigured()){
-      try{
-        await syncProductsToSheet(db.products || []);
-      }catch(sheetErr){
-        console.error("Products sheet sync failed", sheetErr);
-      }
-    }
+    res.json({ ok:true, orderId });
 
-    const taxCents = taxData.taxCents;
-    const taxLabel = `${PROVINCE_TAX_LABELS[customer?.province] || "Tax"}${customer?.province ? ` - ${customer.province}` : ""}`;
-
-    let sheetsSynced = false;
-    if(isSheetsConfigured()){
-      const itemsSummary = normalizedItems.map((item) => `${item.name} x${item.qty}`).join("; ");
-      try{
-        await appendOrderToSheet([
-          new Date().toISOString(),
-          orderId,
-          customer?.name || "",
-          customer?.email || "",
-          customer?.phone || "",
-          shippingInfo.zone,
-          formatMoney(shippingInfo.amountCents, currency),
-          itemsSummary,
-          formatMoney(totalCentsComputed, currency)
-        ]);
-        sheetsSynced = true;
-      }catch(sheetErr){
-        console.error("Order sheet append failed", sheetErr);
-      }
-    }
-
-    // email if configured
-    const emailConfigured = process.env.EMAIL_USER && process.env.EMAIL_PASS;
-    const adminEmail = process.env.ORDER_TO;
-    const logoExists = fs.existsSync(COMPANY_LOGO_PATH);
-    const attachments = logoExists ? [{
-      filename: path.basename(COMPANY_LOGO_PATH),
-      path: COMPANY_LOGO_PATH,
-      cid: "pps-logo"
-    }] : [];
-    let customerEmailSent = false;
-    let adminEmailSent = false;
-
-    if(emailConfigured){
-      const headerText = customer?.language === "fr"
-        ? "Recu"
-        : customer?.language === "ko"
-          ? "???"
-          : "Receipt";
-      const introText = customer?.language === "fr"
-        ? "Merci pour votre commande chez Power Poly Supplies. Nous la preparons avec soin. Voici votre recu."
-        : customer?.language === "ko"
-          ? "Power Poly Supplies? ??? ??? ?????. ??? ?? ?????. ???? ??? ???."
-          : "Thanks for choosing Power Poly Supplies. We are getting your order ready now. Here is your receipt.";
-      const subjectText = customer?.language === "fr"
-        ? `Merci pour votre commande ! Power Poly Supplies - ${orderId}`
-        : customer?.language === "ko"
-          ? `Power Poly Supplies ?? ?? - ${orderId}`
-          : `Thanks for your order! Power Poly Supplies receipt - ${orderId}`;
-
-      const receiptHtml = buildReceiptHtml({
-        orderId,
-        customer,
-        items: normalizedItems,
-        subtotalCents,
-        taxCents,
-        totalCents: totalCentsComputed,
-        currency,
-        taxLabel,
-        headerText,
-        introText,
-        logoCid: "pps-logo",
-        logoExists,
-        language: customer?.language
-      });
-
-      try{
-        await transporter.sendMail({
-          from: getSenderAddress(),
-          to: customer.email,
-          subject: subjectText,
-          html: receiptHtml,
-          attachments
-        });
-        customerEmailSent = true;
-      }catch(mailErr){
-        console.error("Customer receipt email failed", mailErr);
+    // Run slower tasks in background so checkout returns fast.
+    (async ()=>{
+      if(isSheetsConfigured()){
+        try{
+          await syncProductsToSheet(db.products || []);
+        }catch(sheetErr){
+          console.error("Products sheet sync failed", sheetErr);
+        }
       }
 
-      if(adminEmail){
-        const adminHtml = buildReceiptHtml({
+      const taxCents = taxData.taxCents;
+      const taxLabel = `${PROVINCE_TAX_LABELS[customer?.province] || "Tax"}${customer?.province ? ` - ${customer.province}` : ""}`;
+
+      if(isSheetsConfigured()){
+        const itemsSummary = normalizedItems.map((item) => `${item.name} x${item.qty}`).join("; ");
+        try{
+          await appendOrderToSheet([
+            new Date().toISOString(),
+            orderId,
+            customer?.name || "",
+            customer?.email || "",
+            customer?.phone || "",
+            shippingInfo.zone,
+            formatMoney(shippingInfo.amountCents, currency),
+            itemsSummary,
+            formatMoney(totalCentsComputed, currency)
+          ]);
+        }catch(sheetErr){
+          console.error("Order sheet append failed", sheetErr);
+        }
+      }
+
+      const emailConfigured = process.env.EMAIL_USER && process.env.EMAIL_PASS;
+      const adminEmail = process.env.ORDER_TO;
+      const logoExists = fs.existsSync(COMPANY_LOGO_PATH);
+      const attachments = logoExists ? [{
+        filename: path.basename(COMPANY_LOGO_PATH),
+        path: COMPANY_LOGO_PATH,
+        cid: "pps-logo"
+      }] : [];
+
+      if(emailConfigured){
+        const headerText = customer?.language === "fr"
+          ? "Recu"
+          : customer?.language === "ko"
+            ? "???"
+            : "Receipt";
+        const introText = customer?.language === "fr"
+          ? "Merci pour votre commande chez Power Poly Supplies. Nous la preparons avec soin. Voici votre recu."
+          : customer?.language === "ko"
+            ? "Power Poly Supplies? ??? ??? ?????. ??? ?? ?????. ???? ??? ???."
+            : "Thanks for choosing Power Poly Supplies. We are getting your order ready now. Here is your receipt.";
+        const subjectText = customer?.language === "fr"
+          ? `Merci pour votre commande ! Power Poly Supplies - ${orderId}`
+          : customer?.language === "ko"
+            ? `Power Poly Supplies ?? ?? - ${orderId}`
+            : `Thanks for your order! Power Poly Supplies receipt - ${orderId}`;
+
+        const receiptHtml = buildReceiptHtml({
           orderId,
           customer,
           items: normalizedItems,
@@ -671,8 +641,8 @@ app.post("/api/order", async (req,res)=>{
           totalCents: totalCentsComputed,
           currency,
           taxLabel,
-          headerText: "New Order",
-          introText: "A new order has been placed on Power Poly Supplies.",
+          headerText,
+          introText,
           logoCid: "pps-logo",
           logoExists,
           language: customer?.language
@@ -681,25 +651,47 @@ app.post("/api/order", async (req,res)=>{
         try{
           await transporter.sendMail({
             from: getSenderAddress(),
-            to: adminEmail,
-            subject: `New Order ${orderId} (${order.paymentMethod})`,
-            html: adminHtml,
+            to: customer.email,
+            subject: subjectText,
+            html: receiptHtml,
             attachments
           });
-          adminEmailSent = true;
         }catch(mailErr){
-          console.error("Admin order email failed", mailErr);
+          console.error("Customer receipt email failed", mailErr);
+        }
+
+        if(adminEmail){
+          const adminHtml = buildReceiptHtml({
+            orderId,
+            customer,
+            items: normalizedItems,
+            subtotalCents,
+            taxCents,
+            totalCents: totalCentsComputed,
+            currency,
+            taxLabel,
+            headerText: "New Order",
+            introText: "A new order has been placed on Power Poly Supplies.",
+            logoCid: "pps-logo",
+            logoExists,
+            language: customer?.language
+          });
+
+          try{
+            await transporter.sendMail({
+              from: getSenderAddress(),
+              to: adminEmail,
+              subject: `New Order ${orderId} (${order.paymentMethod})`,
+              html: adminHtml,
+              attachments
+            });
+          }catch(mailErr){
+            console.error("Admin order email failed", mailErr);
+          }
         }
       }
-    }
-
-    res.json({
-      ok:true,
-      orderId,
-      emailSent: customerEmailSent || adminEmailSent,
-      customerEmailSent,
-      adminEmailSent,
-      sheetsSynced
+    })().catch((err)=>{
+      console.error("Order async work failed", err);
     });
   }catch(err){
     console.error("Order error", err);

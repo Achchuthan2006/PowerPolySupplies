@@ -65,6 +65,16 @@ const PPS_TRANSLATIONS = {
     "footer.terms": "Terms & Conditions",
     "footer.rights": "(C) {{year}} Power Poly Supplies. All rights reserved.",
     "footer.secure": "Secure payments via Stripe",
+    "help.fab": "Help",
+    "help.title": "Live customer support",
+    "help.subtitle": "We're offline right now. Leave a message and we'll get back to you.",
+    "help.name": "Name",
+    "help.email": "Email",
+    "help.message": "Message",
+    "help.send": "Send message",
+    "help.sent": "Thanks! We'll be in touch.",
+    "help.sending": "Sending...",
+    "help.error": "Unable to send right now. Please try again.",
     "legal.kicker": "Legal"
     ,
     "contact.kicker": "Contact",
@@ -83,6 +93,7 @@ const PPS_TRANSLATIONS = {
     "contact.business.sales_assoc": "Sales Associate",
     "contact.business.hours": "Hours",
     "contact.business.hours.week": "Mon-Fri | 9:00 AM - 6:00 PM",
+    "contact.business.hours.wed": "Wednesday delivery | 9:00 AM - 10:00 PM",
     "contact.business.hours.sat": "Saturday delivery | 9:00 AM - 10:00 PM",
     "contact.business.address": "Address",
     "contact.status.sending": "Sending...",
@@ -187,9 +198,9 @@ const PPS_TRANSLATIONS = {
     "legal.shipping.title": "Shipping & Returns",
     "legal.shipping.subtitle": "Clear, simple details on delivery and returns for Power Poly Supplies orders in Canada.",
     "legal.shipping.section": "Shipping",
-    "legal.shipping.blurb": "We currently ship within Canada only. Our standard shipping days are Wednesday and Saturday.",
-    "legal.shipping.li1": "Orders are prepared for the next available shipping day.",
-    "legal.shipping.li2": "Delivery timelines vary by carrier and destination within Canada.",
+    "legal.shipping.blurb": "We ship within Canada. Standard GTA delivery is free and scheduled by our team.",
+    "legal.shipping.li1": "Express delivery is available on request; contact us for delivery charges.",
+    "legal.shipping.li2": "Delivery timing is confirmed after we review your order and address.",
     "legal.shipping.li3": "For large or bulk orders, our team may contact you to confirm delivery details.",
     "legal.returns.section": "Returns",
     "legal.returns.blurb": "We accept returns within 30 days of delivery for unused items in original packaging.",
@@ -269,6 +280,11 @@ const PPS_TRANSLATIONS = {
     "checkout.summary.subtotal": "Subtotal",
     "checkout.summary.total": "Total",
     "checkout.summary.empty": "Your cart is empty.",
+    "checkout.shipping.label.gta": "Standard delivery (GTA)",
+    "checkout.shipping.label.contact": "Delivery charges",
+    "checkout.shipping.free": "Free",
+    "checkout.shipping.contact": "Contact us",
+    "checkout.shipping.note": "Standard GTA delivery is free. Express delivery and non-GTA delivery charges are confirmed by our team.",
     "checkout.pay_online": "Pay online with Stripe",
     "checkout.back": "Back to cart",
     "checkout.status.backend": "Backend unreachable. Start it with: cd backend && npm run dev (expected on 127.0.0.1:5000).",
@@ -309,7 +325,21 @@ const PPS_TRANSLATIONS = {
     "products.bulk.15": "15+ boxes",
     "products.bulk.20": "20+ boxes"
     ,
-    "product.not_found": "Product not found.",
+    
+    "account.favorites.title": "Favorites",
+
+    "account.favorites.empty": "No favorite items yet.",
+
+    "account.favorites.unavailable": "Favorites will show once products are loaded.",
+
+    "account.favorites.loading": "Loading favorites...",
+
+    "account.favorites.failed": "Unable to load favorites right now.",
+
+    "favorite.add": "Add to favorites",
+
+    "favorite.remove": "Remove from favorites",
+"product.not_found": "Product not found.",
     "product.kicker": "Product detail",
     "product.category": "Category:",
     "product.bulk": "Bulk pricing",
@@ -336,7 +366,12 @@ const PPS_TRANSLATIONS = {
     "product.stock.in": "In stock",
     "product.view": "View",
     "product.added_qty": "Added {{qty}}",
-    "product.bulk_label": "{{qty}}+ boxes"
+    "product.bulk_label": "{{qty}}+ boxes",
+    "product.share": "Share",
+    "product.share.sent": "Thanks for sharing.",
+    "product.share.copied": "Link copied to clipboard.",
+    "product.share.fail": "Unable to share right now.",
+    "product.share.manual": "Copy the URL from the address bar."
     ,
     "specials.kicker": "Offers",
     "specials.title": "Special offers",
@@ -443,6 +478,16 @@ const PPS_TRANSLATIONS = {
     "footer.terms": "Conditions d'utilisation",
     "footer.rights": "(C) {{year}} Power Poly Supplies. Tous droits réservés.",
     "footer.secure": "Paiements sécurisés via Stripe",
+    "help.fab": "Aide",
+    "help.title": "Support client en direct",
+    "help.subtitle": "Nous ne sommes pas en ligne. Laissez un message et nous vous recontacterons.",
+    "help.name": "Nom",
+    "help.email": "Courriel",
+    "help.message": "Message",
+    "help.send": "Envoyer",
+    "help.sent": "Merci! Nous vous contacterons.",
+    "help.sending": "Envoi en cours...",
+    "help.error": "Envoi impossible pour le moment. Veuillez réessayer.",
     "legal.kicker": "Mentions légales"
     ,
     "contact.kicker": "Contact",
@@ -461,6 +506,7 @@ const PPS_TRANSLATIONS = {
     "contact.business.sales_assoc": "Associé aux ventes",
     "contact.business.hours": "Heures",
     "contact.business.hours.week": "Lun-Ven | 9 h 00 - 18 h 00",
+    "contact.business.hours.wed": "Livraison du mercredi | 9 h 00 - 22 h 00",
     "contact.business.hours.sat": "Livraison du samedi | 9 h 00 - 22 h 00",
     "contact.business.address": "Adresse",
     "contact.status.sending": "Envoi en cours...",
@@ -565,10 +611,10 @@ const PPS_TRANSLATIONS = {
     "legal.shipping.title": "Expédition et retours",
     "legal.shipping.subtitle": "Détails clairs sur la livraison et les retours des commandes Power Poly Supplies au Canada.",
     "legal.shipping.section": "Expédition",
-    "legal.shipping.blurb": "Nous expédions actuellement uniquement au Canada. Nos jours d'expédition sont le mercredi et le samedi.",
-    "legal.shipping.li1": "Les commandes sont préparées pour le prochain jour d'expédition disponible.",
-    "legal.shipping.li2": "Les délais de livraison varient selon le transporteur et la destination au Canada.",
-    "legal.shipping.li3": "Pour les commandes volumineuses ou en vrac, notre équipe peut vous contacter pour confirmer la livraison.",
+    "legal.shipping.blurb": "Nous livrons au Canada. La livraison standard dans la GTA est gratuite et planifiee par notre equipe.",
+    "legal.shipping.li1": "La livraison express est disponible sur demande; contactez-nous pour les frais de livraison.",
+    "legal.shipping.li2": "Le delai est confirme apres verification de votre commande et adresse.",
+    "legal.shipping.li3": "Pour les commandes volumineuses ou en vrac, notre equipe peut vous contacter pour confirmer la livraison.",
     "legal.returns.section": "Retours",
     "legal.returns.blurb": "Nous acceptons les retours dans les 30 jours suivant la livraison pour les articles inutilisés dans l'emballage d'origine.",
     "legal.returns.li1": "Les frais de retour sont à la charge du client.",
@@ -647,6 +693,11 @@ const PPS_TRANSLATIONS = {
     "checkout.summary.subtotal": "Sous-total",
     "checkout.summary.total": "Total",
     "checkout.summary.empty": "Votre panier est vide.",
+    "checkout.shipping.label.gta": "Livraison standard (GTA)",
+    "checkout.shipping.label.contact": "Frais de livraison",
+    "checkout.shipping.free": "Gratuit",
+    "checkout.shipping.contact": "Contactez-nous",
+    "checkout.shipping.note": "La livraison standard GTA est gratuite. Les frais de livraison express et hors GTA sont confirmes par notre equipe.",
     "checkout.pay_online": "Payer en ligne avec Stripe",
     "checkout.back": "Retour au panier",
     "checkout.status.backend": "Backend injoignable. Lancez: cd backend && npm run dev (attendu sur 127.0.0.1:5000).",
@@ -686,7 +737,21 @@ const PPS_TRANSLATIONS = {
     "products.bulk.15": "15+ boîtes",
     "products.bulk.20": "20+ boîtes"
     ,
-    "product.not_found": "Produit introuvable.",
+    
+    "account.favorites.title": "Favoris",
+
+    "account.favorites.empty": "Aucun favori pour l'instant.",
+
+    "account.favorites.unavailable": "Les favoris s'afficheront une fois les produits charges.",
+
+    "account.favorites.loading": "Chargement des favoris...",
+
+    "account.favorites.failed": "Impossible de charger les favoris pour le moment.",
+
+    "favorite.add": "Ajouter aux favoris",
+
+    "favorite.remove": "Retirer des favoris",
+"product.not_found": "Produit introuvable.",
     "product.kicker": "Détail du produit",
     "product.category": "Catégorie :",
     "product.bulk": "Prix en vrac",
@@ -713,7 +778,12 @@ const PPS_TRANSLATIONS = {
     "product.stock.in": "En stock",
     "product.view": "Voir",
     "product.added_qty": "Ajouté {{qty}}",
-    "product.bulk_label": "{{qty}}+ boîtes"
+    "product.bulk_label": "{{qty}}+ boites",
+    "product.share": "Partager",
+    "product.share.sent": "Merci pour le partage.",
+    "product.share.copied": "Lien copie dans le presse-papiers.",
+    "product.share.fail": "Partage impossible pour le moment.",
+    "product.share.manual": "Copiez l'URL dans la barre d'adresse."
     ,
     "specials.kicker": "Offres",
     "specials.title": "Offres spéciales",
@@ -817,7 +887,16 @@ const PPS_TRANSLATIONS = {
     "footer.terms": "이용약관",
     "footer.rights": "(C) {{year}} Power Poly Supplies. 모든 권리 보유.",
     "footer.secure": "Stripe을(를) 통한 안전한 결제",
-    "legal.kicker": "합법적인",
+    
+        "help.fab": "도움",
+        "help.title": "실시간 고객 지원",
+        "help.subtitle": "현재 오프라인입니다. 메시지를 남겨주시면 연락드리겠습니다.",
+        "help.name": "이름",
+        "help.email": "이메일",
+        "help.message": "메시지",
+        "help.send": "메시지 보내기",
+        "help.sent": "감사합니다! 곧 연락드리겠습니다.",
+"legal.kicker": "합법적인",
     "contact.kicker": "연락하다",
     "contact.title": "문의하기",
     "contact.subtitle": "대량 가격 책정, 제품 정보가 필요하거나 주문하는 데 도움이 필요하십니까? 메시지를 보내주세요.",
@@ -834,6 +913,7 @@ const PPS_TRANSLATIONS = {
     "contact.business.sales_assoc": "영업 사원",
     "contact.business.hours": "시간",
     "contact.business.hours.week": "월~금 | 오전 9시 - 오후 6시",
+    "contact.business.hours.wed": "수요일 배송 | 오전 9시 - 오후 10시",
     "contact.business.hours.sat": "토요일 배송 | 오전 9시 - 오후 10시",
     "contact.business.address": "주소",
     "contact.status.sending": "배상...",
@@ -1049,7 +1129,21 @@ const PPS_TRANSLATIONS = {
     "products.bulk.10": "10개 이상의 상자",
     "products.bulk.15": "15개 이상의 상자",
     "products.bulk.20": "20개 이상의 상자",
-    "product.not_found": "제품을 찾을 수 없습니다.",
+    
+    "account.favorites.title": "즐겨찾기",
+
+    "account.favorites.empty": "?? ???? ??? ????.",
+
+    "account.favorites.unavailable": "??? ???? ????? ?????.",
+
+    "account.favorites.loading": "???? ???? ?...",
+
+    "account.favorites.failed": "??? ????? ??? ? ????.",
+
+    "favorite.add": "????? ??",
+
+    "favorite.remove": "?????? ??",
+"product.not_found": "제품을 찾을 수 없습니다.",
     "product.kicker": "제품 세부정보",
     "product.category": "범주:",
     "product.bulk": "대량 가격",
@@ -1184,7 +1278,16 @@ const PPS_TRANSLATIONS = {
     "footer.terms": "नियम व शर्तें",
     "footer.rights": "(C) {{year}} Power Poly Supplies. सर्वाधिकार सुरक्षित।",
     "footer.secure": "Stripe के माध्यम से सुरक्षित भुगतान",
-    "legal.kicker": "कानूनी",
+    
+        "help.fab": "मदद",
+        "help.title": "लाइव ग्राहक सहायता",
+        "help.subtitle": "हम अभी ऑफ़लाइन हैं। संदेश छोड़ें, हम संपर्क करेंगे।",
+        "help.name": "नाम",
+        "help.email": "ईमेल",
+        "help.message": "संदेश",
+        "help.send": "संदेश भेजें",
+        "help.sent": "धन्यवाद! हम संपर्क करेंगे।",
+"legal.kicker": "कानूनी",
     "contact.kicker": "संपर्क",
     "contact.title": "हमसे संपर्क करें",
     "contact.subtitle": "बल्क कीमतें, उत्पाद जानकारी या ऑर्डर में मदद चाहिए? हमें संदेश भेजें।",
@@ -1201,6 +1304,7 @@ const PPS_TRANSLATIONS = {
     "contact.business.sales_assoc": "सेल्स एसोसिएट",
     "contact.business.hours": "समय",
     "contact.business.hours.week": "सोम-शुक्र | 9:00 AM - 6:00 PM",
+    "contact.business.hours.wed": "बुधवार डिलीवरी | 9:00 AM - 10:00 PM",
     "contact.business.hours.sat": "शनिवार डिलीवरी | 9:00 AM - 10:00 PM",
     "contact.business.address": "पता",
     "contact.status.sending": "भेजा जा रहा है...",
@@ -1416,7 +1520,21 @@ const PPS_TRANSLATIONS = {
     "products.bulk.10": "10+ बॉक्स",
     "products.bulk.15": "15+ बॉक्स",
     "products.bulk.20": "20+ बॉक्स",
-    "product.not_found": "उत्पाद नहीं मिला।",
+    
+    "account.favorites.title": "पसंदीदा",
+
+    "account.favorites.empty": "??? ??? ??????? ???? ???? ???",
+
+    "account.favorites.unavailable": "?????? ??? ???? ?? ??????? ????????",
+
+    "account.favorites.loading": "??????? ??? ?? ??? ???...",
+
+    "account.favorites.failed": "?????? ??????? ??? ???? ?? ????",
+
+    "favorite.add": "??????? ??? ??????",
+
+    "favorite.remove": "??????? ?? ?????",
+"product.not_found": "उत्पाद नहीं मिला।",
     "product.kicker": "उत्पाद विवरण",
     "product.category": "श्रेणी:",
     "product.bulk": "बल्क कीमत",
@@ -1548,7 +1666,16 @@ const PPS_TRANSLATIONS = {
     "footer.terms": "நிபந்தனைகள்",
     "footer.rights": "(C) {{year}} Power Poly Supplies. அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.",
     "footer.secure": "Stripe மூலம் பாதுகாப்பான கட்டணங்கள்",
-    "legal.kicker": "சட்டம்",
+    
+        "help.fab": "உதவி",
+        "help.title": "நேரடி வாடிக்கையாளர் ஆதரவு",
+        "help.subtitle": "தற்போது ஆன்லைனில் இல்லை. ஒரு செய்தி விடுங்கள், நாங்கள் தொடர்பு கொள்வோம்.",
+        "help.name": "பெயர்",
+        "help.email": "மின்னஞ்சல்",
+        "help.message": "செய்தி",
+        "help.send": "செய்தியை அனுப்பு",
+        "help.sent": "நன்றி! நாங்கள் தொடர்பு கொள்வோம்.",
+"legal.kicker": "சட்டம்",
     "contact.kicker": "தொடர்பு",
     "contact.title": "எங்களை தொடர்பு கொள்ளவும்",
     "contact.subtitle": "மொத்த விலை, பொருள் தகவல் அல்லது ஆர்டர் உதவி வேண்டுமா? செய்தி அனுப்புங்கள்.",
@@ -1565,6 +1692,7 @@ const PPS_TRANSLATIONS = {
     "contact.business.sales_assoc": "விற்பனை உதவி",
     "contact.business.hours": "நேரம்",
     "contact.business.hours.week": "திங்கள்-வெள்ளி | 9:00 AM - 6:00 PM",
+    "contact.business.hours.wed": "புதன் டெலிவரி | 9:00 AM - 10:00 PM",
     "contact.business.hours.sat": "சனி டெலிவரி | 9:00 AM - 10:00 PM",
     "contact.business.address": "முகவரி",
     "contact.status.sending": "அனுப்பப்படுகிறது...",
@@ -1780,7 +1908,21 @@ const PPS_TRANSLATIONS = {
     "products.bulk.10": "10+ பெட்டிகள்",
     "products.bulk.15": "15+ பெட்டிகள்",
     "products.bulk.20": "20+ பெட்டிகள்",
-    "product.not_found": "பொருள் கிடைக்கவில்லை.",
+    
+    "account.favorites.title": "பிடித்தவை",
+
+    "account.favorites.empty": "?????? ????????? ?????.",
+
+    "account.favorites.unavailable": "????????? ?????????????? ????????? ??????????.",
+
+    "account.favorites.loading": "????????? ???????????????...",
+
+    "account.favorites.failed": "??????? ????????? ???? ???????????.",
+
+    "favorite.add": "?????????????? ???????",
+
+    "favorite.remove": "???????????????????? ??????",
+"product.not_found": "பொருள் கிடைக்கவில்லை.",
     "product.kicker": "பொருள் விவரம்",
     "product.category": "வகை:",
     "product.bulk": "மொத்த விலை",

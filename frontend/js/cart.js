@@ -12,14 +12,24 @@ function getItemDescription(item){
     ? (item.description_fr || item.description || "")
     : lang === "ko"
       ? (item.description_ko || item.description || "")
-      : (item.description || item.description_fr || item.description_ko || "");
+      : lang === "hi"
+        ? (item.description_hi || item.description || "")
+        : lang === "ta"
+          ? (item.description_ta || item.description || "")
+          : (item.description || item.description_fr || item.description_ko || item.description_hi || item.description_ta || "");
   if(stored) return stored;
   if(!productMap) return "";
   const product = productMap.get(item.id);
   if(!product) return "";
   return lang === "fr"
     ? (product.description_fr || product.description || "")
-    : (product.description || product.description_fr || "");
+    : lang === "ko"
+      ? (product.description_ko || product.description || "")
+      : lang === "hi"
+        ? (product.description_hi || product.description || "")
+        : lang === "ta"
+          ? (product.description_ta || product.description || "")
+          : (product.description || product.description_fr || product.description_ko || product.description_hi || product.description_ta || "");
 }
 
 function render(){

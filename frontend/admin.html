@@ -29,6 +29,7 @@
           <a href="./index.html" data-i18n="nav.home">Home</a>
           <a href="./products.html" data-i18n="admin.nav.products">Products</a>
           <a href="./admin.html" data-i18n="admin.nav.admin">Admin</a>
+          <a href="./admin-messages.html" data-i18n="admin.messages.title">Messages</a>
                   <form class="search-bar nav-search" action="./products.html" method="get" role="search">
             <input type="search" name="q" placeholder="Search" aria-label="Search products">
             <button type="submit">Search</button>
@@ -43,7 +44,10 @@
       <p style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);" data-i18n="admin.kicker">Admin</p>
       <h1 data-i18n="admin.orders.title">Admin Orders</h1>
       <p data-i18n="admin.orders.subtitle">Review incoming orders, confirm payment method, and mark them fulfilled.</p>
-      <button class="btn btn-outline" id="refresh" type="button" data-i18n="admin.orders.refresh">Refresh</button>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+        <button class="btn btn-outline" id="refresh" type="button" data-i18n="admin.orders.refresh">Refresh</button>
+        <a class="btn" href="./admin-messages.html" data-i18n="admin.messages.title">Messages</a>
+      </div>
     </section>
 
     <div id="orders" class="grid" style="gap:12px; margin-top:14px;"></div>

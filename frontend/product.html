@@ -199,7 +199,11 @@
         ? (p.description_fr || p.description)
         : lang === "ko"
           ? (p.description_ko || p.description)
-          : p.description;
+          : lang === "hi"
+            ? (p.description_hi || p.description)
+            : lang === "ta"
+              ? (p.description_ta || p.description)
+              : p.description;
       wrap.innerHTML = `
         <section class="hero fade-in" style="margin-bottom:16px;">
           <p style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);" data-i18n="product.kicker">Product detail</p>
@@ -213,7 +217,13 @@
           <div class="card fade-in" style="padding:18px;">
             <h2 style="margin:0;">${p.name}</h2>
             <p style="color:var(--muted); margin-top:8px;">${categoryLabel(p.category || "")}</p>
-            <div class="price-row"><div class="price" style="font-size:22px;">${PPS.money(p.priceCents,p.currency)}</div>${favoriteButton(p.id)}</div>
+            <div class="price-row">
+              <div>
+                <span class="compare-price">${PPS.money((Number(p.priceCents) || 0) + 1000, p.currency)}</span>
+                <span class="price" style="font-size:22px;">${PPS.money(p.priceCents,p.currency)}</span>
+              </div>
+              ${favoriteButton(p.id)}
+            </div>
             ${(()=>{ const s = stockClass(p.stock); return `<div class="stock ${s.cls}"><span class="dot"></span>${s.label}</div>`; })()}
             <p style="margin-top:14px; color:var(--text); line-height:1.5;">${desc || ""}</p>
 
@@ -230,6 +240,19 @@
               <button class="btn btn-primary" ${p.stock<=0 ? "disabled" : ""} id="add">${window.PPS_I18N?.t("product.add") || "Add to cart"}</button>
               <a class="btn" href="./cart.html">${window.PPS_I18N?.t("product.go_cart") || "Go to cart"}</a>
               <a class="btn btn-outline" href="./contact.html">${window.PPS_I18N?.t("product.bulk_quote") || "Bulk quote"}</a>
+            </div>
+            <div style="margin-top:10px;">
+              <button class="share-btn" type="button" id="shareBtn" aria-label="${window.PPS_I18N?.t("product.share") || "Share"}">
+                <span class="share-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="16" height="16" focusable="false" aria-hidden="true">
+                    <path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 4v12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    <path d="M7.5 8.5 12 4l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                <span data-i18n="product.share">Share</span>
+              </button>
+              <div id="shareMsg" style="color:var(--muted); font-size:12px; margin-top:6px;"></div>
             </div>
 
             <div class="reviews-section">
@@ -269,6 +292,44 @@
         if(p.stock<=0) return;
         PPS.addToCart(p);
       };
+      const shareBtn = document.getElementById("shareBtn");
+      const shareMsg = document.getElementById("shareMsg");
+      const shareData = {
+        title: p.name,
+        text: `${p.name} - Power Poly Supplies`,
+        url: window.location.href
+      };
+
+      function setShareMsg(text){
+        if(!shareMsg) return;
+        shareMsg.textContent = text || "";
+      }
+
+      if(shareBtn){
+        shareBtn.addEventListener("click", async ()=>{
+          if(navigator.share){
+            try{
+              await navigator.share(shareData);
+              setShareMsg(window.PPS_I18N?.t("product.share.sent") || "Thanks for sharing.");
+              return;
+            }catch(err){
+              if(err && err.name === "AbortError") return;
+              setShareMsg(window.PPS_I18N?.t("product.share.fail") || "Unable to share right now.");
+              return;
+            }
+          }
+          if(navigator.clipboard?.writeText){
+            try{
+              await navigator.clipboard.writeText(shareData.url);
+              setShareMsg(window.PPS_I18N?.t("product.share.copied") || "Link copied to clipboard.");
+              return;
+            }catch(err){
+              // fall through to manual copy message
+            }
+          }
+          setShareMsg(window.PPS_I18N?.t("product.share.manual") || "Copy the URL from the address bar.");
+        });
+      }
 
       document.querySelectorAll("[data-bulk-qty]").forEach((btn)=>{
         btn.addEventListener("click", ()=>{
@@ -380,7 +441,13 @@
             <div class="card-body">
               <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(item.slug)}">${item.name}</a>
               <div class="card-meta">${categoryLabel(item.category || "")}</div>
-              <div class="price-row"><div class="price">${PPS.money(item.priceCents,item.currency)}</div>${favoriteButton(item.id)}</div>
+              <div class="price-row">
+                <div>
+                  <span class="compare-price">${PPS.money((Number(item.priceCents) || 0) + 1000, item.currency)}</span>
+                  <span class="price">${PPS.money(item.priceCents,item.currency)}</span>
+                </div>
+                ${favoriteButton(item.id)}
+              </div>
               <div class="stock ${s}"><span class="dot"></span>${label}</div>
               <div style="margin-top:12px; display:flex; gap:10px;">
                 <a class="btn" href="./product.html?slug=${encodeURIComponent(item.slug)}">${window.PPS_I18N?.t("product.view") || "View"}</a>

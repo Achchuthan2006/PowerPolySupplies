@@ -199,6 +199,8 @@ function addToCart(product, qty=1){
     existing.description = product.description || existing.description || "";
     existing.description_fr = product.description_fr || existing.description_fr || "";
     existing.description_ko = product.description_ko || existing.description_ko || "";
+    existing.description_hi = product.description_hi || existing.description_hi || "";
+    existing.description_ta = product.description_ta || existing.description_ta || "";
     existing.priceCentsBase = existing.priceCentsBase ?? product.priceCents;
     existing.currencyBase = existing.currencyBase || product.currency || "CAD";
   }else{
@@ -211,6 +213,8 @@ function addToCart(product, qty=1){
       description: product.description || "",
       description_fr: product.description_fr || "",
       description_ko: product.description_ko || "",
+      description_hi: product.description_hi || "",
+      description_ta: product.description_ta || "",
       priceCentsBase: product.priceCents,
       currencyBase: product.currency || "CAD"
     });
@@ -265,7 +269,9 @@ function addItemsToCart(items){
       currency: baseCurrency,
       description: item.description || "",
       description_fr: item.description_fr || "",
-      description_ko: item.description_ko || ""
+      description_ko: item.description_ko || "",
+      description_hi: item.description_hi || "",
+      description_ta: item.description_ta || ""
     }, qty);
   });
 }

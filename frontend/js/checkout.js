@@ -111,17 +111,18 @@ function normalizePostal(value){
 
 function getShippingForPostal(postal){
   const clean = normalizePostal(postal);
+  const gtaLabel = window.PPS_I18N?.t("checkout.shipping.label.gta") || "Standard delivery (GTA)";
+  const contactLabel = window.PPS_I18N?.t("checkout.shipping.label.contact") || "Delivery charges";
+  const freeLabel = window.PPS_I18N?.t("checkout.shipping.free") || "Free";
+  const contactValue = window.PPS_I18N?.t("checkout.shipping.contact") || "Contact us";
   if(!clean){
-    return { label: "Shipping", amountCents: 0 };
+    return { zone: "Unknown", label: contactLabel, amountCents: 0, displayAmount: contactValue };
   }
   const prefix = clean[0];
   if(prefix === "M" || prefix === "L"){
-    return { label: "Shipping - GTA (Free)", amountCents: 0 };
+    return { zone: "GTA", label: gtaLabel, amountCents: 0, displayAmount: freeLabel };
   }
-  if(prefix === "N"){
-    return { label: "Shipping - Ontario", amountCents: 1999 };
-  }
-  return { label: "Shipping - Other provinces", amountCents: 4999 };
+  return { zone: "Canada", label: contactLabel, amountCents: 0, displayAmount: contactValue };
 }
 
 function applyProvinceLabels(){
@@ -204,7 +205,11 @@ function drawSummary(){
       ? (i.description_fr || i.description || productMap?.get(i.id)?.description_fr || productMap?.get(i.id)?.description || "")
       : lang === "ko"
         ? (i.description_ko || i.description || productMap?.get(i.id)?.description_ko || productMap?.get(i.id)?.description || "")
-        : (i.description || i.description_fr || i.description_ko || productMap?.get(i.id)?.description || productMap?.get(i.id)?.description_fr || productMap?.get(i.id)?.description_ko || "");
+        : lang === "hi"
+          ? (i.description_hi || i.description || productMap?.get(i.id)?.description_hi || productMap?.get(i.id)?.description || "")
+          : lang === "ta"
+            ? (i.description_ta || i.description || productMap?.get(i.id)?.description_ta || productMap?.get(i.id)?.description || "")
+            : (i.description || i.description_fr || i.description_ko || i.description_hi || i.description_ta || productMap?.get(i.id)?.description || productMap?.get(i.id)?.description_fr || productMap?.get(i.id)?.description_ko || productMap?.get(i.id)?.description_hi || productMap?.get(i.id)?.description_ta || "");
     const descHtml = desc
       ? `<div style="color:var(--muted); font-size:12px; margin-top:4px;">${desc}</div>`
       : "";
@@ -242,7 +247,11 @@ function drawSummary(){
     if(qstRowEl) qstRowEl.style.display = "none";
   }
   if(shippingLabelEl) shippingLabelEl.textContent = shipping.label;
-  if(shippingAmountEl) shippingAmountEl.textContent = PPS.money(shippingCents, targetCurrency, targetCurrency);
+  if(shippingAmountEl){
+    shippingAmountEl.textContent = shipping.displayAmount
+      ? shipping.displayAmount
+      : PPS.money(shippingCents, targetCurrency, targetCurrency);
+  }
   totalEl.textContent = PPS.money(taxData.total + shippingCents, targetCurrency, targetCurrency);
   if(savingsRowEl && savingsAmountEl){
     if(savingsCents > 0){
@@ -329,6 +338,8 @@ formEl.addEventListener("submit", async (e)=>{
       description: item.description || product?.description || "",
       description_fr: item.description_fr || product?.description_fr || "",
       description_ko: item.description_ko || product?.description_ko || "",
+      description_hi: item.description_hi || product?.description_hi || "",
+      description_ta: item.description_ta || product?.description_ta || "",
       priceCentsBase: unitCents,
       currencyBase: baseCurrency,
       priceCents: PPS.convertCents(unitCents, baseCurrency, targetCurrency),
@@ -337,9 +348,12 @@ formEl.addEventListener("submit", async (e)=>{
   });
 
   try{
+    const controller = new AbortController();
+    const timeoutId = setTimeout(()=> controller.abort(), 15000);
     const res = await fetch(`${PPS.API_BASE}/api/order`, {
       method:"POST",
       headers:{ "Content-Type":"application/json" },
+      signal: controller.signal,
       body: JSON.stringify({
         customer,
         items: enrichedCart,
@@ -353,6 +367,7 @@ formEl.addEventListener("submit", async (e)=>{
         }
       })
     });
+    clearTimeout(timeoutId);
 
     const data = await res.json().catch(()=> ({}));
     if(!res.ok || !data.ok){
@@ -363,7 +378,11 @@ formEl.addEventListener("submit", async (e)=>{
     localStorage.removeItem("pps_cart");
     window.location.href = "./thank-you.html";
   }catch(err){
-    setStatus(msg, window.PPS_I18N?.t("checkout.status.unreachable") || "Server unreachable. Is the backend running on 127.0.0.1:5000?", "error");
+    if(err && err.name === "AbortError"){
+      setStatus(msg, "Request timed out. Please try again.", "error");
+    }else{
+      setStatus(msg, window.PPS_I18N?.t("checkout.status.unreachable") || "Server unreachable. Is the backend running on 127.0.0.1:5000?", "error");
+    }
   }finally{
     setPending(submitBtn, false);
     setPending(payBtn, false);
@@ -425,6 +444,8 @@ document.getElementById("payOnline").addEventListener("click", async ()=>{
         description: item.description || product?.description || "",
         description_fr: item.description_fr || product?.description_fr || "",
         description_ko: item.description_ko || product?.description_ko || "",
+        description_hi: item.description_hi || product?.description_hi || "",
+        description_ta: item.description_ta || product?.description_ta || "",
         priceCentsBase: unitCents,
         currencyBase: baseCurrency,
         priceCents: PPS.convertCents(unitCents, baseCurrency, targetCurrency),

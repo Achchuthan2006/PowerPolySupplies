@@ -374,6 +374,173 @@ function setupSearch(){
   });
 }
 
+function injectHelpWidget(){
+  if(document.getElementById("helpWidget")) return;
+  const wrap = document.createElement("div");
+  wrap.id = "helpWidget";
+  wrap.className = "help-widget";
+  wrap.innerHTML = `
+    <button class="help-fab" type="button" id="helpFab" aria-expanded="false" aria-controls="helpPanel">
+      <span class="help-fab-icon" aria-hidden="true">?</span>
+      <span data-i18n="help.fab">Help</span>
+    </button>
+    <div class="help-panel" id="helpPanel" aria-hidden="true">
+      <div class="help-panel-header">
+        <div data-i18n="help.title">Live customer support</div>
+        <button class="help-close" type="button" id="helpClose" aria-label="Close">–</button>
+      </div>
+      <div class="help-panel-body">
+        <p data-i18n="help.subtitle">We're offline right now. Leave a message and we'll get back to you.</p>
+        <form id="helpForm" class="help-form">
+          <label>
+            <span data-i18n="help.name">Name</span>
+            <input class="input" name="name" required>
+          </label>
+          <label>
+            <span data-i18n="help.email">Email</span>
+            <input class="input" type="email" name="email" required>
+          </label>
+          <label>
+            <span data-i18n="help.message">Message</span>
+            <textarea class="input" name="message" rows="4" required></textarea>
+          </label>
+          <button class="btn btn-primary" type="submit" data-i18n="help.send">Send message</button>
+          <div class="help-status" id="helpStatus"></div>
+        </form>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(wrap);
+  window.PPS_I18N?.applyTranslations?.();
+
+  const helpTextNodes = {
+    fab: wrap.querySelector('[data-i18n="help.fab"]'),
+    title: wrap.querySelector('[data-i18n="help.title"]'),
+    subtitle: wrap.querySelector('[data-i18n="help.subtitle"]'),
+    name: wrap.querySelector('[data-i18n="help.name"]'),
+    email: wrap.querySelector('[data-i18n="help.email"]'),
+    message: wrap.querySelector('[data-i18n="help.message"]'),
+    send: wrap.querySelector('[data-i18n="help.send"]')
+  };
+
+  function getHelpCopy(lang){
+    const localized = {
+      ko: {
+        fab: "\ub3c4\uc6c0",
+        title: "\uc2e4\uc2dc\uac04 \uace0\uac1d \uc9c0\uc6d0",
+        subtitle: "\ud604\uc7ac \uc624\ud504\ub77c\uc778\uc785\ub2c8\ub2e4. \uba54\uc2dc\uc9c0\ub97c \ub0a8\uaca8\uc8fc\uc2dc\uba74 \uc5f0\ub77d\ub4dc\ub9ac\uaca0\uc2b5\ub2c8\ub2e4.",
+        name: "\uc774\ub984",
+        email: "\uc774\uba54\uc77c",
+        message: "\uba54\uc2dc\uc9c0",
+        send: "\uba54\uc2dc\uc9c0 \ubcf4\ub0b4\uae30",
+        sending: "\uc81c\ucd9c \uc911...",
+        sent: "\uac10\uc0ac\ud569\ub2c8\ub2e4! \uacf5\uac04 \uc5f0\ub77d\ub4dc\ub9ac\uaca0\uc2b5\ub2c8\ub2e4.",
+        error: "\ud604\uc7ac \ubc1c\uc1a1\ud560 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4. \ub2e4\uc2dc \uc2dc\ub3c4\ud574 \uc8fc\uc138\uc694."
+      },
+      hi: {
+        fab: "\u092e\u0926\u0926",
+        title: "\u0932\u093e\u0907\u0935 \u0917\u094d\u0930\u093e\u0939\u0915 \u0938\u0939\u093e\u092f\u0924\u093e",
+        subtitle: "\u0939\u092e \u0905\u092d\u0940 \u0911\u092b\u093c\u0932\u093e\u0907\u0928 \u0939\u0948\u0902\u0964 \u0938\u0902\u0926\u0947\u0936 \u091b\u094b\u0921\u093c\u0947\u0902, \u0939\u092e \u0938\u0902\u092a\u0930\u094d\u0915 \u0915\u0930\u0947\u0902\u0917\u0947\u0964",
+        name: "\u0928\u093e\u092e",
+        email: "\u0908\u092e\u0947\u0932",
+        message: "\u0938\u0902\u0926\u0947\u0936",
+        send: "\u0938\u0902\u0926\u0947\u0936 \u092d\u0947\u091c\u0947\u0902",
+        sending: "\u092d\u0947\u091c \u0930\u0939\u0947 \u0939\u0948\u0902...",
+        sent: "\u0927\u0928\u094d\u092f\u0935\u093e\u0926! \u0939\u092e \u0938\u0902\u092a\u0930\u094d\u0915 \u0915\u0930\u0947\u0902\u0917\u0947\u0964",
+        error: "\u0905\u092d\u0940 \u092d\u0947\u091c\u0928\u0947 \u092e\u0947\u0902 \u0938\u092e\u0938\u094d\u092f\u093e \u0939\u0948\u0964 \u0915\u0943\u092a\u092f\u093e \u0926\u094b\u092c\u093e\u0930\u093e \u0915\u094b\u0936\u093f\u0936 \u0915\u0930\u0947\u0902\u0964"
+      },
+      ta: {
+        fab: "\u0b89\u0ba4\u0bb5\u0bbf",
+        title: "\u0ba8\u0bc7\u0bb0\u0b9f\u0bbf \u0bb5\u0bbe\u0b9f\u0bbf\u0b95\u0bcd\u0b95\u0bc8\u0baf\u0bbe\u0bb3\u0bb0\u0bcd \u0b86\u0ba4\u0bb0\u0bb5\u0bc1",
+        subtitle: "\u0ba4\u0bb1\u0bcd\u0baa\u0bcb\u0ba4\u0bc1 \u0b86\u0ba9\u0bcd\u0bb2\u0bc8\u0ba9\u0bbf\u0bb2\u0bcd \u0b87\u0bb2\u0bcd\u0bb2\u0bc8. \u0b92\u0bb0\u0bc1 \u0b9a\u0bc6\u0baf\u0bcd\u0ba4\u0bbf \u0bb5\u0bbf\u0b9f\u0bc1\u0b99\u0bcd\u0b95\u0bb3\u0bcd, \u0ba8\u0bbe\u0b99\u0bcd\u0b95\u0bb3\u0bcd \u0ba4\u0bca\u0b9f\u0bb0\u0bcd\u0baa\u0bc1 \u0b95\u0bca\u0bb3\u0bcd\u0bb5\u0bcb\u0bae\u0bcd.",
+        name: "\u0baa\u0bc6\u0baf\u0bb0\u0bcd",
+        email: "\u0bae\u0bbf\u0ba9\u0bcd\u0ba9\u0b9e\u0bcd\u0b9a\u0bb2\u0bcd",
+        message: "\u0b9a\u0bc6\u0baf\u0bcd\u0ba4\u0bbf",
+        send: "\u0b9a\u0bc6\u0baf\u0bcd\u0ba4\u0bbf\u0baf\u0bc8 \u0b85\u0ba9\u0bc1\u0baa\u0bcd\u0baa\u0bc1",
+        sending: "\u0b85\u0ba9\u0bc1\u0baa\u0bcd\u0baa\u0bc1\u0b95\u0bbf\u0bb1\u0b9f\u0bc1...",
+        sent: "\u0ba8\u0ba9\u0bcd\u0bb1\u0bbf! \u0ba8\u0bbe\u0b99\u0bcd\u0b95\u0bb3\u0bcd \u0ba4\u0bca\u0b9f\u0bb0\u0bcd\u0baa\u0bc1 \u0b95\u0bca\u0bb3\u0bcd\u0bb5\u0bcb\u0bae\u0bcd.",
+        error: "\u0ba4\u0bb1\u0bcd\u0baa\u0bcb\u0ba4\u0bc1 \u0b85\u0ba9\u0bc1\u0baa\u0bcd\u0baa \u0bae\u0bc1\u0b9f\u0bbf\u0baf\u0bb5\u0bbf\u0bb2\u0bcd\u0bb2\u0bc8. \u0ba4\u0baf\u0bb5\u0bc1 \u0b9a\u0bc6\u0baf\u0bcd\u0b95."
+      }
+    };
+    return localized[lang] || null;
+  }
+
+  function applyHelpCopy(){
+    const lang = window.PPS_I18N?.getLang?.() || "en";
+    const copy = getHelpCopy(lang);
+    if(!copy) return;
+    if(helpTextNodes.fab) helpTextNodes.fab.textContent = copy.fab;
+    if(helpTextNodes.title) helpTextNodes.title.textContent = copy.title;
+    if(helpTextNodes.subtitle) helpTextNodes.subtitle.textContent = copy.subtitle;
+    if(helpTextNodes.name) helpTextNodes.name.textContent = copy.name;
+    if(helpTextNodes.email) helpTextNodes.email.textContent = copy.email;
+    if(helpTextNodes.message) helpTextNodes.message.textContent = copy.message;
+    if(helpTextNodes.send) helpTextNodes.send.textContent = copy.send;
+  }
+
+  applyHelpCopy();
+
+  const fab = document.getElementById("helpFab");
+  const panel = document.getElementById("helpPanel");
+  const closeBtn = document.getElementById("helpClose");
+  const form = document.getElementById("helpForm");
+  const status = document.getElementById("helpStatus");
+
+  function setOpen(open){
+    if(!fab || !panel) return;
+    fab.setAttribute("aria-expanded", open ? "true" : "false");
+    panel.setAttribute("aria-hidden", open ? "false" : "true");
+    panel.classList.toggle("open", open);
+  }
+
+  if(fab){
+    fab.addEventListener("click", ()=> setOpen(!panel.classList.contains("open")));
+  }
+  if(closeBtn){
+    closeBtn.addEventListener("click", ()=> setOpen(false));
+  }
+
+  if(form){
+    form.addEventListener("submit", async (event)=>{
+      event.preventDefault();
+      const name = String(form.name.value || "").trim();
+      const email = String(form.email.value || "").trim();
+      const message = String(form.message.value || "").trim();
+      if(!name || !email || !message) return;
+      const lang = window.PPS_I18N?.getLang?.() || "en";
+      const copy = getHelpCopy(lang);
+      const sendingText = copy?.sending || (window.PPS_I18N?.t("help.sending") || "Sending...");
+      const sentText = copy?.sent || (window.PPS_I18N?.t("help.sent") || "Thanks! We'll be in touch.");
+      const errorText = copy?.error || (window.PPS_I18N?.t("help.error") || "Unable to send right now. Please try again.");
+
+      if(status) status.textContent = sendingText;
+      const submitBtn = form.querySelector("button[type='submit']");
+      if(submitBtn) submitBtn.disabled = true;
+
+      try{
+        const apiBase = window.PPS?.API_BASE || window.PPS_API_BASE || "";
+        const res = await fetch(`${apiBase}/api/contact`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, message })
+        });
+        const data = await res.json().catch(()=> ({}));
+        if(!res.ok || !data.ok){
+          throw new Error(data?.message || "Failed");
+        }
+        if(status) status.textContent = sentText;
+        form.reset();
+      }catch(err){
+        if(status) status.textContent = errorText;
+      }finally{
+        if(submitBtn) submitBtn.disabled = false;
+      }
+    });
+  }
+
+  window.addEventListener("pps:lang", applyHelpCopy);
+}
+
 window.addEventListener("DOMContentLoaded", ()=>{
   setupNavbar();
   setupFadeIn();
@@ -382,6 +549,7 @@ window.addEventListener("DOMContentLoaded", ()=>{
   injectCurrencySwitcher();
   setupSearch();
   injectFooter();
+  injectHelpWidget();
 });
 
 // Expose to pages that render footers dynamically after load

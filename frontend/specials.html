@@ -160,7 +160,9 @@
           return;
         }
 
-        grid.innerHTML = specials.map(p=>`
+        grid.innerHTML = specials.map(p=>{
+          const compareCents = (Number(p.priceCents) || 0) + 1000;
+          return `
           <div class="card fade-in">
             <a href="./product.html?slug=${encodeURIComponent(p.slug)}">
               <img src="${p.image}" alt="${p.name}">
@@ -168,7 +170,13 @@
             <div class="card-body">
               <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(p.slug)}">${p.name}</a>
               <div class="card-meta">${categoryLabel(p.category)}</div>
-              <div class="price-row"><div class="price">${PPS.money(p.priceCents,p.currency)}</div>${favoriteButton(p.id)}</div>
+              <div class="price-row">
+                <div>
+                  <span class="compare-price">${PPS.money(compareCents,p.currency)}</span>
+                  <span class="price">${PPS.money(p.priceCents,p.currency)}</span>
+                </div>
+                ${favoriteButton(p.id)}
+              </div>
               <div class="stock ${stockClass(p.stock)}">
                 <span class="dot"></span>
                 ${stockLabel(p.stock)}
@@ -184,7 +192,7 @@
               </div>
             </div>
           </div>
-        `).join("");
+        `;}).join("");
 
         document.querySelectorAll(".fade-in").forEach(el => el.classList.add("show"));
 

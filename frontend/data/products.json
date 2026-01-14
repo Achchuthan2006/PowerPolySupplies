@@ -9,9 +9,11 @@
     "stock": 120,
     "special": true,
     "image": "./assets/Clear Poly Bags.webp",
-    "description": "Plastic garment cover bags for dry cleaning use. Size 21x6x42x0.00065 (Heavy). Manufactured in Korea for consistent, 100% quality.",
-    "description_fr": "Housses de v?tements en plastique pour le nettoyage ? sec. Taille 21x6x42x0.00065 (Heavy). Fabriqu?es en Cor?e pour une qualit? constante, 100 %.",
-    "description_ko": "\ub4dc\ub77c\uc774\ud074\ub9ac\ub2dd\uc6a9 \ud50c\ub77c\uc2a4\ud2f1 \uc758\ub958 \ucee4\ubc84 \ubc31. \ud06c\uae30 21x6x42x0.00065(\ubb34\uac70\uc6c0). \uc77c\uad00\ub41c 100% \ud488\uc9c8\uc744 \uc704\ud574 \ud55c\uad6d\uc5d0\uc11c \uc81c\uc870\ub418\uc5c8\uc2b5\ub2c8\ub2e4."
+    "description": "Make garment protection and storage easier with our clear poly bags. Sold by the roll, these lightweight and transparent poly bags are perfect for keeping clothes wrinkle-free and dust-free. Available in multiple sizes. Will easily dispense from the roll. Perfect for dry cleaners, tailors, and any common wardrobe. All sizes.",
+    "description_fr": "Facilitez la protection et le rangement des vetements avec nos sacs en poly transparents. Vendu en rouleau, ces sacs legers et transparents gardent les vetements sans plis et a l'abri de la poussiere. Disponibles en plusieurs tailles. Se deroulent facilement du rouleau. Parfaits pour les nettoyeurs a sec, les tailleurs et toute garde-robe. Toutes tailles.",
+    "description_ko": "투명 폴리 백으로 의류 보호와 보관을 더 쉽게 하세요. 롤 단위로 판매되며 가볍고 투명한 폴리 백은 옷을 주름 없이, 먼지 없이 보관하기에 적합합니다. 다양한 사이즈로 제공됩니다. 롤에서 쉽게 분리됩니다. 드라이클리너, 테일러, 일반 의류 보관에 적합합니다. 전 사이즈 제공.",
+    "description_hi": "हमारे क्लियर पॉली बैग्स से कपड़ों की सुरक्षा और स्टोरेज आसान बनाएं। रोल में मिलने वाले ये हल्के और पारदर्शी पॉली बैग कपड़ों को बिना सिलवट और धूल-मिट्टी से सुरक्षित रखते हैं। कई साइज में उपलब्ध। रोल से आसानी से निकलते हैं। ड्राई क्लीनर्स, टेलर्स और किसी भी सामान्य वार्डरोब के लिए परफेक्ट। सभी साइज।",
+    "description_ta": "எங்கள் தெளிவான பாலி பைகளுடன் உடை பாதுகாப்பும் சேமிப்பும் எளிதாகும். ரோலில் விற்கப்படும் இலகுவான, தெளிவான பாலி பைகள் உடைகளை சுருக்கமில்லாமல், தூசிமட்டமில்லாமல் வைத்திருக்க சரியானவைய. பல அளவுகளில் கிடைக்கும். ரோலிலிருந்து எளிதாக வெளியே வரும். ட்ரை க்ளீனர்கள், தையல்காரர்கள் மற்றம் எதிர்த்தில் வரும் எந்த சாதாரண அலமாரிக்கும் பொருத்தமானது. அனைத்து அளவுகளும்."
   },
   {
     "id": "bag-21x6x42-extra-heavy",
@@ -23,9 +25,11 @@
     "stock": 110,
     "special": false,
     "image": "./assets/Clear Poly Bags.webp",
-    "description": "Plastic garment cover bags for dry cleaning use. Size 21x6x42x0.00075 (Extra Heavy). Manufactured in Korea for consistent, 100% quality.",
-    "description_fr": "Housses de v?tements en plastique pour le nettoyage ? sec. Taille 21x6x42x0.00075 (Extra Heavy). Fabriqu?es en Cor?e pour une qualit? constante, 100 %.",
-    "description_ko": "\ub4dc\ub77c\uc774\ud074\ub9ac\ub2dd\uc6a9 \ud50c\ub77c\uc2a4\ud2f1 \uc758\ub958 \ucee4\ubc84 \ubc31. \ud06c\uae30 21x6x42x0.00075(\uc5d1\uc2a4\ud2b8\ub77c \ud5e4\ube44). \uc77c\uad00\ub41c 100% \ud488\uc9c8\uc744 \uc704\ud574 \ud55c\uad6d\uc5d0\uc11c \uc81c\uc870\ub418\uc5c8\uc2b5\ub2c8\ub2e4."
+    "description": "Make garment protection and storage easier with our clear poly bags. Sold by the roll, these lightweight and transparent poly bags are perfect for keeping clothes wrinkle-free and dust-free. Available in multiple sizes. Will easily dispense from the roll. Perfect for dry cleaners, tailors, and any common wardrobe. All sizes.",
+    "description_fr": "Facilitez la protection et le rangement des vetements avec nos sacs en poly transparents. Vendu en rouleau, ces sacs legers et transparents gardent les vetements sans plis et a l'abri de la poussiere. Disponibles en plusieurs tailles. Se deroulent facilement du rouleau. Parfaits pour les nettoyeurs a sec, les tailleurs et toute garde-robe. Toutes tailles.",
+    "description_ko": "투명 폴리 백으로 의류 보호와 보관을 더 쉽게 하세요. 롤 단위로 판매되며 가볍고 투명한 폴리 백은 옷을 주름 없이, 먼지 없이 보관하기에 적합합니다. 다양한 사이즈로 제공됩니다. 롤에서 쉽게 분리됩니다. 드라이클리너, 테일러, 일반 의류 보관에 적합합니다. 전 사이즈 제공.",
+    "description_hi": "हमारे क्लियर पॉली बैग्स से कपड़ों की सुरक्षा और स्टोरेज आसान बनाएं। रोल में मिलने वाले ये हल्के और पारदर्शी पॉली बैग कपड़ों को बिना सिलवट और धूल-मिट्टी से सुरक्षित रखते हैं। कई साइज में उपलब्ध। रोल से आसानी से निकलते हैं। ड्राई क्लीनर्स, टेलर्स और किसी भी सामान्य वार्डरोब के लिए परफेक्ट। सभी साइज।",
+    "description_ta": "எங்கள் தெளிவான பாலி பைகளுடன் உடை பாதுகாப்பும் சேமிப்பும் எளிதாகும். ரோலில் விற்கப்படும் இலகுவான, தெளிவான பாலி பைகள் உடைகளை சுருக்கமில்லாமல், தூசிமட்டமில்லாமல் வைத்திருக்க சரியானவைய. பல அளவுகளில் கிடைக்கும். ரோலிலிருந்து எளிதாக வெளியே வரும். ட்ரை க்ளீனர்கள், தையல்காரர்கள் மற்றம் எதிர்த்தில் வரும் எந்த சாதாரண அலமாரிக்கும் பொருத்தமானது. அனைத்து அளவுகளும்."
   },
   {
     "id": "bag-21x6x42-eco",
@@ -37,9 +41,11 @@
     "stock": 100,
     "special": false,
     "image": "./assets/Clear Poly Bags.webp",
-    "description": "Plastic garment cover bags for dry cleaning use. Size 21x6x42x0.5 (ECO). Manufactured in Korea for consistent, 100% quality.",
-    "description_fr": "Housses de v?tements en plastique pour le nettoyage ? sec. Taille 21x6x42x0.5 (ECO). Fabriqu?es en Cor?e pour une qualit? constante, 100 %.",
-    "description_ko": "\ub4dc\ub77c\uc774\ud074\ub9ac\ub2dd\uc6a9 \ud50c\ub77c\uc2a4\ud2f1 \uc758\ub958 \ucee4\ubc84 \ubc31. \ud06c\uae30 21x6x42x0.5(ECO). \uc77c\uad00\ub41c 100% \ud488\uc9c8\uc744 \uc704\ud574 \ud55c\uad6d\uc5d0\uc11c \uc81c\uc870\ub418\uc5c8\uc2b5\ub2c8\ub2e4."
+    "description": "Make garment protection and storage easier with our clear poly bags. Sold by the roll, these lightweight and transparent poly bags are perfect for keeping clothes wrinkle-free and dust-free. Available in multiple sizes. Will easily dispense from the roll. Perfect for dry cleaners, tailors, and any common wardrobe. All sizes.",
+    "description_fr": "Facilitez la protection et le rangement des vetements avec nos sacs en poly transparents. Vendu en rouleau, ces sacs legers et transparents gardent les vetements sans plis et a l'abri de la poussiere. Disponibles en plusieurs tailles. Se deroulent facilement du rouleau. Parfaits pour les nettoyeurs a sec, les tailleurs et toute garde-robe. Toutes tailles.",
+    "description_ko": "투명 폴리 백으로 의류 보호와 보관을 더 쉽게 하세요. 롤 단위로 판매되며 가볍고 투명한 폴리 백은 옷을 주름 없이, 먼지 없이 보관하기에 적합합니다. 다양한 사이즈로 제공됩니다. 롤에서 쉽게 분리됩니다. 드라이클리너, 테일러, 일반 의류 보관에 적합합니다. 전 사이즈 제공.",
+    "description_hi": "हमारे क्लियर पॉली बैग्स से कपड़ों की सुरक्षा और स्टोरेज आसान बनाएं। रोल में मिलने वाले ये हल्के और पारदर्शी पॉली बैग कपड़ों को बिना सिलवट और धूल-मिट्टी से सुरक्षित रखते हैं। कई साइज में उपलब्ध। रोल से आसानी से निकलते हैं। ड्राई क्लीनर्स, टेलर्स और किसी भी सामान्य वार्डरोब के लिए परफेक्ट। सभी साइज।",
+    "description_ta": "எங்கள் தெளிவான பாலி பைகளுடன் உடை பாதுகாப்பும் சேமிப்பும் எளிதாகும். ரோலில் விற்கப்படும் இலகுவான, தெளிவான பாலி பைகள் உடைகளை சுருக்கமில்லாமல், தூசிமட்டமில்லாமல் வைத்திருக்க சரியானவைய. பல அளவுகளில் கிடைக்கும். ரோலிலிருந்து எளிதாக வெளியே வரும். ட்ரை க்ளீனர்கள், தையல்காரர்கள் மற்றம் எதிர்த்தில் வரும் எந்த சாதாரண அலமாரிக்கும் பொருத்தமானது. அனைத்து அளவுகளும்."
   },
   {
     "id": "bag-21x6x56-heavy",
@@ -51,9 +57,11 @@
     "stock": 110,
     "special": true,
     "image": "./assets/Clear Poly Bags.webp",
-    "description": "Plastic garment cover bags for dry cleaning use. Size 21x6x56x0.00065 (Heavy). Manufactured in Korea for consistent, 100% quality.",
-    "description_fr": "Housses de v?tements en plastique pour le nettoyage ? sec. Taille 21x6x56x0.00065 (Heavy). Fabriqu?es en Cor?e pour une qualit? constante, 100 %.",
-    "description_ko": "\ub4dc\ub77c\uc774\ud074\ub9ac\ub2dd\uc6a9 \ud50c\ub77c\uc2a4\ud2f1 \uc758\ub958 \ucee4\ubc84 \ubc31. \ud06c\uae30 21x6x56x0.00065(\ubb34\uac70\uc6c0). \uc77c\uad00\ub41c 100% \ud488\uc9c8\uc744 \uc704\ud574 \ud55c\uad6d\uc5d0\uc11c \uc81c\uc870\ub418\uc5c8\uc2b5\ub2c8\ub2e4."
+    "description": "Make garment protection and storage easier with our clear poly bags. Sold by the roll, these lightweight and transparent poly bags are perfect for keeping clothes wrinkle-free and dust-free. Available in multiple sizes. Will easily dispense from the roll. Perfect for dry cleaners, tailors, and any common wardrobe. All sizes.",
+    "description_fr": "Facilitez la protection et le rangement des vetements avec nos sacs en poly transparents. Vendu en rouleau, ces sacs legers et transparents gardent les vetements sans plis et a l'abri de la poussiere. Disponibles en plusieurs tailles. Se deroulent facilement du rouleau. Parfaits pour les nettoyeurs a sec, les tailleurs et toute garde-robe. Toutes tailles.",
+    "description_ko": "투명 폴리 백으로 의류 보호와 보관을 더 쉽게 하세요. 롤 단위로 판매되며 가볍고 투명한 폴리 백은 옷을 주름 없이, 먼지 없이 보관하기에 적합합니다. 다양한 사이즈로 제공됩니다. 롤에서 쉽게 분리됩니다. 드라이클리너, 테일러, 일반 의류 보관에 적합합니다. 전 사이즈 제공.",
+    "description_hi": "हमारे क्लियर पॉली बैग्स से कपड़ों की सुरक्षा और स्टोरेज आसान बनाएं। रोल में मिलने वाले ये हल्के और पारदर्शी पॉली बैग कपड़ों को बिना सिलवट और धूल-मिट्टी से सुरक्षित रखते हैं। कई साइज में उपलब्ध। रोल से आसानी से निकलते हैं। ड्राई क्लीनर्स, टेलर्स और किसी भी सामान्य वार्डरोब के लिए परफेक्ट। सभी साइज।",
+    "description_ta": "எங்கள் தெளிவான பாலி பைகளுடன் உடை பாதுகாப்பும் சேமிப்பும் எளிதாகும். ரோலில் விற்கப்படும் இலகுவான, தெளிவான பாலி பைகள் உடைகளை சுருக்கமில்லாமல், தூசிமட்டமில்லாமல் வைத்திருக்க சரியானவைய. பல அளவுகளில் கிடைக்கும். ரோலிலிருந்து எளிதாக வெளியே வரும். ட்ரை க்ளீனர்கள், தையல்காரர்கள் மற்றம் எதிர்த்தில் வரும் எந்த சாதாரண அலமாரிக்கும் பொருத்தமானது. அனைத்து அளவுகளும்."
   },
   {
     "id": "bag-21x6x56-extra-heavy",
@@ -65,9 +73,11 @@
     "stock": 100,
     "special": false,
     "image": "./assets/Clear Poly Bags.webp",
-    "description": "Plastic garment cover bags for dry cleaning use. Size 21x6x56x0.00075 (Extra Heavy). Manufactured in Korea for consistent, 100% quality.",
-    "description_fr": "Housses de v?tements en plastique pour le nettoyage ? sec. Taille 21x6x56x0.00075 (Extra Heavy). Fabriqu?es en Cor?e pour une qualit? constante, 100 %.",
-    "description_ko": "\ub4dc\ub77c\uc774\ud074\ub9ac\ub2dd\uc6a9 \ud50c\ub77c\uc2a4\ud2f1 \uc758\ub958 \ucee4\ubc84 \ubc31. \ud06c\uae30 21x6x56x0.00075(\uc5d1\uc2a4\ud2b8\ub77c \ud5e4\ube44). \uc77c\uad00\ub41c 100% \ud488\uc9c8\uc744 \uc704\ud574 \ud55c\uad6d\uc5d0\uc11c \uc81c\uc870\ub418\uc5c8\uc2b5\ub2c8\ub2e4."
+    "description": "Make garment protection and storage easier with our clear poly bags. Sold by the roll, these lightweight and transparent poly bags are perfect for keeping clothes wrinkle-free and dust-free. Available in multiple sizes. Will easily dispense from the roll. Perfect for dry cleaners, tailors, and any common wardrobe. All sizes.",
+    "description_fr": "Facilitez la protection et le rangement des vetements avec nos sacs en poly transparents. Vendu en rouleau, ces sacs legers et transparents gardent les vetements sans plis et a l'abri de la poussiere. Disponibles en plusieurs tailles. Se deroulent facilement du rouleau. Parfaits pour les nettoyeurs a sec, les tailleurs et toute garde-robe. Toutes tailles.",
+    "description_ko": "투명 폴리 백으로 의류 보호와 보관을 더 쉽게 하세요. 롤 단위로 판매되며 가볍고 투명한 폴리 백은 옷을 주름 없이, 먼지 없이 보관하기에 적합합니다. 다양한 사이즈로 제공됩니다. 롤에서 쉽게 분리됩니다. 드라이클리너, 테일러, 일반 의류 보관에 적합합니다. 전 사이즈 제공.",
+    "description_hi": "हमारे क्लियर पॉली बैग्स से कपड़ों की सुरक्षा और स्टोरेज आसान बनाएं। रोल में मिलने वाले ये हल्के और पारदर्शी पॉली बैग कपड़ों को बिना सिलवट और धूल-मिट्टी से सुरक्षित रखते हैं। कई साइज में उपलब्ध। रोल से आसानी से निकलते हैं। ड्राई क्लीनर्स, टेलर्स और किसी भी सामान्य वार्डरोब के लिए परफेक्ट। सभी साइज।",
+    "description_ta": "எங்கள் தெளிவான பாலி பைகளுடன் உடை பாதுகாப்பும் சேமிப்பும் எளிதாகும். ரோலில் விற்கப்படும் இலகுவான, தெளிவான பாலி பைகள் உடைகளை சுருக்கமில்லாமல், தூசிமட்டமில்லாமல் வைத்திருக்க சரியானவைய. பல அளவுகளில் கிடைக்கும். ரோலிலிருந்து எளிதாக வெளியே வரும். ட்ரை க்ளீனர்கள், தையல்காரர்கள் மற்றம் எதிர்த்தில் வரும் எந்த சாதாரண அலமாரிக்கும் பொருத்தமானது. அனைத்து அளவுகளும்."
   },
   {
     "id": "bag-21x6x56-eco",
@@ -79,9 +89,11 @@
     "stock": 95,
     "special": false,
     "image": "./assets/Clear Poly Bags.webp",
-    "description": "Plastic garment cover bags for dry cleaning use. Size 21x6x56x0.5 (ECO). Manufactured in Korea for consistent, 100% quality.",
-    "description_fr": "Housses de v?tements en plastique pour le nettoyage ? sec. Taille 21x6x56x0.5 (ECO). Fabriqu?es en Cor?e pour une qualit? constante, 100 %.",
-    "description_ko": "\ub4dc\ub77c\uc774\ud074\ub9ac\ub2dd\uc6a9 \ud50c\ub77c\uc2a4\ud2f1 \uc758\ub958 \ucee4\ubc84 \ubc31. \ud06c\uae30 21x6x56x0.5(ECO). \uc77c\uad00\ub41c 100% \ud488\uc9c8\uc744 \uc704\ud574 \ud55c\uad6d\uc5d0\uc11c \uc81c\uc870\ub418\uc5c8\uc2b5\ub2c8\ub2e4."
+    "description": "Make garment protection and storage easier with our clear poly bags. Sold by the roll, these lightweight and transparent poly bags are perfect for keeping clothes wrinkle-free and dust-free. Available in multiple sizes. Will easily dispense from the roll. Perfect for dry cleaners, tailors, and any common wardrobe. All sizes.",
+    "description_fr": "Facilitez la protection et le rangement des vetements avec nos sacs en poly transparents. Vendu en rouleau, ces sacs legers et transparents gardent les vetements sans plis et a l'abri de la poussiere. Disponibles en plusieurs tailles. Se deroulent facilement du rouleau. Parfaits pour les nettoyeurs a sec, les tailleurs et toute garde-robe. Toutes tailles.",
+    "description_ko": "투명 폴리 백으로 의류 보호와 보관을 더 쉽게 하세요. 롤 단위로 판매되며 가볍고 투명한 폴리 백은 옷을 주름 없이, 먼지 없이 보관하기에 적합합니다. 다양한 사이즈로 제공됩니다. 롤에서 쉽게 분리됩니다. 드라이클리너, 테일러, 일반 의류 보관에 적합합니다. 전 사이즈 제공.",
+    "description_hi": "हमारे क्लियर पॉली बैग्स से कपड़ों की सुरक्षा और स्टोरेज आसान बनाएं। रोल में मिलने वाले ये हल्के और पारदर्शी पॉली बैग कपड़ों को बिना सिलवट और धूल-मिट्टी से सुरक्षित रखते हैं। कई साइज में उपलब्ध। रोल से आसानी से निकलते हैं। ड्राई क्लीनर्स, टेलर्स और किसी भी सामान्य वार्डरोब के लिए परफेक्ट। सभी साइज।",
+    "description_ta": "எங்கள் தெளிவான பாலி பைகளுடன் உடை பாதுகாப்பும் சேமிப்பும் எளிதாகும். ரோலில் விற்கப்படும் இலகுவான, தெளிவான பாலி பைகள் உடைகளை சுருக்கமில்லாமல், தூசிமட்டமில்லாமல் வைத்திருக்க சரியானவைய. பல அளவுகளில் கிடைக்கும். ரோலிலிருந்து எளிதாக வெளியே வரும். ட்ரை க்ளீனர்கள், தையல்காரர்கள் மற்றம் எதிர்த்தில் வரும் எந்த சாதாரண அலமாரிக்கும் பொருத்தமானது. அனைத்து அளவுகளும்."
   },
   {
     "id": "bag-21x6x72-heavy",
@@ -93,9 +105,11 @@
     "stock": 100,
     "special": true,
     "image": "./assets/Clear Poly Bags.webp",
-    "description": "Plastic garment cover bags for dry cleaning use. Size 21x6x72x0.00065 (Heavy). Manufactured in Korea for consistent, 100% quality.",
-    "description_fr": "Housses de v?tements en plastique pour le nettoyage ? sec. Taille 21x6x72x0.00065 (Heavy). Fabriqu?es en Cor?e pour une qualit? constante, 100 %.",
-    "description_ko": "\ub4dc\ub77c\uc774\ud074\ub9ac\ub2dd\uc6a9 \ud50c\ub77c\uc2a4\ud2f1 \uc758\ub958 \ucee4\ubc84 \ubc31. \ud06c\uae30 21x6x72x0.00065(\ubb34\uac70\uc6c0). \uc77c\uad00\ub41c 100% \ud488\uc9c8\uc744 \uc704\ud574 \ud55c\uad6d\uc5d0\uc11c \uc81c\uc870\ub418\uc5c8\uc2b5\ub2c8\ub2e4."
+    "description": "Make garment protection and storage easier with our clear poly bags. Sold by the roll, these lightweight and transparent poly bags are perfect for keeping clothes wrinkle-free and dust-free. Available in multiple sizes. Will easily dispense from the roll. Perfect for dry cleaners, tailors, and any common wardrobe. All sizes.",
+    "description_fr": "Facilitez la protection et le rangement des vetements avec nos sacs en poly transparents. Vendu en rouleau, ces sacs legers et transparents gardent les vetements sans plis et a l'abri de la poussiere. Disponibles en plusieurs tailles. Se deroulent facilement du rouleau. Parfaits pour les nettoyeurs a sec, les tailleurs et toute garde-robe. Toutes tailles.",
+    "description_ko": "투명 폴리 백으로 의류 보호와 보관을 더 쉽게 하세요. 롤 단위로 판매되며 가볍고 투명한 폴리 백은 옷을 주름 없이, 먼지 없이 보관하기에 적합합니다. 다양한 사이즈로 제공됩니다. 롤에서 쉽게 분리됩니다. 드라이클리너, 테일러, 일반 의류 보관에 적합합니다. 전 사이즈 제공.",
+    "description_hi": "हमारे क्लियर पॉली बैग्स से कपड़ों की सुरक्षा और स्टोरेज आसान बनाएं। रोल में मिलने वाले ये हल्के और पारदर्शी पॉली बैग कपड़ों को बिना सिलवट और धूल-मिट्टी से सुरक्षित रखते हैं। कई साइज में उपलब्ध। रोल से आसानी से निकलते हैं। ड्राई क्लीनर्स, टेलर्स और किसी भी सामान्य वार्डरोब के लिए परफेक्ट। सभी साइज।",
+    "description_ta": "எங்கள் தெளிவான பாலி பைகளுடன் உடை பாதுகாப்பும் சேமிப்பும் எளிதாகும். ரோலில் விற்கப்படும் இலகுவான, தெளிவான பாலி பைகள் உடைகளை சுருக்கமில்லாமல், தூசிமட்டமில்லாமல் வைத்திருக்க சரியானவைய. பல அளவுகளில் கிடைக்கும். ரோலிலிருந்து எளிதாக வெளியே வரும். ட்ரை க்ளீனர்கள், தையல்காரர்கள் மற்றம் எதிர்த்தில் வரும் எந்த சாதாரண அலமாரிக்கும் பொருத்தமானது. அனைத்து அளவுகளும்."
   },
   {
     "id": "bag-21x6x72-extra-heavy",
@@ -107,9 +121,11 @@
     "stock": 90,
     "special": false,
     "image": "./assets/Clear Poly Bags.webp",
-    "description": "Plastic garment cover bags for dry cleaning use. Size 21x6x72x0.00075 (Extra Heavy). Manufactured in Korea for consistent, 100% quality.",
-    "description_fr": "Housses de v?tements en plastique pour le nettoyage ? sec. Taille 21x6x72x0.00075 (Extra Heavy). Fabriqu?es en Cor?e pour une qualit? constante, 100 %.",
-    "description_ko": "\ub4dc\ub77c\uc774\ud074\ub9ac\ub2dd\uc6a9 \ud50c\ub77c\uc2a4\ud2f1 \uc758\ub958 \ucee4\ubc84 \ubc31. \ud06c\uae30 21x6x72x0.00075(\uc5d1\uc2a4\ud2b8\ub77c \ud5e4\ube44). \uc77c\uad00\ub41c 100% \ud488\uc9c8\uc744 \uc704\ud574 \ud55c\uad6d\uc5d0\uc11c \uc81c\uc870\ub418\uc5c8\uc2b5\ub2c8\ub2e4."
+    "description": "Make garment protection and storage easier with our clear poly bags. Sold by the roll, these lightweight and transparent poly bags are perfect for keeping clothes wrinkle-free and dust-free. Available in multiple sizes. Will easily dispense from the roll. Perfect for dry cleaners, tailors, and any common wardrobe. All sizes.",
+    "description_fr": "Facilitez la protection et le rangement des vetements avec nos sacs en poly transparents. Vendu en rouleau, ces sacs legers et transparents gardent les vetements sans plis et a l'abri de la poussiere. Disponibles en plusieurs tailles. Se deroulent facilement du rouleau. Parfaits pour les nettoyeurs a sec, les tailleurs et toute garde-robe. Toutes tailles.",
+    "description_ko": "투명 폴리 백으로 의류 보호와 보관을 더 쉽게 하세요. 롤 단위로 판매되며 가볍고 투명한 폴리 백은 옷을 주름 없이, 먼지 없이 보관하기에 적합합니다. 다양한 사이즈로 제공됩니다. 롤에서 쉽게 분리됩니다. 드라이클리너, 테일러, 일반 의류 보관에 적합합니다. 전 사이즈 제공.",
+    "description_hi": "हमारे क्लियर पॉली बैग्स से कपड़ों की सुरक्षा और स्टोरेज आसान बनाएं। रोल में मिलने वाले ये हल्के और पारदर्शी पॉली बैग कपड़ों को बिना सिलवट और धूल-मिट्टी से सुरक्षित रखते हैं। कई साइज में उपलब्ध। रोल से आसानी से निकलते हैं। ड्राई क्लीनर्स, टेलर्स और किसी भी सामान्य वार्डरोब के लिए परफेक्ट। सभी साइज।",
+    "description_ta": "எங்கள் தெளிவான பாலி பைகளுடன் உடை பாதுகாப்பும் சேமிப்பும் எளிதாகும். ரோலில் விற்கப்படும் இலகுவான, தெளிவான பாலி பைகள் உடைகளை சுருக்கமில்லாமல், தூசிமட்டமில்லாமல் வைத்திருக்க சரியானவைய. பல அளவுகளில் கிடைக்கும். ரோலிலிருந்து எளிதாக வெளியே வரும். ட்ரை க்ளீனர்கள், தையல்காரர்கள் மற்றம் எதிர்த்தில் வரும் எந்த சாதாரண அலமாரிக்கும் பொருத்தமானது. அனைத்து அளவுகளும்."
   },
   {
     "id": "bag-21x6x72-eco",
@@ -121,9 +137,11 @@
     "stock": 85,
     "special": false,
     "image": "./assets/Clear Poly Bags.webp",
-    "description": "Plastic garment cover bags for dry cleaning use. Size 21x6x72x0.5 (ECO). Manufactured in Korea for consistent, 100% quality.",
-    "description_fr": "Housses de v?tements en plastique pour le nettoyage ? sec. Taille 21x6x72x0.5 (ECO). Fabriqu?es en Cor?e pour une qualit? constante, 100 %.",
-    "description_ko": "\ub4dc\ub77c\uc774\ud074\ub9ac\ub2dd\uc6a9 \ud50c\ub77c\uc2a4\ud2f1 \uc758\ub958 \ucee4\ubc84 \ubc31. \ud06c\uae30 21x6x72x0.5(ECO). \uc77c\uad00\ub41c 100% \ud488\uc9c8\uc744 \uc704\ud574 \ud55c\uad6d\uc5d0\uc11c \uc81c\uc870\ub418\uc5c8\uc2b5\ub2c8\ub2e4."
+    "description": "Make garment protection and storage easier with our clear poly bags. Sold by the roll, these lightweight and transparent poly bags are perfect for keeping clothes wrinkle-free and dust-free. Available in multiple sizes. Will easily dispense from the roll. Perfect for dry cleaners, tailors, and any common wardrobe. All sizes.",
+    "description_fr": "Facilitez la protection et le rangement des vetements avec nos sacs en poly transparents. Vendu en rouleau, ces sacs legers et transparents gardent les vetements sans plis et a l'abri de la poussiere. Disponibles en plusieurs tailles. Se deroulent facilement du rouleau. Parfaits pour les nettoyeurs a sec, les tailleurs et toute garde-robe. Toutes tailles.",
+    "description_ko": "투명 폴리 백으로 의류 보호와 보관을 더 쉽게 하세요. 롤 단위로 판매되며 가볍고 투명한 폴리 백은 옷을 주름 없이, 먼지 없이 보관하기에 적합합니다. 다양한 사이즈로 제공됩니다. 롤에서 쉽게 분리됩니다. 드라이클리너, 테일러, 일반 의류 보관에 적합합니다. 전 사이즈 제공.",
+    "description_hi": "हमारे क्लियर पॉली बैग्स से कपड़ों की सुरक्षा और स्टोरेज आसान बनाएं। रोल में मिलने वाले ये हल्के और पारदर्शी पॉली बैग कपड़ों को बिना सिलवट और धूल-मिट्टी से सुरक्षित रखते हैं। कई साइज में उपलब्ध। रोल से आसानी से निकलते हैं। ड्राई क्लीनर्स, टेलर्स और किसी भी सामान्य वार्डरोब के लिए परफेक्ट। सभी साइज।",
+    "description_ta": "எங்கள் தெளிவான பாலி பைகளுடன் உடை பாதுகாப்பும் சேமிப்பும் எளிதாகும். ரோலில் விற்கப்படும் இலகுவான, தெளிவான பாலி பைகள் உடைகளை சுருக்கமில்லாமல், தூசிமட்டமில்லாமல் வைத்திருக்க சரியானவைய. பல அளவுகளில் கிடைக்கும். ரோலிலிருந்து எளிதாக வெளியே வரும். ட்ரை க்ளீனர்கள், தையல்காரர்கள் மற்றம் எதிர்த்தில் வரும் எந்த சாதாரண அலமாரிக்கும் பொருத்தமானது. அனைத்து அளவுகளும்."
   },
   {
     "id": "hanger-caped-16-we-love",
@@ -135,9 +153,11 @@
     "stock": 95,
     "special": false,
     "image": "./assets/welovefinal.webp",
-    "description": "Caped hangers, white, \"We Love\" print, 16\". Pack of 500 pcs (13G/500). Manufactured in Korea for consistent, 100% quality.",
-    "description_fr": "Cintres caped, blancs, imprim? \"We Love\", 16\". Paquet de 500 pi?ces (13G/500). Fabriqu?s en Cor?e pour une qualit? constante, 100 %.",
-    "description_ko": "\ucea1 \ub2ec\ub9b0 \uc637\uac78\uc774, \ud770\uc0c9, \"We Love\" \ud504\ub9b0\ud2b8, 16\". 500\uac1c \ud329(13G/500). \uc77c\uad00\ub41c 100% \ud488\uc9c8\uc744 \uc704\ud574 \ud55c\uad6d\uc5d0\uc11c \uc81c\uc870\ub418\uc5c8\uc2b5\ub2c8\ub2e4."
+    "description": "Made with 13 gauge sturdy metal wire and covered in high quality paper with your choice of design, these are a great addition to your hanger selection. Can be used for heavier items such as jackets, coats, and blazers.",
+    "description_fr": "Fabriques avec du fil metallique robuste de calibre 13 et recouverts de papier de haute qualite avec le design de votre choix, ces cintres sont un excellent ajout a votre selection. Conviennent aux articles plus lourds comme les vestes, manteaux et blazers.",
+    "description_ko": "13??? ??? ?? ???? ?? ??? ???? ??? ???? ??? ? ????. ??? ??? ??? ????? ??, ??, ???? ?? ??? ??? ?????.",
+    "description_hi": "13 ??? ?? ????? ???? ??? ?? ??? ?? ???? ???????? ???? ???? ?? ??? ??? ??, ???? ??????? ?????? ?? ??? ?? ???? ????? ??? ??? ??????? ???? ???? ?????, ??? ?? ??????? ???? ???? ?????? ?? ??? ????????",
+    "description_ta": "13 ???? ???????? ???? ??????? ???????????????, ?????? ?????????? ????????????? ?????? ??????? ?????????????, ??? ?????? ??????? ?????????? ?????? ????????. ????????, ????, ??????? ????? ????? ?????????? ??????????????."
   },
   {
     "id": "hanger-caped-16-plain",
@@ -149,9 +169,11 @@
     "stock": 90,
     "special": false,
     "image": "./assets/Cape Hangers.webp",
-    "description": "Caped hangers, white, plain, 16\". Pack of 500 pcs (13G/500). Manufactured in Korea for consistent, 100% quality.",
-    "description_fr": "Cintres caped, blancs, unis, 16\". Paquet de 500 pi?ces (13G/500). Fabriqu?s en Cor?e pour une qualit? constante, 100 %.",
-    "description_ko": "\ucea1 \ub2ec\ub9b0 \uc637\uac78\uc774, \ud770\uc0c9, \uc77c\ubc18, 16\". 500\uac1c \ud329(13G/500). \uc77c\uad00\ub41c 100% \ud488\uc9c8\uc744 \uc704\ud574 \ud55c\uad6d\uc5d0\uc11c \uc81c\uc870\ub418\uc5c8\uc2b5\ub2c8\ub2e4."
+    "description": "Made with 13 gauge sturdy metal wire and covered in high quality paper with your choice of design, these are a great addition to your hanger selection. Can be used for heavier items such as jackets, coats, and blazers.",
+    "description_fr": "Fabriques avec du fil metallique robuste de calibre 13 et recouverts de papier de haute qualite avec le design de votre choix, ces cintres sont un excellent ajout a votre selection. Conviennent aux articles plus lourds comme les vestes, manteaux et blazers.",
+    "description_ko": "13??? ??? ?? ???? ?? ??? ???? ??? ???? ??? ? ????. ??? ??? ??? ????? ??, ??, ???? ?? ??? ??? ?????.",
+    "description_hi": "13 ??? ?? ????? ???? ??? ?? ??? ?? ???? ???????? ???? ???? ?? ??? ??? ??, ???? ??????? ?????? ?? ??? ?? ???? ????? ??? ??? ??????? ???? ???? ?????, ??? ?? ??????? ???? ???? ?????? ?? ??? ????????",
+    "description_ta": "13 ???? ???????? ???? ??????? ???????????????, ?????? ?????????? ????????????? ?????? ??????? ?????????????, ??? ?????? ??????? ?????????? ?????? ????????. ????????, ????, ??????? ????? ????? ?????????? ??????????????."
   },
   {
     "id": "hanger-shirt-18-plain",
@@ -162,10 +184,12 @@
     "currency": "CAD",
     "stock": 90,
     "special": true,
-    "image": "./assets/Strut Hangers.webp",
-    "description": "Shirt hangers, white plastic coated, 18\". Pack of 500 pcs (14G/500). Manufactured in Korea for consistent, 100% quality.",
-    "description_fr": "Cintres chemise, blancs avec rev?tement plastique, 18\". Paquet de 500 pi?ces (14G/500). Fabriqu?s en Cor?e pour une qualit? constante, 100 %.",
-    "description_ko": "\uc154\uce20 \uac78\uc774, \ud770\uc0c9 \ud50c\ub77c\uc2a4\ud2f1 \ucf54\ud305, 18\". 500\uac1c \ud329(14G/500). \uc77c\uad00\ub41c 100% \ud488\uc9c8\uc744 \uc704\ud574 \ud55c\uad6d\uc5d0\uc11c \uc81c\uc870\ub418\uc5c8\uc2b5\ub2c8\ub2e4."
+    "image": "./assets/shirt hanger pic.webp",
+    "description": "High quality shirt hanger with a rounded smooth hook end, large central collar area - perfect size and shape for shirts. A multipurpose hanger for domestic and commercial use. Industry standard for laundry and dry cleaning services. Industry standard wire shirt hangers.",
+    "description_fr": "Cintre chemise de haute qualite avec un crochet arrondi et lisse, grande zone centrale pour le col - taille et forme parfaites pour les chemises. Cintre polyvalent pour un usage domestique et commercial. Norme de l'industrie pour les services de blanchisserie et de nettoyage a sec. Cintres chemise en fil standard.",
+    "description_ko": "???? ?? ?? ?? ?? ?? ?? ??? ?? ?? ?? ?????. ??? ??? ??? ??. ???? ??? ??? ??? ??? ???? ?? ? ?????? ?? ?????. ?? ?? ??? ?? ??.",
+    "description_hi": "??? ?? ????? ??? ??? ??? ???? ??????? ???? ??????? ?? ??? ???? ???????? ???? ???? ????? - ???? ?? ??? ??????? ???? ?? ???? ????? ?? ?????????? ????? ?? ??? ????????????? ?????? ???????? ?? ????? ???????? ?????? ?? ??? ????????? ?????????? ????????? ????????? ???? ???? ??????",
+    "description_ta": "????????? ???? ???? ????? ??????? ????? ??? ????? ?????????? ?????? ????? ??????? - ???????????? ?????? ?????? ????????. ?????????? ???????????? ?????????? ???? ????????? ???????. ??????? ??????? ???? ???????? ???????????? ?????? ???????. ?????? ????? ???? ????? ??????????."
   },
   {
     "id": "hanger-strut-16",
@@ -179,7 +203,9 @@
     "image": "./assets/Strut Hangers.webp",
     "description": "Strut hangers, white plastic coated, 16\". Pack of 500 pcs (14.5G/500). Manufactured in Korea for consistent, 100% quality.",
     "description_fr": "Cintres strut, blancs avec rev?tement plastique, 16\". Paquet de 500 pi?ces (14.5G/500). Fabriqu?s en Cor?e pour une qualit? constante, 100 %.",
-    "description_ko": "\uc2a4\ud2b8\ub7ff \ud589\uc5b4, \ud770\uc0c9 \ud50c\ub77c\uc2a4\ud2f1 \ucf54\ud305, 16\". 500\uac1c \ud329(14.5G/500). \uc77c\uad00\ub41c 100% \ud488\uc9c8\uc744 \uc704\ud574 \ud55c\uad6d\uc5d0\uc11c \uc81c\uc870\ub418\uc5c8\uc2b5\ub2c8\ub2e4."
+    "description_ko": "스트럿 행어, 흰색 플라스틱 코팅, 16\". 500개 팩(14.5G/500). 일관된 100% 품질을 위해 한국에서 제조되었습니다.",
+    "description_hi": "स्ट्रट हैंगर, सफेद प्लास्टिक कोटेड, 16\". 500 पीस का पैक (14.5G/500). स्थिर, 100% गुणवत्ता के लिए कोरिया में निर्मित।",
+    "description_ta": "ஸ்ட்ரட் ஹேங்கர்கள், வெள்ளை பிளாஸ்டிக் கோட்டிங், 16\". 500 பீஸ் பேக் (14.5G/500). நிலையான 100% தரத்திற்காக கொரியாவில் தயாரிக்கப்பட்டது."
   },
   {
     "id": "hanger-suit-16",
@@ -190,10 +216,12 @@
     "currency": "CAD",
     "stock": 60,
     "special": true,
-    "image": "./assets/Strut Hangers.webp",
-    "description": "Suit hangers, white plastic coated, 16\". Pack of 500 pcs (13G/500). Manufactured in Korea for consistent, 100% quality.",
-    "description_fr": "Cintres costume, blancs avec rev?tement plastique, 16\". Paquet de 500 pi?ces (13G/500). Fabriqu?s en Cor?e pour une qualit? constante, 100 %.",
-    "description_ko": "\uc815\uc7a5 \uc637\uac78\uc774, \ud770\uc0c9 \ud50c\ub77c\uc2a4\ud2f1 \ucf54\ud305, 16\". 500\uac1c \ud329(13G/500). \uc77c\uad00\ub41c 100% \ud488\uc9c8\uc744 \uc704\ud574 \ud55c\uad6d\uc5d0\uc11c \uc81c\uc870\ub418\uc5c8\uc2b5\ub2c8\ub2e4."
+    "image": "./assets/suit hanger white.png",
+    "description": "The 16\" 13G & 12.5G heavy suit hangers are ideal for hanging larger coats, suit jackets, and other heavy or cold weather clothing. They are the preferred choice for commercial businesses and can also be paired with a 16\" trouser guard for hanging pants or linen.",
+    "description_fr": "Les cintres costume lourds 16\" 13G et 12.5G sont ideaux pour suspendre des manteaux plus grands, vestes de costume et autres vetements lourds ou d'hiver. Ils sont le choix privilegie des entreprises et peuvent etre associes a un protege-pantalon 16\" pour suspendre pantalons ou linge.",
+    "description_ko": "16\" 13G ? 12.5G ?? ?? ??? ? ??, ?? ?? ? ???? ??? ??? ??? ??????. ??? ????? ????, ??? ??? ?? ?? 16\" ???? ??? ?? ??? ? ????.",
+    "description_hi": "16\" 13G ?? 12.5G ???? ??? ????? ???? ???, ??? ????? ?? ???? ???? ?? ???? ???? ?? ?????? ?? ??? ????? ???? ?? ????????? ????????? ?? ???? ??? ?? ???? ?? ????? ?????? ?? ??? 16\" ???????? ????? ?? ??? ?? ????? ??? ?? ???? ????",
+    "description_ta": "16\" 13G ??????? 12.5G ???? ???? ?????????? ????? ?????????, ???? ????????????? ??????? ??? ????? ?????? ????????? ?????? ????? ????? ????????. ???? ??????????? ?????????? ???????????, ?????? ?????? ????? ????? ????? 16\" ???????? ????????? ?????????? ????????."
   },
   {
     "id": "polybag-medium",
@@ -205,9 +233,11 @@
     "stock": 150,
     "special": false,
     "image": "./assets/Clear Poly Bags.webp",
-    "description": "Medium clear poly bags for everyday packaging and storage. Manufactured in Korea for consistent, 100% quality.",
-    "description_fr": "Sacs en poly transparents format moyen pour l'emballage et le rangement quotidiens. Fabriqu?s en Cor?e pour une qualit? constante, 100 %.",
-    "description_ko": "\uc77c\uc0c1\uc801\uc778 \ud3ec\uc7a5 \ubc0f \ubcf4\uad00\uc744 \uc704\ud55c \uc911\uac04 \ud22c\uba85 \ud3f4\ub9ac \ubc31\uc785\ub2c8\ub2e4. \uc77c\uad00\ub41c 100% \ud488\uc9c8\uc744 \uc704\ud574 \ud55c\uad6d\uc5d0\uc11c \uc81c\uc870\ub418\uc5c8\uc2b5\ub2c8\ub2e4."
+    "description": "Make garment protection and storage easier with our Clear Poly Bags. Sold by the roll, these lightweight and transparent poly bags are perfect for keeping clothes wrinkle-free and dust-free. Available in multiple sizes. Will easily dispense from the roll. Perfect for dry cleaners, tailors, and any common wardrobe. All sizes.",
+    "description_fr": "Facilitez la protection et le rangement des vetements avec nos sacs en poly transparents. Vendu en rouleau, ces sacs legers et transparents gardent les vetements sans plis et a l'abri de la poussiere. Disponibles en plusieurs tailles. Se deroulent facilement du rouleau. Parfaits pour les nettoyeurs a sec, les tailleurs et toute garde-robe. Toutes tailles.",
+    "description_ko": "투명 폴리 백으로 의류 보호와 보관을 더 쉽게 하세요. 롤 단위로 판매되며 가볍고 투명해 옷을 주름 없이, 먼지 없이 보관하기에 좋습니다. 다양한 사이즈로 제공됩니다. 롤에서 쉽게 분리됩니다. 드라이클리너, 테일러, 일반 의류 보관에 적합합니다. 전 사이즈 제공.",
+    "description_hi": "हमारे क्लियर पॉली बैग्स से कपड़ों की सुरक्षा और स्टोरेज आसान बनाएं। रोल में मिलने वाले ये हल्के और पारदर्शी पॉली बैग कपड़ों को बिना सिलवट और धूल-मिट्टी से सुरक्षित रखते हैं। कई साइज में उपलब्ध। रोल से आसानी से निकलते हैं। ड्राई क्लीनर्स, टेलर्स और किसी भी सामान्य वार्डरोब के लिए परफेक्ट। सभी साइज।",
+    "description_ta": "எங்கள் தெளிவான பாலி பைகளுடன் உடை பாதுகாப்பும் சேமிப்பும் எளிதாகும். ரோலில் விற்கப்படும் இலகுவான, தெளிவான பாலி பைகள் உடைகளை சுருக்கமில்லாமல், தூசிமட்டமில்லாமல் வைத்திருக்க சரியானவைய. பல அளவுகளில் கிடைக்கும். ரோலிலிருந்து எளிதாக வெளியே வரும். ட்ரை க்ளீனர்கள், தையல்காரர்கள் மற்றும் எதிர்த்தில் வரும் எந்த சாதாரண அலமாரிக்கும் பொருத்தமானது. அனைத்து அளவுகளும்."
   },
   {
     "id": "polybag-large",
@@ -219,8 +249,10 @@
     "stock": 110,
     "special": true,
     "image": "./assets/Clear Poly Bags.webp",
-    "description": "Large clear poly bags for bulk packaging and oversized items. Manufactured in Korea for consistent, 100% quality.",
-    "description_fr": "Sacs en poly transparents grand format pour l'emballage en vrac et les articles surdimensionn?s. Fabriqu?s en Cor?e pour une qualit? constante, 100 %.",
-    "description_ko": "\ub300\ub7c9 \ud3ec\uc7a5 \ubc0f \ub300\ud615 \ud488\ubaa9\uc744 \uc704\ud55c \ub300\ud615 \ud22c\uba85 \ud3f4\ub9ac \ubc31\uc785\ub2c8\ub2e4. \uc77c\uad00\ub41c 100% \ud488\uc9c8\uc744 \uc704\ud574 \ud55c\uad6d\uc5d0\uc11c \uc81c\uc870\ub418\uc5c8\uc2b5\ub2c8\ub2e4."
+    "description": "Make garment protection and storage easier with our Clear Poly Bags. Sold by the roll, these lightweight and transparent poly bags are perfect for keeping clothes wrinkle-free and dust-free. Available in multiple sizes. Will easily dispense from the roll. Perfect for dry cleaners, tailors, and any common wardrobe. All sizes.",
+    "description_fr": "Facilitez la protection et le rangement des vetements avec nos sacs en poly transparents. Vendu en rouleau, ces sacs legers et transparents gardent les vetements sans plis et a l'abri de la poussiere. Disponibles en plusieurs tailles. Se deroulent facilement du rouleau. Parfaits pour les nettoyeurs a sec, les tailleurs et toute garde-robe. Toutes tailles.",
+    "description_ko": "투명 폴리 백으로 의류 보호와 보관을 더 쉽게 하세요. 롤 단위로 판매되며 가볍고 투명해 옷을 주름 없이, 먼지 없이 보관하기에 좋습니다. 다양한 사이즈로 제공됩니다. 롤에서 쉽게 분리됩니다. 드라이클리너, 테일러, 일반 의류 보관에 적합합니다. 전 사이즈 제공.",
+    "description_hi": "हमारे क्लियर पॉली बैग्स से कपड़ों की सुरक्षा और स्टोरेज आसान बनाएं। रोल में मिलने वाले ये हल्के और पारदर्शी पॉली बैग कपड़ों को बिना सिलवट और धूल-मिट्टी से सुरक्षित रखते हैं। कई साइज में उपलब्ध। रोल से आसानी से निकलते हैं। ड्राई क्लीनर्स, टेलर्स और किसी भी सामान्य वार्डरोब के लिए परफेक्ट। सभी साइज।",
+    "description_ta": "எங்கள் தெளிவான பாலி பைகளுடன் உடை பாதுகாப்பும் சேமிப்பும் எளிதாகும். ரோலில் விற்கப்படும் இலகுவான, தெளிவான பாலி பைகள் உடைகளை சுருக்கமில்லாமல், தூசிமட்டமில்லாமல் வைத்திருக்க சரியானவைய. பல அளவுகளில் கிடைக்கும். ரோலிலிருந்து எளிதாக வெளியே வரும். ட்ரை க்ளீனர்கள், தையல்காரர்கள் மற்றும் எதிர்த்தில் வரும் எந்த சாதாரண அலமாரிக்கும் பொருத்தமானது. அனைத்து அளவுகளும்."
   }
 ]

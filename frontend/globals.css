@@ -68,13 +68,6 @@ a{color:inherit;}
   gap:12px;
   flex-wrap:wrap;
 }
-.promo-right{
-  font-weight:700;
-  margin-left:auto;
-  padding-right:12px;
-  text-align:right;
-  transform: translateX(20%);
-}
 
 .search-bar{
   display:flex;
@@ -763,11 +756,6 @@ html[lang="ta"] .navlinks a{
   height:190px;
   object-fit:cover;
   background:#f8fafc;
-  transition: transform .25s ease;
-}
-.card a:hover img,
-.card a:focus-visible img{
-  transform: scale(1.05);
 }
 .card img[src*="Caped%20we%20love.png"],
 .card img[src*="welovefinal.webp"]{
