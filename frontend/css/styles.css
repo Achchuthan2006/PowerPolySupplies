@@ -1575,6 +1575,19 @@ select.input option:hover{
   .auth-grid{
     grid-template-columns: 1fr !important;
   }
+  .signup-code-row{
+    grid-template-columns: 1fr !important;
+  }
+  .code-inputs{
+    justify-content:space-between;
+  }
+  .code-box{
+    width:44px;
+    min-width:44px;
+  }
+  .code-actions{
+    justify-content:flex-start;
+  }
 }
 
   .code-inputs{
