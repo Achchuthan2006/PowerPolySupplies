@@ -18,6 +18,17 @@ function setupNavbar(){
     });
   }
 
+  if(menuBtn && navLinks){
+    document.addEventListener("click", (event)=>{
+      if(!navLinks.classList.contains("open")) return;
+      const target = event.target;
+      if(!(target instanceof Node)) return;
+      if(navLinks.contains(target) || menuBtn.contains(target)) return;
+      navLinks.classList.remove("open");
+      dropdown?.classList.remove("open");
+    });
+  }
+
   // Mobile dropdown toggle
   if(dropBtn && dropdown){
     dropBtn.addEventListener("click", ()=>{
