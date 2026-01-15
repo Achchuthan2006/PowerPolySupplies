@@ -1568,6 +1568,9 @@ select.input option:hover{
     max-height:320px;
     object-fit:contain;
   }
+  .contact-grid{
+    grid-template-columns: 1fr !important;
+  }
 }
 
   .code-inputs{
