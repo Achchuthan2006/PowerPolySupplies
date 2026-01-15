@@ -60,7 +60,7 @@
       <p data-i18n="feedback.subtitle">Real experiences from dry cleaners, laundromats, and retailers who rely on Power Poly Supplies.</p>
     </section>
 
-    <section class="testimonial-grid fade-in">
+    <section class="testimonial-grid fade-in" id="testimonialGrid">
       <div class="testimonial-card">
         <div class="quote-mark">&ldquo;</div>
         <p class="testimonial-text"><span data-i18n="feedback.quote.one">Fast shipping, consistent quality, and responsive support. We keep coming back for garment covers and hangers.</span></p>
@@ -89,6 +89,17 @@
       <form class="grid" id="feedbackForm" style="gap:10px; max-width:720px;">
         <input class="input" id="feedbackName" type="text" placeholder="Your name (optional)" data-i18n-placeholder="feedback.form.name">
         <input class="input" id="feedbackEmail" type="email" placeholder="Email (optional)" data-i18n-placeholder="feedback.form.email">
+        <div class="rating-row">
+          <label for="feedbackRating">Rating (optional)</label>
+          <select class="input" id="feedbackRating">
+            <option value="">Select rating</option>
+            <option value="5">5 - Excellent</option>
+            <option value="4">4 - Great</option>
+            <option value="3">3 - Good</option>
+            <option value="2">2 - Fair</option>
+            <option value="1">1 - Poor</option>
+          </select>
+        </div>
         <textarea class="input" id="feedbackMessage" placeholder="Your feedback..." data-i18n-placeholder="feedback.form.message" style="min-height:120px;"></textarea>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
           <button class="btn btn-primary" type="submit" id="feedbackSubmit" data-i18n="feedback.form.submit">Submit feedback</button>
@@ -114,6 +125,7 @@
     const feedbackForm = document.getElementById("feedbackForm");
     const feedbackName = document.getElementById("feedbackName");
     const feedbackEmail = document.getElementById("feedbackEmail");
+    const feedbackRating = document.getElementById("feedbackRating");
     const feedbackMessage = document.getElementById("feedbackMessage");
     const feedbackStatus = document.getElementById("feedbackStatus");
     const feedbackSubmit = document.getElementById("feedbackSubmit");
@@ -129,6 +141,7 @@
       const payload = {
         name: feedbackName.value.trim(),
         email: feedbackEmail.value.trim(),
+        rating: feedbackRating.value ? Number(feedbackRating.value) : undefined,
         message: feedbackMessage.value.trim()
       };
 
@@ -155,6 +168,7 @@
         }
 
         feedbackMessage.value = "";
+        feedbackRating.value = "";
         const note = data.emailSent ? (window.PPS_I18N?.t("feedback.status.copy") || "We also emailed a copy to our team.") : (window.PPS_I18N?.t("feedback.status.review") || "We'll review it shortly.");
         const thanks = window.PPS_I18N?.t("feedback.status.thanks") || "Thanks! Your feedback was received.";
         setFeedbackStatus(`${thanks} ${note}`, "success");
@@ -174,6 +188,50 @@
     feedbackEmailBtn.addEventListener("click", ()=>{
       sendFeedback();
     });
+
+    async function loadLiveFeedback(){
+      const grid = document.getElementById("testimonialGrid");
+      if(!grid) return;
+      try{
+        const res = await fetch(`${PPS.API_BASE}/api/feedback/public?limit=12`);
+        const data = await res.json();
+        if(!res.ok || !data.ok || !Array.isArray(data.feedback)) return;
+
+        const items = data.feedback
+          .filter(item => item && item.message && item.message.length >= 40)
+          .map(item => ({
+            ...item,
+            rating: Number(item.rating) || 0,
+            score: (Number(item.rating) || 0) * 100 + Math.min(item.message.length, 300)
+          }))
+          .sort((a,b)=> b.score - a.score)
+          .slice(0, 6);
+
+        if(!items.length) return;
+
+        const liveCards = items.map((item, idx)=>{
+          const safeName = String(item.name || "Customer").trim() || "Customer";
+          const safeMsg = String(item.message || "").trim();
+          const stars = item.rating
+            ? `<div class="testimonial-rating" aria-label="Rating ${item.rating} out of 5">${"★".repeat(item.rating)}${"☆".repeat(5 - item.rating)}</div>`
+            : "";
+          return `
+            <div class="testimonial-card live" style="animation-delay:${idx * 0.35}s;">
+              <div class="quote-mark">&ldquo;</div>
+              ${stars}
+              <p class="testimonial-text">${safeMsg}</p>
+              <div class="testimonial-meta">${safeName}</div>
+            </div>
+          `;
+        }).join("");
+
+        grid.insertAdjacentHTML("afterbegin", liveCards);
+      }catch(err){
+        // ignore
+      }
+    }
+
+    loadLiveFeedback();
   </script>
 </body>
 </html>

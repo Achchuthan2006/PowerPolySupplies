@@ -1249,9 +1249,11 @@ select.input option:hover{
   border:1px solid var(--border);
   border-radius:16px;
   padding:16px;
-  background:var(--surface);
-  box-shadow:0 12px 30px rgba(31,39,51,.05);
+  background:linear-gradient(180deg, rgba(255,255,255,.98), rgba(255,246,236,.92));
+  box-shadow:0 14px 34px rgba(240,127,41,.12);
   position:relative;
+  overflow:hidden;
+  animation: floatCard 6s ease-in-out infinite;
 }
 .quote-mark{
   font-size:28px;
@@ -1269,6 +1271,41 @@ select.input option:hover{
   color:var(--muted);
   font-size:13px;
   font-weight:700;
+}
+.testimonial-card:nth-child(2n){
+  animation-delay: .4s;
+}
+.testimonial-card:nth-child(3n){
+  animation-delay: .8s;
+}
+.testimonial-card.live{
+  border-color: rgba(255,122,26,.35);
+}
+.testimonial-rating{
+  font-size:13px;
+  font-weight:800;
+  color:var(--primary);
+  letter-spacing:1px;
+  margin-bottom:6px;
+}
+@keyframes floatCard{
+  0%,100%{ transform: translateY(0); }
+  50%{ transform: translateY(-6px); }
+}
+@media (prefers-reduced-motion: reduce){
+  .testimonial-card{
+    animation:none;
+  }
+}
+
+.rating-row{
+  display:grid;
+  gap:6px;
+}
+.rating-row label{
+  font-size:13px;
+  font-weight:700;
+  color:var(--muted);
 }
 .menu-btn{
   display:none;

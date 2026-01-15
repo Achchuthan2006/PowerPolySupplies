@@ -1305,6 +1305,31 @@ app.post("/api/stripe-checkout", async (req,res)=>{
 });
 
 // ---- Feedback -> email ----
+app.get("/api/feedback/public", async (req,res)=>{
+  if(!requireSupabase(res)) return;
+  const limit = Math.min(Math.max(Number(req.query.limit) || 6, 1), 20);
+  try{
+    const { data, error } = await supabase
+      .from("feedback")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(limit);
+    if(error) throw error;
+
+    const items = (data || []).map((row)=>({
+      id: row.id,
+      name: row.name || "Anonymous",
+      message: row.message || "",
+      rating: row.rating ?? row.rating_value ?? null,
+      createdAt: row.created_at || row.createdAt || ""
+    }));
+    res.json({ ok:true, feedback: items });
+  }catch(err){
+    console.error("Feedback fetch failed", err);
+    res.status(500).json({ ok:false, message:"Failed to load feedback." });
+  }
+});
+
 app.post("/api/feedback", async (req,res)=>{
   const { name, email, message } = req.body;
   if(!message) return res.status(400).json({ ok:false, message:"Message required" });
