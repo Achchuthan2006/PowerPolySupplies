@@ -1571,6 +1571,9 @@ select.input option:hover{
   .contact-grid{
     grid-template-columns: 1fr !important;
   }
+  .auth-grid{
+    grid-template-columns: 1fr !important;
+  }
 }
 
   .code-inputs{
