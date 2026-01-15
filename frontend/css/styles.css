@@ -1559,6 +1559,15 @@ select.input option:hover{
   .pricing-tier span{
     font-size:14px;
   }
+
+  .product-detail-grid{
+    grid-template-columns: 1fr !important;
+  }
+  .product-detail-grid .card img{
+    height:auto;
+    max-height:320px;
+    object-fit:contain;
+  }
 }
 
   .code-inputs{
