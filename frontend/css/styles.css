@@ -1541,6 +1541,24 @@ select.input option:hover{
   .navlinks a{
     white-space:normal;
   }
+
+  .pricing-tiers-grid{
+    grid-template-columns: 1fr;
+  }
+  .pricing-tier{
+    border-left:none;
+    border-top:1px solid var(--border);
+    text-align:center;
+  }
+  .pricing-tier:first-child{
+    border-top:none;
+  }
+  .pricing-tier strong{
+    margin-bottom:4px;
+  }
+  .pricing-tier span{
+    font-size:14px;
+  }
 }
 
   .code-inputs{
