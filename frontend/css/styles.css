@@ -261,6 +261,7 @@ html[lang="es"] .navbar .container{
   gap:6px;
   line-height:1;
   white-space:nowrap;
+  touch-action: manipulation;
 }
 
 .lang-switcher{
@@ -541,6 +542,7 @@ html[lang="ta"] .navlinks a{
   position:relative;
   overflow:hidden;
   transform-style: preserve-3d;
+  touch-action: manipulation;
 }
 
 .btn-primary{
@@ -1257,6 +1259,7 @@ select.input option:hover{
   font-size:13px;
   font-weight:800;
   letter-spacing:.3px;
+  touch-action: manipulation;
 }
 
 .dropdown{
@@ -1279,6 +1282,7 @@ select.input option:hover{
   transition: background .18s ease, border-color .18s ease, box-shadow .18s ease;
   line-height:1;
   white-space:nowrap;
+  touch-action: manipulation;
 }
 
 .dropbtn:hover{
@@ -1323,6 +1327,7 @@ select.input option:hover{
   text-decoration:none;
   font-weight:700;
   letter-spacing:.2px;
+  touch-action: manipulation;
 }
 
 .dropdown-menu a:hover{
@@ -1448,6 +1453,17 @@ select.input option:hover{
 }
 
 @media (max-width: 860px){
+  .navbar .container,
+  .promo-strip .container,
+  html[lang="ta"] .navbar-inner,
+  html[lang="ta"] .promo-inner,
+  html[lang="es"] .navbar .container{
+    transform:none;
+  }
+  .promo-right{
+    transform:none;
+    text-align:left;
+  }
   .nav-search{
     width:100%;
     margin-left:0;
@@ -1459,7 +1475,7 @@ select.input option:hover{
   .menu-btn{ display:inline-flex; }
 
   .navlinks{
-    position:absolute;
+    position:fixed;
     top:72px;
     right:18px;
     left:18px;
@@ -1471,10 +1487,15 @@ select.input option:hover{
     border-radius:16px;
     background:var(--surface);
     box-shadow: var(--shadow);
+    z-index:200;
+    max-height: calc(100vh - 96px);
+    overflow-y:auto;
+    pointer-events:none;
   }
   .navlinks.open{
     display:flex;
     animation: pop .18s ease;
+    pointer-events:auto;
   }
   @keyframes pop{
     from{ opacity:0; transform: translateY(-6px); }
@@ -1494,6 +1515,9 @@ select.input option:hover{
     min-width: unset;
   }
   .dropdown.open .dropdown-menu{ display:block; }
+  .navlinks a{
+    white-space:normal;
+  }
 }
 
   .code-inputs{

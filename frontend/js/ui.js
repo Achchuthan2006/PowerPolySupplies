@@ -9,6 +9,14 @@ function setupNavbar(){
       navLinks.classList.toggle("open");
     });
   }
+  if(navLinks){
+    navLinks.addEventListener("click", (event)=>{
+      const link = event.target.closest("a");
+      if(link && navLinks.classList.contains("open")){
+        navLinks.classList.remove("open");
+      }
+    });
+  }
 
   // Mobile dropdown toggle
   if(dropBtn && dropdown){
