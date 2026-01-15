@@ -330,7 +330,7 @@
                   <span class="dot"></span>
                   ${stockLabel(p.stock)}
                 </div>
-                <div style="margin-top:12px; display:flex; gap:10px;">
+                <div class="product-actions" style="margin-top:12px; display:flex; gap:10px;">
                   <a class="btn" href="./product.html?slug=${encodeURIComponent(p.slug)}">${window.PPS_I18N?.t("products.action.view") || "View"}</a>
                   <button class="btn btn-primary" ${p.stock<=0?'disabled':''} onclick='add(event,"${p.id}")'>${window.PPS_I18N?.t("products.action.add") || "Add"}</button>
                   <a class="btn btn-outline" href="./cart.html" data-i18n="products.action.cart">${window.PPS_I18N?.t("products.action.cart") || "Go to cart"}</a>

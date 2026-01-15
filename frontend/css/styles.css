@@ -1651,6 +1651,18 @@ select.input option:hover{
   .related-header .btn{
     width:100%;
   }
+  .product-actions{
+    flex-direction:column;
+  }
+  .product-actions .btn{
+    width:100%;
+  }
+  .bulk-quick{
+    flex-direction:column;
+  }
+  .bulk-quick .btn{
+    width:100%;
+  }
 }
 
   .code-inputs{
