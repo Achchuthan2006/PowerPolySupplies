@@ -446,6 +446,7 @@ html[lang="ta"] .navlinks a{
   box-shadow:0 30px 80px rgba(17,24,39,.12);
   position:relative;
   overflow:hidden;
+  z-index:1;
 }
 
   .hero h1{
@@ -484,6 +485,11 @@ html[lang="ta"] .navlinks a{
   gap:10px;
   flex-wrap:wrap;
   margin-top:16px;
+}
+.hero .btn{
+  position:relative;
+  z-index:2;
+  pointer-events:auto;
 }
 .callout-pill{
   display:inline-flex;
@@ -1463,6 +1469,14 @@ select.input option:hover{
   .promo-right{
     transform:none;
     text-align:left;
+  }
+  .promo-inner,
+  .promo-right,
+  .brand-title,
+  .brand-tagline,
+  .dropbtn{
+    white-space:normal;
+    word-break:break-word;
   }
   .nav-search{
     width:100%;
