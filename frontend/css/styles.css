@@ -447,6 +447,8 @@ html[lang="ta"] .navlinks a{
   position:relative;
   overflow:hidden;
   z-index:1;
+  isolation:isolate;
+  pointer-events:auto;
 }
 
   .hero h1{
@@ -596,6 +598,7 @@ html[lang="ta"] .navlinks a{
   flex-direction:column;
   align-items:flex-end;
   gap:10px;
+  pointer-events:none;
 }
 
 .help-fab{
@@ -610,6 +613,7 @@ html[lang="ta"] .navlinks a{
   font-weight:800;
   box-shadow:0 12px 24px rgba(240,127,41,.3);
   cursor:pointer;
+  pointer-events:auto;
 }
 
 .help-fab-icon{
