@@ -1099,6 +1099,9 @@ select.input option:hover{
   width:100%;
   opacity:0;
   transform: translateY(20px);
+  position:relative;
+  z-index:2;
+  pointer-events:auto;
 }
 .dark-footer .footer-inner{
   max-width:1280px;
@@ -1121,6 +1124,8 @@ select.input option:hover{
   color:#d1d7de;
   text-decoration:none;
   font-size:13px;
+  pointer-events:auto;
+  touch-action: manipulation;
 }
 .dark-footer a:hover{
   color:var(--accent);
