@@ -18,7 +18,7 @@
     <div class="navbar">
       <div class="container navbar-inner">
         <a class="brand" href="./index.html">
-          <img src="./assets/poly%20logo%20without%20background.png" alt="Power Poly Supplies"/>
+          <img src="./assets/poly%20logo%20without%20background.png" alt="Power Poly Supplies" width="62" height="62" decoding="async">
           <div class="brand-text">
             <span class="brand-title" data-i18n="brand.name">Power Poly Supplies</span>
             <span class="brand-tagline" data-i18n="brand.tagline">Power your packaging</span>
@@ -237,7 +237,7 @@
         </section>
         <div class="grid" style="grid-template-columns: 1.1fr .9fr; gap:24px;">
           <div class="card fade-in">
-            <img src="${p.image}" alt="${displayName}" style="height:420px;">
+            <img src="${p.image}" alt="${displayName}" width="800" height="420" decoding="async" style="height:420px;">
           </div>
           <div class="card fade-in" style="padding:18px;">
             <h2 style="margin:0;">${displayName}</h2>
@@ -476,7 +476,7 @@
         return `
           <div class="card fade-in">
             <a href="./product.html?slug=${encodeURIComponent(item.slug)}">
-              <img src="${item.image}" alt="${displayName}">
+              <img src="${item.image}" alt="${displayName}" loading="lazy" decoding="async" width="400" height="190">
             </a>
             <div class="card-body">
               <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(item.slug)}">${displayName}</a>
