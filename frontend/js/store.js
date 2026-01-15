@@ -7,6 +7,23 @@
 const DEFAULT_API_BASE = "http://127.0.0.1:5000";
 const DEFAULT_CAD_TO_USD = 0.74;
 const FAVORITES_KEY = "pps_favorites";
+const CAPED_WE_LOVE_IMAGE = "./assets/welovecaped%20hanger.webp";
+
+function normalizeImagePath(value){
+  if(!value) return value;
+  return String(value).replace(/ /g, "%20");
+}
+
+function normalizeProductImage(product){
+  if(!product) return product;
+  const image = normalizeImagePath(product.image);
+  if(product.id === "hanger-caped-16-we-love"){
+    if(!image || /welovefinal|caped%20we%20love\.png/i.test(image)){
+      return { ...product, image: CAPED_WE_LOVE_IMAGE };
+    }
+  }
+  return { ...product, image };
+}
 
 function inferApiBase(){
   if(window.PPS_API_BASE) return window.PPS_API_BASE;
@@ -131,16 +148,18 @@ async function loadProducts(){
     if(res.ok){
       const data = await res.json();
       if(data?.ok && Array.isArray(data.products)) {
-        window._products = data.products;
-        return data.products;
+        const normalized = data.products.map(normalizeProductImage);
+        window._products = normalized;
+        return normalized;
       }
     }
   }catch(e){ /* ignore */ }
 
   const res2 = await fetch("./data/products.json");
   const json = await res2.json();
-  window._products = json;
-  return json;
+  const normalized = (json || []).map(normalizeProductImage);
+  window._products = normalized;
+  return normalized;
 }
 
 async function fetchReviews(productId){
