@@ -7,6 +7,69 @@
 const DEFAULT_API_BASE = "http://127.0.0.1:5000";
 const DEFAULT_CAD_TO_USD = 0.74;
 const FAVORITES_KEY = "pps_favorites";
+const PRODUCTS_CACHE_KEY = "pps_products_cache_v1";
+const PRODUCTS_FAST_MS = 400;
+
+function readCachedProducts(){
+  if(Array.isArray(window._products) && window._products.length){
+    return window._products;
+  }
+  try{
+    const raw = sessionStorage.getItem(PRODUCTS_CACHE_KEY);
+    if(!raw) return null;
+    const parsed = JSON.parse(raw);
+    if(Array.isArray(parsed) && parsed.length){
+      return parsed;
+    }
+  }catch(err){
+    // ignore
+  }
+  return null;
+}
+
+function cacheProducts(products){
+  if(!Array.isArray(products) || !products.length) return;
+  window._products = products;
+  try{
+    sessionStorage.setItem(PRODUCTS_CACHE_KEY, JSON.stringify(products));
+  }catch(err){
+    // ignore
+  }
+}
+
+function wrapProducts(products){
+  return Array.isArray(products) ? products : null;
+}
+
+function fastTimeout(ms){
+  return new Promise((resolve)=> setTimeout(()=> resolve({ source:"timeout", data:null }), ms));
+}
+
+async function fetchBackendProducts(){
+  try{
+    const res = await fetch(`${API_BASE}/api/products`, { cache:"no-store" });
+    if(!res.ok) return null;
+    const data = await res.json();
+    if(data?.ok && Array.isArray(data.products)) {
+      return wrapProducts(data.products);
+    }
+  }catch(err){
+    // ignore
+  }
+  return null;
+}
+
+async function fetchLocalProducts(){
+  try{
+    const res = await fetch("./data/products.json", { cache:"force-cache" });
+    if(!res.ok) return null;
+    const json = await res.json();
+    return wrapProducts(json || []);
+  }catch(err){
+    // ignore
+  }
+  return null;
+}
 
 function inferApiBase(){
   if(window.PPS_API_BASE) return window.PPS_API_BASE;
@@ -125,22 +188,27 @@ async function pingBackend(){
 }
 
 async function loadProducts(){
-  // Prefer backend (real stock). Fallback to local JSON if backend not running.
-  try{
-    const res = await fetch(`${API_BASE}/api/products`);
-    if(res.ok){
-      const data = await res.json();
-      if(data?.ok && Array.isArray(data.products)) {
-        window._products = data.products;
-        return data.products;
-      }
-    }
-  }catch(e){ /* ignore */ }
+  const cached = readCachedProducts();
+  if(cached) return cached;
 
-  const res2 = await fetch("./data/products.json");
-  const json = await res2.json();
-  window._products = json;
-  return json;
+  const backendPromise = fetchBackendProducts();
+  const localPromise = fetchLocalProducts();
+
+  const fast = await Promise.race([
+    backendPromise.then((data)=>({ source:"backend", data })),
+    localPromise.then((data)=>({ source:"local", data })),
+    fastTimeout(PRODUCTS_FAST_MS)
+  ]);
+
+  if(fast.source !== "timeout" && Array.isArray(fast.data)){
+    cacheProducts(fast.data);
+    return fast.data;
+  }
+
+  const [backend, local] = await Promise.all([backendPromise, localPromise]);
+  const chosen = Array.isArray(backend) ? backend : (Array.isArray(local) ? local : []);
+  cacheProducts(chosen);
+  return chosen;
 }
 
 async function fetchReviews(productId){

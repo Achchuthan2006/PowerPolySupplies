@@ -1042,27 +1042,6 @@ app.post("/api/auth/send-code", async (req,res)=>{
   const { email, name } = req.body;
   const emailKey = String(email || "").trim().toLowerCase();
   if(!emailKey) return res.status(400).json({ ok:false, message:"Email required" });
-
-// ---- Auth: check verification code ----
-app.post("/api/auth/check-code", (req,res)=>{
-  const { email, code } = req.body;
-  const emailKey = String(email || "").trim().toLowerCase();
-  if(!emailKey || !code) return res.status(400).json({ ok:false, message:"Email and code required" });
-
-  const entry = verificationCodes.get(emailKey);
-  if(!entry) return res.status(400).json({ ok:false, message:"No code sent. Please request a code first." });
-  if(Date.now() > entry.expiresAt){
-    verificationCodes.delete(emailKey);
-    return res.status(400).json({ ok:false, message:"Code expired. Please request a new one." });
-  }
-  if(entry.code !== code){
-    return res.status(400).json({ ok:false, message:"Invalid code." });
-  }
-
-  res.json({ ok:true, message:"Code verified." });
-});
-
-
   try{
     const code = Math.floor(1000 + Math.random()*9000).toString(); // 4-digit
     const expiresAt = Date.now() + 10*60*1000; // 10 minutes
@@ -1087,6 +1066,25 @@ app.post("/api/auth/check-code", (req,res)=>{
     console.error("Send code failed", err);
     res.status(500).json({ ok:false, message:"Failed to send code. Check mail credentials." });
   }
+});
+
+// ---- Auth: check verification code ----
+app.post("/api/auth/check-code", (req,res)=>{
+  const { email, code } = req.body;
+  const emailKey = String(email || "").trim().toLowerCase();
+  if(!emailKey || !code) return res.status(400).json({ ok:false, message:"Email and code required" });
+
+  const entry = verificationCodes.get(emailKey);
+  if(!entry) return res.status(400).json({ ok:false, message:"No code sent. Please request a code first." });
+  if(Date.now() > entry.expiresAt){
+    verificationCodes.delete(emailKey);
+    return res.status(400).json({ ok:false, message:"Code expired. Please request a new one." });
+  }
+  if(entry.code !== code){
+    return res.status(400).json({ ok:false, message:"Invalid code." });
+  }
+
+  res.json({ ok:true, message:"Code verified." });
 });
 
 // ---- Auth: register ----

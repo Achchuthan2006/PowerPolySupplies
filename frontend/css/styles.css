@@ -1245,6 +1245,21 @@ select.input option:hover{
   gap:14px;
   margin-top:16px;
 }
+.testimonial-marquee{
+  position:relative;
+  overflow:hidden;
+  margin-top:16px;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
+}
+.testimonial-track{
+  display:flex;
+  gap:14px;
+  width:max-content;
+  align-items:stretch;
+  animation: marquee-left var(--marquee-duration, 36s) linear infinite;
+  will-change: transform;
+}
 .testimonial-card{
   border:1px solid var(--border);
   border-radius:16px;
@@ -1254,6 +1269,10 @@ select.input option:hover{
   position:relative;
   overflow:hidden;
   animation: floatCard 6s ease-in-out infinite;
+}
+.testimonial-track .testimonial-card{
+  flex:0 0 clamp(240px, 32vw, 320px);
+  animation:none;
 }
 .quote-mark{
   font-size:28px;
@@ -1292,9 +1311,17 @@ select.input option:hover{
   0%,100%{ transform: translateY(0); }
   50%{ transform: translateY(-6px); }
 }
+@keyframes marquee-left{
+  from{ transform: translateX(0); }
+  to{ transform: translateX(-50%); }
+}
 @media (prefers-reduced-motion: reduce){
   .testimonial-card{
     animation:none;
+  }
+  .testimonial-track{
+    animation:none;
+    transform:none;
   }
 }
 
