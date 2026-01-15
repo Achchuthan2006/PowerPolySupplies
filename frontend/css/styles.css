@@ -1275,7 +1275,7 @@ select.input option:hover{
   font-weight:800;
   letter-spacing:.3px;
   touch-action: manipulation;
-  color:var(--primary-strong);
+  color:#111111;
 }
 
 .dropdown{
