@@ -8,6 +8,8 @@
 const DEFAULT_API_BASE = "http://127.0.0.1:5000";
 const DEFAULT_CAD_TO_USD = 0.74;
 const FAVORITES_KEY = "pps_favorites";
+const CART_KEY = "pps_cart";
+const CART_COOKIE = "pps_cart";
 const CAPED_WE_LOVE_IMAGE = "./assets/welovecaped%20hanger.webp";
 const PRODUCTS_CACHE_KEY = "pps_products_cache_v1";
 const PRODUCTS_FAST_MS = 400;
@@ -249,17 +251,100 @@ async function submitReview(productId, payload){
   return data;
 }
 
-function getCart(){
-  const raw = JSON.parse(localStorage.getItem("pps_cart") || "[]");
-  return raw.map((item)=>({
+function readCookie(name){
+  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : "";
+}
+
+function writeCookie(name, value, days = 30){
+  const maxAge = 60 * 60 * 24 * days;
+  document.cookie = `${name}=${encodeURIComponent(value)}; max-age=${maxAge}; path=/; samesite=lax`;
+}
+
+function serializeCartForCookie(cart){
+  if(!Array.isArray(cart) || !cart.length) return "[]";
+  const minimal = cart
+    .filter(item => item && item.id && Number(item.qty) > 0)
+    .map(item => [String(item.id), Math.max(1, Number(item.qty) || 1)]);
+  return JSON.stringify(minimal);
+}
+
+function readCartFromCookie(){
+  try{
+    const raw = readCookie(CART_COOKIE);
+    if(!raw) return [];
+    const parsed = JSON.parse(raw);
+    if(!Array.isArray(parsed)) return [];
+    return parsed
+      .filter(entry => Array.isArray(entry) && entry[0])
+      .map(([id, qty]) => ({ id: String(id), qty: Math.max(1, Number(qty) || 1) }));
+  }catch(err){
+    return [];
+  }
+}
+
+function normalizeCartItems(items){
+  return (items || []).map((item)=>({
     ...item,
+    qty: Math.max(1, Number(item.qty) || 1),
     priceCentsBase: Number(item.priceCentsBase ?? item.priceCents ?? 0),
     currencyBase: (item.currencyBase || item.currency || "CAD").toUpperCase()
   }));
 }
 
+function getCart(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
+    if(Array.isArray(raw) && raw.length){
+      const normalized = normalizeCartItems(raw);
+      writeCookie(CART_COOKIE, serializeCartForCookie(normalized));
+      return normalized;
+    }
+  }catch(err){
+    // ignore and fall back to cookie
+  }
+
+  const fromCookie = readCartFromCookie();
+  if(!fromCookie.length) return [];
+
+  const cachedProducts = readCachedProducts() || [];
+  const productsById = new Map(cachedProducts.map(p => [p.id, p]));
+  const hydrated = fromCookie.map(({ id, qty })=>{
+    const product = productsById.get(id);
+    const currency = (product?.currency || "CAD").toUpperCase();
+    return normalizeCartItems([{
+      id,
+      qty,
+      name: product?.name || "Item",
+      priceCents: Number(product?.priceCents || 0),
+      currency,
+      priceCentsBase: Number(product?.priceCents || 0),
+      currencyBase: currency,
+      description: product?.description || "",
+      description_fr: product?.description_fr || "",
+      description_ko: product?.description_ko || "",
+      description_hi: product?.description_hi || "",
+      description_ta: product?.description_ta || "",
+      description_es: product?.description_es || ""
+    }])[0];
+  });
+
+  try{
+    localStorage.setItem(CART_KEY, JSON.stringify(hydrated));
+  }catch(err){
+    // ignore
+  }
+  return hydrated;
+}
+
 function setCart(cart){
-  localStorage.setItem("pps_cart", JSON.stringify(cart));
+  const safe = normalizeCartItems(cart);
+  try{
+    localStorage.setItem(CART_KEY, JSON.stringify(safe));
+  }catch(err){
+    // ignore
+  }
+  writeCookie(CART_COOKIE, serializeCartForCookie(safe));
   updateCartBadge();
 }
 
