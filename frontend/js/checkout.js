@@ -3,6 +3,27 @@ PPS.updateCartBadge();
 
 const API_BASE = (window.API_BASE_URL || window.PPS_API_BASE || window.PPS?.API_BASE || "");
 
+function restoreCartFromQuery(){
+  try{
+    const params = new URLSearchParams(window.location.search);
+    const raw = params.get("cart");
+    if(!raw) return;
+    const current = PPS.getCart();
+    if(Array.isArray(current) && current.length) return;
+    const decoded = decodeURIComponent(escape(atob(raw)));
+    const parsed = JSON.parse(decoded);
+    if(!Array.isArray(parsed) || !parsed.length) return;
+    const minimal = parsed
+      .filter(entry => Array.isArray(entry) && entry[0])
+      .map(([id, qty]) => ({ id: String(id), qty: Math.max(1, Number(qty) || 1) }));
+    if(minimal.length) PPS.setCart(minimal);
+  }catch(err){
+    // ignore
+  }
+}
+
+restoreCartFromQuery();
+
 const cart = PPS.getCart();
 let productMap = null;
 const productsPromise = PPS.loadProducts().then((products)=>{
@@ -160,6 +181,7 @@ function setPending(btn, pending, pendingLabel){
 }
 
 function drawSummary(){
+  const cart = PPS.getCart();
   if(cart.length === 0){
     const emptyMsg = window.PPS_I18N?.t("checkout.summary.empty") || "Your cart is empty.";
     summary.innerHTML = `<div style="color:var(--muted)">${emptyMsg}</div>`;
@@ -197,17 +219,18 @@ function drawSummary(){
 
   summary.innerHTML = cart.map(i=>{
     const lang = window.PPS_I18N?.getLang?.() || "en";
+    const product = productMap?.get(i.id);
     const desc = lang === "fr"
-      ? (i.description_fr || i.description || productMap?.get(i.id)?.description_fr || productMap?.get(i.id)?.description || "")
+      ? (i.description_fr || i.description || product?.description_fr || product?.description || "")
       : lang === "ko"
-        ? (i.description_ko || i.description || productMap?.get(i.id)?.description_ko || productMap?.get(i.id)?.description || "")
+        ? (i.description_ko || i.description || product?.description_ko || product?.description || "")
         : lang === "hi"
-          ? (i.description_hi || i.description || productMap?.get(i.id)?.description_hi || productMap?.get(i.id)?.description || "")
+          ? (i.description_hi || i.description || product?.description_hi || product?.description || "")
           : lang === "ta"
-            ? (i.description_ta || i.description || productMap?.get(i.id)?.description_ta || productMap?.get(i.id)?.description || "")
+            ? (i.description_ta || i.description || product?.description_ta || product?.description || "")
             : lang === "es"
-              ? (window.PPS_I18N?.autoTranslate?.(i.description_es || i.description || productMap?.get(i.id)?.description_es || productMap?.get(i.id)?.description || "", "es") || (i.description_es || i.description || productMap?.get(i.id)?.description_es || productMap?.get(i.id)?.description || ""))
-              : (i.description || i.description_fr || i.description_ko || i.description_hi || i.description_ta || i.description_es || productMap?.get(i.id)?.description || productMap?.get(i.id)?.description_fr || productMap?.get(i.id)?.description_ko || productMap?.get(i.id)?.description_hi || productMap?.get(i.id)?.description_ta || productMap?.get(i.id)?.description_es || "");
+              ? (window.PPS_I18N?.autoTranslate?.(i.description_es || i.description || product?.description_es || product?.description || "", "es") || (i.description_es || i.description || product?.description_es || product?.description || ""))
+              : (i.description || i.description_fr || i.description_ko || i.description_hi || i.description_ta || i.description_es || product?.description || product?.description_fr || product?.description_ko || product?.description_hi || product?.description_ta || product?.description_es || "");
     const descHtml = desc
       ? `<div style="color:var(--muted); font-size:12px; margin-top:4px;">${desc}</div>`
       : "";
@@ -215,9 +238,10 @@ function drawSummary(){
     const baseCents = unitCents * i.qty;
     const baseCurrency = getUnitCurrency(i);
     const lineTotal = PPS.convertCents(baseCents, baseCurrency, targetCurrency);
+    const baseName = i.name || product?.name || "Item";
     const displayName = lang === "es"
-      ? (window.PPS_I18N?.autoTranslate?.(i.name || "", "es") || i.name)
-      : i.name;
+      ? (window.PPS_I18N?.autoTranslate?.(baseName || "", "es") || baseName)
+      : baseName;
     return `
       <div style="display:flex; justify-content:space-between; gap:10px;">
         <div>
@@ -269,7 +293,36 @@ function drawSummary(){
 applyProvinceLabels();
 
 drawSummary();
-productsPromise.then(()=> drawSummary());
+productsPromise.then(()=>{
+  try{
+    const cart = PPS.getCart();
+    if(!cart.length || !productMap) return;
+    let changed = false;
+    const next = cart.map((item)=>{
+      if(!item || !item.id) return item;
+      const product = productMap.get(item.id);
+      if(!product) return item;
+      const out = { ...item };
+      if(!out.name) { out.name = product.name || out.name; changed = true; }
+      if(!Number(out.priceCents)) { out.priceCents = Number(product.priceCents || 0); changed = true; }
+      if(!Number(out.priceCentsBase)) { out.priceCentsBase = Number(product.priceCents || 0); changed = true; }
+      if(!out.currency) { out.currency = product.currency || "CAD"; changed = true; }
+      if(!out.currencyBase) { out.currencyBase = product.currency || "CAD"; changed = true; }
+      if(!out.description) { out.description = product.description || ""; changed = true; }
+      if(!out.description_fr) { out.description_fr = product.description_fr || ""; changed = true; }
+      if(!out.description_ko) { out.description_ko = product.description_ko || ""; changed = true; }
+      if(!out.description_hi) { out.description_hi = product.description_hi || ""; changed = true; }
+      if(!out.description_ta) { out.description_ta = product.description_ta || ""; changed = true; }
+      if(!out.description_es) { out.description_es = product.description_es || ""; changed = true; }
+      return out;
+    });
+    if(changed) PPS.setCart(next);
+  }catch(err){
+    // ignore
+  }finally{
+    drawSummary();
+  }
+});
 
 function setStatus(el, text, type="muted"){
   if(!el) return;
@@ -296,6 +349,7 @@ setInterval(checkBackend, 15000);
 
 formEl.addEventListener("submit", async (e)=>{
   e.preventDefault();
+  const cart = PPS.getCart();
   if(cart.length === 0) return;
   if(!formEl.checkValidity()){
     formEl.reportValidity();
@@ -395,6 +449,7 @@ formEl.addEventListener("submit", async (e)=>{
 });
 
 document.getElementById("payOnline").addEventListener("click", async ()=>{
+  const cart = PPS.getCart();
   if(cart.length === 0) return;
   if(!formEl.checkValidity()){
     formEl.reportValidity();

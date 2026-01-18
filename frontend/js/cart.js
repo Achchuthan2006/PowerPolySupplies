@@ -117,3 +117,23 @@ window.removeItem = (id)=>{
 
 render();
 productsPromise.then(()=> render());
+
+const goCheckout = document.getElementById("goCheckout");
+if(goCheckout){
+  goCheckout.addEventListener("click", (event)=>{
+    try{
+      const cart = PPS.getCart();
+      if(!Array.isArray(cart) || cart.length === 0) return;
+      const minimal = cart
+        .filter(item => item && item.id && Number(item.qty) > 0)
+        .map(item => [String(item.id), Math.max(1, Number(item.qty) || 1)]);
+      const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(minimal))));
+      const url = new URL(goCheckout.href, window.location.href);
+      url.searchParams.set("cart", encoded);
+      event.preventDefault();
+      window.location.href = url.toString();
+    }catch(err){
+      // If anything fails, fall back to normal navigation.
+    }
+  });
+}
