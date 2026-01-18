@@ -1,8 +1,6 @@
 document.getElementById("y").textContent = new Date().getFullYear();
 PPS.updateCartBadge();
 
-const API_BASE = (window.API_BASE_URL || window.PPS_API_BASE || window.PPS?.API_BASE || "");
-
 function restoreCartFromQuery(){
   try{
     const params = new URLSearchParams(window.location.search);
@@ -411,7 +409,7 @@ formEl.addEventListener("submit", async (e)=>{
   try{
     const controller = new AbortController();
     const timeoutId = setTimeout(()=> controller.abort(), 15000);
-    const res = await fetch(`${API_BASE}/api/order`, {
+    const res = await fetch(`${PPS.API_BASE}/api/order`, {
       method:"POST",
       headers:{ "Content-Type":"application/json" },
       signal: controller.signal,
@@ -520,7 +518,7 @@ document.getElementById("payOnline").addEventListener("click", async ()=>{
     });
     const itemsWithTax = [...enrichedCart, ...taxLine, ...shippingLine];
 
-    const res = await fetch(`${API_BASE}/api/square-checkout`,{
+    const res = await fetch(`${PPS.API_BASE}/api/square-checkout`,{
       method:"POST",
       headers:{ "Content-Type":"application/json" },
       body: JSON.stringify({ items: itemsWithTax, customer })
