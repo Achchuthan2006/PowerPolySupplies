@@ -10,7 +10,9 @@ function restoreCartFromQuery(){
     if(!raw) return;
     const current = PPS.getCart();
     if(Array.isArray(current) && current.length) return;
-    const decoded = decodeURIComponent(escape(atob(raw)));
+    const base64 = raw.replace(/-/g, "+").replace(/_/g, "/");
+    const pad = base64.length % 4 ? "=".repeat(4 - (base64.length % 4)) : "";
+    const decoded = decodeURIComponent(escape(atob(base64 + pad)));
     const parsed = JSON.parse(decoded);
     if(!Array.isArray(parsed) || !parsed.length) return;
     const minimal = parsed

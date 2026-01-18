@@ -127,7 +127,8 @@ if(goCheckout){
       const minimal = cart
         .filter(item => item && item.id && Number(item.qty) > 0)
         .map(item => [String(item.id), Math.max(1, Number(item.qty) || 1)]);
-      const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(minimal))));
+      const base64 = btoa(unescape(encodeURIComponent(JSON.stringify(minimal))));
+      const encoded = base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
       const url = new URL(goCheckout.href, window.location.href);
       url.searchParams.set("cart", encoded);
       event.preventDefault();
