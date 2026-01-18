@@ -47,7 +47,7 @@ export default function Contact() {
       form.reset();
     } catch (err) {
       const unreachable = window.PPS_I18N?.t("contact.status.unreachable")
-        || "Server unreachable. Is the backend running on 127.0.0.1:5000?";
+        || "Server unreachable. Please try again.";
       setStatus({
         text: err && err.name === "AbortError"
           ? unreachable

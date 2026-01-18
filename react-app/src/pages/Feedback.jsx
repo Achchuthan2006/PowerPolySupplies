@@ -45,7 +45,7 @@ export default function Feedback() {
       form.reset();
     } catch (err) {
       const unreachable = window.PPS_I18N?.t("feedback.status.unreachable")
-        || "Server unreachable. Is the backend running on 127.0.0.1:5000?";
+        || "Server unreachable. Please try again.";
       setStatus({
         text: err && err.name === "AbortError"
           ? unreachable
@@ -85,7 +85,7 @@ export default function Feedback() {
         <div className="testimonial-card">
           <div className="quote-mark">“</div>
           <p className="testimonial-text" data-i18n="feedback.quote.three">
-            Stripe checkout was smooth and our order arrived on schedule. Great experience overall.
+            Square checkout was smooth and our order arrived on schedule. Great experience overall.
           </p>
           <div className="testimonial-meta" data-i18n="feedback.quote.three.meta">Laundry Service - Calgary, AB</div>
         </div>

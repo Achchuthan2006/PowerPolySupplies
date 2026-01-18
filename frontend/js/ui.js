@@ -233,7 +233,7 @@ function injectFooter(){
         </div>
         <div class="footer-bottom">
           <span data-i18n="footer.rights">(C) {{year}} Power Poly Supplies. All rights reserved.</span>
-          <span data-i18n="footer.secure">Secure payments via Stripe</span>
+          <span data-i18n="footer.secure">Secure payments via Square</span>
         </div>
       </div>
   `;

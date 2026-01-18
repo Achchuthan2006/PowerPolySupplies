@@ -118,7 +118,7 @@ export default function Checkout() {
       } else {
         setBackendError(
           window.PPS_I18N?.t("checkout.status.backend") ||
-            "Backend unreachable. Start it with: cd backend && npm run dev (expected on 127.0.0.1:5000)."
+            "Backend unreachable. Please try again."
         );
       }
     };
@@ -262,7 +262,7 @@ export default function Checkout() {
         updateStatus("Request timed out. Please try again.", "error");
       } else {
         updateStatus(
-          window.PPS_I18N?.t("checkout.status.unreachable") || "Server unreachable. Is the backend running on 127.0.0.1:5000?",
+          window.PPS_I18N?.t("checkout.status.unreachable") || "Server unreachable. Please try again.",
           "error"
         );
       }
@@ -284,7 +284,7 @@ export default function Checkout() {
       return;
     }
 
-    updateStatus(window.PPS_I18N?.t("checkout.status.redirect") || "Redirecting to Stripe...", "muted");
+    updateStatus(window.PPS_I18N?.t("checkout.status.redirect") || "Redirecting to Square...", "muted");
     setPayPending(true);
     setSubmitPending(true);
 
@@ -343,7 +343,8 @@ export default function Checkout() {
       });
 
       const itemsWithTax = [...enrichedCart, ...taxLine, ...shippingLine];
-      const res = await fetch(`${window.PPS?.API_BASE}/api/stripe-checkout`, {
+      const apiBase = window.API_BASE_URL || window.PPS?.API_BASE || "";
+      const res = await fetch(`${apiBase}/api/square-checkout`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ items: itemsWithTax, customer })
@@ -354,13 +355,13 @@ export default function Checkout() {
         window.location.href = data.url;
       } else {
         updateStatus(
-          data?.message || (window.PPS_I18N?.t("checkout.status.stripe") || "Stripe not configured (set STRIPE_SECRET_KEY)."),
+          data?.message || (window.PPS_I18N?.t("checkout.status.square") || "Square not configured."),
           "error"
         );
       }
     } catch (err) {
       updateStatus(
-        window.PPS_I18N?.t("checkout.status.unreachable") || "Server unreachable. Is the backend running on 127.0.0.1:5000?",
+        window.PPS_I18N?.t("checkout.status.unreachable") || "Server unreachable. Please try again.",
         "error"
       );
     } finally {
@@ -525,7 +526,7 @@ export default function Checkout() {
             <button className="btn btn-outline" type="button" onClick={handlePayOnline} disabled={disabled} data-i18n="checkout.pay_online">
               {payPending
                 ? (window.PPS_I18N?.t("checkout.status.redirect_btn") || "Redirecting...")
-                : (window.PPS_I18N?.t("checkout.pay_online") || "Pay online with Stripe")}
+                : (window.PPS_I18N?.t("checkout.pay_online") || "Pay online with Square")}
             </button>
             <Link className="btn" to="/cart" data-i18n="checkout.back">Back to cart</Link>
           </div>

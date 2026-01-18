@@ -5,10 +5,10 @@ import nodemailer from "nodemailer";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import Stripe from "stripe";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
 import { appendMessageToSheet, appendOrderToSheet, appendReviewToSheet, appendFeedbackToSheet, syncProductsToSheet, isSheetsConfigured } from "./googleSheets.js";
+import { Client as SquareClient, Environment as SquareEnvironment } from "square";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, ".env") });
@@ -21,10 +21,19 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
 
-const stripeKey = process.env.STRIPE_SECRET_KEY;
-const stripe = stripeKey ? new Stripe(stripeKey) : null;
 const PORT = process.env.PORT || 5000;
 const HOST = process.env.HOST || "0.0.0.0";
+
+function getSquareEnvironment(){
+  const value = String(process.env.SQUARE_ENV || "production").toLowerCase();
+  return value === "sandbox" ? SquareEnvironment.Sandbox : SquareEnvironment.Production;
+}
+
+const squareAccessToken = process.env.SQUARE_ACCESS_TOKEN || "";
+const squareLocationId = process.env.SQUARE_LOCATION_ID || "";
+const squareClient = squareAccessToken
+  ? new SquareClient({ accessToken: squareAccessToken, environment: getSquareEnvironment() })
+  : null;
 
 // ---- DB helpers ----
 const DB_PATH = path.join(__dirname, "db.json");
@@ -490,13 +499,12 @@ function getSessionFromRequest(req){
 
 // Health check
 app.get("/api/health",(req,res)=>{
-  const stripeReady = !!stripe;
   const supabaseReady = !!supabase;
   const sheetsReady = isSheetsConfigured();
   res.json({
     ok:true,
     status:"up",
-    stripe: stripeReady,
+    square: !!(squareClient && squareLocationId),
     supabase: supabaseReady,
     sheets: sheetsReady
   });
@@ -1233,72 +1241,107 @@ app.post("/api/auth/logout", (req,res)=>{
   res.json({ ok:true });
 });
 
-// ---- Stripe Checkout ----
-app.post("/api/stripe-checkout", async (req,res)=>{
-  if(!stripe){
-    return res.status(400).json({ ok:false, message:"Stripe not configured (set STRIPE_SECRET_KEY in .env)" });
+// ---- Square Checkout ----
+app.post("/api/square-checkout", async (req,res)=>{
+  if(!squareClient || !squareLocationId){
+    return res.status(400).json({ ok:false, message:"Square not configured (set SQUARE_ACCESS_TOKEN and SQUARE_LOCATION_ID in .env)" });
+  }
+  if(!requireSupabase(res)) return;
+  if(!process.env.SITE_URL){
+    return res.status(400).json({ ok:false, message:"SITE_URL not configured (set SITE_URL to your public frontend URL)." });
   }
 
   try{
-    const { items, customer } = req.body;
+    const { items, customer } = req.body || {};
     if(!Array.isArray(items) || items.length === 0){
       return res.status(400).json({ ok:false, message:"No items to pay for." });
     }
 
-    const language = customer?.language === "fr" ? "fr" : "en";
-    if(!requireSupabase(res)) return;
+    const currency = String(items[0]?.currency || "CAD").toUpperCase();
+    const badCurrency = items.some(i => String(i?.currency || currency).toUpperCase() !== currency);
+    if(badCurrency){
+      return res.status(400).json({ ok:false, message:"All items must use the same currency." });
+    }
+
     const productIds = (items || []).map(i=>i.id).filter(Boolean);
     let productsById = new Map();
     try{
       const products = await fetchProductsByIds(productIds);
       productsById = new Map(products.map(p=>[p.id, p]));
     }catch(err){
-      console.error("Supabase products fetch for stripe failed", err);
+      console.error("Supabase products fetch for square failed", err);
     }
-    const line_items = (items || []).map(i=>{
+
+    const normalizedItems = (items || []).map((i)=>{
+      const qty = Math.max(1, Number(i.qty || 1));
       const product = productsById.get(i.id);
-      const unitAmount = product ? getTieredPriceCents(product, i.qty) : Number(i.priceCents || 0);
-      const description = language === "fr"
-        ? (product?.description_fr || i.description_fr || product?.description || i.description || "")
-        : (product?.description || i.description || product?.description_fr || i.description_fr || "");
+      const unitAmount = product ? getTieredPriceCents(product, qty) : Number(i.priceCents || 0);
       return {
-        quantity: i.qty,
-        price_data:{
-          currency: (i.currency || product?.currency || "CAD").toLowerCase(),
-          unit_amount: unitAmount,
-          product_data:{
-            name: i.name || product?.name || "Item",
-            description: description || undefined
-          }
-        }
+        id: i.id || "",
+        name: i.name || product?.name || "Item",
+        qty,
+        priceCents: Math.max(0, Math.round(unitAmount)),
+        currency: currency,
+        description: i.description || product?.description || "",
+        description_fr: i.description_fr || product?.description_fr || "",
+        description_ko: i.description_ko || product?.description_ko || "",
+        description_hi: i.description_hi || product?.description_hi || "",
+        description_ta: i.description_ta || product?.description_ta || "",
+        description_es: i.description_es || product?.description_es || ""
       };
     });
 
-    const session = await stripe.checkout.sessions.create({
-      mode:"payment",
-      line_items,
-      success_url: `${process.env.SITE_URL}/thank-you.html?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.SITE_URL}/cart.html`
-      ,
-      customer_email: customer?.email || undefined,
-      metadata: {
-        name: customer?.name || "",
-        email: customer?.email || "",
-        phone: customer?.phone || "",
-        address_line1: customer?.address1 || "",
-        address_line2: customer?.address2 || "",
-        city: customer?.city || "",
-        postal: customer?.postal || "",
-        delivery_notes: customer?.deliveryNotes || "",
-        province: customer?.province || "",
-        language
+    const orderId = `SQR-${Date.now()}`;
+    const redirectBase = String(process.env.SITE_URL).replace(/\/+$/,"");
+    const redirectUrl = `${redirectBase}/thank-you.html?order_id=${encodeURIComponent(orderId)}`;
+    const idempotencyKey = crypto.randomUUID();
+
+    const lineItems = normalizedItems.map((i)=>({
+      name: i.name,
+      quantity: String(i.qty),
+      basePriceMoney: { amount: BigInt(i.priceCents), currency: i.currency }
+    }));
+
+    const { result } = await squareClient.checkoutApi.createPaymentLink({
+      idempotencyKey,
+      order: {
+        locationId: squareLocationId,
+        referenceId: orderId,
+        lineItems
+      },
+      checkoutOptions: {
+        redirectUrl
       }
     });
 
-    res.json({ ok:true, url: session.url });
+    const paymentUrl = result?.paymentLink?.url;
+    if(!paymentUrl){
+      return res.status(500).json({ ok:false, message:"Failed to create Square payment link." });
+    }
+
+    const nowIso = new Date().toISOString();
+    const totalCents = normalizedItems.reduce((sum, i)=> sum + (i.priceCents * i.qty), 0);
+    const customerEmail = (customer?.email || "").toLowerCase();
+    const orderRow = {
+      id: orderId,
+      status: "pending",
+      payment_method: "square_checkout",
+      customer: customer || {},
+      customer_email: customerEmail,
+      shipping: { zone: "Square", label: "Square", costCents: 0 },
+      items: normalizedItems,
+      total_cents: totalCents,
+      currency,
+      language: customer?.language === "fr" ? "fr" : (customer?.language === "ko" ? "ko" : "en"),
+      created_at: nowIso
+    };
+    const { error: orderError } = await supabase.from("orders").insert(orderRow);
+    if(orderError) console.error("Supabase square order insert failed", orderError);
+
+    res.json({ ok:true, url: paymentUrl });
   }catch(err){
-    console.error("Stripe checkout error", err);
-    res.status(500).json({ ok:false, message:"Stripe checkout failed. Check API keys." });
+    console.error("Square checkout error", err);
+    res.status(500).json({ ok:false, message:"Square checkout failed. Check API keys." });
   }
 });
 
@@ -1386,202 +1429,6 @@ app.post("/api/feedback", async (req,res)=>{
   }catch(err){
     console.error("Feedback email failed", err);
     res.status(500).json({ ok:false, message:"Failed to send feedback" });
-  }
-});
-
-// ---- Stripe: send receipt after successful checkout ----
-app.post("/api/stripe-receipt", async (req,res)=>{
-  if(!stripe){
-    return res.status(400).json({ ok:false, message:"Stripe not configured (set STRIPE_SECRET_KEY in .env)" });
-  }
-
-  const { sessionId } = req.body || {};
-  if(!sessionId) return res.status(400).json({ ok:false, message:"Missing session id" });
-
-  try{
-    const session = await stripe.checkout.sessions.retrieve(sessionId, { expand:["line_items"] });
-    if(!session) return res.status(404).json({ ok:false, message:"Session not found" });
-
-    const currency = (session.currency || "cad").toUpperCase();
-    if(!requireSupabase(res)) return;
-    let productsByName = new Map();
-    try{
-      const products = await fetchProducts();
-      productsByName = new Map((products || []).map(p=>[(p.name || "").toLowerCase(), p]));
-    }catch(err){
-      console.error("Supabase products fetch for receipt failed", err);
-    }
-    const items = (session.line_items?.data || []).map(item=>{
-      const name = item.description || item.price?.product?.name || "Item";
-      const product = productsByName.get(String(name).toLowerCase());
-      return {
-        name,
-        qty: item.quantity || 1,
-        priceCents: item.amount_total ? Math.round(item.amount_total / (item.quantity || 1)) : (item.amount_subtotal || 0),
-        currency,
-        priceCentsBase: Number(product?.priceCents || 0),
-        currencyBase: product?.currency || currency,
-        description: product?.description || "",
-        description_fr: product?.description_fr || "",
-        description_ko: product?.description_ko || ""
-      };
-    });
-
-    const subtotalCents = session.amount_subtotal || items.reduce((sum,i)=>sum + (i.priceCents * i.qty), 0);
-    const totalCents = session.amount_total || subtotalCents;
-    const taxCents = Math.max(0, totalCents - subtotalCents);
-    const meta = session.metadata || {};
-    const customer = {
-      name: meta.name || session.customer_details?.name || "",
-      email: meta.email || session.customer_details?.email || "",
-      phone: meta.phone || session.customer_details?.phone || "",
-      address1: meta.address_line1 || "",
-      address2: meta.address_line2 || "",
-      city: meta.city || "",
-      postal: meta.postal || "",
-      deliveryNotes: meta.delivery_notes || "",
-      province: meta.province || "",
-      language: meta.language === "fr" ? "fr" : (meta.language === "ko" ? "ko" : "en")
-    };
-    const taxLabel = `${PROVINCE_TAX_LABELS[customer?.province] || "Tax"}${customer?.province ? ` - ${customer.province}` : ""}`;
-    const orderId = session.id;
-    const nowIso = new Date().toISOString();
-
-    const order = {
-      id: orderId,
-      status: "paid",
-      payment_method: "stripe",
-      customer,
-      customer_email: (customer?.email || "").toLowerCase(),
-      shipping: {
-        zone: "Stripe",
-        label: "Stripe",
-        costCents: 0
-      },
-      items,
-      total_cents: totalCents,
-      currency,
-      language: customer?.language === "fr" ? "fr" : (customer?.language === "ko" ? "ko" : "en"),
-      created_at: nowIso
-    };
-    const { error: orderError } = await supabase.from("orders").upsert([order], { onConflict: "id" });
-    if(orderError) throw orderError;
-
-    const deliveryId = `DEL-${Date.now()}`;
-    const delivery = {
-      id: deliveryId,
-      order_id: orderId,
-      customer_email: (customer?.email || "").toLowerCase(),
-      name: customer?.name || "",
-      phone: customer?.phone || "",
-      address_line1: customer?.address1 || "",
-      address_line2: customer?.address2 || "",
-      city: customer?.city || "",
-      province: customer?.province || "",
-      postal: customer?.postal || "",
-      country: "Canada",
-      delivery_notes: customer?.deliveryNotes || "",
-      shipping_zone: "Stripe",
-      shipping_label: "Stripe",
-      status: "pending",
-      created_at: nowIso
-    };
-    const { error: deliveryError } = await supabase.from("deliveries").upsert([delivery], { onConflict: "id" });
-    if(deliveryError) throw deliveryError;
-
-    const emailConfigured = process.env.EMAIL_USER && process.env.EMAIL_PASS;
-    const adminEmail = process.env.ORDER_TO;
-    const logoExists = fs.existsSync(COMPANY_LOGO_PATH);
-    const attachments = logoExists ? [{
-      filename: path.basename(COMPANY_LOGO_PATH),
-      path: COMPANY_LOGO_PATH,
-      cid: "pps-logo"
-    }] : [];
-
-    let customerEmailSent = false;
-    let adminEmailSent = false;
-
-    if(emailConfigured && customer.email){
-      const headerText = customer?.language === "fr"
-        ? "Recu"
-        : customer?.language === "ko"
-          ? "Receipt"
-          : "Receipt";
-      const introText = customer?.language === "fr"
-        ? "Merci pour votre commande chez Power Poly Supplies. Nous la preparons avec soin. Voici votre recu."
-        : customer?.language === "ko"
-          ? "Thanks for choosing Power Poly Supplies. We are getting your order ready now. Here is your receipt."
-          : "Thanks for choosing Power Poly Supplies. We are getting your order ready now. Here is your receipt.";
-      const subjectText = customer?.language === "fr"
-        ? `Merci pour votre commande ! Power Poly Supplies - ${orderId}`
-        : customer?.language === "ko"
-          ? `Thanks for your order! Power Poly Supplies receipt - ${orderId}`
-          : `Thanks for your order! Power Poly Supplies receipt - ${orderId}`;
-
-      const receiptHtml = buildReceiptHtml({
-        orderId,
-        customer,
-        items,
-        subtotalCents,
-        taxCents,
-        totalCents,
-        currency,
-        taxLabel,
-        headerText,
-        introText,
-        logoCid: "pps-logo",
-        logoExists,
-        language: customer?.language
-      });
-
-      try{
-        await transporter.sendMail({
-          from: getSenderAddress(),
-          to: customer.email,
-          subject: subjectText,
-          html: receiptHtml,
-          attachments
-        });
-        customerEmailSent = true;
-      }catch(mailErr){
-        console.error("Stripe customer receipt email failed", mailErr);
-      }
-    }
-
-    if(emailConfigured && adminEmail){
-      const adminHtml = buildReceiptHtml({
-        orderId,
-        customer,
-        items,
-        subtotalCents,
-        taxCents,
-        totalCents,
-        currency,
-        taxLabel,
-        headerText: "New Order",
-        introText: "A new Stripe order has been placed on Power Poly Supplies.",
-        logoCid: "pps-logo",
-        logoExists,
-        language: customer?.language
-      });
-      try{
-        await transporter.sendMail({
-          from: getSenderAddress(),
-          to: adminEmail,
-          subject: `New Stripe Order ${orderId}`,
-          html: adminHtml,
-          attachments
-        });
-        adminEmailSent = true;
-      }catch(mailErr){
-        console.error("Stripe admin email failed", mailErr);
-      }
-    }
-
-    res.json({ ok:true, customerEmailSent, adminEmailSent });
-  }catch(err){
-    console.error("Stripe receipt error", err);
-    res.status(500).json({ ok:false, message:"Stripe receipt failed. Check API keys." });
   }
 });
 

@@ -1,11 +1,7 @@
 document.getElementById("y").textContent = new Date().getFullYear();
 PPS.updateCartBadge();
 
-// Force API base when serving frontend from 127.0.0.1:5500 (Live Server)
-// to avoid any host mismatches during checkout.
-if(!window.PPS_API_BASE){
-  window.PPS_API_BASE = "http://127.0.0.1:5000";
-}
+const API_BASE = (window.API_BASE_URL || window.PPS_API_BASE || window.PPS?.API_BASE || "");
 
 const cart = PPS.getCart();
 let productMap = null;
@@ -290,7 +286,7 @@ async function checkBackend(){
     setPending(submitBtn, false);
   }else{
     backendStatus.style.display = "block";
-    setStatus(backendStatus, window.PPS_I18N?.t("checkout.status.backend") || "Backend unreachable. Start it with: cd backend && npm run dev (expected on 127.0.0.1:5000).", "error");
+    setStatus(backendStatus, window.PPS_I18N?.t("checkout.status.backend") || "Backend unreachable. Please try again.", "error");
     setPending(payBtn, true);
     setPending(submitBtn, true);
   }
@@ -359,7 +355,7 @@ formEl.addEventListener("submit", async (e)=>{
   try{
     const controller = new AbortController();
     const timeoutId = setTimeout(()=> controller.abort(), 15000);
-    const res = await fetch(`${PPS.API_BASE}/api/order`, {
+    const res = await fetch(`${API_BASE}/api/order`, {
       method:"POST",
       headers:{ "Content-Type":"application/json" },
       signal: controller.signal,
@@ -390,7 +386,7 @@ formEl.addEventListener("submit", async (e)=>{
     if(err && err.name === "AbortError"){
       setStatus(msg, "Request timed out. Please try again.", "error");
     }else{
-      setStatus(msg, window.PPS_I18N?.t("checkout.status.unreachable") || "Server unreachable. Is the backend running on 127.0.0.1:5000?", "error");
+      setStatus(msg, window.PPS_I18N?.t("checkout.status.unreachable") || "Server unreachable. Please try again.", "error");
     }
   }finally{
     setPending(submitBtn, false);
@@ -405,7 +401,7 @@ document.getElementById("payOnline").addEventListener("click", async ()=>{
     setStatus(msg, window.PPS_I18N?.t("checkout.status.required_province") || "Please fill all required fields including province.", "error");
     return;
   }
-  setStatus(msg, window.PPS_I18N?.t("checkout.status.redirect") || "Redirecting to Stripe...", "muted");
+  setStatus(msg, window.PPS_I18N?.t("checkout.status.redirect") || "Redirecting to Square...", "muted");
   setPending(payBtn, true, window.PPS_I18N?.t("checkout.status.redirect_btn") || "Redirecting...");
   setPending(submitBtn, true);
 
@@ -467,7 +463,7 @@ document.getElementById("payOnline").addEventListener("click", async ()=>{
     });
     const itemsWithTax = [...enrichedCart, ...taxLine, ...shippingLine];
 
-    const res = await fetch(`${PPS.API_BASE}/api/stripe-checkout`,{
+    const res = await fetch(`${API_BASE}/api/square-checkout`,{
       method:"POST",
       headers:{ "Content-Type":"application/json" },
       body: JSON.stringify({ items: itemsWithTax, customer })
@@ -477,10 +473,10 @@ document.getElementById("payOnline").addEventListener("click", async ()=>{
     if(res.ok && data?.url){
       window.location.href = data.url;
     }else{
-      setStatus(msg, data?.message || (window.PPS_I18N?.t("checkout.status.stripe") || "Stripe not configured (set STRIPE_SECRET_KEY)."), "error");
+      setStatus(msg, data?.message || (window.PPS_I18N?.t("checkout.status.square") || "Square not configured."), "error");
     }
   }catch(err){
-    setStatus(msg, window.PPS_I18N?.t("checkout.status.unreachable") || "Server unreachable. Is the backend running on 127.0.0.1:5000?", "error");
+    setStatus(msg, window.PPS_I18N?.t("checkout.status.unreachable") || "Server unreachable. Please try again.", "error");
   }finally{
     setPending(payBtn, false);
     setPending(submitBtn, false);

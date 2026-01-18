@@ -55,7 +55,7 @@ export default function Home() {
           </div>
           <div className="callout-pill pulse delay-1">
             <span className="callout-icon lock-icon" aria-hidden="true" />
-            <span data-i18n="index.hero.callout.checkout">Secure Stripe checkout</span>
+            <span data-i18n="index.hero.callout.checkout">Secure Square checkout</span>
           </div>
           <div className="callout-pill pulse delay-2">
             <span className="callout-icon leaf-icon" aria-hidden="true" />
@@ -86,7 +86,7 @@ export default function Home() {
             Order Your Way
           </h3>
           <p style={{ margin: 0, color: "var(--muted)", lineHeight: 1.5 }} data-i18n="index.card.order.desc">
-            Pay online with Stripe or book the order and pay later after fulfillment.
+            Pay online with Square or book the order and pay later after fulfillment.
           </p>
         </div>
       </section>

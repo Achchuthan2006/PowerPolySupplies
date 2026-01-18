@@ -49,7 +49,7 @@ export default function Footer() {
         </div>
       </div>
       <div className="footer-bottom">
-        <div className="footer-meta" data-i18n="footer.secure">Secure payments via Stripe</div>
+        <div className="footer-meta" data-i18n="footer.secure">Secure payments via Square</div>
         <div className="footer-meta">
           &copy; <span id="footer-year"></span>{" "}
           <span data-i18n="footer.rights">

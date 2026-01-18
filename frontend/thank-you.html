@@ -73,21 +73,6 @@
   <script>
     document.getElementById("y").textContent = new Date().getFullYear();
     PPS.updateCartBadge();
-
-    (async ()=>{
-      const params = new URLSearchParams(window.location.search);
-      const sessionId = params.get("session_id");
-      if(!sessionId) return;
-      try{
-        await fetch(`${PPS.API_BASE}/api/stripe-receipt`,{
-          method:"POST",
-          headers:{ "Content-Type":"application/json" },
-          body: JSON.stringify({ sessionId })
-        });
-      }catch(err){
-        // ignore
-      }
-    })();
   </script>
 </body>
 </html>

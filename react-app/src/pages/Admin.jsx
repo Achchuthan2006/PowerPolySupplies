@@ -29,7 +29,7 @@ export default function Admin() {
       }
       setOrders(Array.isArray(data.orders) ? data.orders : []);
     } catch (err) {
-      setStatus(window.PPS_I18N?.t("admin.orders.unreachable") || "Server unreachable. Start backend on 127.0.0.1:5000.");
+      setStatus(window.PPS_I18N?.t("admin.orders.unreachable") || "Server unreachable. Please try again.");
       setOrders([]);
     } finally {
       setLoading(false);

@@ -114,7 +114,7 @@
 
         document.querySelectorAll(".fade-in").forEach(el => el.classList.add("show"));
       }catch(err){
-        const unreachable = window.PPS_I18N?.t("admin.orders.unreachable") || "Server unreachable. Start backend on 127.0.0.1:5000.";
+      const unreachable = window.PPS_I18N?.t("admin.orders.unreachable") || "Server unreachable. Please try again.";
         wrap.innerHTML = `<div class='card' style='padding:14px;'>${unreachable}</div>`;
       }
     }

@@ -26,7 +26,7 @@ export default function HomePage() {
           </div>
           <div className="callout-pill pulse delay-1">
             <span className="callout-icon lock-icon" aria-hidden="true"></span>
-            <span>Secure Stripe checkout</span>
+            <span>Secure Square checkout</span>
           </div>
           <div className="callout-pill pulse delay-2">
             <span className="callout-icon leaf-icon" aria-hidden="true"></span>
@@ -51,7 +51,7 @@ export default function HomePage() {
         <div className="card fade-in show" style={{ padding: '16px' }}>
           <h3 style={{ margin: '0 0 6px' }}>Order Your Way</h3>
           <p style={{ margin: 0, color: 'var(--muted)', lineHeight: 1.5 }}>
-            Pay online with Stripe or book the order and pay later after fulfillment.
+            Pay online with Square or book the order and pay later after fulfillment.
           </p>
         </div>
       </section>

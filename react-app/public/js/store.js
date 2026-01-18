@@ -1,5 +1,6 @@
 // Backend base URL selection with overrides:
-// 1) window.PPS_API_BASE (set in a config.js or before store.js loads)
+// 1) window.API_BASE_URL (set in config.js or before store.js loads)
+// 2) window.PPS_API_BASE (backwards-compat)
 // 2) ?api= query param
 // 3) localStorage override "pps_api_base" (handy for production hardcoding)
 // 4) same-origin for deployed setups
@@ -72,6 +73,7 @@ async function fetchLocalProducts(){
 }
 
 function inferApiBase(){
+  if(window.API_BASE_URL) return window.API_BASE_URL;
   if(window.PPS_API_BASE) return window.PPS_API_BASE;
 
   const apiFromQuery = new URLSearchParams(window.location.search).get("api");

@@ -7,16 +7,6 @@ export default function ThankYou() {
   useEffect(() => {
     window.PPS_I18N?.applyTranslations?.();
     window.PPS?.updateCartBadge?.();
-
-    const params = new URLSearchParams(location.search);
-    const sessionId = params.get("session_id");
-    if (!sessionId) return;
-
-    fetch(`${window.PPS?.API_BASE}/api/stripe-receipt`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sessionId })
-    }).catch(() => {});
   }, [location.search]);
 
   return (
