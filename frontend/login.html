@@ -65,7 +65,12 @@
         <h2 style="margin:0 0 10px;" data-i18n="login.form.title">Log in</h2>
         <form class="grid" id="loginForm" style="gap:10px;">
           <input class="input" type="email" placeholder="Email" data-i18n-placeholder="login.form.email" required id="loginEmail">
-          <input class="input" type="password" placeholder="Password" data-i18n-placeholder="login.form.password" required id="loginPassword">
+          <div class="password-field">
+            <input class="input" type="password" placeholder="Password" data-i18n-placeholder="login.form.password" required id="loginPassword">
+            <button class="toggle-visibility hidden" type="button" aria-label="Show password" data-i18n-title="signup.password.show" data-toggle="loginPassword">
+              <span class="eye"></span>
+            </button>
+          </div>
           <button class="btn btn-primary" type="button" id="loginBtn" data-i18n="login.form.submit">Log in</button>
           <div id="loginStatus" style="color:var(--muted); font-size:13px;"></div>
         </form>
@@ -102,6 +107,7 @@
     const passInput = document.getElementById("loginPassword");
     const statusEl = document.getElementById("loginStatus");
     const loginBtn = document.getElementById("loginBtn");
+    const toggleButtons = Array.from(document.querySelectorAll(".toggle-visibility"));
 
     function normalizeLoginStatus(message){
       const raw = String(message || "");
@@ -141,6 +147,31 @@
         loginBtn.disabled = false;
       }
     }
+
+    function setToggleLabel(btn, fieldType){
+      const show = window.PPS_I18N?.t("signup.password.show") || "Show password";
+      const hide = window.PPS_I18N?.t("signup.password.hide") || "Hide password";
+      const text = fieldType === "password" ? show : hide;
+      btn.setAttribute("aria-label", text);
+      btn.setAttribute("title", text);
+    }
+
+    function togglePassword(e){
+      const btn = e.currentTarget;
+      const id = btn.dataset.toggle;
+      const field = document.getElementById(id);
+      if(!field) return;
+      const nextType = field.type === "password" ? "text" : "password";
+      field.type = nextType;
+      setToggleLabel(btn, nextType);
+      btn.classList.toggle("visible", nextType === "text");
+      btn.classList.toggle("hidden", nextType === "password");
+    }
+
+    toggleButtons.forEach((btn)=>{
+      setToggleLabel(btn, "password");
+      btn.addEventListener("click", togglePassword);
+    });
 
     if(loginBtn) loginBtn.addEventListener("click", login);
   </script>
