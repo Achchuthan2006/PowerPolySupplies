@@ -22,6 +22,7 @@ function readCachedProducts(){
     if(!raw) return null;
     const parsed = JSON.parse(raw);
     if(Array.isArray(parsed) && parsed.length){
+      window._products = parsed;
       return parsed;
     }
   }catch(err){

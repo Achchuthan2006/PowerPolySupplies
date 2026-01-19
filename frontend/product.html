@@ -423,7 +423,7 @@
       });
 
       loadReviews();
-      renderRelated();
+      renderRelated(products);
     })();
 
     function renderTier(priceCents, currency, qty, stock){
@@ -440,10 +440,12 @@
       `;
     }
 
-    function renderRelated(){
+    function renderRelated(productsArg){
       const grid = document.getElementById("relatedGrid");
       if(!grid) return;
-      const products = window._products || [];
+      const products = Array.isArray(productsArg) && productsArg.length
+        ? productsArg
+        : (window._products || []);
       const currentSlug = qs("slug");
       const current = products.find(x=>x.slug===currentSlug);
       const sameCat = current ? products.filter(x=>x.category===current.category && x.slug!==current.slug) : [];
