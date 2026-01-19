@@ -1377,6 +1377,41 @@ function requireSquareConfigured(res){
   return true;
 }
 
+function getHttpStatus(value, fallback = 500){
+  const num = Number(value);
+  if(Number.isFinite(num) && num >= 100 && num <= 599) return num;
+  return fallback;
+}
+
+function summarizeSquareError(err){
+  const body = err?.body || err?.result || err?.data || err?.responseBody || null;
+  const errors = Array.isArray(body?.errors)
+    ? body.errors
+    : Array.isArray(err?.errors)
+      ? err.errors
+      : [];
+  const requestId = body?.requestId || body?.request_id || err?.requestId || err?.request_id || "";
+
+  const sanitizedErrors = errors
+    .filter(e => e && (e.category || e.code || e.detail))
+    .map(e => ({
+      category: e.category || "",
+      code: e.code || "",
+      detail: e.detail || "",
+      field: e.field || ""
+    }));
+
+  const first = sanitizedErrors[0];
+  const messageFromSquare = first
+    ? [first.category, first.code, first.detail].filter(Boolean).join(" - ")
+    : "";
+
+  const message = messageFromSquare || err?.message || "Square request failed.";
+  const statusCode = getHttpStatus(err?.statusCode || err?.status || err?.httpStatusCode, 500);
+
+  return { statusCode, message, errors: sanitizedErrors, requestId };
+}
+
 async function handleCreatePayment(req,res){
   if(!requireSquareConfigured(res)) return;
   if(!requireSupabase(res)) return;
@@ -1385,7 +1420,13 @@ async function handleCreatePayment(req,res){
     res.json(out);
   }catch(err){
     console.error("Square create-payment error", err);
-    res.status(err.status || 500).json({ ok:false, message: err.message || "Square checkout failed. Check API keys." });
+    const summary = summarizeSquareError(err);
+    res.status(summary.statusCode).json({
+      ok:false,
+      message: summary.message,
+      errors: summary.errors,
+      requestId: summary.requestId
+    });
   }
 }
 
@@ -1427,7 +1468,13 @@ async function handlePaymentStatus(req,res){
     res.json({ ok:true, orderId, status, square: { orderId: squareOrderId, state } });
   }catch(err){
     console.error("Square payment-status error", err);
-    res.status(500).json({ ok:false, message:"Unable to check payment status." });
+    const summary = summarizeSquareError(err);
+    res.status(summary.statusCode).json({
+      ok:false,
+      message: summary.message || "Unable to check payment status.",
+      errors: summary.errors,
+      requestId: summary.requestId
+    });
   }
 }
 
