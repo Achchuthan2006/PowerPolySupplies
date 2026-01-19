@@ -518,11 +518,18 @@ document.getElementById("payOnline").addEventListener("click", async ()=>{
     });
     const itemsWithTax = [...enrichedCart, ...taxLine, ...shippingLine];
 
+    function resolveApiBase(){
+      const raw = String(window.API_BASE_URL || window.PPS_API_BASE || PPS.API_BASE || "").trim();
+      const trimmed = raw.replace(/\/+$/,"").replace(/\/api$/i,"");
+      return trimmed || String(PPS.API_BASE || "").trim().replace(/\/+$/,"").replace(/\/api$/i,"");
+    }
+
     async function postCreatePayment(){
+      const base = resolveApiBase();
       const endpoints = [
-        `${PPS.API_BASE}/api/create-payment`,
-        `${PPS.API_BASE}/create-payment`,
-        `${PPS.API_BASE}/pi/create-payment`
+        `${base}/api/create-payment`,
+        `${base}/create-payment`,
+        `${base}/pi/create-payment`
       ];
       const payload = JSON.stringify({ items: itemsWithTax, customer });
       let lastError = null;
