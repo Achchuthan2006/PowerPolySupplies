@@ -1433,6 +1433,9 @@ async function handlePaymentStatus(req,res){
 app.post("/api/create-payment", handleCreatePayment);
 app.post("/create-payment", handleCreatePayment);
 app.post("/pi/create-payment", handleCreatePayment);
+app.get("/api/create-payment", (req,res)=> res.status(405).json({ ok:false, message:"Use POST /api/create-payment" }));
+app.get("/create-payment", (req,res)=> res.status(405).json({ ok:false, message:"Use POST /create-payment" }));
+app.get("/pi/create-payment", (req,res)=> res.status(405).json({ ok:false, message:"Use POST /pi/create-payment" }));
 
 app.get("/api/payment-status", handlePaymentStatus);
 app.get("/payment-status", handlePaymentStatus);

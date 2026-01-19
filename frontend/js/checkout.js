@@ -518,11 +518,34 @@ document.getElementById("payOnline").addEventListener("click", async ()=>{
     });
     const itemsWithTax = [...enrichedCart, ...taxLine, ...shippingLine];
 
-    const res = await fetch(`${PPS.API_BASE}/api/create-payment`,{
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ items: itemsWithTax, customer })
-    });
+    async function postCreatePayment(){
+      const endpoints = [
+        `${PPS.API_BASE}/api/create-payment`,
+        `${PPS.API_BASE}/create-payment`,
+        `${PPS.API_BASE}/pi/create-payment`
+      ];
+      const payload = JSON.stringify({ items: itemsWithTax, customer });
+      let lastError = null;
+      for(const url of endpoints){
+        try{
+          const res = await fetch(url, {
+            method:"POST",
+            headers:{ "Content-Type":"application/json" },
+            body: payload
+          });
+          // If the route exists but fails (400/500), return it so we can show message.
+          if(res.status !== 404) return { res, url };
+        }catch(err){
+          lastError = err;
+        }
+      }
+      if(lastError) throw lastError;
+      const error = new Error("Payment service not found.");
+      error.code = "PPS_NOT_FOUND";
+      throw error;
+    }
+
+    const { res, url: usedUrl } = await postCreatePayment();
 
     const data = await res.json().catch(()=> ({}));
     if(res.ok && data?.url){
@@ -530,7 +553,7 @@ document.getElementById("payOnline").addEventListener("click", async ()=>{
     }else{
       const endpointMissing = res.status === 404 || res.status === 405;
       const fallback = endpointMissing
-        ? "Payment service not found. Check `frontend/config.js` API_BASE_URL points to your backend."
+        ? `Payment service not found. Check \`frontend/config.js\` API_BASE_URL points to your backend. Tried: ${usedUrl || ""}`
         : (window.PPS_I18N?.t("checkout.status.square") || "Square not configured.");
       setStatus(msg, data?.message || fallback, "error");
     }
