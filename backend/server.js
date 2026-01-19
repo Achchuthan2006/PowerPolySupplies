@@ -8,7 +8,8 @@ import { fileURLToPath } from "url";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
 import { appendMessageToSheet, appendOrderToSheet, appendReviewToSheet, appendFeedbackToSheet, syncProductsToSheet, isSheetsConfigured } from "./googleSheets.js";
-import { Client as SquareClient, Environment as SquareEnvironment } from "square";
+import squarePkg from "square";
+const { Client: SquareClient, Environment: SquareEnvironment } = squarePkg;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, ".env") });
