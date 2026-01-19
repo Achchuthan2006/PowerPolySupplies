@@ -518,7 +518,7 @@ document.getElementById("payOnline").addEventListener("click", async ()=>{
     });
     const itemsWithTax = [...enrichedCart, ...taxLine, ...shippingLine];
 
-    const res = await fetch(`${PPS.API_BASE}/api/square-checkout`,{
+    const res = await fetch(`${PPS.API_BASE}/api/create-payment`,{
       method:"POST",
       headers:{ "Content-Type":"application/json" },
       body: JSON.stringify({ items: itemsWithTax, customer })

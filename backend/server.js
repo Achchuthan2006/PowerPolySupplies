@@ -1242,106 +1242,207 @@ app.post("/api/auth/logout", (req,res)=>{
 });
 
 // ---- Square Checkout ----
-app.post("/api/square-checkout", async (req,res)=>{
-  if(!squareClient || !squareLocationId){
-    return res.status(400).json({ ok:false, message:"Square not configured (set SQUARE_ACCESS_TOKEN and SQUARE_LOCATION_ID in .env)" });
-  }
-  if(!requireSupabase(res)) return;
-  if(!process.env.SITE_URL){
-    return res.status(400).json({ ok:false, message:"SITE_URL not configured (set SITE_URL to your public frontend URL)." });
+async function createSquarePaymentAndOrder(body){
+  const { items, customer } = body || {};
+  if(!Array.isArray(items) || items.length === 0){
+    const error = new Error("No items to pay for.");
+    error.status = 400;
+    throw error;
   }
 
+  const currency = String(items[0]?.currency || "CAD").toUpperCase();
+  const badCurrency = items.some(i => String(i?.currency || currency).toUpperCase() !== currency);
+  if(badCurrency){
+    const error = new Error("All items must use the same currency.");
+    error.status = 400;
+    throw error;
+  }
+
+  const productIds = (items || []).map(i=>i.id).filter(Boolean);
+  let productsById = new Map();
   try{
-    const { items, customer } = req.body || {};
-    if(!Array.isArray(items) || items.length === 0){
-      return res.status(400).json({ ok:false, message:"No items to pay for." });
-    }
+    const products = await fetchProductsByIds(productIds);
+    productsById = new Map(products.map(p=>[p.id, p]));
+  }catch(err){
+    console.error("Supabase products fetch for square failed", err);
+  }
 
-    const currency = String(items[0]?.currency || "CAD").toUpperCase();
-    const badCurrency = items.some(i => String(i?.currency || currency).toUpperCase() !== currency);
-    if(badCurrency){
-      return res.status(400).json({ ok:false, message:"All items must use the same currency." });
-    }
-
-    const productIds = (items || []).map(i=>i.id).filter(Boolean);
-    let productsById = new Map();
-    try{
-      const products = await fetchProductsByIds(productIds);
-      productsById = new Map(products.map(p=>[p.id, p]));
-    }catch(err){
-      console.error("Supabase products fetch for square failed", err);
-    }
-
-    const normalizedItems = (items || []).map((i)=>{
-      const qty = Math.max(1, Number(i.qty || 1));
-      const product = productsById.get(i.id);
-      const unitAmount = product ? getTieredPriceCents(product, qty) : Number(i.priceCents || 0);
-      return {
-        id: i.id || "",
-        name: i.name || product?.name || "Item",
-        qty,
-        priceCents: Math.max(0, Math.round(unitAmount)),
-        currency: currency,
-        description: i.description || product?.description || "",
-        description_fr: i.description_fr || product?.description_fr || "",
-        description_ko: i.description_ko || product?.description_ko || "",
-        description_hi: i.description_hi || product?.description_hi || "",
-        description_ta: i.description_ta || product?.description_ta || "",
-        description_es: i.description_es || product?.description_es || ""
-      };
-    });
-
-    const orderId = `SQR-${Date.now()}`;
-    const redirectBase = String(process.env.SITE_URL).replace(/\/+$/,"");
-    const redirectUrl = `${redirectBase}/thank-you.html?order_id=${encodeURIComponent(orderId)}`;
-    const idempotencyKey = crypto.randomUUID();
-
-    const lineItems = normalizedItems.map((i)=>({
-      name: i.name,
-      quantity: String(i.qty),
-      basePriceMoney: { amount: BigInt(i.priceCents), currency: i.currency }
-    }));
-
-    const { result } = await squareClient.checkoutApi.createPaymentLink({
-      idempotencyKey,
-      order: {
-        locationId: squareLocationId,
-        referenceId: orderId,
-        lineItems
-      },
-      checkoutOptions: {
-        redirectUrl
-      }
-    });
-
-    const paymentUrl = result?.paymentLink?.url;
-    if(!paymentUrl){
-      return res.status(500).json({ ok:false, message:"Failed to create Square payment link." });
-    }
-
-    const nowIso = new Date().toISOString();
-    const totalCents = normalizedItems.reduce((sum, i)=> sum + (i.priceCents * i.qty), 0);
-    const customerEmail = (customer?.email || "").toLowerCase();
-    const orderRow = {
-      id: orderId,
-      status: "pending",
-      payment_method: "square_checkout",
-      customer: customer || {},
-      customer_email: customerEmail,
-      shipping: { zone: "Square", label: "Square", costCents: 0 },
-      items: normalizedItems,
-      total_cents: totalCents,
-      currency,
-      language: customer?.language === "fr" ? "fr" : (customer?.language === "ko" ? "ko" : "en"),
-      created_at: nowIso
+  const normalizedItems = (items || []).map((i)=>{
+    const qty = Math.max(1, Number(i.qty || 1));
+    const product = productsById.get(i.id);
+    const unitAmount = product ? getTieredPriceCents(product, qty) : Number(i.priceCents || 0);
+    return {
+      id: i.id || "",
+      name: i.name || product?.name || "Item",
+      qty,
+      priceCents: Math.max(0, Math.round(unitAmount)),
+      currency: currency,
+      description: i.description || product?.description || "",
+      description_fr: i.description_fr || product?.description_fr || "",
+      description_ko: i.description_ko || product?.description_ko || "",
+      description_hi: i.description_hi || product?.description_hi || "",
+      description_ta: i.description_ta || product?.description_ta || "",
+      description_es: i.description_es || product?.description_es || ""
     };
-    const { error: orderError } = await supabase.from("orders").insert(orderRow);
-    if(orderError) console.error("Supabase square order insert failed", orderError);
+  });
 
-    res.json({ ok:true, url: paymentUrl });
+  const orderId = `SQR-${Date.now()}`;
+  const redirectBase = String(process.env.SITE_URL).replace(/\/+$/,"");
+  const redirectUrl = `${redirectBase}/thank-you.html?order_id=${encodeURIComponent(orderId)}`;
+  const idempotencyKey = crypto.randomUUID();
+
+  const lineItems = normalizedItems.map((i)=>({
+    name: i.name,
+    quantity: String(i.qty),
+    basePriceMoney: { amount: BigInt(i.priceCents), currency: i.currency }
+  }));
+
+  const { result } = await squareClient.checkoutApi.createPaymentLink({
+    idempotencyKey,
+    order: {
+      locationId: squareLocationId,
+      referenceId: orderId,
+      lineItems
+    },
+    checkoutOptions: {
+      redirectUrl
+    }
+  });
+
+  const paymentUrl = result?.paymentLink?.url;
+  if(!paymentUrl){
+    const error = new Error("Failed to create Square payment link.");
+    error.status = 500;
+    throw error;
+  }
+
+  const squarePaymentLinkId = result?.paymentLink?.id || "";
+  const squareOrderId = result?.paymentLink?.orderId || result?.paymentLink?.order_id || "";
+
+  const nowIso = new Date().toISOString();
+  const totalCents = normalizedItems.reduce((sum, i)=> sum + (i.priceCents * i.qty), 0);
+  const customerEmail = (customer?.email || "").toLowerCase();
+  const orderRow = {
+    id: orderId,
+    status: "pending",
+    payment_method: "square_checkout",
+    customer: customer || {},
+    customer_email: customerEmail,
+    shipping: { zone: "Square", label: "Square", costCents: 0 },
+    items: normalizedItems,
+    total_cents: totalCents,
+    currency,
+    square_payment_link_id: squarePaymentLinkId,
+    square_order_id: squareOrderId,
+    language: ["en","fr","ko","hi","ta","es"].includes(String(customer?.language || "").toLowerCase())
+      ? String(customer.language).toLowerCase()
+      : "en",
+    created_at: nowIso
+  };
+  const { error: orderError } = await supabase.from("orders").insert(orderRow);
+  if(orderError) console.error("Supabase square order insert failed", orderError);
+
+  return { ok:true, url: paymentUrl, orderId, squarePaymentLinkId, squareOrderId };
+}
+
+function requireSquareConfigured(res){
+  if(!squareClient || !squareLocationId){
+    res.status(400).json({ ok:false, message:"Square not configured (set SQUARE_ACCESS_TOKEN and SQUARE_LOCATION_ID in .env)" });
+    return false;
+  }
+  if(!process.env.SITE_URL){
+    res.status(400).json({ ok:false, message:"SITE_URL not configured (set SITE_URL to your public frontend URL)." });
+    return false;
+  }
+  return true;
+}
+
+// New Square endpoints (preferred)
+app.post("/api/create-payment", async (req,res)=>{
+  if(!requireSquareConfigured(res)) return;
+  if(!requireSupabase(res)) return;
+  try{
+    const out = await createSquarePaymentAndOrder(req.body || {});
+    res.json(out);
+  }catch(err){
+    console.error("Square create-payment error", err);
+    res.status(err.status || 500).json({ ok:false, message: err.message || "Square checkout failed. Check API keys." });
+  }
+});
+
+app.get("/api/payment-status", async (req,res)=>{
+  if(!requireSquareConfigured(res)) return;
+  if(!requireSupabase(res)) return;
+  try{
+    const orderId = String(req.query.orderId || req.query.order_id || "").trim();
+    if(!orderId) return res.status(400).json({ ok:false, message:"orderId is required" });
+
+    const { data: orderRow, error } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("id", orderId)
+      .maybeSingle();
+    if(error) throw error;
+    if(!orderRow) return res.status(404).json({ ok:false, message:"Order not found" });
+
+    const squareOrderId = orderRow.square_order_id || "";
+    if(!squareOrderId){
+      return res.json({ ok:true, orderId, status: orderRow.status || "pending" });
+    }
+
+    const { result } = await squareClient.ordersApi.retrieveOrder(squareOrderId);
+    const state = String(result?.order?.state || "").toUpperCase();
+
+    let status = orderRow.status || "pending";
+    if(state === "COMPLETED") status = "paid";
+    if(state === "CANCELED") status = "canceled";
+
+    if(status !== (orderRow.status || "")){
+      const { error: updateError } = await supabase
+        .from("orders")
+        .update({ status })
+        .eq("id", orderId);
+      if(updateError) console.error("Supabase order status update failed", updateError);
+    }
+
+    res.json({ ok:true, orderId, status, square: { orderId: squareOrderId, state } });
+  }catch(err){
+    console.error("Square payment-status error", err);
+    res.status(500).json({ ok:false, message:"Unable to check payment status." });
+  }
+});
+
+// Backward-compat endpoint used by older frontend code
+app.post("/api/square-checkout", async (req,res)=>{
+  if(!requireSquareConfigured(res)) return;
+  if(!requireSupabase(res)) return;
+  try{
+    const out = await createSquarePaymentAndOrder(req.body || {});
+    // Keep the old shape (also include ok/orderId for newer clients).
+    res.json({ ok:true, url: out.url, orderId: out.orderId });
   }catch(err){
     console.error("Square checkout error", err);
-    res.status(500).json({ ok:false, message:"Square checkout failed. Check API keys." });
+    res.status(err.status || 500).json({ ok:false, message: err.message || "Square checkout failed. Check API keys." });
+  }
+});
+
+// Alias for apps expecting /api/orders (same behavior as /api/account/orders)
+app.get("/api/orders", async (req,res)=>{
+  const session = getSessionFromRequest(req);
+  if(!session) return res.status(401).json({ ok:false, message:"Unauthorized" });
+  if(!requireSupabase(res)) return;
+  try{
+    const email = (session.email || "").toLowerCase();
+    const { data, error } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("customer_email", email)
+      .order("created_at", { ascending: false });
+    if(error) throw error;
+    res.json({ ok:true, orders: (data || []).map(normalizeOrderRow) });
+  }catch(err){
+    console.error("Supabase orders fetch failed", err);
+    res.status(500).json({ ok:false, message:"Unable to load orders." });
   }
 });
 
