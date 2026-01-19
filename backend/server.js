@@ -1314,7 +1314,7 @@ async function createSquarePaymentAndOrder(body){
     basePriceMoney: { amount: BigInt(i.priceCents), currency: i.currency }
   }));
 
-  const { result } = await squareClient.checkoutApi.createPaymentLink({
+  const result = await squareClient.checkout.paymentLinks.create({
     idempotencyKey,
     order: {
       locationId: squareLocationId,
@@ -1409,7 +1409,7 @@ async function handlePaymentStatus(req,res){
       return res.json({ ok:true, orderId, status: orderRow.status || "pending" });
     }
 
-    const { result } = await squareClient.ordersApi.retrieveOrder(squareOrderId);
+    const result = await squareClient.orders.get({ orderId: squareOrderId });
     const state = String(result?.order?.state || "").toUpperCase();
 
     let status = orderRow.status || "pending";
