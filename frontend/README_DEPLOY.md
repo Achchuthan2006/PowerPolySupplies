@@ -7,7 +7,10 @@
      - `SQUARE_LOCATION_ID`
      - `SQUARE_ENV` (`sandbox` | `production`)
      - `SITE_URL` (your public frontend URL, used for Square redirect to `thank-you.html`)
-     - `EMAIL_USER`, `EMAIL_PASS`, `ORDER_TO` (optional, for order/contact emails)
+     - Email (optional, for verification codes + receipts + contact/help/feedback):
+       - `EMAIL_USER`, `EMAIL_PASS`
+       - `ORDER_TO` (admin inbox for contact/help/feedback + new orders)
+       - Optional SMTP overrides: `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_SECURE`, `EMAIL_SERVICE`, `EMAIL_FROM`
    - Ensure the service restarts on crash and has a health check hitting `/api/health`.
 
 2) **Serve frontend over HTTPS**
@@ -29,3 +32,6 @@
 4) **Test steps**
    - `SQUARE_ENV=sandbox`: click “Pay online with Square”, complete checkout, and confirm redirect to `thank-you.html`.
    - Switch to `SQUARE_ENV=production` + production token/location and repeat.
+   - Email diagnostics (backend):
+     - `GET /api/health` shows `email.configured`
+     - `GET /api/email/health` verifies SMTP login

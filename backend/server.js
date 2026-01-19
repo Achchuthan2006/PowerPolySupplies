@@ -397,7 +397,7 @@ function buildReceiptHtml({
 }
 
 function getSenderAddress(){
-  const sender = COMPANY_EMAIL || process.env.EMAIL_USER || "";
+  const sender = process.env.EMAIL_FROM || COMPANY_EMAIL || process.env.EMAIL_USER || "";
   if(!sender) return COMPANY_NAME;
   return `"${COMPANY_NAME}" <${sender}>`;
 }
@@ -463,10 +463,56 @@ function buildVerificationHtml(name, code){
 }
 
 // ---- Email transporter ----
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
-});
+let emailTransporter = null;
+
+function buildTransportConfig(){
+  const user = process.env.EMAIL_USER || "";
+  const pass = process.env.EMAIL_PASS || "";
+  if(!user || !pass) return null;
+
+  const host = (process.env.EMAIL_HOST || "").trim();
+  const portRaw = (process.env.EMAIL_PORT || "").trim();
+  const port = portRaw ? Number(portRaw) : 0;
+  const secureEnv = String(process.env.EMAIL_SECURE || "").trim().toLowerCase();
+  const secure = secureEnv === "true" || secureEnv === "1" || port === 465;
+  const service = (process.env.EMAIL_SERVICE || "").trim();
+
+  if(host){
+    return {
+      host,
+      port: Number.isFinite(port) && port > 0 ? port : 587,
+      secure,
+      auth: { user, pass }
+    };
+  }
+
+  if(service){
+    return { service, auth: { user, pass } };
+  }
+
+  // Default (works for Gmail only if you use an App Password)
+  return { service: "gmail", auth: { user, pass } };
+}
+
+function getEmailTransporter(){
+  if(emailTransporter) return emailTransporter;
+  const config = buildTransportConfig();
+  if(!config) return null;
+  emailTransporter = nodemailer.createTransport(config);
+  return emailTransporter;
+}
+
+async function sendEmailSafe(mail){
+  const transporter = getEmailTransporter();
+  if(!transporter) return { ok:false, message:"Email not configured." };
+  try{
+    await transporter.sendMail(mail);
+    return { ok:true };
+  }catch(err){
+    console.error("Email send failed", err);
+    return { ok:false, message:"Failed to send email." };
+  }
+}
 
 // Simple in-memory verification store
 const verificationCodes = new Map();
@@ -512,6 +558,7 @@ function getSessionFromRequest(req){
 app.get("/api/health",(req,res)=>{
   const supabaseReady = !!supabase;
   const sheetsReady = isSheetsConfigured();
+  const emailConfigured = !!buildTransportConfig();
   res.json({
     ok:true,
     status:"up",
@@ -522,9 +569,22 @@ app.get("/api/health",(req,res)=>{
       locationIdSet: !!squareLocationId,
       siteUrlSet: !!siteUrl
     },
+    email: { configured: emailConfigured },
     supabase: supabaseReady,
     sheets: sheetsReady
   });
+});
+
+app.get("/api/email/health", async (req,res)=>{
+  const transporter = getEmailTransporter();
+  if(!transporter) return res.json({ ok:false, configured:false, message:"Email not configured." });
+  try{
+    await transporter.verify();
+    res.json({ ok:true, configured:true });
+  }catch(err){
+    console.error("Email verify failed", err);
+    res.status(500).json({ ok:false, configured:true, message:"Email configured but verification failed." });
+  }
 });
 
 // ---- Products endpoint (frontend uses this for real stock) ----
@@ -829,7 +889,7 @@ app.post("/api/order", async (req,res)=>{
         }
       }
 
-      const emailConfigured = process.env.EMAIL_USER && process.env.EMAIL_PASS;
+      const emailConfigured = !!buildTransportConfig();
       const adminEmail = process.env.ORDER_TO;
       const logoExists = fs.existsSync(COMPANY_LOGO_PATH);
       const attachments = logoExists ? [{
@@ -839,21 +899,34 @@ app.post("/api/order", async (req,res)=>{
       }] : [];
 
       if(emailConfigured){
-        const headerText = customer?.language === "fr"
-          ? "Recu"
-          : customer?.language === "ko"
-            ? "Receipt"
-            : "Receipt";
-        const introText = customer?.language === "fr"
-          ? "Merci pour votre commande chez Power Poly Supplies. Nous la preparons avec soin. Voici votre recu."
-          : customer?.language === "ko"
-            ? "Thanks for choosing Power Poly Supplies. We are getting your order ready now. Here is your receipt."
-            : "Thanks for choosing Power Poly Supplies. We are getting your order ready now. Here is your receipt.";
-        const subjectText = customer?.language === "fr"
+        const lang = String(customer?.language || "en").toLowerCase();
+        const headerText = lang === "fr"
+          ? "Reçu"
+          : lang === "es"
+            ? "Recibo"
+            : lang === "hi"
+              ? "रसीद"
+              : lang === "ta"
+                ? "ரசீது"
+                : "Receipt";
+        const introText = lang === "fr"
+          ? "Merci pour votre commande chez Power Poly Supplies. Nous la préparons avec soin. Voici votre reçu."
+          : lang === "es"
+            ? "Gracias por tu pedido en Power Poly Supplies. Ya estamos preparando tu pedido. Aquí está tu recibo."
+            : lang === "hi"
+              ? "Power Poly Supplies में आपके ऑर्डर के लिए धन्यवाद। हम आपका ऑर्डर तैयार कर रहे हैं। यह आपकी रसीद है।"
+              : lang === "ta"
+                ? "Power Poly Supplies-ல் உங்கள் ஆர்டருக்கு நன்றி. உங்கள் ஆர்டரை தயாரித்து கொண்டிருக்கிறோம். இதோ உங்கள் ரசீது."
+                : "Thanks for choosing Power Poly Supplies. We are getting your order ready now. Here is your receipt.";
+        const subjectText = lang === "fr"
           ? `Merci pour votre commande ! Power Poly Supplies - ${orderId}`
-          : customer?.language === "ko"
-            ? `Thanks for your order! Power Poly Supplies receipt - ${orderId}`
-            : `Thanks for your order! Power Poly Supplies receipt - ${orderId}`;
+          : lang === "es"
+            ? `¡Gracias por tu pedido! Recibo de Power Poly Supplies - ${orderId}`
+            : lang === "hi"
+              ? `आपके ऑर्डर के लिए धन्यवाद! Power Poly Supplies रसीद - ${orderId}`
+              : lang === "ta"
+                ? `உங்கள் ஆர்டருக்கு நன்றி! Power Poly Supplies ரசீது - ${orderId}`
+                : `Thanks for your order! Power Poly Supplies receipt - ${orderId}`;
 
         const receiptHtml = buildReceiptHtml({
           orderId,
@@ -871,17 +944,14 @@ app.post("/api/order", async (req,res)=>{
           language: customer?.language
         });
 
-        try{
-          await transporter.sendMail({
-            from: getSenderAddress(),
-            to: customer.email,
-            subject: subjectText,
-            html: receiptHtml,
-            attachments
-          });
-        }catch(mailErr){
-          console.error("Customer receipt email failed", mailErr);
-        }
+        const customerSend = await sendEmailSafe({
+          from: getSenderAddress(),
+          to: customer.email,
+          subject: subjectText,
+          html: receiptHtml,
+          attachments
+        });
+        if(!customerSend.ok) console.error("Customer receipt email failed", customerSend.message);
 
         if(adminEmail){
           const adminHtml = buildReceiptHtml({
@@ -900,17 +970,14 @@ app.post("/api/order", async (req,res)=>{
             language: customer?.language
           });
 
-          try{
-            await transporter.sendMail({
-              from: getSenderAddress(),
-              to: adminEmail,
-              subject: `New Order ${orderId} (${order.paymentMethod})`,
-              html: adminHtml,
-              attachments
-            });
-          }catch(mailErr){
-            console.error("Admin order email failed", mailErr);
-          }
+          const adminSend = await sendEmailSafe({
+            from: getSenderAddress(),
+            to: adminEmail,
+            subject: `New Order ${orderId} (${order.payment_method || paymentMethod || "pay_later"})`,
+            html: adminHtml,
+            attachments
+          });
+          if(!adminSend.ok) console.error("Admin order email failed", adminSend.message);
         }
       }
     })().catch((err)=>{
@@ -929,7 +996,7 @@ app.post("/api/contact", async (req,res)=>{
   if(!requireSupabase(res)) return;
 
   try{
-    const emailReady = process.env.EMAIL_USER && process.env.EMAIL_PASS && process.env.ORDER_TO;
+    const emailReady = !!buildTransportConfig() && !!process.env.ORDER_TO;
     let emailSent = false;
 
     const msgId = "MSG-" + Date.now();
@@ -960,24 +1027,20 @@ app.post("/api/contact", async (req,res)=>{
     }
 
     if(emailReady){
-      try{
-        await transporter.sendMail({
-          from: getSenderAddress(),
-          to: process.env.ORDER_TO,
-          subject: "New Contact Message - Power Poly Supplies",
-          html: `
-            <h2>New Contact Message</h2>
-            <p><b>Name:</b> ${name || ""}</p>
-            <p><b>Email:</b> ${email}</p>
-            <p><b>Phone:</b> ${phone || ""}</p>
-            <hr/>
-            <p>${(message || "").replace(/\n/g,"<br/>")}</p>
-          `
-        });
-        emailSent = true;
-      }catch(mailErr){
-        console.error("Contact email failed", mailErr);
-      }
+      const out = await sendEmailSafe({
+        from: getSenderAddress(),
+        to: process.env.ORDER_TO,
+        subject: "New Contact Message - Power Poly Supplies",
+        html: `
+          <h2>New Contact Message</h2>
+          <p><b>Name:</b> ${name || ""}</p>
+          <p><b>Email:</b> ${email}</p>
+          <p><b>Phone:</b> ${phone || ""}</p>
+          <hr/>
+          <p>${(message || "").replace(/\n/g,"<br/>")}</p>
+        `
+      });
+      emailSent = out.ok;
     }
 
     res.json({ ok:true, emailSent });
@@ -994,7 +1057,7 @@ app.post("/api/help", async (req,res)=>{
   if(!requireSupabase(res)) return;
 
   try{
-    const emailReady = process.env.EMAIL_USER && process.env.EMAIL_PASS && process.env.ORDER_TO;
+    const emailReady = !!buildTransportConfig() && !!process.env.ORDER_TO;
     let emailSent = false;
 
     const helpId = "HELP-" + Date.now();
@@ -1036,23 +1099,19 @@ app.post("/api/help", async (req,res)=>{
     }
 
     if(emailReady){
-      try{
-        await transporter.sendMail({
-          from: getSenderAddress(),
-          to: process.env.ORDER_TO,
-          subject: "New Help Request - Power Poly Supplies",
-          html: `
-            <h2>New Help Request</h2>
-            <p><b>Name:</b> ${name || ""}</p>
-            <p><b>Email:</b> ${email}</p>
-            <hr/>
-            <p>${(message || "").replace(/\n/g,"<br/>")}</p>
-          `
-        });
-        emailSent = true;
-      }catch(mailErr){
-        console.error("Help email failed", mailErr);
-      }
+      const out = await sendEmailSafe({
+        from: getSenderAddress(),
+        to: process.env.ORDER_TO,
+        subject: "New Help Request - Power Poly Supplies",
+        html: `
+          <h2>New Help Request</h2>
+          <p><b>Name:</b> ${name || ""}</p>
+          <p><b>Email:</b> ${email}</p>
+          <hr/>
+          <p>${(message || "").replace(/\n/g,"<br/>")}</p>
+        `
+      });
+      emailSent = out.ok;
     }
 
     res.json({ ok:true, emailSent });
@@ -1072,16 +1131,17 @@ app.post("/api/auth/send-code", async (req,res)=>{
     const expiresAt = Date.now() + 10*60*1000; // 10 minutes
     verificationCodes.set(emailKey, { code, expiresAt });
 
-    const emailConfigured = process.env.EMAIL_USER && process.env.EMAIL_PASS;
+    const emailConfigured = !!buildTransportConfig();
 
     if(emailConfigured){
-      await transporter.sendMail({
+      const out = await sendEmailSafe({
         from: getSenderAddress(),
         to: email,
         subject: "Welcome to Power Poly Supplies - your verification code",
         html: buildVerificationHtml(name, code)
       });
-      res.json({ ok:true });
+      if(out.ok) res.json({ ok:true });
+      else res.status(500).json({ ok:false, message:"Failed to send code. Check mail credentials." });
     }else{
       // Dev fallback: return code in response when email is not configured
       console.warn("Email not configured; returning code in response for dev use.");
@@ -1168,27 +1228,29 @@ app.post("/api/auth/register", async (req,res)=>{
     console.error("Supabase user insert failed", err);
     return res.status(500).json({ ok:false, message:"Unable to create account." });
   }
-  verificationCodes.delete(email);
+  verificationCodes.delete(emailKey);
 
   const session = createSession(lower);
-  const emailConfigured = process.env.EMAIL_USER && process.env.EMAIL_PASS;
+  const emailConfigured = !!buildTransportConfig();
   const shouldSendWelcome = emailConfigured;
 
   if(shouldSendWelcome){
-    transporter.sendMail({
-      from: getSenderAddress(),
-      to: lower,
-      subject: "Welcome to Power Poly Supplies!",
-      html: buildWelcomeHtml(user.name || "", new Date(now))
-    }).then(()=>{
+    (async ()=>{
+      const out = await sendEmailSafe({
+        from: getSenderAddress(),
+        to: lower,
+        subject: "Welcome to Power Poly Supplies!",
+        html: buildWelcomeHtml(user.name || "", new Date(now))
+      });
+      if(!out.ok) return;
       supabase.from("users")
         .update({ welcome_email_sent:true })
         .eq("email", lower)
         .then(({ error: updateErr })=>{
           if(updateErr) console.error("Supabase welcome email flag update failed", updateErr);
         });
-    }).catch((mailErr)=>{
-      console.error("Welcome email failed", mailErr);
+    })().catch((err)=>{
+      console.error("Welcome email failed", err);
     });
   }
 
@@ -1457,12 +1519,97 @@ async function handlePaymentStatus(req,res){
     if(state === "COMPLETED") status = "paid";
     if(state === "CANCELED") status = "canceled";
 
+    const statusWas = String(orderRow.status || "pending");
     if(status !== (orderRow.status || "")){
       const { error: updateError } = await supabase
         .from("orders")
         .update({ status })
         .eq("id", orderId);
       if(updateError) console.error("Supabase order status update failed", updateError);
+    }
+
+    // Send receipt once when a Square order becomes paid.
+    if(status === "paid" && statusWas !== "paid"){
+      const emailConfigured = !!buildTransportConfig();
+      const customerEmail = String(orderRow.customer_email || orderRow.customer?.email || "").trim();
+      const adminEmail = String(process.env.ORDER_TO || "").trim();
+
+      if(emailConfigured && (customerEmail || adminEmail)){
+        const items = Array.isArray(orderRow.items) ? orderRow.items : [];
+        const currency = String(orderRow.currency || "CAD").toUpperCase();
+        const totalCents = Number(orderRow.total_cents || 0);
+        const taxItems = items.filter(i => String(i?.id || "").toLowerCase() === "tax");
+        const taxCents = taxItems.reduce((sum, i)=> sum + (Number(i.priceCents || 0) * Number(i.qty || 1)), 0);
+        const subtotalCents = Math.max(0, totalCents - taxCents);
+        const taxLabel = String(taxItems[0]?.name || "Tax");
+
+        const lang = String(orderRow.language || orderRow.customer?.language || "en").toLowerCase();
+        const headerText = lang === "fr"
+          ? "Reçu"
+          : lang === "es"
+            ? "Recibo"
+            : lang === "hi"
+              ? "रसीद"
+              : lang === "ta"
+                ? "ரசீது"
+                : "Receipt";
+        const introText = lang === "fr"
+          ? "Merci pour votre commande chez Power Poly Supplies. Nous la préparons avec soin. Voici votre reçu."
+          : lang === "es"
+            ? "Gracias por tu pedido en Power Poly Supplies. Ya estamos preparando tu pedido. Aquí está tu recibo."
+            : lang === "hi"
+              ? "Power Poly Supplies में आपके ऑर्डर के लिए धन्यवाद। हम आपका ऑर्डर तैयार कर रहे हैं। यह आपकी रसीद है।"
+              : lang === "ta"
+                ? "Power Poly Supplies-ல் உங்கள் ஆர்டருக்கு நன்றி. உங்கள் ஆர்டரை தயாரித்து கொண்டிருக்கிறோம். இதோ உங்கள் ரசீது."
+                : "Thanks for choosing Power Poly Supplies. We are getting your order ready now. Here is your receipt.";
+
+        const logoExists = fs.existsSync(COMPANY_LOGO_PATH);
+        const attachments = logoExists ? [{
+          filename: path.basename(COMPANY_LOGO_PATH),
+          path: COMPANY_LOGO_PATH,
+          cid: "pps-logo"
+        }] : [];
+
+        const receiptHtml = buildReceiptHtml({
+          orderId,
+          customer: orderRow.customer || { email: customerEmail },
+          items,
+          subtotalCents,
+          taxCents,
+          totalCents,
+          currency,
+          taxLabel,
+          headerText,
+          introText,
+          logoCid: "pps-logo",
+          logoExists,
+          language: lang
+        });
+
+        (async ()=>{
+          if(customerEmail){
+            const subject = lang === "fr"
+              ? `Merci pour votre commande ! Power Poly Supplies - ${orderId}`
+              : lang === "es"
+                ? `¡Gracias por tu pedido! Recibo de Power Poly Supplies - ${orderId}`
+                : lang === "hi"
+                  ? `आपके ऑर्डर के लिए धन्यवाद! Power Poly Supplies रसीद - ${orderId}`
+                  : lang === "ta"
+                    ? `உங்கள் ஆர்டருக்கு நன்றி! Power Poly Supplies ரசீது - ${orderId}`
+                    : `Thanks for your order! Power Poly Supplies receipt - ${orderId}`;
+            await sendEmailSafe({ from: getSenderAddress(), to: customerEmail, subject, html: receiptHtml, attachments });
+          }
+          if(adminEmail){
+            await sendEmailSafe({
+              from: getSenderAddress(),
+              to: adminEmail,
+              subject: `New Order ${orderId} (square_checkout)`,
+              html: receiptHtml,
+              attachments
+            });
+          }
+        })().catch((err)=> console.error("Square receipt email failed", err));
+      }
     }
 
     res.json({ ok:true, orderId, status, square: { orderId: squareOrderId, state } });
@@ -1560,7 +1707,7 @@ app.post("/api/feedback", async (req,res)=>{
   if(!requireSupabase(res)) return;
 
   try{
-    const emailReady = process.env.EMAIL_USER && process.env.EMAIL_PASS && process.env.ORDER_TO;
+    const emailReady = !!buildTransportConfig() && !!process.env.ORDER_TO;
     let emailSent = false;
 
     const fbId = "FB-" + Date.now();
@@ -1589,23 +1736,19 @@ app.post("/api/feedback", async (req,res)=>{
     }
 
     if(emailReady){
-      try{
-        await transporter.sendMail({
-          from: getSenderAddress(),
-          to: process.env.ORDER_TO,
-          subject: "New Feedback - Power Poly Supplies",
-          html: `
-            <h2>New Feedback</h2>
-            <p><b>Name:</b> ${name || ""}</p>
-            <p><b>Email:</b> ${email || ""}</p>
-            <hr/>
-            <p>${(message || "").replace(/\n/g,"<br/>")}</p>
-          `
-        });
-        emailSent = true;
-      }catch(mailErr){
-        console.error("Feedback email failed", mailErr);
-      }
+      const out = await sendEmailSafe({
+        from: getSenderAddress(),
+        to: process.env.ORDER_TO,
+        subject: "New Feedback - Power Poly Supplies",
+        html: `
+          <h2>New Feedback</h2>
+          <p><b>Name:</b> ${name || ""}</p>
+          <p><b>Email:</b> ${email || ""}</p>
+          <hr/>
+          <p>${(message || "").replace(/\n/g,"<br/>")}</p>
+        `
+      });
+      emailSent = out.ok;
     }
 
     res.json({ ok:true, emailSent });
