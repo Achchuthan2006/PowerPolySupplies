@@ -528,7 +528,11 @@ document.getElementById("payOnline").addEventListener("click", async ()=>{
     if(res.ok && data?.url){
       window.location.href = data.url;
     }else{
-      setStatus(msg, data?.message || (window.PPS_I18N?.t("checkout.status.square") || "Square not configured."), "error");
+      const endpointMissing = res.status === 404 || res.status === 405;
+      const fallback = endpointMissing
+        ? "Payment service not found. Check `frontend/config.js` API_BASE_URL points to your backend."
+        : (window.PPS_I18N?.t("checkout.status.square") || "Square not configured.");
+      setStatus(msg, data?.message || fallback, "error");
     }
   }catch(err){
     setStatus(msg, window.PPS_I18N?.t("checkout.status.unreachable") || "Server unreachable. Please try again.", "error");

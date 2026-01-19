@@ -24,13 +24,22 @@ const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supaba
 const PORT = process.env.PORT || 5000;
 const HOST = process.env.HOST || "0.0.0.0";
 
+function readEnvFirst(...names){
+  for(const name of names){
+    const value = String(process.env[name] || "").trim();
+    if(value) return value;
+  }
+  return "";
+}
+
 function getSquareEnvironment(){
   const value = String(process.env.SQUARE_ENV || "production").toLowerCase();
   return value === "sandbox" ? SquareEnvironment.Sandbox : SquareEnvironment.Production;
 }
 
-const squareAccessToken = process.env.SQUARE_ACCESS_TOKEN || "";
-const squareLocationId = process.env.SQUARE_LOCATION_ID || "";
+const squareAccessToken = readEnvFirst("SQUARE_ACCESS_TOKEN", "SQUARE_TOKEN", "SQUARE_ACCESS");
+const squareLocationId = readEnvFirst("SQUARE_LOCATION_ID", "SQUARE_LOCATIONID", "SQUARE_LOCATION", "SQUARE_LOC_ID");
+const siteUrl = readEnvFirst("SITE_URL", "FRONTEND_URL", "PUBLIC_SITE_URL");
 const squareClient = squareAccessToken
   ? new SquareClient({ accessToken: squareAccessToken, environment: getSquareEnvironment() })
   : null;
@@ -504,7 +513,13 @@ app.get("/api/health",(req,res)=>{
   res.json({
     ok:true,
     status:"up",
-    square: !!(squareClient && squareLocationId),
+    square: {
+      configured: !!(squareClient && squareLocationId && siteUrl),
+      env: String(process.env.SQUARE_ENV || "production").toLowerCase() === "sandbox" ? "sandbox" : "production",
+      accessTokenSet: !!squareAccessToken,
+      locationIdSet: !!squareLocationId,
+      siteUrlSet: !!siteUrl
+    },
     supabase: supabaseReady,
     sheets: sheetsReady
   });
@@ -1287,7 +1302,7 @@ async function createSquarePaymentAndOrder(body){
   });
 
   const orderId = `SQR-${Date.now()}`;
-  const redirectBase = String(process.env.SITE_URL).replace(/\/+$/,"");
+  const redirectBase = String(siteUrl).replace(/\/+$/,"");
   const redirectUrl = `${redirectBase}/thank-you.html?order_id=${encodeURIComponent(orderId)}`;
   const idempotencyKey = crypto.randomUUID();
 
@@ -1347,18 +1362,20 @@ async function createSquarePaymentAndOrder(body){
 
 function requireSquareConfigured(res){
   if(!squareClient || !squareLocationId){
-    res.status(400).json({ ok:false, message:"Square not configured (set SQUARE_ACCESS_TOKEN and SQUARE_LOCATION_ID in .env)" });
+    const missing = [];
+    if(!squareAccessToken) missing.push("SQUARE_ACCESS_TOKEN");
+    if(!squareLocationId) missing.push("SQUARE_LOCATION_ID");
+    res.status(400).json({ ok:false, message:`Square not configured (missing ${missing.join(" + ") || "keys"}).` });
     return false;
   }
-  if(!process.env.SITE_URL){
+  if(!siteUrl){
     res.status(400).json({ ok:false, message:"SITE_URL not configured (set SITE_URL to your public frontend URL)." });
     return false;
   }
   return true;
 }
 
-// New Square endpoints (preferred)
-app.post("/api/create-payment", async (req,res)=>{
+async function handleCreatePayment(req,res){
   if(!requireSquareConfigured(res)) return;
   if(!requireSupabase(res)) return;
   try{
@@ -1368,9 +1385,9 @@ app.post("/api/create-payment", async (req,res)=>{
     console.error("Square create-payment error", err);
     res.status(err.status || 500).json({ ok:false, message: err.message || "Square checkout failed. Check API keys." });
   }
-});
+}
 
-app.get("/api/payment-status", async (req,res)=>{
+async function handlePaymentStatus(req,res){
   if(!requireSquareConfigured(res)) return;
   if(!requireSupabase(res)) return;
   try{
@@ -1410,7 +1427,16 @@ app.get("/api/payment-status", async (req,res)=>{
     console.error("Square payment-status error", err);
     res.status(500).json({ ok:false, message:"Unable to check payment status." });
   }
-});
+}
+
+// New Square endpoints (preferred) + safe aliases
+app.post("/api/create-payment", handleCreatePayment);
+app.post("/create-payment", handleCreatePayment);
+app.post("/pi/create-payment", handleCreatePayment);
+
+app.get("/api/payment-status", handlePaymentStatus);
+app.get("/payment-status", handlePaymentStatus);
+app.get("/pi/payment-status", handlePaymentStatus);
 
 // Backward-compat endpoint used by older frontend code
 app.post("/api/square-checkout", async (req,res)=>{
@@ -1427,7 +1453,7 @@ app.post("/api/square-checkout", async (req,res)=>{
 });
 
 // Alias for apps expecting /api/orders (same behavior as /api/account/orders)
-app.get("/api/orders", async (req,res)=>{
+async function handleOrders(req,res){
   const session = getSessionFromRequest(req);
   if(!session) return res.status(401).json({ ok:false, message:"Unauthorized" });
   if(!requireSupabase(res)) return;
@@ -1444,7 +1470,11 @@ app.get("/api/orders", async (req,res)=>{
     console.error("Supabase orders fetch failed", err);
     res.status(500).json({ ok:false, message:"Unable to load orders." });
   }
-});
+}
+
+app.get("/api/orders", handleOrders);
+app.get("/orders", handleOrders);
+app.get("/pi/orders", handleOrders);
 
 // ---- Feedback -> email ----
 app.get("/api/feedback/public", async (req,res)=>{

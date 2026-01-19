@@ -76,14 +76,22 @@ async function fetchLocalProducts(){
 }
 
 function inferApiBase(){
-  if(window.API_BASE_URL) return window.API_BASE_URL;
-  if(window.PPS_API_BASE) return window.PPS_API_BASE;
+  function normalizeApiBase(value){
+    const raw = String(value || "").trim();
+    if(!raw) return "";
+    let out = raw.replace(/\/+$/,"");
+    out = out.replace(/\/api$/i, "");
+    return out;
+  }
+
+  if(window.API_BASE_URL) return normalizeApiBase(window.API_BASE_URL);
+  if(window.PPS_API_BASE) return normalizeApiBase(window.PPS_API_BASE);
 
   const apiFromQuery = new URLSearchParams(window.location.search).get("api");
-  if(apiFromQuery) return apiFromQuery;
+  if(apiFromQuery) return normalizeApiBase(apiFromQuery);
 
   const apiFromStorage = localStorage.getItem("pps_api_base");
-  if(apiFromStorage) return apiFromStorage;
+  if(apiFromStorage) return normalizeApiBase(apiFromStorage);
 
   const host = window.location.hostname || "127.0.0.1";
   const protocol = window.location.protocol && window.location.protocol.startsWith("http")
@@ -95,7 +103,7 @@ function inferApiBase(){
   }
 
   if(window.location.origin && window.location.origin !== "null"){
-    return window.location.origin;
+    return normalizeApiBase(window.location.origin);
   }
 
   return DEFAULT_API_BASE;
