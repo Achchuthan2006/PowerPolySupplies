@@ -9,7 +9,8 @@ import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
 import { appendMessageToSheet, appendOrderToSheet, appendReviewToSheet, appendFeedbackToSheet, syncProductsToSheet, isSheetsConfigured } from "./googleSheets.js";
 import squarePkg from "square";
-const { Client: SquareClient, Environment: SquareEnvironment } = squarePkg;
+const SquareClient = squarePkg.SquareClient || squarePkg.Client;
+const SquareEnvironment = squarePkg.SquareEnvironment || squarePkg.Environment;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, ".env") });
