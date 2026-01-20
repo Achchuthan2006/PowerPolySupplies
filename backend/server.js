@@ -48,6 +48,10 @@ function readEnvFirst(...names){
     ){
       value = value.slice(1, -1).trim();
     }
+    // Remove whitespace/newlines + zero-width chars that can silently break auth.
+    value = value
+      .replace(/[\s\u200B-\u200D\uFEFF]+/g, "")
+      .replace(/[\u0000-\u001F\u007F]+/g, "");
     if(value) return value;
   }
   return "";
@@ -133,6 +137,7 @@ async function squareTest(client, label){
     return {
       ok:true,
       label,
+      baseUrl: String(client?.environment || ""),
       locations: locations.map((l)=>({ id: l.id || "", name: l.name || "", status: l.status || "" }))
     };
   }catch(err){
@@ -140,6 +145,7 @@ async function squareTest(client, label){
     return {
       ok:false,
       label,
+      baseUrl: String(client?.environment || ""),
       statusCode: summary.statusCode,
       message: summary.message,
       errors: summary.errors,
