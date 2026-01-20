@@ -62,9 +62,20 @@ const squareClientProduction = squareAccessToken
   : null;
 
 function getSquareClientCandidates(){
-  if(squareEnvMode === "sandbox") return squareClientSandbox ? [squareClientSandbox] : [];
-  if(squareEnvMode === "production") return squareClientProduction ? [squareClientProduction] : [];
+  // Always keep both clients available as a fallback, even when SQUARE_ENV is set.
+  // This prevents misconfiguration (e.g. production env + sandbox token) from hard-failing checkout.
   const out = [];
+  if(squareEnvMode === "production"){
+    if(squareClientProduction) out.push(squareClientProduction);
+    if(squareClientSandbox) out.push(squareClientSandbox);
+    return out;
+  }
+  if(squareEnvMode === "sandbox"){
+    if(squareClientSandbox) out.push(squareClientSandbox);
+    if(squareClientProduction) out.push(squareClientProduction);
+    return out;
+  }
+  // auto: try sandbox first, then production (common during setup)
   if(squareClientSandbox) out.push(squareClientSandbox);
   if(squareClientProduction) out.push(squareClientProduction);
   return out;
@@ -651,6 +662,32 @@ app.get("/api/email/health", async (req,res)=>{
   }catch(err){
     console.error("Email verify failed", err);
     res.status(500).json({ ok:false, configured:true, message:"Email configured but verification failed." });
+  }
+});
+
+app.get("/api/square/diagnose", async (req,res)=>{
+  if(!requireSquareConfigured(res)) return;
+  try{
+    const result = await withSquareClient((client)=> client.locations.list());
+    const locations = Array.isArray(result?.locations) ? result.locations : [];
+    res.json({
+      ok:true,
+      envMode: squareEnvMode,
+      locations: locations.map((l)=>({
+        id: l.id || "",
+        name: l.name || "",
+        status: l.status || ""
+      }))
+    });
+  }catch(err){
+    const summary = summarizeSquareError(err);
+    res.status(summary.statusCode).json({
+      ok:false,
+      envMode: squareEnvMode,
+      message: summary.message,
+      errors: summary.errors,
+      requestId: summary.requestId
+    });
   }
 });
 
