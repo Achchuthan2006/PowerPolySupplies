@@ -64,9 +64,10 @@ async function checkBackendHealth(){
     const square = data.square || {};
     const email = data.email || {};
     const squareText = square.configured ? `Square: ready (${square.env || "unknown"})` : "Square: not configured";
-    const emailText = email.configured
-      ? (email.verified ? "Email: ready" : "Email: verification failed")
-      : "Email: not configured";
+    const emailReady = !!(email.ready || email.verified || email.sendgrid?.configured);
+    const emailText = emailReady
+      ? (email.smtp?.verified || email.verified ? "Email: ready (SMTP)" : "Email: ready (SendGrid)")
+      : (email.smtp?.configured ? "Email: not ready" : "Email: not configured");
     backendStatus.textContent = `Backend: up | ${squareText} | ${emailText}`;
     backendStatus.style.display = "block";
 

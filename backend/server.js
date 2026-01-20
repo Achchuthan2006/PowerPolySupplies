@@ -673,7 +673,7 @@ function getEmailTransporter(){
 
 async function sendEmailSafe(mail){
   const transporter = getEmailTransporter();
-  if(!transporter) return { ok:false, message:"Email not configured." };
+  if(!transporter) return { ok:false, code:"PPS_SMTP_NOT_CONFIGURED", message:"Email not configured." };
   try{
     const timeoutMs = Math.max(5_000, Number(process.env.EMAIL_SEND_TIMEOUT_MS) || 25_000);
     await Promise.race([
@@ -743,7 +743,10 @@ async function sendEmailAny(mail){
   if(smtp.ok) return { ok:true, provider:"smtp" };
 
   const code = String(smtp.code || "");
-  const shouldFallback = code === "PPS_SMTP_SEND_TIMEOUT" || code === "PPS_SMTP_VERIFY_TIMEOUT" || code === "ETIMEDOUT";
+  const shouldFallback = code === "PPS_SMTP_SEND_TIMEOUT"
+    || code === "PPS_SMTP_VERIFY_TIMEOUT"
+    || code === "ETIMEDOUT"
+    || code === "PPS_SMTP_NOT_CONFIGURED";
   if(!shouldFallback) return { ...smtp, provider:"smtp" };
 
   const sg = await sendEmailSendGrid({
@@ -842,7 +845,11 @@ function getSessionFromRequest(req){
 app.get("/api/health",(req,res)=>{
   const supabaseReady = !!supabase;
   const sheetsReady = isSheetsConfigured();
-  const emailConfigured = !!buildTransportConfig();
+  const emailSummary = getEmailConfigSummary();
+  const emailSmtpConfigured = !!buildTransportConfig();
+  const emailSmtpVerified = !!emailVerifyCache.ok;
+  const emailSendgridConfigured = !!emailSummary?.sendgrid?.configured;
+  const emailReady = emailSmtpVerified || emailSendgridConfigured;
   res.json({
     ok:true,
     status:"up",
@@ -859,7 +866,13 @@ app.get("/api/health",(req,res)=>{
       locationIdLength: String(squareLocationId || "").length,
       siteUrlSet: !!siteUrl
     },
-    email: { configured: emailConfigured, verified: emailVerifyCache.ok },
+    email: {
+      ready: emailReady,
+      configured: emailReady,
+      verified: emailSmtpVerified,
+      smtp: { configured: emailSmtpConfigured, verified: emailSmtpVerified },
+      sendgrid: { configured: emailSendgridConfigured }
+    },
     supabase: supabaseReady,
     sheets: sheetsReady
   });
@@ -867,7 +880,22 @@ app.get("/api/health",(req,res)=>{
 
 app.get("/api/email/health", async (req,res)=>{
   const out = await verifyEmailTransporter({ force: true });
-  res.status(out.ok ? 200 : 500).json(out);
+  const sendgridConfigured = !!out?.sendgrid?.configured;
+  const ready = !!out?.verified || sendgridConfigured;
+  const message = ready
+    ? (out?.verified
+      ? "SMTP verified."
+      : (out?.configured ? "SMTP verification failed; SendGrid fallback enabled." : "SMTP not configured; SendGrid enabled."))
+    : String(out?.message || "Email not ready.");
+  const payload = {
+    ...out,
+    ok: ready,
+    ready,
+    message,
+    smtp: { configured: !!out?.configured, verified: !!out?.verified },
+    sendgrid: { configured: sendgridConfigured }
+  };
+  res.status(ready ? 200 : 500).json(payload);
 });
 
 app.get("/api/email/diagnose", async (req,res)=>{
@@ -879,14 +907,22 @@ app.get("/api/email/diagnose", async (req,res)=>{
     }
   }
 
-  const verified = await verifyEmailTransporter({ force: true });
-  if(!verified.ok){
-    return res.status(500).json(verified);
-  }
+  const verification = await verifyEmailTransporter({ force: true });
+  const sendgridConfigured = !!verification?.sendgrid?.configured;
+  const ready = !!verification?.verified || sendgridConfigured;
 
   const to = String(req.query.to || "").trim();
   if(!to){
-    return res.json({ ok:true, ...verified, message:"Verified. Provide ?to=you@example.com to send a test email." });
+    return res.status(200).json({
+      ok: ready,
+      ready,
+      ...verification,
+      smtp: { configured: !!verification?.configured, verified: !!verification?.verified },
+      sendgrid: { configured: sendgridConfigured },
+      message: ready
+        ? "Provide ?to=you@example.com to send a test email."
+        : "Email not ready. Configure SMTP or SendGrid."
+    });
   }
 
   const out = await sendEmailAny({
@@ -897,9 +933,23 @@ app.get("/api/email/diagnose", async (req,res)=>{
   });
 
   if(!out.ok){
-    return res.status(500).json({ ok:false, ...verified, send: out });
+    return res.status(500).json({
+      ok:false,
+      ready,
+      ...verification,
+      smtp: { configured: !!verification?.configured, verified: !!verification?.verified },
+      sendgrid: { configured: sendgridConfigured },
+      send: out
+    });
   }
-  res.json({ ok:true, ...verified, send: out });
+  res.json({
+    ok:true,
+    ready:true,
+    ...verification,
+    smtp: { configured: !!verification?.configured, verified: !!verification?.verified },
+    sendgrid: { configured: sendgridConfigured },
+    send: out
+  });
 });
 
 app.get("/api/square/diagnose", async (req,res)=>{
