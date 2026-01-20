@@ -57,15 +57,26 @@ function readEnvFirst(...names){
   return "";
 }
 
+function readEnvFirstMeta(...names){
+  for(const name of names){
+    const value = readEnvFirst(name);
+    if(value) return { name, value };
+  }
+  return { name: "", value: "" };
+}
+
 function getSquareEnvironment(){
   const valueRaw = String(process.env.SQUARE_ENV || "").trim().toLowerCase();
   if(valueRaw === "sandbox") return SquareEnvironment.Sandbox;
   return SquareEnvironment.Production;
 }
 
-const squareAccessToken = readEnvFirst("SQUARE_ACCESS_TOKEN", "SQUARE_TOKEN", "SQUARE_ACCESS");
-const squareLocationId = readEnvFirst("SQUARE_LOCATION_ID", "SQUARE_LOCATIONID", "SQUARE_LOCATION", "SQUARE_LOC_ID");
-const siteUrl = readEnvFirst("SITE_URL", "FRONTEND_URL", "PUBLIC_SITE_URL");
+const squareAccessTokenMeta = readEnvFirstMeta("SQUARE_ACCESS_TOKEN", "SQUARE_TOKEN", "SQUARE_ACCESS");
+const squareLocationIdMeta = readEnvFirstMeta("SQUARE_LOCATION_ID", "SQUARE_LOCATIONID", "SQUARE_LOCATION", "SQUARE_LOC_ID");
+const siteUrlMeta = readEnvFirstMeta("SITE_URL", "FRONTEND_URL", "PUBLIC_SITE_URL");
+const squareAccessToken = squareAccessTokenMeta.value;
+const squareLocationId = squareLocationIdMeta.value;
+const siteUrl = siteUrlMeta.value;
 const squareEnvRaw = String(process.env.SQUARE_ENV || "").trim().toLowerCase();
 const squareEnvMode = squareEnvRaw === "sandbox" ? "sandbox" : (squareEnvRaw === "production" ? "production" : "auto");
 const squareClientSandbox = squareAccessToken
@@ -682,8 +693,12 @@ app.get("/api/health",(req,res)=>{
       env: squareEnvMode,
       accessTokenSet: !!squareAccessToken,
       accessTokenHint: maskSecret(squareAccessToken),
+      accessTokenVar: squareAccessTokenMeta.name,
+      accessTokenLength: String(squareAccessToken || "").length,
       locationIdSet: !!squareLocationId,
       locationIdHint: maskSecret(squareLocationId),
+      locationIdVar: squareLocationIdMeta.name,
+      locationIdLength: String(squareLocationId || "").length,
       siteUrlSet: !!siteUrl
     },
     email: { configured: emailConfigured },
@@ -713,7 +728,15 @@ app.get("/api/square/diagnose", async (req,res)=>{
       ok: !!(prod.ok || sandbox.ok),
       envMode: squareEnvMode,
       accessTokenHint: maskSecret(squareAccessToken),
+      accessTokenVar: squareAccessTokenMeta.name,
+      accessTokenLength: String(squareAccessToken || "").length,
       locationIdHint: maskSecret(squareLocationId),
+      locationIdVar: squareLocationIdMeta.name,
+      locationIdLength: String(squareLocationId || "").length,
+      expectedBaseUrls: {
+        production: SquareEnvironment.Production,
+        sandbox: SquareEnvironment.Sandbox
+      },
       production: prod,
       sandbox
     });
