@@ -64,7 +64,9 @@ async function checkBackendHealth(){
     const square = data.square || {};
     const email = data.email || {};
     const squareText = square.configured ? `Square: ready (${square.env || "unknown"})` : "Square: not configured";
-    const emailText = email.configured ? "Email: ready" : "Email: not configured";
+    const emailText = email.configured
+      ? (email.verified ? "Email: ready" : "Email: verification failed")
+      : "Email: not configured";
     backendStatus.textContent = `Backend: up | ${squareText} | ${emailText}`;
     backendStatus.style.display = "block";
 

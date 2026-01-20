@@ -607,8 +607,9 @@ function buildVerificationHtml(name, code){
 let emailTransporter = null;
 
 function buildTransportConfig(){
-  const user = process.env.EMAIL_USER || "";
-  const pass = process.env.EMAIL_PASS || "";
+  const user = String(process.env.EMAIL_USER || "").trim();
+  // App passwords are sometimes pasted with spaces; strip whitespace.
+  const pass = String(process.env.EMAIL_PASS || "").replace(/\s+/g, "");
   if(!user || !pass) return null;
 
   const host = (process.env.EMAIL_HOST || "").trim();
@@ -623,16 +624,31 @@ function buildTransportConfig(){
       host,
       port: Number.isFinite(port) && port > 0 ? port : 587,
       secure,
-      auth: { user, pass }
+      auth: { user, pass },
+      connectionTimeout: 10_000,
+      greetingTimeout: 10_000,
+      socketTimeout: 20_000
     };
   }
 
   if(service){
-    return { service, auth: { user, pass } };
+    return {
+      service,
+      auth: { user, pass },
+      connectionTimeout: 10_000,
+      greetingTimeout: 10_000,
+      socketTimeout: 20_000
+    };
   }
 
   // Default (works for Gmail only if you use an App Password)
-  return { service: "gmail", auth: { user, pass } };
+  return {
+    service: "gmail",
+    auth: { user, pass },
+    connectionTimeout: 10_000,
+    greetingTimeout: 10_000,
+    socketTimeout: 20_000
+  };
 }
 
 function getEmailTransporter(){
@@ -647,7 +663,11 @@ async function sendEmailSafe(mail){
   const transporter = getEmailTransporter();
   if(!transporter) return { ok:false, message:"Email not configured." };
   try{
-    await transporter.sendMail(mail);
+    const timeoutMs = 12_000;
+    await Promise.race([
+      transporter.sendMail(mail),
+      new Promise((_, reject)=> setTimeout(()=> reject(Object.assign(new Error("SMTP send timeout"), { code: "PPS_SMTP_SEND_TIMEOUT" })), timeoutMs))
+    ]);
     return { ok:true };
   }catch(err){
     console.error("Email send failed", err);
@@ -656,8 +676,47 @@ async function sendEmailSafe(mail){
       message:"Failed to send email.",
       code: String(err?.code || ""),
       response: String(err?.response || ""),
-      command: String(err?.command || "")
+      command: String(err?.command || ""),
+      errorMessage: String(err?.message || "")
     };
+  }
+}
+
+// ---- Email verification (cached) ----
+let emailVerifyCache = { at: 0, ok: false, error: null };
+
+async function verifyEmailTransporter({ force = false } = {}){
+  const transporter = getEmailTransporter();
+  const summary = getEmailConfigSummary();
+  if(!transporter) return { ok:false, ...summary, verified:false, message:"Email not configured." };
+
+  const ttlMs = 60_000;
+  if(!force && emailVerifyCache.at && (Date.now() - emailVerifyCache.at) < ttlMs){
+    return {
+      ok: emailVerifyCache.ok,
+      ...summary,
+      verified: emailVerifyCache.ok,
+      message: emailVerifyCache.ok ? "Verified." : "Email configured but verification failed.",
+      error: emailVerifyCache.error
+    };
+  }
+
+  try{
+    await Promise.race([
+      transporter.verify(),
+      new Promise((_, reject)=> setTimeout(()=> reject(Object.assign(new Error("SMTP verify timeout"), { code: "PPS_SMTP_VERIFY_TIMEOUT" })), 6_000))
+    ]);
+    emailVerifyCache = { at: Date.now(), ok: true, error: null };
+    return { ok:true, ...summary, verified:true, message:"Verified." };
+  }catch(err){
+    const error = {
+      code: String(err?.code || ""),
+      response: String(err?.response || ""),
+      command: String(err?.command || ""),
+      message: String(err?.message || "")
+    };
+    emailVerifyCache = { at: Date.now(), ok: false, error };
+    return { ok:false, ...summary, verified:false, message:"Email configured but verification failed.", error };
   }
 }
 
@@ -722,22 +781,15 @@ app.get("/api/health",(req,res)=>{
       locationIdLength: String(squareLocationId || "").length,
       siteUrlSet: !!siteUrl
     },
-    email: { configured: emailConfigured },
+    email: { configured: emailConfigured, verified: emailVerifyCache.ok },
     supabase: supabaseReady,
     sheets: sheetsReady
   });
 });
 
 app.get("/api/email/health", async (req,res)=>{
-  const transporter = getEmailTransporter();
-  if(!transporter) return res.json({ ok:false, configured:false, message:"Email not configured." });
-  try{
-    await transporter.verify();
-    res.json({ ok:true, ...getEmailConfigSummary() });
-  }catch(err){
-    console.error("Email verify failed", err);
-    res.status(500).json({ ok:false, configured:true, message:"Email configured but verification failed." });
-  }
+  const out = await verifyEmailTransporter({ force: true });
+  res.status(out.ok ? 200 : 500).json(out);
 });
 
 app.get("/api/email/diagnose", async (req,res)=>{
