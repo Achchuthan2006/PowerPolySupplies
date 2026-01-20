@@ -415,6 +415,7 @@ function buildReceiptHtml({
   taxLabel,
   headerText,
   introText,
+  logoUrl,
   logoCid,
   logoExists,
   language
@@ -471,6 +472,11 @@ function buildReceiptHtml({
     `;
   }).join("");
 
+  const safeLogoUrl = String(logoUrl || "").trim();
+  const logoHtml = safeLogoUrl
+    ? `<img src="${escapeHtml(safeLogoUrl)}" alt="${escapeHtml(COMPANY_NAME)} logo" style="height:48px; max-width:160px; object-fit:contain;"/>`
+    : (logoExists ? `<img src="cid:${logoCid}" alt="${escapeHtml(COMPANY_NAME)} logo" style="height:48px; max-width:160px; object-fit:contain;"/>` : "");
+
   return `
     <div style="font-family:Arial,sans-serif; color:#1f2933; max-width:680px; margin:0 auto; line-height:1.5;">
       <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; border-bottom:2px solid #e5e7eb; padding-bottom:16px; margin-bottom:16px;">
@@ -478,7 +484,7 @@ function buildReceiptHtml({
           <div style="font-size:20px; font-weight:700;">${COMPANY_NAME}</div>
           <div style="font-size:13px; color:#6b7280;">${COMPANY_SLOGAN}</div>
         </div>
-        ${logoExists ? `<img src="cid:${logoCid}" alt="${COMPANY_NAME} logo" style="height:48px;"/>` : ""}
+        ${logoHtml}
       </div>
       <h2 style="margin:0 0 8px;">${escapeHtml(headerText)}</h2>
       <p style="margin:0 0 16px;">${escapeHtml(introText)}</p>
@@ -520,6 +526,13 @@ function buildReceiptHtml({
       </div>
     </div>
   `;
+}
+
+function getPublicLogoUrl(){
+  const base = String(siteUrl || "").trim().replace(/\/+$/, "");
+  if(!base) return "";
+  const filename = path.basename(COMPANY_LOGO_PATH || "logo.jpg");
+  return `${base}/assets/${encodeURIComponent(filename)}`;
 }
 
 function getSenderAddress(){
@@ -711,6 +724,7 @@ async function sendEmailSendGrid({ from, to, subject, html, text }){
   const payload = {
     personalizations: [{ to: [{ email: toEmail }] }],
     from: { email: senderEmail, name: senderName || COMPANY_NAME },
+    reply_to: { email: senderEmail, name: senderName || COMPANY_NAME },
     subject: String(subject || ""),
     content: [
       { type: "text/plain", value: String(text || "").trim() || " " },
@@ -1316,6 +1330,7 @@ app.post("/api/order", async (req,res)=>{
         taxLabel: taxLabelNow,
         headerText,
         introText,
+        logoUrl: getPublicLogoUrl(),
         logoCid: "pps-logo",
         logoExists: logoExistsNow,
         language: customer?.language
@@ -1453,6 +1468,7 @@ app.post("/api/order", async (req,res)=>{
           taxLabel,
           headerText,
           introText,
+          logoUrl: getPublicLogoUrl(),
           logoCid: "pps-logo",
           logoExists,
           language: customer?.language
@@ -1481,6 +1497,7 @@ app.post("/api/order", async (req,res)=>{
             taxLabel,
             headerText: "New Order",
             introText: "A new order has been placed on Power Poly Supplies.",
+            logoUrl: getPublicLogoUrl(),
             logoCid: "pps-logo",
             logoExists,
             language: customer?.language
@@ -2113,6 +2130,7 @@ async function handlePaymentStatus(req,res){
           taxLabel,
           headerText,
           introText,
+          logoUrl: getPublicLogoUrl(),
           logoCid: "pps-logo",
           logoExists,
           language: lang
