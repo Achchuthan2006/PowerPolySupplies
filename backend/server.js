@@ -719,20 +719,28 @@ async function sendEmailSendGrid({ from, to, subject, html, text }){
   };
 
   try{
+    const timeoutMs = Math.max(2_000, Number(process.env.SENDGRID_TIMEOUT_MS) || 8_000);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(()=> controller.abort(), timeoutMs);
     const res = await fetch("https://api.sendgrid.com/v3/mail/send",{
       method:"POST",
       headers:{
         "Authorization": `Bearer ${apiKey}`,
         "Content-Type":"application/json"
       },
+      signal: controller.signal,
       body: JSON.stringify(payload)
     });
+    clearTimeout(timeoutId);
     if(res.status >= 200 && res.status < 300){
       return { ok:true };
     }
     const body = await res.text().catch(()=> "");
     return { ok:false, message:"SendGrid send failed.", status: res.status, response: body.slice(0, 2000) };
   }catch(err){
+    if(err?.name === "AbortError"){
+      return { ok:false, code:"PPS_SENDGRID_TIMEOUT", message:"SendGrid send timed out." };
+    }
     return { ok:false, message:"SendGrid send failed.", errorMessage: String(err?.message || "") };
   }
 }
@@ -1241,12 +1249,7 @@ app.post("/api/order", async (req,res)=>{
       created_at: new Date().toISOString()
     };
 
-    if(productUpdates.length){
-      for(const update of productUpdates){
-        const { error } = await supabase.from("products").update({ stock: update.stock }).eq("id", update.id);
-        if(error) throw error;
-      }
-    }
+    // Stock updates can be slow; apply them in the background after responding.
     const { error: orderError } = await supabase.from("orders").insert(order);
     if(orderError) throw orderError;
 
@@ -1286,6 +1289,8 @@ app.post("/api/order", async (req,res)=>{
     }] : [];
 
     let receiptEmailSent = false;
+    let receiptEmailProvider = "";
+    let receiptEmailError = null;
     if(emailReady){
       const lang = String(customer?.language || "en").toLowerCase();
       const headerText = lang === "fr" ? "Reçu" : (lang === "es" ? "Recibo" : "Receipt");
@@ -1316,24 +1321,40 @@ app.post("/api/order", async (req,res)=>{
         language: customer?.language
       });
 
-      // Don't block the API response on email provider latency; send in the background.
-      receiptEmailSent = true;
-      (async ()=>{
-        const customerSend = await sendEmailAny({
+      // If SendGrid is configured (and SMTP isn't verified), send immediately for best UX.
+      if(emailSendgridConfigured && !emailVerifyCache.ok){
+        const out = await sendEmailSendGrid({
           from: getSenderAddress(),
           to: customer.email,
           subject: subjectText,
-          html: receiptHtml,
-          attachments: attachmentsNow
+          html: receiptHtml
         });
-        if(!customerSend.ok) console.error("Customer receipt email failed", customerSend);
-      })().catch((err)=> console.error("Customer receipt email failed", err));
+        receiptEmailProvider = "sendgrid";
+        receiptEmailSent = !!out.ok;
+        if(!out.ok) receiptEmailError = out;
+      }else{
+        // Otherwise, queue in background.
+        receiptEmailProvider = "queued";
+        receiptEmailSent = true;
+        (async ()=>{
+          const customerSend = await sendEmailAny({
+            from: getSenderAddress(),
+            to: customer.email,
+            subject: subjectText,
+            html: receiptHtml,
+            attachments: attachmentsNow
+          });
+          if(!customerSend.ok) console.error("Customer receipt email failed", customerSend);
+        })().catch((err)=> console.error("Customer receipt email failed", err));
+      }
     }
 
     res.json({
       ok:true,
       orderId,
       receiptEmailQueued: receiptEmailSent,
+      receiptEmailProvider,
+      receiptEmailError,
       email: {
         ready: emailReady,
         smtp: { configured: emailSmtpConfigured, verified: !!emailVerifyCache.ok },
@@ -1343,6 +1364,13 @@ app.post("/api/order", async (req,res)=>{
 
     // Run slower tasks in background so checkout returns fast.
     (async ()=>{
+      if(productUpdates.length){
+        for(const update of productUpdates){
+          const { error } = await supabase.from("products").update({ stock: update.stock }).eq("id", update.id);
+          if(error) console.error("Supabase stock update failed", error);
+        }
+      }
+
       if(isSheetsConfigured()){
         try{
           const latestProducts = await fetchProducts();
