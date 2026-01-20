@@ -13,7 +13,10 @@ const SquareClient = squarePkg.SquareClient || squarePkg.Client;
 const SquareEnvironment = squarePkg.SquareEnvironment || squarePkg.Environment;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.join(__dirname, ".env") });
+// In Render (and other hosted environments), rely on platform env vars instead of a checked-in `.env`.
+if(!process.env.RENDER){
+  dotenv.config({ path: path.join(__dirname, ".env") });
+}
 
 const app = express();
 app.use(cors());
@@ -37,7 +40,14 @@ const HOST = process.env.HOST || "0.0.0.0";
 
 function readEnvFirst(...names){
   for(const name of names){
-    const value = String(process.env[name] || "").trim();
+    let value = String(process.env[name] || "").trim();
+    // Strip wrapping quotes (common copy/paste mistake in dashboards).
+    if(
+      (value.startsWith("\"") && value.endsWith("\"")) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ){
+      value = value.slice(1, -1).trim();
+    }
     if(value) return value;
   }
   return "";
