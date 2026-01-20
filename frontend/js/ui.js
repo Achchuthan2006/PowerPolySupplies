@@ -117,6 +117,102 @@ function injectLangSwitcher(){
   }
 }
 
+function shouldPromptForLanguage(){
+  try{
+    const urlLang = new URLSearchParams(window.location.search).get("lang");
+    if(urlLang) return false;
+  }catch(err){
+    // ignore
+  }
+  try{
+    if(localStorage.getItem("pps_lang")) return false;
+    if(localStorage.getItem("pps_lang_prompt_dismissed")) return false;
+  }catch(err){
+    // ignore
+  }
+  // Cookie is set when a language has been chosen.
+  if(document.cookie && document.cookie.includes("pps_lang=")) return false;
+  return true;
+}
+
+function showLanguageModal(){
+  const existing = document.getElementById("ppsLangModal");
+  if(existing) return;
+
+  const overlay = document.createElement("div");
+  overlay.className = "pps-modal-overlay";
+  overlay.id = "ppsLangModal";
+  overlay.innerHTML = `
+    <div class="pps-modal" role="dialog" aria-modal="true" aria-labelledby="ppsLangTitle">
+      <div class="pps-modal-header">
+        <div>
+          <h2 class="pps-modal-title" id="ppsLangTitle">${window.PPS_I18N?.t("lang.prompt.title") || "Choose your language"}</h2>
+          <p class="pps-modal-subtitle">${window.PPS_I18N?.t("lang.prompt.subtitle") || "Select the language that’s easiest for you. You can change it anytime from the top menu."}</p>
+        </div>
+        <button class="pps-modal-close" type="button" aria-label="${window.PPS_I18N?.t("lang.prompt.close") || "Close"}">×</button>
+      </div>
+      <div class="pps-modal-body">
+        <div class="pps-modal-row">
+          <select class="input" id="ppsLangModalSelect" aria-label="${window.PPS_I18N?.t("lang.label") || "Language"}" style="flex:1; min-width:220px;">
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+            <option value="es">Español</option>
+            <option value="ko">한국어</option>
+            <option value="hi">हिन्दी</option>
+            <option value="ta">தமிழ்</option>
+          </select>
+        </div>
+        <div class="pps-modal-actions">
+          <button class="btn btn-outline" type="button" id="ppsLangModalLater">${window.PPS_I18N?.t("lang.prompt.later") || "Not now"}</button>
+          <button class="btn btn-primary" type="button" id="ppsLangModalContinue">${window.PPS_I18N?.t("lang.prompt.continue") || "Continue"}</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const close = ()=>{
+    try{ localStorage.setItem("pps_lang_prompt_dismissed", "1"); }catch(err){}
+    overlay.classList.remove("open");
+    setTimeout(()=> overlay.remove(), 180);
+  };
+
+  const modal = overlay.querySelector(".pps-modal");
+  const closeBtn = overlay.querySelector(".pps-modal-close");
+  const laterBtn = overlay.querySelector("#ppsLangModalLater");
+  const continueBtn = overlay.querySelector("#ppsLangModalContinue");
+  const select = overlay.querySelector("#ppsLangModalSelect");
+
+  const current = window.PPS_I18N?.getLang?.() || "en";
+  if(select) select.value = current;
+
+  overlay.addEventListener("click", (e)=>{
+    if(!(e.target instanceof Node)) return;
+    if(modal && modal.contains(e.target)) return;
+    close();
+  });
+  closeBtn?.addEventListener("click", close);
+  laterBtn?.addEventListener("click", close);
+  continueBtn?.addEventListener("click", ()=>{
+    const lang = select?.value || "en";
+    try{ localStorage.setItem("pps_lang_prompt_dismissed", "1"); }catch(err){}
+    window.PPS_I18N?.setLang?.(lang);
+  });
+
+  // basic focus
+  overlay.classList.add("open");
+  setTimeout(()=> select?.focus?.(), 50);
+};
+
+function scheduleLanguagePrompt(){
+  if(!shouldPromptForLanguage()) return;
+  // Give the page a second to render so it feels smooth.
+  setTimeout(()=>{
+    if(!shouldPromptForLanguage()) return;
+    showLanguageModal();
+  }, 2500);
+}
+
 function injectCurrencySwitcher(){
   const navLinks = document.getElementById("navLinks");
   if(!navLinks || !window.PPS?.getCurrency) return;
@@ -590,6 +686,7 @@ window.addEventListener("DOMContentLoaded", ()=>{
   setupSearch();
   injectFooter();
   injectHelpWidget();
+  scheduleLanguagePrompt();
 });
 
 // Expose to pages that render footers dynamically after load

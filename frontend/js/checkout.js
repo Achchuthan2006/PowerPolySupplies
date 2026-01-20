@@ -570,11 +570,15 @@ document.getElementById("payOnline").addEventListener("click", async ()=>{
       let lastError = null;
       for(const url of endpoints){
         try{
+          const controller = new AbortController();
+          const timeoutId = setTimeout(()=> controller.abort(), 20000);
           const res = await fetch(url, {
             method:"POST",
             headers:{ "Content-Type":"application/json" },
-            body: payload
+            body: payload,
+            signal: controller.signal
           });
+          clearTimeout(timeoutId);
           // If the route exists but fails (400/500), return it so we can show message.
           if(res.status !== 404) return { res, url };
         }catch(err){
@@ -600,7 +604,10 @@ document.getElementById("payOnline").addEventListener("click", async ()=>{
       setStatus(msg, data?.message || fallback, "error");
     }
   }catch(err){
-    setStatus(msg, window.PPS_I18N?.t("checkout.status.unreachable") || "Server unreachable. Please try again.", "error");
+    const message = err?.name === "AbortError"
+      ? "Square request timed out. Please try again."
+      : (window.PPS_I18N?.t("checkout.status.unreachable") || "Server unreachable. Please try again.");
+    setStatus(msg, message, "error");
   }finally{
     setPending(payBtn, false);
     setPending(submitBtn, false);
