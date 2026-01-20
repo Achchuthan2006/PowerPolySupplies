@@ -914,11 +914,11 @@ app.get("/api/email/diagnose", async (req,res)=>{
   const to = String(req.query.to || "").trim();
   if(!to){
     return res.status(200).json({
-      ok: ready,
       ready,
       ...verification,
       smtp: { configured: !!verification?.configured, verified: !!verification?.verified },
       sendgrid: { configured: sendgridConfigured },
+      ok: ready,
       message: ready
         ? "Provide ?to=you@example.com to send a test email."
         : "Email not ready. Configure SMTP or SendGrid."
@@ -934,20 +934,20 @@ app.get("/api/email/diagnose", async (req,res)=>{
 
   if(!out.ok){
     return res.status(500).json({
-      ok:false,
       ready,
       ...verification,
       smtp: { configured: !!verification?.configured, verified: !!verification?.verified },
       sendgrid: { configured: sendgridConfigured },
+      ok:false,
       send: out
     });
   }
   res.json({
-    ok:true,
     ready:true,
     ...verification,
     smtp: { configured: !!verification?.configured, verified: !!verification?.verified },
     sendgrid: { configured: sendgridConfigured },
+    ok:true,
     send: out
   });
 });
