@@ -62,20 +62,11 @@ const squareClientProduction = squareAccessToken
   : null;
 
 function getSquareClientCandidates(){
-  // Always keep both clients available as a fallback, even when SQUARE_ENV is set.
-  // This prevents misconfiguration (e.g. production env + sandbox token) from hard-failing checkout.
+  // In explicit modes, do not fall back to the other environment; it produces confusing results.
+  if(squareEnvMode === "production") return squareClientProduction ? [squareClientProduction] : [];
+  if(squareEnvMode === "sandbox") return squareClientSandbox ? [squareClientSandbox] : [];
+  // auto: try sandbox first, then production
   const out = [];
-  if(squareEnvMode === "production"){
-    if(squareClientProduction) out.push(squareClientProduction);
-    if(squareClientSandbox) out.push(squareClientSandbox);
-    return out;
-  }
-  if(squareEnvMode === "sandbox"){
-    if(squareClientSandbox) out.push(squareClientSandbox);
-    if(squareClientProduction) out.push(squareClientProduction);
-    return out;
-  }
-  // auto: try sandbox first, then production (common during setup)
   if(squareClientSandbox) out.push(squareClientSandbox);
   if(squareClientProduction) out.push(squareClientProduction);
   return out;
@@ -115,6 +106,36 @@ async function withSquareClient(fn){
     }
   }
   throw lastErr || new Error("Square request failed.");
+}
+
+function maskSecret(value){
+  const text = String(value || "").trim();
+  if(!text) return "";
+  if(text.length <= 10) return `${text.slice(0,2)}…${text.slice(-2)}`;
+  return `${text.slice(0,6)}…${text.slice(-4)}`;
+}
+
+async function squareTest(client, label){
+  if(!client) return { ok:false, label, skipped:true };
+  try{
+    const result = await client.locations.list();
+    const locations = Array.isArray(result?.locations) ? result.locations : [];
+    return {
+      ok:true,
+      label,
+      locations: locations.map((l)=>({ id: l.id || "", name: l.name || "", status: l.status || "" }))
+    };
+  }catch(err){
+    const summary = summarizeSquareError(err);
+    return {
+      ok:false,
+      label,
+      statusCode: summary.statusCode,
+      message: summary.message,
+      errors: summary.errors,
+      requestId: summary.requestId
+    };
+  }
 }
 
 // ---- DB helpers ----
@@ -644,7 +665,9 @@ app.get("/api/health",(req,res)=>{
       configured: !!((squareClientSandbox || squareClientProduction) && squareLocationId && siteUrl),
       env: squareEnvMode,
       accessTokenSet: !!squareAccessToken,
+      accessTokenHint: maskSecret(squareAccessToken),
       locationIdSet: !!squareLocationId,
+      locationIdHint: maskSecret(squareLocationId),
       siteUrlSet: !!siteUrl
     },
     email: { configured: emailConfigured },
@@ -668,16 +691,15 @@ app.get("/api/email/health", async (req,res)=>{
 app.get("/api/square/diagnose", async (req,res)=>{
   if(!requireSquareConfigured(res)) return;
   try{
-    const result = await withSquareClient((client)=> client.locations.list());
-    const locations = Array.isArray(result?.locations) ? result.locations : [];
+    const prod = await squareTest(squareClientProduction, "production");
+    const sandbox = await squareTest(squareClientSandbox, "sandbox");
     res.json({
-      ok:true,
+      ok: !!(prod.ok || sandbox.ok),
       envMode: squareEnvMode,
-      locations: locations.map((l)=>({
-        id: l.id || "",
-        name: l.name || "",
-        status: l.status || ""
-      }))
+      accessTokenHint: maskSecret(squareAccessToken),
+      locationIdHint: maskSecret(squareLocationId),
+      production: prod,
+      sandbox
     });
   }catch(err){
     const summary = summarizeSquareError(err);
