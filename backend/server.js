@@ -618,6 +618,11 @@ function buildTransportConfig(){
   const secureEnv = String(process.env.EMAIL_SECURE || "").trim().toLowerCase();
   const secure = secureEnv === "true" || secureEnv === "1" || port === 465;
   const service = (process.env.EMAIL_SERVICE || "").trim();
+  const servername = host || (service === "gmail" ? "smtp.gmail.com" : "");
+  const tls = servername ? { servername } : undefined;
+  const connectionTimeout = 20_000;
+  const greetingTimeout = 20_000;
+  const socketTimeout = 60_000;
 
   if(host){
     return {
@@ -625,9 +630,10 @@ function buildTransportConfig(){
       port: Number.isFinite(port) && port > 0 ? port : 587,
       secure,
       auth: { user, pass },
-      connectionTimeout: 10_000,
-      greetingTimeout: 10_000,
-      socketTimeout: 20_000
+      connectionTimeout,
+      greetingTimeout,
+      socketTimeout,
+      tls
     };
   }
 
@@ -635,9 +641,10 @@ function buildTransportConfig(){
     return {
       service,
       auth: { user, pass },
-      connectionTimeout: 10_000,
-      greetingTimeout: 10_000,
-      socketTimeout: 20_000
+      connectionTimeout,
+      greetingTimeout,
+      socketTimeout,
+      tls
     };
   }
 
@@ -645,9 +652,10 @@ function buildTransportConfig(){
   return {
     service: "gmail",
     auth: { user, pass },
-    connectionTimeout: 10_000,
-    greetingTimeout: 10_000,
-    socketTimeout: 20_000
+    connectionTimeout,
+    greetingTimeout,
+    socketTimeout,
+    tls: { servername: "smtp.gmail.com" }
   };
 }
 
@@ -663,7 +671,7 @@ async function sendEmailSafe(mail){
   const transporter = getEmailTransporter();
   if(!transporter) return { ok:false, message:"Email not configured." };
   try{
-    const timeoutMs = 12_000;
+    const timeoutMs = Math.max(5_000, Number(process.env.EMAIL_SEND_TIMEOUT_MS) || 25_000);
     await Promise.race([
       transporter.sendMail(mail),
       new Promise((_, reject)=> setTimeout(()=> reject(Object.assign(new Error("SMTP send timeout"), { code: "PPS_SMTP_SEND_TIMEOUT" })), timeoutMs))
@@ -704,7 +712,10 @@ async function verifyEmailTransporter({ force = false } = {}){
   try{
     await Promise.race([
       transporter.verify(),
-      new Promise((_, reject)=> setTimeout(()=> reject(Object.assign(new Error("SMTP verify timeout"), { code: "PPS_SMTP_VERIFY_TIMEOUT" })), 6_000))
+      new Promise((_, reject)=> setTimeout(
+        ()=> reject(Object.assign(new Error("SMTP verify timeout"), { code: "PPS_SMTP_VERIFY_TIMEOUT" })),
+        Math.max(5_000, Number(process.env.EMAIL_VERIFY_TIMEOUT_MS) || 25_000)
+      ))
     ]);
     emailVerifyCache = { at: Date.now(), ok: true, error: null };
     return { ok:true, ...summary, verified:true, message:"Verified." };
