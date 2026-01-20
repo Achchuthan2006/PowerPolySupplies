@@ -49,6 +49,36 @@ const formEl = document.getElementById("form");
 const provinceSelect = document.getElementById("province");
 const postalInput = document.getElementById("postal");
 
+async function checkBackendHealth(){
+  if(!backendStatus) return;
+  const base = String(PPS.API_BASE || "").trim().replace(/\/+$/,"");
+  if(!base) return;
+  try{
+    const controller = new AbortController();
+    const timeoutId = setTimeout(()=> controller.abort(), 4500);
+    const res = await fetch(`${base}/api/health`, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    const data = await res.json().catch(()=> ({}));
+    if(!res.ok || !data?.ok) throw new Error("Health check failed");
+
+    const square = data.square || {};
+    const email = data.email || {};
+    const squareText = square.configured ? `Square: ready (${square.env || "unknown"})` : "Square: not configured";
+    const emailText = email.configured ? "Email: ready" : "Email: not configured";
+    backendStatus.textContent = `Backend: up | ${squareText} | ${emailText}`;
+    backendStatus.style.display = "block";
+
+    if(!square.configured && payBtn){
+      setPending(payBtn, true);
+    }
+  }catch(err){
+    // Keep hidden if backend is unreachable from this frontend.
+    backendStatus.style.display = "none";
+  }
+}
+
+checkBackendHealth();
+
 function getUnitBasePrice(item){
   const product = productMap?.get(item.id);
   if(product){

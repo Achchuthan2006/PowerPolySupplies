@@ -19,6 +19,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Serve the static frontend when deployed together (optional).
+const FRONTEND_DIR = path.join(__dirname, "../frontend");
+const FRONTEND_INDEX = path.join(FRONTEND_DIR, "index.html");
+const HAS_FRONTEND = fs.existsSync(FRONTEND_INDEX);
+if(HAS_FRONTEND){
+  // Disable automatic index so we can customize "/" behavior.
+  app.use(express.static(FRONTEND_DIR, { index: false, extensions: ["html"] }));
+}
+
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
@@ -35,16 +44,67 @@ function readEnvFirst(...names){
 }
 
 function getSquareEnvironment(){
-  const value = String(process.env.SQUARE_ENV || "production").toLowerCase();
-  return value === "sandbox" ? SquareEnvironment.Sandbox : SquareEnvironment.Production;
+  const valueRaw = String(process.env.SQUARE_ENV || "").trim().toLowerCase();
+  if(valueRaw === "sandbox") return SquareEnvironment.Sandbox;
+  return SquareEnvironment.Production;
 }
 
 const squareAccessToken = readEnvFirst("SQUARE_ACCESS_TOKEN", "SQUARE_TOKEN", "SQUARE_ACCESS");
 const squareLocationId = readEnvFirst("SQUARE_LOCATION_ID", "SQUARE_LOCATIONID", "SQUARE_LOCATION", "SQUARE_LOC_ID");
 const siteUrl = readEnvFirst("SITE_URL", "FRONTEND_URL", "PUBLIC_SITE_URL");
-const squareClient = squareAccessToken
-  ? new SquareClient({ accessToken: squareAccessToken, environment: getSquareEnvironment() })
+const squareEnvRaw = String(process.env.SQUARE_ENV || "").trim().toLowerCase();
+const squareEnvMode = squareEnvRaw === "sandbox" ? "sandbox" : (squareEnvRaw === "production" ? "production" : "auto");
+const squareClientSandbox = squareAccessToken
+  ? new SquareClient({ accessToken: squareAccessToken, environment: SquareEnvironment.Sandbox })
   : null;
+const squareClientProduction = squareAccessToken
+  ? new SquareClient({ accessToken: squareAccessToken, environment: SquareEnvironment.Production })
+  : null;
+
+function getSquareClientCandidates(){
+  if(squareEnvMode === "sandbox") return squareClientSandbox ? [squareClientSandbox] : [];
+  if(squareEnvMode === "production") return squareClientProduction ? [squareClientProduction] : [];
+  const out = [];
+  if(squareClientSandbox) out.push(squareClientSandbox);
+  if(squareClientProduction) out.push(squareClientProduction);
+  return out;
+}
+
+function isSquareAuthError(err){
+  const status = Number(err?.statusCode || err?.status || err?.httpStatusCode || 0);
+  if(status === 401) return true;
+  const body = err?.body || err?.result || err?.data || err?.responseBody || null;
+  const errors = Array.isArray(body?.errors)
+    ? body.errors
+    : Array.isArray(err?.errors)
+      ? err.errors
+      : [];
+  return errors.some((e)=> {
+    const category = String(e?.category || "").toUpperCase();
+    const code = String(e?.code || "").toUpperCase();
+    return category === "AUTHENTICATION_ERROR" || code === "UNAUTHORIZED";
+  });
+}
+
+async function withSquareClient(fn){
+  const candidates = getSquareClientCandidates();
+  if(!candidates.length){
+    const error = new Error("Square client not configured.");
+    error.statusCode = 400;
+    throw error;
+  }
+  let lastErr = null;
+  for(let i = 0; i < candidates.length; i++){
+    const client = candidates[i];
+    try{
+      return await fn(client);
+    }catch(err){
+      lastErr = err;
+      if(!isSquareAuthError(err) || i === candidates.length - 1) throw err;
+    }
+  }
+  throw lastErr || new Error("Square request failed.");
+}
 
 // ---- DB helpers ----
 const DB_PATH = path.join(__dirname, "db.json");
@@ -54,6 +114,13 @@ const COMPANY_EMAIL = process.env.COMPANY_EMAIL || process.env.EMAIL_USER || "";
 const COMPANY_ADDRESS = process.env.COMPANY_ADDRESS || "";
 const COMPANY_LOGO_PATH = process.env.COMPANY_LOGO_PATH
   || path.join(__dirname, "../frontend/assets/logo.jpg");
+
+app.get("/", (req,res)=>{
+  if(HAS_FRONTEND){
+    return res.sendFile(FRONTEND_INDEX);
+  }
+  res.status(200).send("OK. Try /api/health");
+});
 
 function readDB(){
   try{
@@ -563,8 +630,8 @@ app.get("/api/health",(req,res)=>{
     ok:true,
     status:"up",
     square: {
-      configured: !!(squareClient && squareLocationId && siteUrl),
-      env: String(process.env.SQUARE_ENV || "production").toLowerCase() === "sandbox" ? "sandbox" : "production",
+      configured: !!((squareClientSandbox || squareClientProduction) && squareLocationId && siteUrl),
+      env: squareEnvMode,
       accessTokenSet: !!squareAccessToken,
       locationIdSet: !!squareLocationId,
       siteUrlSet: !!siteUrl
@@ -819,7 +886,9 @@ app.post("/api/order", async (req,res)=>{
       items: normalizedItems,
       total_cents: totalCentsComputed,
       currency,
-      language: customer?.language === "fr" ? "fr" : (customer?.language === "ko" ? "ko" : "en"),
+      language: ["en","fr","ko","hi","ta","es"].includes(String(customer?.language || "").toLowerCase())
+        ? String(customer.language).toLowerCase()
+        : "en",
       created_at: new Date().toISOString()
     };
 
@@ -854,7 +923,59 @@ app.post("/api/order", async (req,res)=>{
     const { error: deliveryError } = await supabase.from("deliveries").insert(delivery);
     if(deliveryError) throw deliveryError;
 
-    res.json({ ok:true, orderId });
+    const emailConfigured = !!buildTransportConfig();
+    const taxCentsNow = taxData.taxCents;
+    const taxLabelNow = `${PROVINCE_TAX_LABELS[customer?.province] || "Tax"}${customer?.province ? ` - ${customer.province}` : ""}`;
+    const logoExistsNow = fs.existsSync(COMPANY_LOGO_PATH);
+    const attachmentsNow = logoExistsNow ? [{
+      filename: path.basename(COMPANY_LOGO_PATH),
+      path: COMPANY_LOGO_PATH,
+      cid: "pps-logo"
+    }] : [];
+
+    let receiptEmailSent = false;
+    if(emailConfigured){
+      const lang = String(customer?.language || "en").toLowerCase();
+      const headerText = lang === "fr" ? "Reçu" : (lang === "es" ? "Recibo" : "Receipt");
+      const introText = lang === "fr"
+        ? "Merci pour votre commande chez Power Poly Supplies. Nous la préparons avec soin. Voici votre reçu."
+        : lang === "es"
+          ? "Gracias por tu pedido en Power Poly Supplies. Ya estamos preparando tu pedido. Aquí está tu recibo."
+          : "Thanks for choosing Power Poly Supplies. We are getting your order ready now. Here is your receipt.";
+      const subjectText = lang === "fr"
+        ? `Merci pour votre commande ! Power Poly Supplies - ${orderId}`
+        : lang === "es"
+          ? `¡Gracias por tu pedido! Recibo de Power Poly Supplies - ${orderId}`
+          : `Thanks for your order! Power Poly Supplies receipt - ${orderId}`;
+
+      const receiptHtml = buildReceiptHtml({
+        orderId,
+        customer,
+        items: normalizedItems,
+        subtotalCents,
+        taxCents: taxCentsNow,
+        totalCents: totalCentsComputed,
+        currency,
+        taxLabel: taxLabelNow,
+        headerText,
+        introText,
+        logoCid: "pps-logo",
+        logoExists: logoExistsNow,
+        language: customer?.language
+      });
+
+      const customerSend = await sendEmailSafe({
+        from: getSenderAddress(),
+        to: customer.email,
+        subject: subjectText,
+        html: receiptHtml,
+        attachments: attachmentsNow
+      });
+      receiptEmailSent = !!customerSend.ok;
+      if(!customerSend.ok) console.error("Customer receipt email failed", customerSend.message);
+    }
+
+    res.json({ ok:true, orderId, receiptEmailSent, emailConfigured });
 
     // Run slower tasks in background so checkout returns fast.
     (async ()=>{
@@ -944,14 +1065,16 @@ app.post("/api/order", async (req,res)=>{
           language: customer?.language
         });
 
-        const customerSend = await sendEmailSafe({
-          from: getSenderAddress(),
-          to: customer.email,
-          subject: subjectText,
-          html: receiptHtml,
-          attachments
-        });
-        if(!customerSend.ok) console.error("Customer receipt email failed", customerSend.message);
+        if(!receiptEmailSent){
+          const customerSend = await sendEmailSafe({
+            from: getSenderAddress(),
+            to: customer.email,
+            subject: subjectText,
+            html: receiptHtml,
+            attachments
+          });
+          if(!customerSend.ok) console.error("Customer receipt email failed", customerSend.message);
+        }
 
         if(adminEmail){
           const adminHtml = buildReceiptHtml({
@@ -1376,7 +1499,7 @@ async function createSquarePaymentAndOrder(body){
     basePriceMoney: { amount: BigInt(i.priceCents), currency: i.currency }
   }));
 
-  const result = await squareClient.checkout.paymentLinks.create({
+  const result = await withSquareClient((client)=> client.checkout.paymentLinks.create({
     idempotencyKey,
     order: {
       locationId: squareLocationId,
@@ -1386,7 +1509,7 @@ async function createSquarePaymentAndOrder(body){
     checkoutOptions: {
       redirectUrl
     }
-  });
+  }));
 
   const paymentUrl = result?.paymentLink?.url;
   if(!paymentUrl){
@@ -1425,7 +1548,7 @@ async function createSquarePaymentAndOrder(body){
 }
 
 function requireSquareConfigured(res){
-  if(!squareClient || !squareLocationId){
+  if(!(squareClientSandbox || squareClientProduction) || !squareLocationId){
     const missing = [];
     if(!squareAccessToken) missing.push("SQUARE_ACCESS_TOKEN");
     if(!squareLocationId) missing.push("SQUARE_LOCATION_ID");
@@ -1483,9 +1606,12 @@ async function handleCreatePayment(req,res){
   }catch(err){
     console.error("Square create-payment error", err);
     const summary = summarizeSquareError(err);
+    const hint = isSquareAuthError(err)
+      ? ` Check your Square token + environment (SQUARE_ACCESS_TOKEN, SQUARE_LOCATION_ID, SQUARE_ENV). Current SQUARE_ENV mode: ${squareEnvMode}.`
+      : "";
     res.status(summary.statusCode).json({
       ok:false,
-      message: summary.message,
+      message: `${summary.message}${hint}`,
       errors: summary.errors,
       requestId: summary.requestId
     });
@@ -1512,7 +1638,7 @@ async function handlePaymentStatus(req,res){
       return res.json({ ok:true, orderId, status: orderRow.status || "pending" });
     }
 
-    const result = await squareClient.orders.get({ orderId: squareOrderId });
+    const result = await withSquareClient((client)=> client.orders.get({ orderId: squareOrderId }));
     const state = String(result?.order?.state || "").toUpperCase();
 
     let status = orderRow.status || "pending";
