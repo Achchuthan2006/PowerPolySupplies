@@ -738,6 +738,24 @@ async function sendEmailSendGrid({ from, to, subject, html, text }){
 }
 
 async function sendEmailAny(mail){
+  const summary = getEmailConfigSummary();
+  const sendgridConfigured = !!summary?.sendgrid?.configured;
+  const smtpVerified = !!emailVerifyCache.ok;
+
+  // When SMTP is present but blocked (common on hosted platforms), skip waiting for SMTP timeouts.
+  // If SendGrid is configured and SMTP isn't verified, prefer SendGrid immediately.
+  if(sendgridConfigured && !smtpVerified){
+    const sg = await sendEmailSendGrid({
+      from: mail.from,
+      to: mail.to,
+      subject: mail.subject,
+      html: mail.html,
+      text: mail.text
+    });
+    if(sg.ok) return { ok:true, provider:"sendgrid" };
+    return { ok:false, provider:"sendgrid", sendgrid: sg };
+  }
+
   // Prefer SMTP if it works; fall back to SendGrid API when SMTP is blocked/times out.
   const smtp = await sendEmailSafe(mail);
   if(smtp.ok) return { ok:true, provider:"smtp" };
@@ -1254,7 +1272,10 @@ app.post("/api/order", async (req,res)=>{
     const { error: deliveryError } = await supabase.from("deliveries").insert(delivery);
     if(deliveryError) throw deliveryError;
 
-    const emailConfigured = !!buildTransportConfig();
+    const emailSummary = getEmailConfigSummary();
+    const emailSmtpConfigured = !!buildTransportConfig();
+    const emailSendgridConfigured = !!emailSummary?.sendgrid?.configured;
+    const emailReady = !!emailVerifyCache.ok || emailSendgridConfigured;
     const taxCentsNow = taxData.taxCents;
     const taxLabelNow = `${PROVINCE_TAX_LABELS[customer?.province] || "Tax"}${customer?.province ? ` - ${customer.province}` : ""}`;
     const logoExistsNow = fs.existsSync(COMPANY_LOGO_PATH);
@@ -1265,7 +1286,7 @@ app.post("/api/order", async (req,res)=>{
     }] : [];
 
     let receiptEmailSent = false;
-    if(emailConfigured){
+    if(emailReady){
       const lang = String(customer?.language || "en").toLowerCase();
       const headerText = lang === "fr" ? "Reçu" : (lang === "es" ? "Recibo" : "Receipt");
       const introText = lang === "fr"
@@ -1295,18 +1316,30 @@ app.post("/api/order", async (req,res)=>{
         language: customer?.language
       });
 
-      const customerSend = await sendEmailAny({
-        from: getSenderAddress(),
-        to: customer.email,
-        subject: subjectText,
-        html: receiptHtml,
-        attachments: attachmentsNow
-      });
-      receiptEmailSent = !!customerSend.ok;
-      if(!customerSend.ok) console.error("Customer receipt email failed", customerSend);
+      // Don't block the API response on email provider latency; send in the background.
+      receiptEmailSent = true;
+      (async ()=>{
+        const customerSend = await sendEmailAny({
+          from: getSenderAddress(),
+          to: customer.email,
+          subject: subjectText,
+          html: receiptHtml,
+          attachments: attachmentsNow
+        });
+        if(!customerSend.ok) console.error("Customer receipt email failed", customerSend);
+      })().catch((err)=> console.error("Customer receipt email failed", err));
     }
 
-    res.json({ ok:true, orderId, receiptEmailSent, emailConfigured });
+    res.json({
+      ok:true,
+      orderId,
+      receiptEmailQueued: receiptEmailSent,
+      email: {
+        ready: emailReady,
+        smtp: { configured: emailSmtpConfigured, verified: !!emailVerifyCache.ok },
+        sendgrid: { configured: emailSendgridConfigured }
+      }
+    });
 
     // Run slower tasks in background so checkout returns fast.
     (async ()=>{
@@ -1341,7 +1374,8 @@ app.post("/api/order", async (req,res)=>{
         }
       }
 
-      const emailConfigured = !!buildTransportConfig();
+      const emailSummaryBg = getEmailConfigSummary();
+      const emailReadyBg = !!emailVerifyCache.ok || !!emailSummaryBg?.sendgrid?.configured;
       const adminEmail = process.env.ORDER_TO;
       const logoExists = fs.existsSync(COMPANY_LOGO_PATH);
       const attachments = logoExists ? [{
@@ -1350,7 +1384,7 @@ app.post("/api/order", async (req,res)=>{
         cid: "pps-logo"
       }] : [];
 
-      if(emailConfigured){
+      if(emailReadyBg){
         const lang = String(customer?.language || "en").toLowerCase();
         const headerText = lang === "fr"
           ? "Reçu"

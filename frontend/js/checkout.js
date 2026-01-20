@@ -441,7 +441,8 @@ formEl.addEventListener("submit", async (e)=>{
 
   try{
     const controller = new AbortController();
-    const timeoutId = setTimeout(()=> controller.abort(), 15000);
+    // Render free instances can take a while to wake up; allow extra time.
+    const timeoutId = setTimeout(()=> controller.abort(), 45000);
     const res = await fetch(`${PPS.API_BASE}/api/order`, {
       method:"POST",
       headers:{ "Content-Type":"application/json" },
@@ -468,10 +469,11 @@ formEl.addEventListener("submit", async (e)=>{
     }
 
     localStorage.removeItem("pps_cart");
-    window.location.href = "./thank-you.html";
+    const orderId = data?.orderId ? `?orderId=${encodeURIComponent(data.orderId)}` : "";
+    window.location.href = `./thank-you.html${orderId}`;
   }catch(err){
     if(err && err.name === "AbortError"){
-      setStatus(msg, "Request timed out. Please try again.", "error");
+      setStatus(msg, "Request timed out. Please try again (Render may be waking up).", "error");
     }else{
       setStatus(msg, window.PPS_I18N?.t("checkout.status.unreachable") || "Server unreachable. Please try again.", "error");
     }
