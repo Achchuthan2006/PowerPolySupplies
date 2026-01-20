@@ -528,6 +528,21 @@ function getSenderAddress(){
   return `"${COMPANY_NAME}" <${sender}>`;
 }
 
+function getEmailConfigSummary(){
+  const config = buildTransportConfig();
+  if(!config) return { configured:false };
+  return {
+    configured:true,
+    from: getSenderAddress(),
+    transport: {
+      service: config.service || "",
+      host: config.host || "",
+      port: config.port || null,
+      secure: !!config.secure
+    }
+  };
+}
+
 function formatLetterDate(value){
   const date = value instanceof Date ? value : new Date();
   return date.toLocaleDateString("en-CA", {
@@ -636,7 +651,13 @@ async function sendEmailSafe(mail){
     return { ok:true };
   }catch(err){
     console.error("Email send failed", err);
-    return { ok:false, message:"Failed to send email." };
+    return {
+      ok:false,
+      message:"Failed to send email.",
+      code: String(err?.code || ""),
+      response: String(err?.response || ""),
+      command: String(err?.command || "")
+    };
   }
 }
 
@@ -712,11 +733,47 @@ app.get("/api/email/health", async (req,res)=>{
   if(!transporter) return res.json({ ok:false, configured:false, message:"Email not configured." });
   try{
     await transporter.verify();
-    res.json({ ok:true, configured:true });
+    res.json({ ok:true, ...getEmailConfigSummary() });
   }catch(err){
     console.error("Email verify failed", err);
     res.status(500).json({ ok:false, configured:true, message:"Email configured but verification failed." });
   }
+});
+
+app.get("/api/email/diagnose", async (req,res)=>{
+  const adminToken = String(process.env.ADMIN_TOKEN || "").trim();
+  if(adminToken){
+    const header = String(req.headers["x-admin-token"] || "").trim();
+    if(header !== adminToken){
+      return res.status(401).json({ ok:false, message:"Unauthorized" });
+    }
+  }
+
+  const transporter = getEmailTransporter();
+  if(!transporter) return res.json({ ok:false, ...getEmailConfigSummary(), message:"Email not configured." });
+  try{
+    await transporter.verify();
+  }catch(err){
+    console.error("Email verify failed", err);
+    return res.status(500).json({ ok:false, ...getEmailConfigSummary(), message:"Email configured but verification failed." });
+  }
+
+  const to = String(req.query.to || "").trim();
+  if(!to){
+    return res.json({ ok:true, ...getEmailConfigSummary(), message:"Verified. Provide ?to=you@example.com to send a test email." });
+  }
+
+  const out = await sendEmailSafe({
+    from: getSenderAddress(),
+    to,
+    subject: "Power Poly Supplies - Email test",
+    html: "<p>This is a test email from Power Poly Supplies.</p>"
+  });
+
+  if(!out.ok){
+    return res.status(500).json({ ok:false, ...getEmailConfigSummary(), send: out });
+  }
+  res.json({ ok:true, ...getEmailConfigSummary(), send: out });
 });
 
 app.get("/api/square/diagnose", async (req,res)=>{
@@ -1361,12 +1418,12 @@ app.post("/api/auth/send-code", async (req,res)=>{
         subject: "Welcome to Power Poly Supplies - your verification code",
         html: buildVerificationHtml(name, code)
       });
-      if(out.ok) res.json({ ok:true });
-      else res.status(500).json({ ok:false, message:"Failed to send code. Check mail credentials." });
+      if(out.ok) res.json({ ok:true, emailSent:true, emailConfigured:true });
+      else res.status(500).json({ ok:false, emailSent:false, emailConfigured:true, message:"Failed to send code. Check mail credentials." });
     }else{
       // Dev fallback: return code in response when email is not configured
       console.warn("Email not configured; returning code in response for dev use.");
-      res.json({ ok:true, devMode:true, code, message:"Email not configured; using dev mode code." });
+      res.json({ ok:true, devMode:true, emailSent:false, emailConfigured:false, code, message:"Email not configured; using dev mode code." });
     }
   }catch(err){
     console.error("Send code failed", err);
@@ -1455,27 +1512,40 @@ app.post("/api/auth/register", async (req,res)=>{
   const emailConfigured = !!buildTransportConfig();
   const shouldSendWelcome = emailConfigured;
 
+  let welcomeEmailSent = false;
   if(shouldSendWelcome){
-    (async ()=>{
+    try{
       const out = await sendEmailSafe({
         from: getSenderAddress(),
         to: lower,
         subject: "Welcome to Power Poly Supplies!",
         html: buildWelcomeHtml(user.name || "", new Date(now))
       });
-      if(!out.ok) return;
-      supabase.from("users")
-        .update({ welcome_email_sent:true })
-        .eq("email", lower)
-        .then(({ error: updateErr })=>{
-          if(updateErr) console.error("Supabase welcome email flag update failed", updateErr);
-        });
-    })().catch((err)=>{
+      welcomeEmailSent = !!out.ok;
+      if(out.ok){
+        supabase.from("users")
+          .update({ welcome_email_sent:true })
+          .eq("email", lower)
+          .then(({ error: updateErr })=>{
+            if(updateErr) console.error("Supabase welcome email flag update failed", updateErr);
+          });
+      }else{
+        console.error("Welcome email failed", out);
+      }
+    }catch(err){
       console.error("Welcome email failed", err);
-    });
+    }
   }
 
-  res.json({ ok:true, token: session.token, email: lower, name: user.name || "", expiresAt: session.expiresAt });
+  res.json({
+    ok:true,
+    token: session.token,
+    email: lower,
+    name: user.name || "",
+    expiresAt: session.expiresAt,
+    welcomeEmailSent,
+    emailConfigured
+  });
 });
 
 // ---- Auth: verify code (stub, no persistence) ----
