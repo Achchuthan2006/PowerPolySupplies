@@ -530,7 +530,10 @@ function getSenderAddress(){
 
 function getEmailConfigSummary(){
   const config = buildTransportConfig();
-  if(!config) return { configured:false };
+  const sendgridKey = String(process.env.SENDGRID_API_KEY || "").trim();
+  const sendgridFrom = String(process.env.SENDGRID_FROM || process.env.EMAIL_FROM || COMPANY_EMAIL || process.env.EMAIL_USER || "").trim();
+  const sendgridConfigured = !!(sendgridKey && sendgridFrom);
+  if(!config) return { configured:false, sendgrid: { configured: sendgridConfigured } };
   return {
     configured:true,
     from: getSenderAddress(),
@@ -539,7 +542,8 @@ function getEmailConfigSummary(){
       host: config.host || "",
       port: config.port || null,
       secure: !!config.secure
-    }
+    },
+    sendgrid: { configured: sendgridConfigured }
   };
 }
 
@@ -690,6 +694,69 @@ async function sendEmailSafe(mail){
   }
 }
 
+async function sendEmailSendGrid({ from, to, subject, html, text }){
+  const apiKey = String(process.env.SENDGRID_API_KEY || "").trim();
+  const senderEmail = String(process.env.SENDGRID_FROM || "").trim()
+    || String(process.env.EMAIL_FROM || "").trim()
+    || String(COMPANY_EMAIL || "").trim()
+    || String(process.env.EMAIL_USER || "").trim();
+  if(!apiKey || !senderEmail) return { ok:false, message:"SendGrid not configured." };
+
+  const toEmail = String(to || "").trim();
+  if(!toEmail) return { ok:false, message:"Missing recipient email." };
+
+  const senderNameMatch = String(from || "").match(/^"([^"]+)"\s*<.+>$/);
+  const senderName = senderNameMatch ? senderNameMatch[1] : COMPANY_NAME;
+
+  const payload = {
+    personalizations: [{ to: [{ email: toEmail }] }],
+    from: { email: senderEmail, name: senderName || COMPANY_NAME },
+    subject: String(subject || ""),
+    content: [
+      { type: "text/plain", value: String(text || "").trim() || " " },
+      { type: "text/html", value: String(html || "").trim() || "<p></p>" }
+    ]
+  };
+
+  try{
+    const res = await fetch("https://api.sendgrid.com/v3/mail/send",{
+      method:"POST",
+      headers:{
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type":"application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+    if(res.status >= 200 && res.status < 300){
+      return { ok:true };
+    }
+    const body = await res.text().catch(()=> "");
+    return { ok:false, message:"SendGrid send failed.", status: res.status, response: body.slice(0, 2000) };
+  }catch(err){
+    return { ok:false, message:"SendGrid send failed.", errorMessage: String(err?.message || "") };
+  }
+}
+
+async function sendEmailAny(mail){
+  // Prefer SMTP if it works; fall back to SendGrid API when SMTP is blocked/times out.
+  const smtp = await sendEmailSafe(mail);
+  if(smtp.ok) return { ok:true, provider:"smtp" };
+
+  const code = String(smtp.code || "");
+  const shouldFallback = code === "PPS_SMTP_SEND_TIMEOUT" || code === "PPS_SMTP_VERIFY_TIMEOUT" || code === "ETIMEDOUT";
+  if(!shouldFallback) return { ...smtp, provider:"smtp" };
+
+  const sg = await sendEmailSendGrid({
+    from: mail.from,
+    to: mail.to,
+    subject: mail.subject,
+    html: mail.html,
+    text: mail.text
+  });
+  if(sg.ok) return { ok:true, provider:"sendgrid" };
+  return { ok:false, provider:"sendgrid", ...smtp, sendgrid: sg };
+}
+
 // ---- Email verification (cached) ----
 let emailVerifyCache = { at: 0, ok: false, error: null };
 
@@ -812,21 +879,17 @@ app.get("/api/email/diagnose", async (req,res)=>{
     }
   }
 
-  const transporter = getEmailTransporter();
-  if(!transporter) return res.json({ ok:false, ...getEmailConfigSummary(), message:"Email not configured." });
-  try{
-    await transporter.verify();
-  }catch(err){
-    console.error("Email verify failed", err);
-    return res.status(500).json({ ok:false, ...getEmailConfigSummary(), message:"Email configured but verification failed." });
+  const verified = await verifyEmailTransporter({ force: true });
+  if(!verified.ok){
+    return res.status(500).json(verified);
   }
 
   const to = String(req.query.to || "").trim();
   if(!to){
-    return res.json({ ok:true, ...getEmailConfigSummary(), message:"Verified. Provide ?to=you@example.com to send a test email." });
+    return res.json({ ok:true, ...verified, message:"Verified. Provide ?to=you@example.com to send a test email." });
   }
 
-  const out = await sendEmailSafe({
+  const out = await sendEmailAny({
     from: getSenderAddress(),
     to,
     subject: "Power Poly Supplies - Email test",
@@ -834,9 +897,9 @@ app.get("/api/email/diagnose", async (req,res)=>{
   });
 
   if(!out.ok){
-    return res.status(500).json({ ok:false, ...getEmailConfigSummary(), send: out });
+    return res.status(500).json({ ok:false, ...verified, send: out });
   }
-  res.json({ ok:true, ...getEmailConfigSummary(), send: out });
+  res.json({ ok:true, ...verified, send: out });
 });
 
 app.get("/api/square/diagnose", async (req,res)=>{
@@ -1182,7 +1245,7 @@ app.post("/api/order", async (req,res)=>{
         language: customer?.language
       });
 
-      const customerSend = await sendEmailSafe({
+      const customerSend = await sendEmailAny({
         from: getSenderAddress(),
         to: customer.email,
         subject: subjectText,
@@ -1190,7 +1253,7 @@ app.post("/api/order", async (req,res)=>{
         attachments: attachmentsNow
       });
       receiptEmailSent = !!customerSend.ok;
-      if(!customerSend.ok) console.error("Customer receipt email failed", customerSend.message);
+      if(!customerSend.ok) console.error("Customer receipt email failed", customerSend);
     }
 
     res.json({ ok:true, orderId, receiptEmailSent, emailConfigured });
@@ -1284,14 +1347,14 @@ app.post("/api/order", async (req,res)=>{
         });
 
         if(!receiptEmailSent){
-          const customerSend = await sendEmailSafe({
+          const customerSend = await sendEmailAny({
             from: getSenderAddress(),
             to: customer.email,
             subject: subjectText,
             html: receiptHtml,
             attachments
           });
-          if(!customerSend.ok) console.error("Customer receipt email failed", customerSend.message);
+          if(!customerSend.ok) console.error("Customer receipt email failed", customerSend);
         }
 
         if(adminEmail){
@@ -1311,14 +1374,14 @@ app.post("/api/order", async (req,res)=>{
             language: customer?.language
           });
 
-          const adminSend = await sendEmailSafe({
+          const adminSend = await sendEmailAny({
             from: getSenderAddress(),
             to: adminEmail,
             subject: `New Order ${orderId} (${order.payment_method || paymentMethod || "pay_later"})`,
             html: adminHtml,
             attachments
           });
-          if(!adminSend.ok) console.error("Admin order email failed", adminSend.message);
+          if(!adminSend.ok) console.error("Admin order email failed", adminSend);
         }
       }
     })().catch((err)=>{
@@ -1368,7 +1431,7 @@ app.post("/api/contact", async (req,res)=>{
     }
 
     if(emailReady){
-      const out = await sendEmailSafe({
+      const out = await sendEmailAny({
         from: getSenderAddress(),
         to: process.env.ORDER_TO,
         subject: "New Contact Message - Power Poly Supplies",
@@ -1440,7 +1503,7 @@ app.post("/api/help", async (req,res)=>{
     }
 
     if(emailReady){
-      const out = await sendEmailSafe({
+      const out = await sendEmailAny({
         from: getSenderAddress(),
         to: process.env.ORDER_TO,
         subject: "New Help Request - Power Poly Supplies",
@@ -1475,7 +1538,7 @@ app.post("/api/auth/send-code", async (req,res)=>{
     const emailConfigured = !!buildTransportConfig();
 
     if(emailConfigured){
-      const out = await sendEmailSafe({
+      const out = await sendEmailAny({
         from: getSenderAddress(),
         to: email,
         subject: "Welcome to Power Poly Supplies - your verification code",
@@ -1578,7 +1641,7 @@ app.post("/api/auth/register", async (req,res)=>{
   let welcomeEmailSent = false;
   if(shouldSendWelcome){
     try{
-      const out = await sendEmailSafe({
+      const out = await sendEmailAny({
         from: getSenderAddress(),
         to: lower,
         subject: "Welcome to Power Poly Supplies!",
@@ -1954,10 +2017,10 @@ async function handlePaymentStatus(req,res){
                   : lang === "ta"
                     ? `உங்கள் ஆர்டருக்கு நன்றி! Power Poly Supplies ரசீது - ${orderId}`
                     : `Thanks for your order! Power Poly Supplies receipt - ${orderId}`;
-            await sendEmailSafe({ from: getSenderAddress(), to: customerEmail, subject, html: receiptHtml, attachments });
+            await sendEmailAny({ from: getSenderAddress(), to: customerEmail, subject, html: receiptHtml, attachments });
           }
           if(adminEmail){
-            await sendEmailSafe({
+            await sendEmailAny({
               from: getSenderAddress(),
               to: adminEmail,
               subject: `New Order ${orderId} (square_checkout)`,
