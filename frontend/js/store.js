@@ -211,7 +211,10 @@ function money(cents, currency="CAD", targetCurrency){
 
 async function pingBackend(){
   try{
-    const res = await fetch(`${API_BASE}/api/health`, { cache:"no-store" });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(()=> controller.abort(), 8000);
+    const res = await fetch(`${API_BASE}/api/health`, { cache:"no-store", signal: controller.signal });
+    clearTimeout(timeoutId);
     return res.ok;
   }catch(err){
     return false;

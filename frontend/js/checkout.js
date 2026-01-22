@@ -55,7 +55,7 @@ async function checkBackendHealth(){
   if(!base) return;
   try{
     const controller = new AbortController();
-    const timeoutId = setTimeout(()=> controller.abort(), 4500);
+    const timeoutId = setTimeout(()=> controller.abort(), 9000);
     const res = await fetch(`${base}/api/health`, { signal: controller.signal });
     clearTimeout(timeoutId);
     const data = await res.json().catch(()=> ({}));
@@ -71,16 +71,23 @@ async function checkBackendHealth(){
     backendStatus.textContent = `Backend: up | ${squareText} | ${emailText}`;
     backendStatus.style.display = "block";
 
-    if(!square.configured && payBtn){
-      setPending(payBtn, true);
-    }
+    // Never hard-disable checkout actions based on this passive check; the backend may be waking up.
   }catch(err){
-    // Keep hidden if backend is unreachable from this frontend.
-    backendStatus.style.display = "none";
+    const isRender = /onrender\.com$/i.test(new URL(base).hostname);
+    if(isRender){
+      backendStatus.textContent = "Backend: starting up (Render free tier can take ~50s). You can still try checkout.";
+      backendStatus.style.display = "block";
+      backendStatus.classList.remove("error","success","muted");
+      backendStatus.classList.add("status","muted");
+    }else{
+      // Keep hidden if backend is unreachable from this frontend.
+      backendStatus.style.display = "none";
+    }
   }
 }
 
 checkBackendHealth();
+setInterval(checkBackendHealth, 15000);
 
 function getUnitBasePrice(item){
   const product = productMap?.get(item.id);
@@ -364,21 +371,7 @@ function setStatus(el, text, type="muted"){
   el.classList.add(type || "muted","status");
 }
 
-async function checkBackend(){
-  const ok = await PPS.pingBackend();
-  if(ok){
-    backendStatus.style.display = "none";
-    setPending(payBtn, false);
-    setPending(submitBtn, false);
-  }else{
-    backendStatus.style.display = "block";
-    setStatus(backendStatus, window.PPS_I18N?.t("checkout.status.backend") || "Backend unreachable. Please try again.", "error");
-    setPending(payBtn, true);
-    setPending(submitBtn, true);
-  }
-}
-checkBackend();
-setInterval(checkBackend, 15000);
+// Passive health check already runs above; avoid a second competing loop that spams errors.
 
 formEl.addEventListener("submit", async (e)=>{
   e.preventDefault();
