@@ -1,8 +1,8 @@
 function setupNavbar(){
   const menuBtn = document.getElementById("menuBtn");
   const navLinks = document.getElementById("navLinks");
-  const dropdown = document.querySelector(".dropdown");
-  const dropBtn = document.querySelector(".dropbtn");
+  const dropdowns = Array.from(document.querySelectorAll(".dropdown"));
+  const dropBtns = Array.from(document.querySelectorAll(".dropdown .dropbtn"));
 
   if(menuBtn && navLinks){
     menuBtn.addEventListener("click", ()=>{
@@ -25,16 +25,30 @@ function setupNavbar(){
       if(!(target instanceof Node)) return;
       if(navLinks.contains(target) || menuBtn.contains(target)) return;
       navLinks.classList.remove("open");
-      dropdown?.classList.remove("open");
+      dropdowns.forEach((d)=> d.classList.remove("open"));
     });
   }
 
   // Mobile dropdown toggle
-  if(dropBtn && dropdown){
-    dropBtn.addEventListener("click", ()=>{
-      dropdown.classList.toggle("open");
+  dropBtns.forEach((btn)=>{
+    btn.addEventListener("click", ()=>{
+      const parent = btn.closest(".dropdown");
+      if(!parent) return;
+      // Close other dropdowns so menus don't stack.
+      dropdowns.forEach((d)=>{
+        if(d !== parent) d.classList.remove("open");
+      });
+      parent.classList.toggle("open");
     });
-  }
+  });
+
+  // Close dropdowns when clicking outside.
+  document.addEventListener("click", (event)=>{
+    const target = event.target;
+    if(!(target instanceof Node)) return;
+    if(target.closest?.(".dropdown")) return;
+    dropdowns.forEach((d)=> d.classList.remove("open"));
+  });
 }
 
 function setupFadeIn(){
@@ -291,6 +305,32 @@ function injectResourcesNavLink(){
   navLinks.appendChild(link);
 }
 
+function injectAboutDropdown(){
+  const navLinks = document.getElementById("navLinks");
+  if(!navLinks) return;
+  if(navLinks.querySelector('[data-nav-about-dropdown="1"]')) return;
+
+  const aboutLink = navLinks.querySelector('a[href="./about.html"]');
+  if(!aboutLink) return;
+
+  const dropdown = document.createElement("div");
+  dropdown.className = "dropdown";
+  dropdown.setAttribute("data-nav-about-dropdown", "1");
+  dropdown.innerHTML = `
+    <button class="dropbtn" type="button">
+      <span data-i18n="nav.about">About Us</span> <span class="caret" aria-hidden="true"></span>
+    </button>
+    <div class="dropdown-menu">
+      <a href="./about.html#about">About Power Poly Supplies</a>
+      <a href="./about.html#why">Why Power Poly Supplies?</a>
+      <a href="./about.html#sectors">Sectors we serve</a>
+    </div>
+  `;
+
+  aboutLink.replaceWith(dropdown);
+  window.PPS_I18N?.applyTranslations?.();
+}
+
 function getNotifUnreadCount(){
   try{
     const session = window.PPS?.getSession?.();
@@ -319,12 +359,11 @@ function injectNotificationsBell(){
   if(!navLinks || !window.PPS?.getSession) return;
   if(navLinks.querySelector(".notif-bell")) return;
   const session = window.PPS.getSession();
-  if(!session) return;
 
   const tools = getNavTools(navLinks);
   const link = document.createElement("a");
   link.className = "notif-bell";
-  link.href = "./account.html#notifications";
+  link.href = session ? "./account.html#notifications" : "./login.html";
   link.setAttribute("aria-label", "Notifications");
   link.innerHTML = `
     <span class="nav-icon bell-icon" aria-hidden="true"></span>
@@ -354,8 +393,11 @@ function injectFooter(){
           <div class="footer-newsletter">
             <div class="footer-newsletter-title">Get updates & specials</div>
             <form class="newsletter-form" id="newsletterForm">
-              <input class="input" type="email" name="email" placeholder="Email address" aria-label="Email address" required>
-              <button class="btn btn-primary btn-sm" type="submit">Subscribe</button>
+              <label class="newsletter-field">
+                <span class="newsletter-label">Email</span>
+                <input class="input" type="email" name="email" placeholder="Email address" autocomplete="email" required>
+              </label>
+              <button class="btn btn-primary btn-sm" type="submit">Get updates</button>
             </form>
             <div class="newsletter-note" id="newsletterNote">No spam. 1–2 emails/month.</div>
           </div>
@@ -893,7 +935,7 @@ function injectHelpWidget(){
               </form>
               <div class="help-chat-footer">
                 <a class="btn btn-outline btn-sm" href="https://chat.whatsapp.com/LVaouedAZVIEcgrD6nj2hC" target="_blank" rel="noopener">WhatsApp</a>
-                <a class="btn btn-outline btn-sm" href="./resources.html">Resources</a>
+                <a class="btn btn-outline btn-sm" href="./resources.html">Blog</a>
                 <a class="btn btn-outline btn-sm" href="./contact.html">Contact</a>
               </div>
             </div>
@@ -1082,19 +1124,19 @@ function injectHelpWidget(){
       id: "sizes",
       title: "Garment bag sizes",
       match: (q)=> /size|sizing|garment bag|cover bag|length|width|measure/i.test(q),
-      answer: () => `Use garment width + 4–6" and garment length + 4–8" as a quick rule. For bulky coats, consider a wider/gusseted bag.<br><a href="./resources.html#guide-garment-bag-sizes">Read the sizing guide</a>`
+      answer: () => `Use garment width + 4–6" and garment length + 4–8" as a quick rule. For bulky coats, consider a wider/gusseted bag.<br><a href="./blog/choosing-garment-bag-sizes.html">Read the sizing guide</a>`
     },
     {
       id: "thickness",
       title: "Heavy vs Extra Heavy",
       match: (q)=> /heavy|extra heavy|thick|thickness|mil|gauge|tear|puncture/i.test(q),
-      answer: () => `Choose <b>Heavy</b> for everyday packaging. Choose <b>Extra Heavy</b> for sharp corners, heavy loads, delivery routes, or fewer tears/rewraps.<br><a href="./resources.html#heavy-vs-extra-heavy">Read the thickness guide</a>`
+      answer: () => `Choose <b>Heavy</b> for everyday packaging. Choose <b>Extra Heavy</b> for sharp corners, heavy loads, delivery routes, or fewer tears/rewraps.<br><a href="./blog/heavy-vs-extra-heavy-thickness.html">Read the thickness guide</a>`
     },
     {
       id: "usage",
       title: "Monthly packaging usage",
       match: (q)=> /month|monthly|how much|usage|estimate|planning|plan/i.test(q),
-      answer: () => `A simple estimate: (garments/day) × (operating days/month), then add a 5–12% buffer for rewraps/tears/rush orders.<br><a href="./resources.html#dry-cleaner-packaging-usage">See the planner</a>`
+      answer: () => `A simple estimate: (garments/day) × (operating days/month), then add a 5–12% buffer for rewraps/tears/rush orders.<br><a href="./blog/monthly-packaging-usage.html">See the planner</a>`
     },
     {
       id: "pay",
@@ -1144,7 +1186,7 @@ function injectHelpWidget(){
     }
     appendMessage({
       role:"bot",
-      html: `I can help with shipping, bag sizes, thickness, and monthly usage. Try one of the quick buttons below, or visit <a href="./resources.html">Resources</a>.`
+      html: `I can help with shipping, bag sizes, thickness, and monthly usage. Try one of the quick buttons below, or visit <a href="./resources.html">Blog & Resources</a>.`
     });
   }
 
@@ -1255,15 +1297,31 @@ function showAuthModal(options = {}){
           <h2 id="ppsAuthTitle">Sign in or create account</h2>
 
           <button class="pps-auth-provider" type="button" data-auth-provider="google" disabled>
-            <span class="pps-auth-icon" style="background:#4285F4;"></span>
+            <span class="pps-auth-provider-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" focusable="false" aria-hidden="true">
+                <path fill="#EA4335" d="M12 10.2v3.9h5.4c-.2 1.3-1.6 3.8-5.4 3.8-3.2 0-5.9-2.6-5.9-5.9S8.8 6.1 12 6.1c1.8 0 3 .8 3.7 1.5l2.5-2.4C16.6 3.7 14.5 2.7 12 2.7 6.9 2.7 2.7 6.9 2.7 12S6.9 21.3 12 21.3c6 0 9.9-4.2 9.9-10.1 0-.7-.1-1.2-.2-1.7H12z"/>
+                <path fill="#34A853" d="M3.8 7.7l3.2 2.3C7.9 8 9.8 6.1 12 6.1c1.8 0 3 .8 3.7 1.5l2.5-2.4C16.6 3.7 14.5 2.7 12 2.7 8.4 2.7 5.3 4.8 3.8 7.7z" opacity=".001"/>
+                <path fill="#FBBC05" d="M12 21.3c2.4 0 4.5-.8 6-2.2l-2.8-2.2c-.8.5-1.8.9-3.2.9-2.3 0-4.2-1.5-4.9-3.6l-3.2 2.4c1.5 2.9 4.5 4.7 8.1 4.7z"/>
+                <path fill="#4285F4" d="M21.7 10.9c.1.5.2 1.1.2 1.7 0 5.9-3.9 10.1-9.9 10.1-5.1 0-9.3-4.2-9.3-9.3S6.9 2.7 12 2.7c2.5 0 4.6 1 6.2 2.6l-2.5 2.4c-.7-.7-1.9-1.5-3.7-1.5-3.2 0-5.9 2.6-5.9 5.9s2.6 5.9 5.9 5.9c3.8 0 5.2-2.5 5.4-3.8H12v-3.9h9.7z" opacity=".001"/>
+              </svg>
+            </span>
             Continue with Google
           </button>
           <button class="pps-auth-provider" type="button" data-auth-provider="facebook" disabled style="margin-top:10px;">
-            <span class="pps-auth-icon" style="background:#1877F2;"></span>
+            <span class="pps-auth-provider-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" focusable="false" aria-hidden="true">
+                <path fill="#1877F2" d="M12 2.2C6.6 2.2 2.2 6.6 2.2 12c0 4.9 3.6 9 8.3 9.7v-6.9H8.3V12h2.2V9.9c0-2.2 1.3-3.4 3.3-3.4.9 0 1.8.2 1.8.2v2h-1c-1 0-1.3.6-1.3 1.2V12h2.2l-.4 2.8h-1.8v6.9c4.7-.7 8.3-4.8 8.3-9.7 0-5.4-4.4-9.8-9.8-9.8z"/>
+              </svg>
+            </span>
             Continue with Facebook
           </button>
           <button class="pps-auth-provider" type="button" data-auth-provider="linkedin" disabled style="margin-top:10px;">
-            <span class="pps-auth-icon" style="background:#0A66C2;"></span>
+            <span class="pps-auth-provider-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" focusable="false" aria-hidden="true">
+                <path fill="#0A66C2" d="M20.4 2.2H3.6c-.8 0-1.4.6-1.4 1.4v16.8c0 .8.6 1.4 1.4 1.4h16.8c.8 0 1.4-.6 1.4-1.4V3.6c0-.8-.6-1.4-1.4-1.4z"/>
+                <path fill="#fff" d="M7.3 10.1v8.2H4.8v-8.2h2.5zM6.1 9c-.8 0-1.3-.5-1.3-1.2 0-.7.5-1.2 1.3-1.2s1.3.5 1.3 1.2c0 .7-.5 1.2-1.3 1.2zM19.2 13.6v4.7h-2.5v-4.4c0-1.1-.4-1.8-1.4-1.8-.8 0-1.2.5-1.4 1-.1.2-.1.5-.1.8v4.4h-2.5s0-7.2 0-8.2h2.5v1.2c.3-.5 1-1.3 2.4-1.3 1.8 0 3 1.2 3 3.6z"/>
+              </svg>
+            </span>
             Continue with LinkedIn
           </button>
 
@@ -1602,6 +1660,7 @@ window.addEventListener("DOMContentLoaded", ()=>{
   syncAccountLink();
   setupAuthModalTriggers();
   injectResourcesNavLink();
+  injectAboutDropdown();
   injectLangSwitcher();
   injectCurrencySwitcher();
   injectNotificationsBell();
