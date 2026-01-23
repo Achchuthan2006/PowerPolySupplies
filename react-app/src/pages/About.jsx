@@ -66,10 +66,10 @@ export default function About() {
           Angel - <a href="tel:+16475238645" style={{ color: "inherit", textDecoration: "none" }}>647-523-8645</a>
         </p>
         <p style={{ margin: "6px 0 0", color: "var(--muted)", lineHeight: 1.6 }}>
-          Achchu - <a href="tel:+16475704878" style={{ color: "inherit", textDecoration: "none" }}>647-570-4878</a>
+          Andrew - <a href="tel:+14374256638" style={{ color: "inherit", textDecoration: "none" }}>437-425-6638</a>
         </p>
         <p style={{ margin: "6px 0 0", color: "var(--muted)", lineHeight: 1.6 }}>
-          Andrew - <a href="tel:+14374256638" style={{ color: "inherit", textDecoration: "none" }}>437-425-6638</a>
+          Achchu - <a href="tel:+16475704878" style={{ color: "inherit", textDecoration: "none" }}>647-570-4878</a>
         </p>
       </section>
     </>

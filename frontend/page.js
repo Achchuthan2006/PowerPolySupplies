@@ -60,8 +60,8 @@ export default function HomePage() {
         <div className="support-item">
           <div className="support-label">Help line</div>
           <div className="support-value">Angel 647-523-8645</div>
-          <div className="support-value">Achchu 647-570-4878</div>
           <div className="support-value">Andrew 437-425-6638</div>
+          <div className="support-value">Achchu 647-570-4878</div>
         </div>
         <div className="support-item">
           <div className="support-label">Customer support</div>

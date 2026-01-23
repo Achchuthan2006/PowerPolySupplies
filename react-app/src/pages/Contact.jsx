@@ -100,6 +100,10 @@ export default function Contact() {
           </div>
           <div style={{ marginTop: "10px" }}>
             <strong data-i18n="contact.business.sales_assoc">Sales Associate</strong>
+            <div>Andrew 437-425-6638</div>
+          </div>
+          <div style={{ marginTop: "10px" }}>
+            <strong data-i18n="contact.business.sales_assoc">Sales Associate</strong>
             <div>Achchu 647-570-4878</div>
           </div>
           <div style={{ marginTop: "10px" }}>

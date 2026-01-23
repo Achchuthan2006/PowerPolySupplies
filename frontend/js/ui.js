@@ -347,13 +347,13 @@ function injectFooter(){
             <span class="footer-inline-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24"><path d="M6.6 2.9c.6-.6 1.6-.7 2.3-.2l3 2a1.8 1.8 0 0 1 .6 2.3l-1.1 2.2a1 1 0 0 0 .2 1.2l2.8 2.8a1 1 0 0 0 1.2.2l2.2-1.1a1.8 1.8 0 0 1 2.3.6l2 3a1.8 1.8 0 0 1-.2 2.3l-1.3 1.3c-.8.8-2 1.2-3.1 1-3.1-.5-6.2-2.2-9.1-5.1S2.3 9.7 1.8 6.6c-.2-1.1.2-2.3 1-3.1z"/></svg>
             </span>
-            Achchu <a href="tel:+16475704878">647-570-4878</a>
+            Andrew <a href="tel:+14374256638">437-425-6638</a>
           </div>
           <div class="footer-contact-row">
             <span class="footer-inline-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24"><path d="M6.6 2.9c.6-.6 1.6-.7 2.3-.2l3 2a1.8 1.8 0 0 1 .6 2.3l-1.1 2.2a1 1 0 0 0 .2 1.2l2.8 2.8a1 1 0 0 0 1.2.2l2.2-1.1a1.8 1.8 0 0 1 2.3.6l2 3a1.8 1.8 0 0 1-.2 2.3l-1.3 1.3c-.8.8-2 1.2-3.1 1-3.1-.5-6.2-2.2-9.1-5.1S2.3 9.7 1.8 6.6c-.2-1.1.2-2.3 1-3.1z"/></svg>
             </span>
-            Andrew <a href="tel:+14374256638">437-425-6638</a>
+            Achchu <a href="tel:+16475704878">647-570-4878</a>
           </div>
           <div class="footer-contact-row">
             <span class="footer-inline-icon" aria-hidden="true">

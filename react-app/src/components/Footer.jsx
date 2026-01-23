@@ -38,15 +38,15 @@ export default function Footer() {
           <Link to="/legal-privacy" data-i18n="footer.privacy">Privacy Policy</Link>
           <Link to="/legal-terms" data-i18n="footer.terms">Terms & Conditions</Link>
         </div>
-        <div className="footer-contact">
-          <h4 data-i18n="footer.help_line">Help line:</h4>
-          <div>Angel 647-523-8645</div>
-          <div>Achchu 647-570-4878</div>
-          <div>Andrew 437-425-6638</div>
-          <div style={{ marginTop: "6px" }}>
-            <span data-i18n="footer.email">Email:</span> powerpolysupplies@gmail.com
+          <div className="footer-contact">
+            <h4 data-i18n="footer.help_line">Help line:</h4>
+            <div>Angel 647-523-8645</div>
+            <div>Andrew 437-425-6638</div>
+            <div>Achchu 647-570-4878</div>
+            <div style={{ marginTop: "6px" }}>
+              <span data-i18n="footer.email">Email:</span> powerpolysupplies@gmail.com
+            </div>
           </div>
-        </div>
       </div>
       <div className="footer-bottom">
         <div className="footer-meta" data-i18n="footer.secure">Secure payments via Square</div>
