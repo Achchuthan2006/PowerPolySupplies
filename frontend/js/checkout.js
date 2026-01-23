@@ -53,6 +53,9 @@ const submitBtn = document.querySelector("#form button[type='submit']");
 const formEl = document.getElementById("form");
 const provinceSelect = document.getElementById("province");
 const postalInput = document.getElementById("postal");
+const savedAddressWrap = document.getElementById("savedAddressWrap");
+const savedAddressSelect = document.getElementById("savedAddressSelect");
+const savedAddressHint = document.getElementById("savedAddressHint");
 
 async function checkBackendHealth(){
   if(!backendStatus) return;
@@ -243,6 +246,111 @@ function userKey(email, suffix){
   return `pps_account_${String(email || "").trim().toLowerCase()}_${suffix}`;
 }
 
+function readJson(key, fallback){
+  try{
+    const raw = localStorage.getItem(String(key || ""));
+    if(!raw) return fallback;
+    return JSON.parse(raw);
+  }catch(err){
+    return fallback;
+  }
+}
+
+function resolveDefaultAddressId(email, addresses){
+  const list = Array.isArray(addresses) ? addresses : [];
+  const key = userKey(email, "default_address_id_v1");
+  try{
+    const stored = String(localStorage.getItem(key) || "").trim();
+    if(stored && list.some(a => String(a?.id) === String(stored))) return stored;
+  }catch(err){
+    // ignore
+  }
+  const first = list[0]?.id ? String(list[0].id) : "";
+  if(first){
+    try{ localStorage.setItem(key, first); }catch(_err){ /* ignore */ }
+  }
+  return first;
+}
+
+function isAddressBlank(){
+  const a1 = String(formEl?.address1?.value || "").trim();
+  const city = String(formEl?.city?.value || "").trim();
+  const postal = String(formEl?.postal?.value || "").trim();
+  return !a1 && !city && !postal;
+}
+
+function applySavedAddress(addr){
+  if(!addr || !formEl) return;
+  if(formEl.name && addr.name) formEl.name.value = String(addr.name || "").trim();
+  if(formEl.address1 && addr.line1) formEl.address1.value = String(addr.line1 || "").trim();
+  if(formEl.address2) formEl.address2.value = String(addr.line2 || "").trim();
+  if(formEl.city) formEl.city.value = String(addr.city || "").trim();
+  if(postalInput) postalInput.value = String(addr.postal || "").trim();
+  if(provinceSelect && addr.province) provinceSelect.value = String(addr.province || "").trim();
+  drawSummary();
+}
+
+function initSavedAddressPicker(){
+  if(!savedAddressWrap || !savedAddressSelect) return;
+  const email = getSessionEmail();
+  if(!email){
+    savedAddressWrap.style.display = "none";
+    return;
+  }
+  const addresses = readJson(userKey(email, "addresses"), []);
+  const list = Array.isArray(addresses) ? addresses.filter(Boolean) : [];
+  if(!list.length){
+    savedAddressWrap.style.display = "none";
+    return;
+  }
+
+  savedAddressWrap.style.display = "block";
+  const defaultId = resolveDefaultAddressId(email, list);
+  const lastSelected = (() => {
+    try{ return String(localStorage.getItem(userKey(email, "checkout_selected_address_id_v1")) || "").trim(); }catch{ return ""; }
+  })();
+  const initialId = list.some(a => String(a?.id) === String(lastSelected))
+    ? lastSelected
+    : (defaultId || "");
+
+  const sorted = list.slice().sort((a, b) => {
+    const aIsDefault = String(a?.id) === String(defaultId);
+    const bIsDefault = String(b?.id) === String(defaultId);
+    if(aIsDefault && !bIsDefault) return -1;
+    if(!aIsDefault && bIsDefault) return 1;
+    return String(a?.label || "").localeCompare(String(b?.label || ""));
+  });
+
+  savedAddressSelect.innerHTML = [
+    `<option value="">Manual entry</option>`,
+    ...sorted.map(a => {
+      const label = String(a?.label || "Address");
+      const suffix = String(a?.id) === String(defaultId) ? " (default)" : "";
+      return `<option value="${String(a?.id || "")}">${label}${suffix}</option>`;
+    })
+  ].join("");
+
+  if(savedAddressHint){
+    savedAddressHint.textContent = defaultId ? "Tip: default address auto-fills when this form is empty." : "";
+  }
+
+  if(initialId){
+    savedAddressSelect.value = String(initialId);
+    if(isAddressBlank()){
+      const match = list.find(a => String(a?.id) === String(initialId));
+      if(match) applySavedAddress(match);
+    }
+  }
+
+  savedAddressSelect.addEventListener("change", () => {
+    const id = String(savedAddressSelect.value || "").trim();
+    if(!id) return;
+    const match = list.find(a => String(a?.id) === String(id));
+    if(match) applySavedAddress(match);
+    try{ localStorage.setItem(userKey(email, "checkout_selected_address_id_v1"), id); }catch(_err){ /* ignore */ }
+  });
+}
+
 function readRewardsLedger(email){
   try{
     const raw = localStorage.getItem(userKey(email, "rewards_ledger_v1"));
@@ -414,6 +522,7 @@ function drawSummary(){
 }
 
 applyProvinceLabels();
+initSavedAddressPicker();
 
 drawSummary();
 productsPromise.then(()=>{

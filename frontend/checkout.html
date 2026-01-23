@@ -67,6 +67,20 @@
         <input class="input" name="name" placeholder="Full Name" data-i18n-placeholder="checkout.form.name" required>
         <input class="input" type="email" name="email" placeholder="Email" data-i18n-placeholder="checkout.form.email" required>
         <input class="input" name="phone" placeholder="Phone (optional)" data-i18n-placeholder="checkout.form.phone">
+
+        <div id="savedAddressWrap" style="display:none;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:10px; flex-wrap:wrap;">
+            <label class="pref-field" style="flex:1; min-width:240px;">
+              <span style="font-size:13px; color:var(--muted);">Saved addresses</span>
+              <select class="input" id="savedAddressSelect" aria-label="Saved addresses">
+                <option value="">Manual entry</option>
+              </select>
+            </label>
+            <a class="btn btn-outline btn-sm" href="./account.html#addresses">Manage</a>
+          </div>
+          <div id="savedAddressHint" style="margin-top:6px; color:var(--muted); font-size:13px;"></div>
+        </div>
+
         <input class="input" name="address1" placeholder="Address line 1" required>
         <input class="input" name="address2" placeholder="Address line 2 (optional)">
         <input class="input" name="city" placeholder="City" required>

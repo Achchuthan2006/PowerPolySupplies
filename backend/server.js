@@ -855,6 +855,7 @@ async function verifyEmailTransporter({ force = false } = {}){
 // Simple in-memory verification store
 const verificationCodes = new Map();
 const authSessions = new Map();
+const oauthStates = new Map(); // state -> { provider, nextUrl, createdAt }
 
 function createSession(email){
   const token = crypto.randomBytes(24).toString("hex");
@@ -889,6 +890,146 @@ function getSessionFromRequest(req){
     return null;
   }
   return { token, ...session };
+}
+
+function base64Url(bytes){
+  return Buffer.from(bytes)
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/g, "");
+}
+
+function createOauthState({ provider, nextUrl }){
+  const state = base64Url(crypto.randomBytes(18));
+  oauthStates.set(state, {
+    provider: String(provider || ""),
+    nextUrl: String(nextUrl || ""),
+    createdAt: Date.now()
+  });
+  return state;
+}
+
+function consumeOauthState(state){
+  const key = String(state || "").trim();
+  if(!key) return null;
+  const entry = oauthStates.get(key);
+  oauthStates.delete(key);
+  if(!entry) return null;
+  const ttlMs = 10 * 60 * 1000;
+  if(Date.now() - Number(entry.createdAt || 0) > ttlMs) return null;
+  return entry;
+}
+
+function getFrontendBase(req){
+  const configured = String(siteUrl || "").trim().replace(/\/+$/,"");
+  if(configured) return configured;
+  if(HAS_FRONTEND){
+    const proto = String(req.headers["x-forwarded-proto"] || req.protocol || "http").split(",")[0].trim();
+    const host = String(req.headers["x-forwarded-host"] || req.get("host") || "").split(",")[0].trim();
+    if(host) return `${proto}://${host}`.replace(/\/+$/,"");
+  }
+  return "";
+}
+
+function sanitizeNextUrl(nextUrl, frontendBase){
+  const next = String(nextUrl || "").trim();
+  if(!next) return "";
+  // Allow relative paths.
+  if(next.startsWith("/") && !next.startsWith("//")) return next;
+  // Allow same-origin absolute URLs only.
+  try{
+    const base = String(frontendBase || "").trim();
+    if(!base) return "";
+    const nextParsed = new URL(next);
+    const baseParsed = new URL(base);
+    if(nextParsed.origin !== baseParsed.origin) return "";
+    return nextParsed.pathname + nextParsed.search + nextParsed.hash;
+  }catch{
+    return "";
+  }
+}
+
+async function upsertOauthUser({ email, name }){
+  const lower = String(email || "").trim().toLowerCase();
+  const displayName = String(name || "").trim().slice(0, 80);
+  if(!lower) throw new Error("Missing email from OAuth provider.");
+
+  const now = new Date().toISOString();
+  let existing = null;
+  try{
+    const { data, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("email", lower)
+      .maybeSingle();
+    if(error) throw error;
+    existing = data || null;
+  }catch(err){
+    console.error("Supabase OAuth user lookup failed", err);
+    const e = new Error("Unable to log in.");
+    e.status = 500;
+    throw e;
+  }
+
+  if(existing){
+    supabase.from("users")
+      .update({ last_login_at: now, ...(displayName ? { name: displayName } : {}) })
+      .eq("email", lower)
+      .then(({ error })=>{
+        if(error) console.error("Supabase OAuth user update failed", error);
+      });
+    return { email: lower, name: existing?.name || displayName || "" };
+  }
+
+  const userId = "USR-" + Date.now();
+  const userRow = {
+    id: userId,
+    email: lower,
+    name: displayName,
+    // Set a random password hash so the row matches the expected schema.
+    password_hash: hashPassword(crypto.randomBytes(24).toString("hex")),
+    created_at: now,
+    last_login_at: now,
+    first_login_at: now,
+    welcome_email_sent: false
+  };
+
+  try{
+    const { error: insertErr } = await supabase.from("users").insert(userRow);
+    if(insertErr) throw insertErr;
+  }catch(err){
+    console.error("Supabase OAuth user insert failed", err);
+    const e = new Error("Unable to create account.");
+    e.status = 500;
+    throw e;
+  }
+
+  const emailConfigured = !!buildTransportConfig();
+  if(emailConfigured){
+    try{
+      const out = await sendEmailAny({
+        from: getSenderAddress(),
+        to: lower,
+        subject: "Welcome to Power Poly Supplies!",
+        html: buildWelcomeHtml(displayName || "", new Date(now))
+      });
+      if(out.ok){
+        supabase.from("users")
+          .update({ welcome_email_sent:true })
+          .eq("email", lower)
+          .then(({ error: updateErr })=>{
+            if(updateErr) console.error("Supabase OAuth welcome email flag update failed", updateErr);
+          });
+      }else{
+        console.error("OAuth welcome email failed", out);
+      }
+    }catch(err){
+      console.error("OAuth welcome email failed", err);
+    }
+  }
+
+  return { email: lower, name: displayName || "" };
 }
 
 
@@ -1918,6 +2059,220 @@ app.post("/api/auth/logout", (req,res)=>{
   const session = getSessionFromRequest(req);
   if(session) authSessions.delete(session.token);
   res.json({ ok:true });
+});
+
+// ---- OAuth status ----
+app.get("/api/auth/oauth/status", (req,res)=>{
+  const googleClientId = readEnvFirst("OAUTH_GOOGLE_CLIENT_ID", "GOOGLE_OAUTH_CLIENT_ID");
+  const googleClientSecret = readEnvFirst("OAUTH_GOOGLE_CLIENT_SECRET", "GOOGLE_OAUTH_CLIENT_SECRET");
+  const googleRedirectUri = readEnvFirst("OAUTH_GOOGLE_REDIRECT_URI", "GOOGLE_OAUTH_REDIRECT_URI")
+    || (siteUrl ? `${String(siteUrl).replace(/\/+$/,"")}/api/auth/oauth/google/callback` : "");
+
+  const facebookAppId = readEnvFirst("OAUTH_FACEBOOK_APP_ID", "FACEBOOK_APP_ID", "FACEBOOK_OAUTH_APP_ID");
+  const facebookAppSecret = readEnvFirst("OAUTH_FACEBOOK_APP_SECRET", "FACEBOOK_APP_SECRET", "FACEBOOK_OAUTH_APP_SECRET");
+  const facebookRedirectUri = readEnvFirst("OAUTH_FACEBOOK_REDIRECT_URI", "FACEBOOK_OAUTH_REDIRECT_URI")
+    || (siteUrl ? `${String(siteUrl).replace(/\/+$/,"")}/api/auth/oauth/facebook/callback` : "");
+
+  res.json({
+    ok:true,
+    providers:{
+      google: { configured: !!(googleClientId && googleClientSecret && googleRedirectUri), clientId: googleClientId ? maskSecret(googleClientId) : "" },
+      facebook: { configured: !!(facebookAppId && facebookAppSecret && facebookRedirectUri), appId: facebookAppId ? maskSecret(facebookAppId) : "" }
+    }
+  });
+});
+
+// ---- OAuth: Google ----
+app.get("/api/auth/oauth/google/start", (req,res)=>{
+  const clientId = readEnvFirst("OAUTH_GOOGLE_CLIENT_ID", "GOOGLE_OAUTH_CLIENT_ID");
+  const clientSecret = readEnvFirst("OAUTH_GOOGLE_CLIENT_SECRET", "GOOGLE_OAUTH_CLIENT_SECRET");
+  const redirectUri = readEnvFirst("OAUTH_GOOGLE_REDIRECT_URI", "GOOGLE_OAUTH_REDIRECT_URI")
+    || (siteUrl ? `${String(siteUrl).replace(/\/+$/,"")}/api/auth/oauth/google/callback` : "");
+
+  if(!clientId || !clientSecret || !redirectUri){
+    return res.status(400).send("Google OAuth is not configured on the server.");
+  }
+
+  const frontendBase = getFrontendBase(req);
+  const next = sanitizeNextUrl(req.query.next, frontendBase);
+  const state = createOauthState({ provider:"google", nextUrl: next });
+
+  const params = new URLSearchParams({
+    client_id: clientId,
+    redirect_uri: redirectUri,
+    response_type: "code",
+    scope: "openid email profile",
+    state,
+    prompt: "select_account"
+  });
+  res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`);
+});
+
+app.get("/api/auth/oauth/google/callback", async (req,res)=>{
+  if(!requireSupabase(res)) return;
+  const clientId = readEnvFirst("OAUTH_GOOGLE_CLIENT_ID", "GOOGLE_OAUTH_CLIENT_ID");
+  const clientSecret = readEnvFirst("OAUTH_GOOGLE_CLIENT_SECRET", "GOOGLE_OAUTH_CLIENT_SECRET");
+  const redirectUri = readEnvFirst("OAUTH_GOOGLE_REDIRECT_URI", "GOOGLE_OAUTH_REDIRECT_URI")
+    || (siteUrl ? `${String(siteUrl).replace(/\/+$/,"")}/api/auth/oauth/google/callback` : "");
+
+  const frontendBase = getFrontendBase(req);
+  const stateValue = String(req.query.state || "").trim();
+  const stored = consumeOauthState(stateValue);
+  const next = sanitizeNextUrl(stored?.nextUrl, frontendBase);
+
+  const redirectToFrontend = (paramsObj)=>{
+    if(!frontendBase){
+      return res.status(400).json({ ok:false, message:"SITE_URL not configured (set SITE_URL to your public frontend URL)." });
+    }
+    const params = new URLSearchParams(paramsObj);
+    if(next) params.set("next", next);
+    return res.redirect(`${frontendBase}/login.html?${params.toString()}`);
+  };
+
+  if(req.query.error){
+    return redirectToFrontend({ pps_oauth:"1", provider:"google", ok:"0", message: String(req.query.error || "OAuth error") });
+  }
+
+  const code = String(req.query.code || "").trim();
+  if(!clientId || !clientSecret || !redirectUri || !code || !stored){
+    return redirectToFrontend({ pps_oauth:"1", provider:"google", ok:"0", message:"OAuth failed. Please try again." });
+  }
+
+  try{
+    const tokenRes = await fetch("https://oauth2.googleapis.com/token",{
+      method:"POST",
+      headers:{ "Content-Type":"application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        code,
+        client_id: clientId,
+        client_secret: clientSecret,
+        redirect_uri: redirectUri,
+        grant_type: "authorization_code"
+      }).toString()
+    });
+    const tokenJson = await tokenRes.json().catch(()=> ({}));
+    if(!tokenRes.ok || !tokenJson?.access_token){
+      console.error("Google token exchange failed", tokenJson);
+      return redirectToFrontend({ pps_oauth:"1", provider:"google", ok:"0", message:"Google sign-in failed." });
+    }
+
+    const userRes = await fetch("https://www.googleapis.com/oauth2/v2/userinfo",{
+      headers:{ Authorization: `Bearer ${tokenJson.access_token}` }
+    });
+    const userJson = await userRes.json().catch(()=> ({}));
+    if(!userRes.ok || !userJson?.email){
+      console.error("Google userinfo failed", userJson);
+      return redirectToFrontend({ pps_oauth:"1", provider:"google", ok:"0", message:"Google sign-in failed (missing email)." });
+    }
+
+    const user = await upsertOauthUser({ email: userJson.email, name: userJson.name || "" });
+    const session = createSession(user.email);
+    return redirectToFrontend({
+      pps_oauth:"1",
+      provider:"google",
+      ok:"1",
+      token: session.token,
+      email: user.email,
+      name: user.name || "",
+      expiresAt: String(session.expiresAt || "")
+    });
+  }catch(err){
+    console.error("Google OAuth callback failed", err);
+    return redirectToFrontend({ pps_oauth:"1", provider:"google", ok:"0", message:"Google sign-in failed. Please try again." });
+  }
+});
+
+// ---- OAuth: Facebook ----
+app.get("/api/auth/oauth/facebook/start", (req,res)=>{
+  const appId = readEnvFirst("OAUTH_FACEBOOK_APP_ID", "FACEBOOK_APP_ID", "FACEBOOK_OAUTH_APP_ID");
+  const appSecret = readEnvFirst("OAUTH_FACEBOOK_APP_SECRET", "FACEBOOK_APP_SECRET", "FACEBOOK_OAUTH_APP_SECRET");
+  const redirectUri = readEnvFirst("OAUTH_FACEBOOK_REDIRECT_URI", "FACEBOOK_OAUTH_REDIRECT_URI")
+    || (siteUrl ? `${String(siteUrl).replace(/\/+$/,"")}/api/auth/oauth/facebook/callback` : "");
+
+  if(!appId || !appSecret || !redirectUri){
+    return res.status(400).send("Facebook OAuth is not configured on the server.");
+  }
+
+  const frontendBase = getFrontendBase(req);
+  const next = sanitizeNextUrl(req.query.next, frontendBase);
+  const state = createOauthState({ provider:"facebook", nextUrl: next });
+
+  const params = new URLSearchParams({
+    client_id: appId,
+    redirect_uri: redirectUri,
+    response_type: "code",
+    scope: "email,public_profile",
+    state
+  });
+  res.redirect(`https://www.facebook.com/v19.0/dialog/oauth?${params.toString()}`);
+});
+
+app.get("/api/auth/oauth/facebook/callback", async (req,res)=>{
+  if(!requireSupabase(res)) return;
+  const appId = readEnvFirst("OAUTH_FACEBOOK_APP_ID", "FACEBOOK_APP_ID", "FACEBOOK_OAUTH_APP_ID");
+  const appSecret = readEnvFirst("OAUTH_FACEBOOK_APP_SECRET", "FACEBOOK_APP_SECRET", "FACEBOOK_OAUTH_APP_SECRET");
+  const redirectUri = readEnvFirst("OAUTH_FACEBOOK_REDIRECT_URI", "FACEBOOK_OAUTH_REDIRECT_URI")
+    || (siteUrl ? `${String(siteUrl).replace(/\/+$/,"")}/api/auth/oauth/facebook/callback` : "");
+
+  const frontendBase = getFrontendBase(req);
+  const stateValue = String(req.query.state || "").trim();
+  const stored = consumeOauthState(stateValue);
+  const next = sanitizeNextUrl(stored?.nextUrl, frontendBase);
+
+  const redirectToFrontend = (paramsObj)=>{
+    if(!frontendBase){
+      return res.status(400).json({ ok:false, message:"SITE_URL not configured (set SITE_URL to your public frontend URL)." });
+    }
+    const params = new URLSearchParams(paramsObj);
+    if(next) params.set("next", next);
+    return res.redirect(`${frontendBase}/login.html?${params.toString()}`);
+  };
+
+  if(req.query.error){
+    return redirectToFrontend({ pps_oauth:"1", provider:"facebook", ok:"0", message: String(req.query.error || "OAuth error") });
+  }
+
+  const code = String(req.query.code || "").trim();
+  if(!appId || !appSecret || !redirectUri || !code || !stored){
+    return redirectToFrontend({ pps_oauth:"1", provider:"facebook", ok:"0", message:"OAuth failed. Please try again." });
+  }
+
+  try{
+    const tokenParams = new URLSearchParams({
+      client_id: appId,
+      client_secret: appSecret,
+      redirect_uri: redirectUri,
+      code
+    });
+    const tokenRes = await fetch(`https://graph.facebook.com/v19.0/oauth/access_token?${tokenParams.toString()}`);
+    const tokenJson = await tokenRes.json().catch(()=> ({}));
+    if(!tokenRes.ok || !tokenJson?.access_token){
+      console.error("Facebook token exchange failed", tokenJson);
+      return redirectToFrontend({ pps_oauth:"1", provider:"facebook", ok:"0", message:"Facebook sign-in failed." });
+    }
+
+    const profileRes = await fetch(`https://graph.facebook.com/me?fields=id,name,email&access_token=${encodeURIComponent(tokenJson.access_token)}`);
+    const profileJson = await profileRes.json().catch(()=> ({}));
+    if(!profileRes.ok || !profileJson?.email){
+      console.error("Facebook profile failed", profileJson);
+      return redirectToFrontend({ pps_oauth:"1", provider:"facebook", ok:"0", message:"Facebook sign-in failed (no email returned)." });
+    }
+
+    const user = await upsertOauthUser({ email: profileJson.email, name: profileJson.name || "" });
+    const session = createSession(user.email);
+    return redirectToFrontend({
+      pps_oauth:"1",
+      provider:"facebook",
+      ok:"1",
+      token: session.token,
+      email: user.email,
+      name: user.name || "",
+      expiresAt: String(session.expiresAt || "")
+    });
+  }catch(err){
+    console.error("Facebook OAuth callback failed", err);
+    return redirectToFrontend({ pps_oauth:"1", provider:"facebook", ok:"0", message:"Facebook sign-in failed. Please try again." });
+  }
 });
 
 // ---- Account helpers ----

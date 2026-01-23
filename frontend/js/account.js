@@ -183,6 +183,32 @@
     }
   };
 
+  const DEFAULT_ADDRESS_ID_KEY = userKey("default_address_id_v1");
+  const getStoredDefaultAddressId = () => {
+    try {
+      return String(localStorage.getItem(DEFAULT_ADDRESS_ID_KEY) || "").trim();
+    } catch {
+      return "";
+    }
+  };
+  const setStoredDefaultAddressId = (id) => {
+    try {
+      const next = String(id || "").trim();
+      if (!next) localStorage.removeItem(DEFAULT_ADDRESS_ID_KEY);
+      else localStorage.setItem(DEFAULT_ADDRESS_ID_KEY, next);
+    } catch {
+      // ignore
+    }
+  };
+  const resolveDefaultAddressId = (list) => {
+    const safe = Array.isArray(list) ? list : [];
+    const stored = getStoredDefaultAddressId();
+    if (stored && safe.some((a) => String(a?.id) === String(stored))) return stored;
+    const first = safe[0]?.id ? String(safe[0].id) : "";
+    if (first) setStoredDefaultAddressId(first);
+    return first;
+  };
+
   const REWARDS_LEDGER_KEY = userKey("rewards_ledger_v1");
   const MILESTONES_PREFS_KEY = userKey("milestones_prefs_v1");
 
@@ -2040,13 +2066,17 @@
       `;
       return;
     }
+    const defaultId = resolveDefaultAddressId(list);
     els.addressesGrid.innerHTML = `
       <div class="profile-grid">
         ${list
           .map(
             (a) => `
               <div class="profile-item">
-                <div class="k">${esc(a.label || "Address")}</div>
+                <div class="k" style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+                  <span>${esc(a.label || "Address")}</span>
+                  ${String(a.id) === String(defaultId) ? `<span class="count-badge count-badge-muted" title="Default delivery address">Default</span>` : ""}
+                </div>
                 <div class="v" style="margin-top:8px;">
                   <div style="font-weight:1000;">${esc(a.name || "")}</div>
                   <div style="color:var(--muted); font-weight:800; font-size:13px; margin-top:4px;">
@@ -2058,6 +2088,7 @@
                   <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
                     <button class="btn btn-outline btn-sm" type="button" data-addr-edit="${esc(a.id)}">Edit</button>
                     <button class="btn btn-outline btn-sm" type="button" data-addr-del="${esc(a.id)}">Remove</button>
+                    <button class="btn btn-outline btn-sm" type="button" data-addr-default="${esc(a.id)}" ${String(a.id) === String(defaultId) ? "disabled" : ""}>Set default</button>
                   </div>
                 </div>
               </div>
@@ -2083,10 +2114,13 @@
     const key = userKey("addresses");
     const list = readJson(key, []);
     const safe = Array.isArray(list) ? list : [];
-    writeJson(
-      key,
-      safe.filter((x) => String(x.id) !== String(id))
-    );
+    const next = safe.filter((x) => String(x.id) !== String(id));
+    writeJson(key, next);
+    const defaultId = getStoredDefaultAddressId();
+    if (defaultId && String(defaultId) === String(id)) {
+      const nextDefault = next[0]?.id ? String(next[0].id) : "";
+      setStoredDefaultAddressId(nextDefault);
+    }
     renderAddresses();
   }
 
@@ -2272,8 +2306,20 @@
         const input = els.addAddressForm.querySelector(`[name=${k}]`);
         if (input) input.value = addr[k] || "";
       });
+      const makeDefault = els.addAddressForm.querySelector('[name="makeDefault"]');
+      if (makeDefault) makeDefault.checked = String(resolveDefaultAddressId(list)) === String(id);
       toast("Editing address...");
       window.location.hash = "#addresses";
+      return;
+    }
+
+    const addrDefault = e.target.closest("[data-addr-default]");
+    if (addrDefault) {
+      const id = String(addrDefault.getAttribute("data-addr-default") || "").trim();
+      if (!id) return;
+      setStoredDefaultAddressId(id);
+      toast("Default address updated.");
+      renderAddresses();
       return;
     }
 
@@ -2471,6 +2517,9 @@
       });
       if (!addr.country) addr.country = "Canada";
       upsertAddress(addr);
+      const wantsDefault = Boolean(els.addAddressForm.querySelector('[name="makeDefault"]')?.checked);
+      const existingDefault = getStoredDefaultAddressId();
+      if (wantsDefault || !existingDefault) setStoredDefaultAddressId(id);
       els.addAddressForm.reset();
       delete els.addAddressForm.dataset.editId;
       toast("Address saved.");
@@ -2479,6 +2528,15 @@
       }catch{
         // ignore
       }
+    });
+  }
+
+  const addrCancel = document.getElementById("addrCancelEdit");
+  if (addrCancel && els.addAddressForm) {
+    addrCancel.addEventListener("click", () => {
+      els.addAddressForm.reset();
+      delete els.addAddressForm.dataset.editId;
+      toast("Address edit cancelled.");
     });
   }
 

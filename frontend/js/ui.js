@@ -274,6 +274,23 @@ function injectCurrencySwitcher(){
   }
 }
 
+function injectResourcesNavLink(){
+  const navLinks = document.getElementById("navLinks");
+  if(!navLinks) return;
+  if(navLinks.querySelector('a[href="./resources.html"]')) return;
+
+  const link = document.createElement("a");
+  link.href = "./resources.html";
+  link.textContent = "Resources";
+
+  const anchorAfter = navLinks.querySelector('a[href="./specials.html"]');
+  if(anchorAfter && anchorAfter.parentElement === navLinks){
+    anchorAfter.insertAdjacentElement("afterend", link);
+    return;
+  }
+  navLinks.appendChild(link);
+}
+
 function getNotifUnreadCount(){
   try{
     const session = window.PPS?.getSession?.();
@@ -860,23 +877,48 @@ function injectHelpWidget(){
         <button class="help-close" type="button" id="helpClose" aria-label="Close">X</button>
       </div>
       <div class="help-panel-body">
-        <p data-i18n="help.subtitle">We're offline right now. Leave a message and we'll get back to you.</p>
-        <form id="helpForm" class="help-form">
-          <label>
-            <span data-i18n="help.name">Name</span>
-            <input class="input" name="name" required>
-          </label>
-          <label>
-            <span data-i18n="help.email">Email</span>
-            <input class="input" type="email" name="email" required>
-          </label>
-          <label>
-            <span data-i18n="help.message">Message</span>
-            <textarea class="input" name="message" rows="4" required></textarea>
-          </label>
-          <button class="btn btn-primary" type="submit" data-i18n="help.send">Send message</button>
-          <div class="help-status" id="helpStatus"></div>
-        </form>
+        <div class="help-tabs" role="tablist" aria-label="Help options">
+          <button class="help-tab active" type="button" role="tab" aria-selected="true" data-help-tab="faq">Quick answers</button>
+          <button class="help-tab" type="button" role="tab" aria-selected="false" data-help-tab="message">Message us</button>
+        </div>
+
+        <div class="help-tab-panels">
+          <div class="help-tab-panel open" data-help-panel="faq" role="tabpanel">
+            <div class="help-chat">
+              <div class="help-chat-log" id="helpChatLog" aria-live="polite"></div>
+              <div class="help-suggestions" id="helpChatSuggestions" aria-label="Suggested questions"></div>
+              <form class="help-chat-input" id="helpChatForm">
+                <input class="input" id="helpChatInput" placeholder="Ask a question (shipping, sizes, thickness...)" autocomplete="off">
+                <button class="btn btn-primary" type="submit">Send</button>
+              </form>
+              <div class="help-chat-footer">
+                <a class="btn btn-outline btn-sm" href="https://chat.whatsapp.com/LVaouedAZVIEcgrD6nj2hC" target="_blank" rel="noopener">WhatsApp</a>
+                <a class="btn btn-outline btn-sm" href="./resources.html">Resources</a>
+                <a class="btn btn-outline btn-sm" href="./contact.html">Contact</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="help-tab-panel" data-help-panel="message" role="tabpanel">
+            <p data-i18n="help.subtitle">We're offline right now. Leave a message and we'll get back to you.</p>
+            <form id="helpForm" class="help-form">
+              <label>
+                <span data-i18n="help.name">Name</span>
+                <input class="input" name="name" required>
+              </label>
+              <label>
+                <span data-i18n="help.email">Email</span>
+                <input class="input" type="email" name="email" required>
+              </label>
+              <label>
+                <span data-i18n="help.message">Message</span>
+                <textarea class="input" name="message" rows="4" required></textarea>
+              </label>
+              <button class="btn btn-primary" type="submit" data-i18n="help.send">Send message</button>
+              <div class="help-status" id="helpStatus"></div>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   `;
@@ -967,6 +1009,12 @@ function injectHelpWidget(){
   const closeBtn = document.getElementById("helpClose");
   const form = document.getElementById("helpForm");
   const status = document.getElementById("helpStatus");
+  const tabButtons = Array.from(wrap.querySelectorAll("[data-help-tab]"));
+  const tabPanels = Array.from(wrap.querySelectorAll("[data-help-panel]"));
+  const chatLog = document.getElementById("helpChatLog");
+  const chatSuggestions = document.getElementById("helpChatSuggestions");
+  const chatForm = document.getElementById("helpChatForm");
+  const chatInput = document.getElementById("helpChatInput");
 
   function setOpen(open){
     if(!fab || !panel) return;
@@ -975,11 +1023,158 @@ function injectHelpWidget(){
     panel.classList.toggle("open", open);
   }
 
+  function setActiveTab(tab){
+    const next = tab === "message" ? "message" : "faq";
+    tabButtons.forEach((btn)=>{
+      const isActive = btn.getAttribute("data-help-tab") === next;
+      btn.classList.toggle("active", isActive);
+      btn.setAttribute("aria-selected", isActive ? "true" : "false");
+    });
+    tabPanels.forEach((p)=>{
+      const isActive = p.getAttribute("data-help-panel") === next;
+      p.classList.toggle("open", isActive);
+    });
+  }
+
   if(fab){
     fab.addEventListener("click", ()=> setOpen(!panel.classList.contains("open")));
   }
   if(closeBtn){
     closeBtn.addEventListener("click", ()=> setOpen(false));
+  }
+
+  tabButtons.forEach((btn)=>{
+    btn.addEventListener("click", ()=> setActiveTab(btn.getAttribute("data-help-tab")));
+  });
+
+  // ---- Simple FAQ chatbot (rule-based, local) ----
+  const esc = (s) =>
+    String(s ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\"/g, "&quot;");
+
+  function appendMessage({ role, text, html }){
+    if(!chatLog) return;
+    const bubble = document.createElement("div");
+    bubble.className = `help-chat-msg ${role === "user" ? "user" : "bot"}`;
+    const inner = document.createElement("div");
+    inner.className = "help-chat-bubble";
+    if(html){
+      inner.innerHTML = html;
+    }else{
+      inner.textContent = String(text || "");
+    }
+    bubble.appendChild(inner);
+    chatLog.appendChild(bubble);
+    chatLog.scrollTop = chatLog.scrollHeight;
+  }
+
+  const FAQ = [
+    {
+      id: "shipping",
+      title: "Shipping / delivery",
+      match: (q)=> /ship|shipping|deliver|delivery|gta|outside|charge|charges|cost/i.test(q),
+      answer: () => `Standard GTA delivery is free. Express and non‑GTA delivery charges are confirmed by our team after we review the order and address.<br><a href="./legal-shipping.html">Read Shipping & Returns</a>`
+    },
+    {
+      id: "sizes",
+      title: "Garment bag sizes",
+      match: (q)=> /size|sizing|garment bag|cover bag|length|width|measure/i.test(q),
+      answer: () => `Use garment width + 4–6" and garment length + 4–8" as a quick rule. For bulky coats, consider a wider/gusseted bag.<br><a href="./resources.html#guide-garment-bag-sizes">Read the sizing guide</a>`
+    },
+    {
+      id: "thickness",
+      title: "Heavy vs Extra Heavy",
+      match: (q)=> /heavy|extra heavy|thick|thickness|mil|gauge|tear|puncture/i.test(q),
+      answer: () => `Choose <b>Heavy</b> for everyday packaging. Choose <b>Extra Heavy</b> for sharp corners, heavy loads, delivery routes, or fewer tears/rewraps.<br><a href="./resources.html#heavy-vs-extra-heavy">Read the thickness guide</a>`
+    },
+    {
+      id: "usage",
+      title: "Monthly packaging usage",
+      match: (q)=> /month|monthly|how much|usage|estimate|planning|plan/i.test(q),
+      answer: () => `A simple estimate: (garments/day) × (operating days/month), then add a 5–12% buffer for rewraps/tears/rush orders.<br><a href="./resources.html#dry-cleaner-packaging-usage">See the planner</a>`
+    },
+    {
+      id: "pay",
+      title: "Payment options",
+      match: (q)=> /pay|payment|square|card|invoice|pay later/i.test(q),
+      answer: () => `You can pay online with Square or place the order now and pay later after fulfillment is confirmed. Start checkout to see both options.<br><a href="./checkout.html">Go to checkout</a>`
+    },
+    {
+      id: "addresses",
+      title: "Saved delivery addresses",
+      match: (q)=> /address|addresses|multiple locations|warehouse|branch|default/i.test(q),
+      answer: () => `Business customers can save multiple delivery addresses (Main Store, Warehouse, Branch) and set a default for faster checkout.<br><a href="./account.html#addresses">Manage addresses</a>`
+    }
+  ];
+
+  function renderSuggestions(){
+    if(!chatSuggestions) return;
+    const items = [
+      { id:"sizes", label:"Choosing garment bag sizes" },
+      { id:"thickness", label:"Heavy vs Extra Heavy thickness" },
+      { id:"usage", label:"How much packaging per month?" },
+      { id:"shipping", label:"Shipping / delivery" },
+      { id:"pay", label:"Payments / pay later" }
+    ];
+    chatSuggestions.innerHTML = items
+      .map((it)=> `<button type="button" class="help-chip" data-help-chip="${esc(it.id)}">${esc(it.label)}</button>`)
+      .join("");
+    chatSuggestions.addEventListener("click", (e)=>{
+      const btn = e.target?.closest?.("[data-help-chip]");
+      if(!btn) return;
+      const id = btn.getAttribute("data-help-chip");
+      const found = FAQ.find((x)=> x.id === id);
+      if(!found) return;
+      appendMessage({ role:"user", text: btn.textContent });
+      appendMessage({ role:"bot", html: found.answer() });
+    }, { once:true });
+  }
+
+  function answerQuestion(q){
+    const raw = String(q || "").trim();
+    if(!raw) return;
+    appendMessage({ role:"user", text: raw });
+    const hit = FAQ.find((item)=> item.match(raw));
+    if(hit){
+      appendMessage({ role:"bot", html: hit.answer() });
+      return;
+    }
+    appendMessage({
+      role:"bot",
+      html: `I can help with shipping, bag sizes, thickness, and monthly usage. Try one of the quick buttons below, or visit <a href="./resources.html">Resources</a>.`
+    });
+  }
+
+  function initChat(){
+    if(!chatLog || chatLog.childElementCount) return;
+    appendMessage({
+      role:"bot",
+      html: `Hi! Ask me about shipping, garment bag sizes, thickness, or monthly packaging planning.`
+    });
+    renderSuggestions();
+  }
+
+  if(chatForm){
+    chatForm.addEventListener("submit", (event)=>{
+      event.preventDefault();
+      const value = String(chatInput?.value || "").trim();
+      if(!value) return;
+      if(chatInput) chatInput.value = "";
+      answerQuestion(value);
+    });
+  }
+
+  // Initialize chat once the panel opens.
+  if(fab){
+    fab.addEventListener("click", ()=>{
+      if(panel?.classList.contains("open")){
+        initChat();
+        if(chatInput) setTimeout(()=> chatInput.focus(), 0);
+      }
+    });
   }
 
   if(form){
@@ -1023,11 +1218,390 @@ function injectHelpWidget(){
   window.addEventListener("pps:lang", applyHelpCopy);
 }
 
+function showAuthModal(options = {}){
+  const existing = document.getElementById("ppsAuthModal");
+  if(existing) return;
+
+  const session = window.PPS?.getSession?.();
+  if(session){
+    window.location.href = "./account.html";
+    return;
+  }
+
+  const nextUrl = String(options?.nextUrl || "").trim();
+  if(nextUrl){
+    try{ sessionStorage.setItem("pps_login_next", nextUrl); }catch{ /* ignore */ }
+  }
+
+  const overlay = document.createElement("div");
+  overlay.className = "pps-modal-overlay open";
+  overlay.id = "ppsAuthModal";
+  overlay.innerHTML = `
+    <div class="pps-modal pps-auth-modal" role="dialog" aria-modal="true" aria-labelledby="ppsAuthTitle">
+      <button class="pps-auth-close-x" type="button" aria-label="Close">×</button>
+      <div class="pps-auth-layout">
+        <div class="pps-auth-left" aria-hidden="true">
+          <div class="pps-auth-brand">
+            <img src="./assets/poly%20logo%20without%20background.png" alt="Power Poly Supplies" decoding="async">
+            <div>PowerPolySupplies.com</div>
+          </div>
+          <div class="pps-auth-kicker">Canada-wide B2B sourcing</div>
+          <h3 class="pps-auth-headline">Order protection and great savings.</h3>
+          <div class="pps-auth-subline">Sign in to reorder faster, save multiple delivery addresses, and manage invoices.</div>
+          <img class="pps-auth-illustration" src="./assets/auth-illustration.svg" alt="" loading="lazy" decoding="async">
+        </div>
+
+        <div class="pps-auth-right">
+          <h2 id="ppsAuthTitle">Sign in or create account</h2>
+
+          <button class="pps-auth-provider" type="button" data-auth-provider="google" disabled>
+            <span class="pps-auth-icon" style="background:#4285F4;"></span>
+            Continue with Google
+          </button>
+          <button class="pps-auth-provider" type="button" data-auth-provider="facebook" disabled style="margin-top:10px;">
+            <span class="pps-auth-icon" style="background:#1877F2;"></span>
+            Continue with Facebook
+          </button>
+          <button class="pps-auth-provider" type="button" data-auth-provider="linkedin" disabled style="margin-top:10px;">
+            <span class="pps-auth-icon" style="background:#0A66C2;"></span>
+            Continue with LinkedIn
+          </button>
+
+          <div class="pps-auth-divider">OR</div>
+
+          <form class="pps-auth-form" id="ppsAuthForm">
+            <input class="input" type="email" name="email" placeholder="Enter your email address" autocomplete="email" required>
+            <div class="password-field">
+              <input class="input" type="password" name="password" id="ppsAuthPassword" placeholder="Password" autocomplete="current-password" required>
+              <button class="toggle-visibility hidden" type="button" aria-label="Show password" title="Show password" data-toggle="ppsAuthPassword">
+                <span class="eye"></span>
+              </button>
+            </div>
+            <button class="btn btn-primary" type="submit" id="ppsAuthContinue">Continue</button>
+            <div id="ppsAuthStatus" class="status muted" style="display:none;"></div>
+          </form>
+
+          <div class="pps-auth-footer">
+            <div class="pps-auth-mini">New here? <a href="./signup.html">Create an account</a></div>
+            <div class="pps-auth-mini"><a href="./contact.html">Need help?</a></div>
+          </div>
+
+          <div class="pps-auth-mini" style="margin-top:10px;">
+            Social sign-in is enabled when OAuth is configured on the backend.
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const modal = overlay.querySelector(".pps-modal");
+  const closeBtn = overlay.querySelector(".pps-auth-close-x");
+  const statusEl = overlay.querySelector("#ppsAuthStatus");
+  const form = overlay.querySelector("#ppsAuthForm");
+  const passwordToggle = overlay.querySelector(".toggle-visibility");
+  const googleBtn = overlay.querySelector('[data-auth-provider="google"]');
+  const facebookBtn = overlay.querySelector('[data-auth-provider="facebook"]');
+  const linkedinBtn = overlay.querySelector('[data-auth-provider="linkedin"]');
+
+  const setStatus = (text, type = "muted") => {
+    if(!statusEl) return;
+    const msg = String(text || "").trim();
+    if(!msg){
+      statusEl.style.display = "none";
+      statusEl.textContent = "";
+      return;
+    }
+    statusEl.style.display = "block";
+    statusEl.classList.remove("error","success","muted");
+    statusEl.classList.add("status", type || "muted");
+    statusEl.textContent = msg;
+  };
+
+  const close = () => {
+    try{ document.removeEventListener("keydown", onKey); }catch{ /* ignore */ }
+    overlay.classList.remove("open");
+    setTimeout(()=> overlay.remove(), 160);
+  };
+
+  const normalizeLoginStatus = (message) => {
+    const raw = String(message || "");
+    if(!raw) return "";
+    if(raw.includes("Supabase not configured")){
+      return window.PPS_I18N?.t("login.status.unavailable") || "Login temporarily unavailable. Please try again later.";
+    }
+    return raw;
+  };
+
+  const login = async (email, password) => {
+    const apiBase = window.PPS?.API_BASE || "";
+    if(!apiBase){
+      setStatus("Backend API not configured.", "error");
+      return;
+    }
+    setStatus(window.PPS_I18N?.t("login.status.signing") || "Signing in...", "muted");
+    const submitBtn = overlay.querySelector("#ppsAuthContinue");
+    if(submitBtn) submitBtn.disabled = true;
+
+    try{
+      const res = await fetch(`${apiBase}/api/auth/login`,{
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json().catch(()=> ({}));
+      if(res.ok && data.ok && data.token){
+        const lowerEmail = String(data.email || email).trim().toLowerCase();
+        let profile = {};
+        try{
+          profile = JSON.parse(localStorage.getItem(`pps_profile_${lowerEmail}`) || "{}");
+        }catch{
+          profile = {};
+        }
+        window.PPS?.setSession?.({
+          token: data.token,
+          email: lowerEmail,
+          name: data.name || "",
+          phone: String(profile?.phone || ""),
+          province: String(profile?.province || ""),
+          expiresAt: data.expiresAt
+        });
+        try{
+          window.PPS_ACTIVITY?.record?.("login", { email: lowerEmail });
+        }catch{
+          // ignore
+        }
+
+        let next = "";
+        try{ next = String(sessionStorage.getItem("pps_login_next") || "").trim(); }catch{ next = ""; }
+        try{ sessionStorage.removeItem("pps_login_next"); }catch{ /* ignore */ }
+
+        // Prefer returning the user to where they were (eg. checkout), otherwise go to account.
+        const safeNext = next && !/\/login\.html(\?|#|$)/i.test(next) ? next : "";
+        window.location.href = safeNext || "./account.html";
+      }else{
+        const normalized = normalizeLoginStatus(data?.message);
+        setStatus(normalized || (window.PPS_I18N?.t("login.status.failed") || "Login failed."), "error");
+      }
+    }catch{
+      setStatus(window.PPS_I18N?.t("login.status.unreachable") || "Server unreachable. Is the backend running?", "error");
+    }finally{
+      if(submitBtn) submitBtn.disabled = false;
+    }
+  };
+
+  const startOauth = (provider)=>{
+    const apiBase = window.PPS?.API_BASE || "";
+    if(!apiBase){
+      setStatus("Backend API not configured.", "error");
+      return;
+    }
+    const next = (()=>{
+      try{ return String(sessionStorage.getItem("pps_login_next") || "").trim() || window.location.href; }catch{ return window.location.href; }
+    })();
+    const url = `${apiBase}/api/auth/oauth/${encodeURIComponent(provider)}/start?next=${encodeURIComponent(next)}`;
+    window.location.href = url;
+  };
+
+  const refreshOauthButtons = async ()=>{
+    const apiBase = window.PPS?.API_BASE || "";
+    if(!apiBase) return;
+    try{
+      const res = await fetch(`${apiBase}/api/auth/oauth/status`, { cache:"no-store" });
+      const data = await res.json().catch(()=> ({}));
+      const googleOk = !!data?.providers?.google?.configured;
+      const fbOk = !!data?.providers?.facebook?.configured;
+      if(googleBtn) googleBtn.disabled = !googleOk;
+      if(facebookBtn) facebookBtn.disabled = !fbOk;
+      if(linkedinBtn) linkedinBtn.disabled = true;
+    }catch{
+      // Keep disabled on failure.
+      if(googleBtn) googleBtn.disabled = true;
+      if(facebookBtn) facebookBtn.disabled = true;
+      if(linkedinBtn) linkedinBtn.disabled = true;
+    }
+  };
+
+  const setToggleLabel = (btn, fieldType) => {
+    const show = window.PPS_I18N?.t("signup.password.show") || "Show password";
+    const hide = window.PPS_I18N?.t("signup.password.hide") || "Hide password";
+    const text = fieldType === "password" ? show : hide;
+    btn.setAttribute("aria-label", text);
+    btn.setAttribute("title", text);
+  };
+
+  if(passwordToggle){
+    setToggleLabel(passwordToggle, "password");
+    passwordToggle.addEventListener("click", (event)=>{
+      const btn = event.currentTarget;
+      const id = btn.dataset.toggle;
+      const field = document.getElementById(id);
+      if(!field) return;
+      const nextType = field.type === "password" ? "text" : "password";
+      field.type = nextType;
+      setToggleLabel(btn, nextType);
+      btn.classList.toggle("visible", nextType === "text");
+      btn.classList.toggle("hidden", nextType === "password");
+    });
+  }
+
+  if(closeBtn) closeBtn.addEventListener("click", close);
+  overlay.addEventListener("click", (event)=>{
+    if(event.target === overlay) close();
+  });
+  function onKey(event){
+    if(event.key !== "Escape") return;
+    close();
+  }
+  document.addEventListener("keydown", onKey);
+
+  if(form){
+    form.addEventListener("submit", (event)=>{
+      event.preventDefault();
+      const email = String(form.email?.value || "").trim();
+      const password = String(form.password?.value || "");
+      if(!email || !password){
+        setStatus(window.PPS_I18N?.t("login.status.missing") || "Enter email and password.", "error");
+        return;
+      }
+      login(email, password);
+    });
+  }
+
+  if(googleBtn){
+    googleBtn.addEventListener("click", ()=> startOauth("google"));
+  }
+  if(facebookBtn){
+    facebookBtn.addEventListener("click", ()=> startOauth("facebook"));
+  }
+  if(linkedinBtn){
+    linkedinBtn.addEventListener("click", ()=> setStatus("LinkedIn sign-in is not available yet.", "muted"));
+  }
+
+  refreshOauthButtons();
+
+  // Focus first input for fast login.
+  const firstInput = overlay.querySelector('input[name="email"]');
+  if(firstInput) setTimeout(()=> firstInput.focus(), 0);
+
+  // Prevent background scroll while open.
+  document.documentElement.style.overflow = "hidden";
+  const restoreScroll = ()=>{ document.documentElement.style.overflow = ""; };
+  // Fallback restore when closed.
+  const observer = new MutationObserver(()=>{
+    if(!document.getElementById("ppsAuthModal")){
+      observer.disconnect();
+      restoreScroll();
+    }
+  });
+  observer.observe(document.body, { childList:true });
+}
+
+function handleOauthReturn(){
+  let params = null;
+  try{
+    params = new URLSearchParams(window.location.search);
+  }catch{
+    return;
+  }
+  if(!params) return;
+  const marker = String(params.get("pps_oauth") || "").trim();
+  const token = String(params.get("token") || "").trim();
+  if(marker !== "1" || !token) return;
+
+  const ok = String(params.get("ok") || "").trim();
+  const message = String(params.get("message") || "").trim();
+  const email = String(params.get("email") || "").trim().toLowerCase();
+  const name = String(params.get("name") || "").trim();
+  const expiresAt = Number(params.get("expiresAt") || 0) || 0;
+  const next = String(params.get("next") || "").trim();
+
+  // Clear the sensitive params from the URL immediately.
+  try{
+    const url = new URL(window.location.href);
+    ["pps_oauth","provider","ok","token","email","name","expiresAt","message","next"].forEach((k)=> url.searchParams.delete(k));
+    window.history.replaceState({}, "", url.toString());
+  }catch{
+    // ignore
+  }
+
+  if(ok !== "1"){
+    // If OAuth failed, bounce to login page with a minimal message.
+    try{
+      if(message){
+        sessionStorage.setItem("pps_login_error", message);
+      }
+    }catch{
+      // ignore
+    }
+    if(!/\/login\.html(\?|#|$)/i.test(String(window.location.pathname || ""))){
+      window.location.href = "./login.html";
+    }
+    return;
+  }
+
+  try{
+    window.PPS?.setSession?.({
+      token,
+      email,
+      name,
+      phone: "",
+      province: "",
+      expiresAt: expiresAt || (Date.now() + 7 * 24 * 60 * 60 * 1000)
+    });
+  }catch{
+    // ignore
+  }
+
+  // Prefer returning the user to where they were (eg. checkout), otherwise go to account.
+  const safeNext = (()=>{
+    if(!next) return "";
+    if(next.startsWith("/") && !next.startsWith("//")) return next;
+    try{
+      const u = new URL(next, window.location.origin);
+      if(u.origin !== window.location.origin) return "";
+      return u.pathname + u.search + u.hash;
+    }catch{
+      return "";
+    }
+  })();
+
+  window.location.href = safeNext || "./account.html";
+}
+
+function setupAuthModalTriggers(){
+  const accountLink = document.querySelector('a[href="./login.html"]');
+  if(accountLink){
+    accountLink.addEventListener("click", (event)=>{
+      const session = window.PPS?.getSession?.();
+      if(session) return;
+      event.preventDefault();
+      showAuthModal({ nextUrl: window.location.href });
+    });
+  }
+
+  // If someone lands on login.html directly, show the modal on top for the same experience.
+  try{
+    const path = String(window.location.pathname || "").toLowerCase();
+    if(path.endsWith("/login.html")){
+      const session = window.PPS?.getSession?.();
+      if(!session) showAuthModal({ nextUrl: "./account.html" });
+    }
+  }catch{
+    // ignore
+  }
+}
+
+// Run ASAP so login.html doesn't render before the redirect.
+handleOauthReturn();
+
 window.addEventListener("DOMContentLoaded", ()=>{
   setupNavbar();
   setupFadeIn();
   setupStickyHeader();
   syncAccountLink();
+  setupAuthModalTriggers();
+  injectResourcesNavLink();
   injectLangSwitcher();
   injectCurrencySwitcher();
   injectNotificationsBell();
