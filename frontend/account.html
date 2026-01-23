@@ -78,6 +78,7 @@
           <a href="#activity">Activity</a>
           <a href="#notifications">Notifications <span class="badge" id="notifCountBadge" style="display:none;">0</span></a>
           <a href="#orders">Orders <span class="badge" id="ordersCountBadge">0</span></a>
+          <a href="#invoices"><span data-i18n="account.invoices.nav">Invoices</span> <span class="badge" id="invoicesCountBadge">0</span></a>
           <a href="#favorites">Favorites <span class="badge" id="favoritesCountBadge">0</span></a>
           <a href="#reorder">Quick Reorder</a>
           <a href="#templates" data-i18n="account.templates.nav">Order templates</a>
@@ -140,6 +141,42 @@
 
           <div id="ordersMsg" style="font-size:13px; color:var(--muted); margin:10px 0 8px;"></div>
           <div id="ordersGrid" class="grid" style="gap:12px;"></div>
+        </section>
+
+        <section id="invoices" style="margin-top:16px;">
+          <div class="card fade-in" style="padding:18px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
+              <div>
+                <h2 style="margin:0;" data-i18n="account.invoices.title">Invoices</h2>
+                <div style="color:var(--muted); font-size:13px; margin-top:4px;" data-i18n="account.invoices.subtitle">Download invoices (PDF) for accounting, search by order, and export a date range at once.</div>
+              </div>
+              <button class="btn btn-primary btn-sm" type="button" id="downloadInvoicesRange" data-i18n="account.invoices.download_range">Download date range (PDF)</button>
+            </div>
+
+            <div class="order-filters" style="margin-top:12px;">
+              <input class="input" type="search" id="invoiceSearch" placeholder="Search invoices... (order id, product name)" data-i18n-placeholder="account.invoices.search_placeholder">
+              <select class="input" id="invoiceStatus">
+                <option value="" data-i18n="account.invoices.status_all">All status</option>
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+                <option value="fulfilled">Fulfilled</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+              <label class="pref-field" style="max-width:220px;">
+                <span style="font-size:13px; color:var(--muted);" data-i18n="account.invoices.from">From</span>
+                <input class="input" type="date" id="invoiceFrom">
+              </label>
+              <label class="pref-field" style="max-width:220px;">
+                <span style="font-size:13px; color:var(--muted);" data-i18n="account.invoices.to">To</span>
+                <input class="input" type="date" id="invoiceTo">
+              </label>
+            </div>
+
+            <div id="invoicesMsg" style="font-size:13px; color:var(--muted); margin:10px 0 8px;"></div>
+            <div id="invoicesList" class="grid" style="gap:12px;"></div>
+          </div>
         </section>
 
         <section id="wishlists" style="margin-top:16px;">

@@ -25,6 +25,8 @@
     accountMsg: $("#accountMsg"),
     ordersGrid: $("#ordersGrid"),
     ordersMsg: $("#ordersMsg"),
+    invoicesList: $("#invoicesList"),
+    invoicesMsg: $("#invoicesMsg"),
     favoritesGrid: $("#favoritesGrid"),
     favoritesMsg: $("#favoritesMsg"),
     favoritesSuggestions: $("#favoritesSuggestions"),
@@ -40,11 +42,17 @@
     dashboardSub: $("#dashboardSub"),
     dashboardInsights: $("#dashboardInsights"),
     ordersCountBadge: $("#ordersCountBadge"),
+    invoicesCountBadge: $("#invoicesCountBadge"),
     favoritesCountBadge: $("#favoritesCountBadge"),
     orderSearch: $("#orderSearch"),
     orderStatus: $("#orderStatus"),
     orderRange: $("#orderRange"),
     exportOrdersBtn: $("#exportOrders"),
+    invoiceSearch: $("#invoiceSearch"),
+    invoiceStatus: $("#invoiceStatus"),
+    invoiceFrom: $("#invoiceFrom"),
+    invoiceTo: $("#invoiceTo"),
+    downloadInvoicesRangeBtn: $("#downloadInvoicesRange"),
     addressesGrid: $("#addressesGrid"),
     addAddressForm: $("#addAddressForm"),
     paymentGrid: $("#paymentGrid"),
@@ -1178,6 +1186,12 @@
       return;
     }
 
+    const labelTrack = tt("account.actions.track", "Track order");
+    const labelInvoice = tt("account.actions.invoice", "Invoice (PDF)");
+    const labelEmail = tt("account.actions.email_receipt", "Email receipt");
+    const labelShare = tt("account.actions.share", "Share");
+    const labelReport = tt("account.actions.report_problem", "Report problem");
+
     const q = String(els.orderSearch?.value || "").trim().toLowerCase();
     const statusFilter = String(els.orderStatus?.value || "").trim().toLowerCase();
     const range = String(els.orderRange?.value || "all");
@@ -1299,11 +1313,11 @@
             <div class="order-items">${itemRows}</div>
             <div class="order-actions">
               <button class="btn btn-primary" type="button" onclick="reorder('${esc(order.id)}')">${window.PPS_I18N?.t("account.reorder") || "Reorder"}</button>
-              <button class="btn btn-outline" type="button" onclick="trackOrder('${esc(order.id)}')">Track order</button>
-              <button class="btn btn-outline" type="button" onclick="downloadInvoice('${esc(order.id)}')">Download invoice</button>
-              <button class="btn btn-outline" type="button" onclick="emailReceipt('${esc(order.id)}')">Email receipt</button>
-              <button class="btn btn-outline" type="button" onclick="shareOrder('${esc(order.id)}')">Share</button>
-              <a class="btn btn-outline" href="${contactIssue}">Report problem</a>
+              <button class="btn btn-outline" type="button" onclick="trackOrder('${esc(order.id)}')">${esc(labelTrack)}</button>
+              <button class="btn btn-outline" type="button" onclick="downloadInvoice('${esc(order.id)}')">${esc(labelInvoice)}</button>
+              <button class="btn btn-outline" type="button" onclick="emailReceipt('${esc(order.id)}')">${esc(labelEmail)}</button>
+              <button class="btn btn-outline" type="button" onclick="shareOrder('${esc(order.id)}')">${esc(labelShare)}</button>
+              <a class="btn btn-outline" href="${contactIssue}">${esc(labelReport)}</a>
             </div>
           </div>
         `;
@@ -1311,6 +1325,122 @@
       .join("");
 
     $$(".fade-in").forEach((el) => el.classList.add("show"));
+  }
+
+  function parseDateInput(value) {
+    const raw = String(value || "").trim();
+    if (!raw) return null;
+    const parts = raw.split("-").map((n) => Number(n));
+    if (parts.length !== 3 || parts.some((n) => !Number.isFinite(n))) return null;
+    const [y, m, d] = parts;
+    const dt = new Date(y, m - 1, d);
+    const t = dt.getTime();
+    if (Number.isNaN(t)) return null;
+    return t;
+  }
+
+  function getInvoicesFiltered() {
+    const q = String(els.invoiceSearch?.value || "").trim().toLowerCase();
+    const statusFilter = String(els.invoiceStatus?.value || "").trim().toLowerCase();
+    const from = parseDateInput(els.invoiceFrom?.value);
+    const toRaw = parseDateInput(els.invoiceTo?.value);
+    const to = toRaw == null ? null : toRaw + 24 * 60 * 60 * 1000 - 1;
+
+    return state.orders.filter((order) => {
+      const createdAtMs = new Date(order.createdAt).getTime();
+      if (from != null && createdAtMs < from) return false;
+      if (to != null && createdAtMs > to) return false;
+      if (statusFilter && getStatusKey(order.status) !== statusFilter) return false;
+      if (!q) return true;
+      const hay = [order.id, order.status, fmtShortDate(order.createdAt), ...(order.items || []).map((it) => it.name)]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return hay.includes(q);
+    });
+  }
+
+  function renderInvoices() {
+    if (!els.invoicesList || !els.invoicesMsg) return;
+
+    if (els.invoicesCountBadge) els.invoicesCountBadge.textContent = String(state.orders.length);
+
+    if (!state.orders.length) {
+      els.invoicesMsg.textContent = tt("account.invoices.empty", "No invoices yet. Orders will appear here once you place an order.");
+      els.invoicesList.innerHTML = "";
+      return;
+    }
+
+    const filtered = getInvoicesFiltered();
+    if (!filtered.length) {
+      els.invoicesMsg.textContent = tt("account.invoices.none", "No matching invoices. Try a different search or filters.");
+      els.invoicesList.innerHTML = "";
+      return;
+    }
+
+    els.invoicesMsg.textContent = "";
+    const labelInvoice = tt("account.actions.invoice", "Invoice (PDF)");
+    const labelEmail = tt("account.actions.email_receipt", "Email receipt");
+
+    els.invoicesList.innerHTML = filtered
+      .map((order) => {
+        const status = getStatusKey(order.status);
+        const currency = order.currency || "CAD";
+        const itemSummary = (order.items || [])
+          .slice(0, 2)
+          .map((it) => `${it.name} x${Number(it.qty) || 0}`)
+          .filter(Boolean)
+          .join(" · ");
+        const more = Math.max(0, (order.items || []).length - 2);
+        return `
+          <div class="card fade-in" style="padding:14px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
+              <div>
+                <div style="font-weight:1000;">${esc(tt("account.order", "Order"))} #${esc(order.id)}</div>
+                <div style="color:var(--muted); font-size:13px; margin-top:4px;">${esc(fmtDateTime(order.createdAt))}${itemSummary ? ` · ${esc(itemSummary)}${more ? ` +${more}` : ""}` : ""}</div>
+              </div>
+              <div style="text-align:right;">
+                <div class="status-pill ${esc(status)}" style="display:inline-flex;">${esc(statusLabel(status))}</div>
+                <div style="margin-top:6px; font-weight:1000;">${money(Number(order.totalCents || 0), currency)}</div>
+              </div>
+            </div>
+            <div style="margin-top:10px; display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
+              <button class="btn btn-outline btn-sm" type="button" onclick="emailReceipt('${esc(order.id)}')">${esc(labelEmail)}</button>
+              <button class="btn btn-primary btn-sm" type="button" onclick="downloadInvoice('${esc(order.id)}')">${esc(labelInvoice)}</button>
+            </div>
+          </div>
+        `;
+      })
+      .join("");
+
+    $$(".fade-in").forEach((el) => el.classList.add("show"));
+  }
+
+  function downloadInvoicesRangeFromFilters() {
+    const from = parseDateInput(els.invoiceFrom?.value);
+    const toRaw = parseDateInput(els.invoiceTo?.value);
+    if (from == null || toRaw == null) {
+      toast(tt("account.invoices.select_range", "Select a start and end date to download a date range."));
+      return;
+    }
+
+    const filtered = getInvoicesFiltered();
+    if (!filtered.length) {
+      toast(tt("account.invoices.none", "No matching invoices. Try a different search or filters."));
+      return;
+    }
+
+    const MAX = 30;
+    if (filtered.length > MAX) {
+      const tmpl = tt("account.invoices.too_many", "");
+      const msg = tmpl
+        ? tmpl.replace(/\{\{count\}\}/g, String(filtered.length)).replace(/\{\{max\}\}/g, String(MAX))
+        : `Too many invoices (${filtered.length}). Narrow the range to download up to ${MAX} at once.`;
+      toast(msg);
+    }
+    const slice = filtered.slice(0, MAX);
+    const title = `Invoices ${String(els.invoiceFrom?.value || "")} to ${String(els.invoiceTo?.value || "")}`.trim();
+    downloadInvoicesForOrders(slice, { title: title || "Invoices", autoPrint: true });
   }
 
   function renderProfile(latest) {
@@ -1374,46 +1504,322 @@
     setTimeout(() => URL.revokeObjectURL(url), 4000);
   }
 
+  const COMPANY_INFO = {
+    name: "Power Poly Supplies",
+    address: "15725 Weston Rd, Kettleby, ON L7B 0L4",
+    email: "powerpolysupplies@gmail.com"
+  };
+
+  function getProvinceTaxInfo(code) {
+    const c = String(code || "").trim().toUpperCase();
+    const map = {
+      ON: { label: "HST 13%", rate: 0.13 },
+      NS: { label: "HST 15%", rate: 0.15 },
+      NB: { label: "HST 15%", rate: 0.15 },
+      NL: { label: "HST 15%", rate: 0.15 },
+      PE: { label: "HST 15%", rate: 0.15 },
+      AB: { label: "GST 5%", rate: 0.05 },
+      BC: { label: "GST 5%", rate: 0.05 },
+      SK: { label: "GST 5%", rate: 0.05 },
+      MB: { label: "GST 5%", rate: 0.05 },
+      QC: { label: "GST 5% + QST 9.975%", rate: 0.05, qstRate: 0.09975 },
+      YT: { label: "GST 5%", rate: 0.05 },
+      NT: { label: "GST 5%", rate: 0.05 },
+      NU: { label: "GST 5%", rate: 0.05 }
+    };
+    return map[c] || { label: tt("invoice.tax", "Tax"), rate: 0 };
+  }
+
+  function computeInvoiceTotals(order) {
+    const currency = order.currency || "CAD";
+    const items = Array.isArray(order.items) ? order.items : [];
+    const itemsSubtotalCents = items.reduce((sum, it) => sum + Number(it.priceCents || 0) * Number(it.qty || 0), 0);
+
+    const discountFromOrder = Number(order.discountCents ?? order.discount_cents ?? 0);
+    const discountFromRewards = Number(order.customer?.rewards?.amountCents ?? 0);
+    const discountCents = Math.max(0, Math.min(itemsSubtotalCents, discountFromOrder || discountFromRewards || 0));
+    const discountLabel = String(order.customer?.rewards?.code || "").trim();
+
+    const shippingCents = Math.max(0, Number(order.shipping?.costCents ?? order.shipping?.amountCents ?? 0));
+    const shippingLabel = String(order.shipping?.label || tt("invoice.shipping", "Shipping")).trim();
+
+    const province = String(order.customer?.province || session?.province || "").trim().toUpperCase();
+    const taxableSubtotalCents = Math.max(0, itemsSubtotalCents - discountCents);
+    const taxInfo = getProvinceTaxInfo(province);
+    const gstCents = Math.round(taxableSubtotalCents * (Number(taxInfo.rate) || 0));
+    const qstCents = taxInfo.qstRate ? Math.round(taxableSubtotalCents * Number(taxInfo.qstRate)) : 0;
+    const computedTaxCents = gstCents + qstCents;
+
+    const totalFromOrder = Number(order.totalCents ?? order.total_cents ?? 0);
+    const totalComputed = taxableSubtotalCents + shippingCents + computedTaxCents;
+    const totalCents = totalFromOrder > 0 ? totalFromOrder : totalComputed;
+
+    let taxCents = Math.max(0, Number(order.taxCents ?? order.tax_cents ?? 0));
+    if (!taxCents && computedTaxCents) taxCents = computedTaxCents;
+    if (!taxCents && totalCents) {
+      taxCents = Math.max(0, totalCents - (taxableSubtotalCents + shippingCents));
+    }
+
+    const paymentMethod = String(order.paymentMethod ?? order.payment_method ?? "").trim();
+
+    return {
+      currency,
+      items,
+      itemsSubtotalCents,
+      discountCents,
+      discountLabel,
+      shippingCents,
+      shippingLabel,
+      taxableSubtotalCents,
+      gstCents: qstCents ? gstCents : 0,
+      qstCents: qstCents || 0,
+      taxCents,
+      taxLabel: String(order.taxLabel || taxInfo.label || tt("invoice.tax", "Tax")).trim(),
+      totalCents,
+      paymentMethod,
+      province
+    };
+  }
+
+  function formatCustomerAddress(customer) {
+    const parts = [
+      customer?.address1 || customer?.address_line1 || "",
+      customer?.address2 || customer?.address_line2 || "",
+      [customer?.city || "", customer?.province || "", customer?.postal || ""].filter(Boolean).join(" "),
+      customer?.country || ""
+    ]
+      .map((x) => String(x || "").trim())
+      .filter(Boolean);
+    return parts.join("\n");
+  }
+
+  function buildInvoiceSection(order, strings, logoUrl) {
+    const totals = computeInvoiceTotals(order);
+    const customer = order.customer || {};
+    const customerName = String(customer.name || session?.name || "").trim();
+    const customerEmail = String(customer.email || session?.email || "").trim();
+    const customerPhone = String(customer.phone || session?.phone || "").trim();
+    const customerAddress = formatCustomerAddress(customer);
+
+    const itemRows = totals.items
+      .map((it) => {
+        const qty = Number(it.qty) || 0;
+        const unit = Number(it.priceCents || 0);
+        const line = unit * qty;
+        return `
+          <tr>
+            <td class="item">${esc(it.name || "")}</td>
+            <td class="qty">${qty}</td>
+            <td class="num">${esc(money(unit, totals.currency))}</td>
+            <td class="num">${esc(money(line, totals.currency))}</td>
+          </tr>
+        `;
+      })
+      .join("");
+
+    const discountLine =
+      totals.discountCents > 0
+        ? `
+          <tr>
+            <td>${esc(strings.discount)}${totals.discountLabel ? ` (${esc(totals.discountLabel)})` : ""}</td>
+            <td class="num">-${esc(money(totals.discountCents, totals.currency))}</td>
+          </tr>
+        `
+        : "";
+
+    const taxLines = totals.qstCents
+      ? `
+        <tr><td>GST (5%)</td><td class="num">${esc(money(totals.gstCents, totals.currency))}</td></tr>
+        <tr><td>QST (9.975%)</td><td class="num">${esc(money(totals.qstCents, totals.currency))}</td></tr>
+      `
+      : `
+        <tr><td>${esc(totals.taxLabel || strings.tax)}</td><td class="num">${esc(money(totals.taxCents, totals.currency))}</td></tr>
+      `;
+
+    const methodLine = totals.paymentMethod
+      ? `<div class="meta-row"><span class="k">${esc(strings.payment)}</span><span class="v">${esc(totals.paymentMethod)}</span></div>`
+      : "";
+
+    const provinceLine = totals.province
+      ? `<div class="meta-row"><span class="k">${esc(strings.province)}</span><span class="v">${esc(totals.province)}</span></div>`
+      : "";
+
+    return `
+      <section class="invoice">
+        <div class="top">
+          <div class="brand">
+            ${logoUrl ? `<img class="logo" src="${esc(logoUrl)}" alt="" width="52" height="52">` : ""}
+            <div>
+              <div class="company">${esc(COMPANY_INFO.name)}</div>
+              <div class="muted">${esc(COMPANY_INFO.address)}</div>
+              <div class="muted">${esc(COMPANY_INFO.email)}</div>
+            </div>
+          </div>
+          <div class="meta">
+            <div class="title">${esc(strings.invoiceTitle)}</div>
+            <div class="meta-row"><span class="k">${esc(strings.order)}</span><span class="v">#${esc(order.id)}</span></div>
+            <div class="meta-row"><span class="k">${esc(strings.date)}</span><span class="v">${esc(fmtShortDate(order.createdAt))}</span></div>
+            <div class="meta-row"><span class="k">${esc(strings.status)}</span><span class="v">${esc(statusLabel(order.status))}</span></div>
+            ${methodLine}
+            ${provinceLine}
+          </div>
+        </div>
+
+        <div class="billto">
+          <div class="section-title">${esc(strings.billTo)}</div>
+          <div class="muted">
+            ${customerName ? `${esc(customerName)}<br/>` : ""}
+            ${customerEmail ? `${esc(strings.email)}: ${esc(customerEmail)}<br/>` : ""}
+            ${customerPhone ? `${esc(strings.phone)}: ${esc(customerPhone)}<br/>` : ""}
+            ${customerAddress ? `${esc(customerAddress).replace(/\n/g, "<br/>")}<br/>` : ""}
+          </div>
+        </div>
+
+        <table class="items">
+          <thead>
+            <tr>
+              <th>${esc(strings.item)}</th>
+              <th class="qty">${esc(strings.qty)}</th>
+              <th class="num">${esc(strings.unitPrice)}</th>
+              <th class="num">${esc(strings.lineTotal)}</th>
+            </tr>
+          </thead>
+          <tbody>${itemRows}</tbody>
+        </table>
+
+        <table class="totals">
+          <tbody>
+            <tr><td>${esc(strings.subtotal)}</td><td class="num">${esc(money(totals.itemsSubtotalCents, totals.currency))}</td></tr>
+            ${discountLine}
+            <tr><td>${esc(totals.shippingLabel || strings.shipping)}</td><td class="num">${esc(money(totals.shippingCents, totals.currency))}</td></tr>
+            ${taxLines}
+            <tr class="grand"><td>${esc(strings.total)}</td><td class="num">${esc(money(totals.totalCents, totals.currency))}</td></tr>
+          </tbody>
+        </table>
+      </section>
+    `;
+  }
+
+  function openInvoiceWindow({ title, bodyHtml, autoPrint }) {
+    const win = window.open("", "_blank");
+    if (!win) {
+      toast(tt("invoice.popup_blocked", "Popup blocked. Please allow popups to download invoices."));
+      return;
+    }
+
+    const html = `
+      <!doctype html>
+      <html>
+        <head>
+          <meta charset="utf-8"/>
+          <meta name="viewport" content="width=device-width,initial-scale=1"/>
+          <title>${esc(title)}</title>
+          <style>
+            :root{ --muted:#6b7280; --border:#e5e7eb; --ink:#111827; }
+            *{ box-sizing:border-box; }
+            body{ margin:0; font-family: Arial, Helvetica, sans-serif; color:var(--ink); background:#f3f4f6; }
+            .toolbar{ position:sticky; top:0; z-index:5; background:#111827; color:white; padding:10px 12px; display:flex; gap:10px; align-items:center; justify-content:space-between; }
+            .toolbar .btn{ background:white; color:#111827; border:0; border-radius:10px; padding:8px 12px; font-weight:800; cursor:pointer; }
+            .toolbar .tip{ font-size:12px; opacity:.9; }
+            .wrap{ max-width:960px; margin:0 auto; padding:14px; }
+            .invoice{ background:white; border:1px solid var(--border); border-radius:14px; padding:18px; margin:0 0 12px; }
+            .top{ display:flex; justify-content:space-between; gap:14px; flex-wrap:wrap; }
+            .brand{ display:flex; gap:12px; align-items:center; }
+            .logo{ border-radius:10px; border:1px solid var(--border); background:white; }
+            .company{ font-weight:1000; font-size:18px; }
+            .muted{ color:var(--muted); font-size:12px; line-height:1.45; }
+            .meta{ min-width:260px; text-align:right; }
+            .title{ font-weight:1000; font-size:16px; }
+            .meta-row{ margin-top:6px; display:flex; justify-content:space-between; gap:12px; font-size:12px; }
+            .meta-row .k{ color:var(--muted); font-weight:800; }
+            .meta-row .v{ font-weight:900; }
+            .billto{ margin-top:14px; }
+            .section-title{ font-weight:1000; margin-bottom:6px; }
+            table{ width:100%; border-collapse:collapse; }
+            .items{ margin-top:12px; }
+            .items th{ text-align:left; font-size:12px; color:var(--muted); padding:10px 8px; border-bottom:1px solid var(--border); }
+            .items td{ padding:10px 8px; border-bottom:1px solid #f1f5f9; vertical-align:top; }
+            .items .qty{ text-align:center; width:70px; }
+            .items .num{ text-align:right; width:120px; }
+            .items td.item{ font-weight:900; }
+            .totals{ margin-top:12px; width:340px; margin-left:auto; }
+            .totals td{ padding:8px 0; font-size:13px; }
+            .totals td.num{ text-align:right; font-weight:900; }
+            .totals .grand td{ padding-top:10px; border-top:1px solid var(--border); font-size:15px; }
+
+            @media print{
+              body{ background:white; }
+              .toolbar{ display:none; }
+              .wrap{ max-width:none; padding:0; }
+              .invoice{ border:0; border-radius:0; padding:0; margin:0 0 18px; page-break-after:always; }
+              .invoice:last-child{ page-break-after:auto; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="toolbar">
+            <div class="tip">${esc(tt("invoice.tip_pdf", "Tip: choose “Save as PDF” in your print dialog."))}</div>
+            <button class="btn" type="button" onclick="window.print()">${esc(tt("invoice.print", "Print / Save as PDF"))}</button>
+          </div>
+          <div class="wrap">${bodyHtml}</div>
+          <script>
+            (function(){
+              const auto = ${autoPrint ? "true" : "false"};
+              if(!auto) return;
+              setTimeout(()=>{
+                try{ window.focus(); }catch(e){}
+                try{ window.print(); }catch(e){}
+              }, 350);
+              try{
+                window.onafterprint = ()=>{ try{ window.close(); }catch(e){} };
+              }catch(e){}
+            })();
+          </script>
+        </body>
+      </html>
+    `;
+
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
+  }
+
+  function downloadInvoicesForOrders(orders, opts = {}) {
+    const list = Array.isArray(orders) ? orders.filter(Boolean) : [];
+    if (!list.length) return;
+    const logoUrl = new URL("./assets/poly%20logo%20without%20background.png", window.location.href).href;
+    const strings = {
+      invoiceTitle: tt("invoice.title", "Invoice"),
+      order: tt("invoice.order", "Order"),
+      date: tt("invoice.date", "Date"),
+      status: tt("invoice.status", "Status"),
+      payment: tt("invoice.payment", "Payment method"),
+      province: tt("invoice.province", "Province"),
+      billTo: tt("invoice.bill_to", "Bill to"),
+      email: tt("invoice.email", "Email"),
+      phone: tt("invoice.phone", "Phone"),
+      item: tt("invoice.item", "Item"),
+      qty: tt("invoice.qty", "Qty"),
+      unitPrice: tt("invoice.unit_price", "Unit price"),
+      lineTotal: tt("invoice.line_total", "Line total"),
+      subtotal: tt("invoice.subtotal", "Subtotal"),
+      discount: tt("invoice.discount", "Discount"),
+      shipping: tt("invoice.shipping", "Shipping"),
+      tax: tt("invoice.tax", "Tax"),
+      total: tt("invoice.total", "Total")
+    };
+    const body = list.map((o) => buildInvoiceSection(o, strings, logoUrl)).join("");
+    openInvoiceWindow({
+      title: opts.title || (list.length === 1 ? `Invoice ${list[0].id}` : "Invoices"),
+      bodyHtml: body,
+      autoPrint: opts.autoPrint !== false
+    });
+  }
+
   window.downloadInvoice = (orderId) => {
     const order = state.orders.find((o) => o.id === orderId);
     if (!order) return;
-    const currency = order.currency || "CAD";
-    const lines = (order.items || [])
-      .map((it) => {
-        const line = Number(it.priceCents || 0) * Number(it.qty || 0);
-        return `<tr><td style="padding:8px 0;">${esc(it.name || "")}</td><td style="padding:8px 0; text-align:center;">${Number(it.qty) || 0}</td><td style="padding:8px 0; text-align:right;">${money(it.priceCents, currency)}</td><td style="padding:8px 0; text-align:right;">${money(line, currency)}</td></tr>`;
-      })
-      .join("");
-    const html = `
-      <html><head><meta charset="utf-8"/><title>Invoice ${esc(order.id)}</title></head>
-      <body style="font-family:Arial,sans-serif; padding:24px;">
-        <h2 style="margin:0;">Power Poly Supplies</h2>
-        <div style="color:#6b7280; margin-top:6px;">Invoice / Receipt</div>
-        <div style="margin-top:16px;"><b>Order:</b> ${esc(order.id)}</div>
-        <div style="color:#6b7280; margin-top:4px;">${esc(fmtDateTime(order.createdAt))}</div>
-        <table style="width:100%; border-collapse:collapse; margin-top:16px;">
-          <thead>
-            <tr style="text-align:left; border-bottom:1px solid #e5e7eb;">
-              <th style="padding:8px 0;">Item</th>
-              <th style="padding:8px 0; text-align:center;">Qty</th>
-              <th style="padding:8px 0; text-align:right;">Price</th>
-              <th style="padding:8px 0; text-align:right;">Line</th>
-            </tr>
-          </thead>
-          <tbody>${lines}</tbody>
-        </table>
-        <div style="margin-top:14px; text-align:right; font-size:16px;"><b>Total:</b> ${money(order.totalCents, currency)}</div>
-      </body></html>
-    `;
-    const blob = new Blob([html], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `invoice-${order.id}.html`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    downloadInvoicesForOrders([order], { title: `Invoice ${order.id}`, autoPrint: true });
   };
 
   window.trackOrder = (orderId) => {
@@ -1782,6 +2188,7 @@
       renderFavorites();
       renderFrequent();
       renderOrders();
+      renderInvoices();
       renderTemplates();
       renderCombos();
       try {
@@ -1819,6 +2226,7 @@
       renderDashboard();
       renderProfile(latest);
       renderOrders();
+      renderInvoices();
       renderFrequent();
       renderTemplates();
       renderCombos();
@@ -2046,6 +2454,12 @@
   if (els.orderStatus) els.orderStatus.addEventListener("change", renderOrders);
   if (els.orderRange) els.orderRange.addEventListener("change", renderOrders);
   if (els.exportOrdersBtn) els.exportOrdersBtn.addEventListener("click", exportOrdersCsv);
+
+  if (els.invoiceSearch) els.invoiceSearch.addEventListener("input", renderInvoices);
+  if (els.invoiceStatus) els.invoiceStatus.addEventListener("change", renderInvoices);
+  if (els.invoiceFrom) els.invoiceFrom.addEventListener("change", renderInvoices);
+  if (els.invoiceTo) els.invoiceTo.addEventListener("change", renderInvoices);
+  if (els.downloadInvoicesRangeBtn) els.downloadInvoicesRangeBtn.addEventListener("click", downloadInvoicesRangeFromFilters);
 
   if (els.addAddressForm) {
     els.addAddressForm.addEventListener("submit", (e) => {
