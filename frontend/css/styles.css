@@ -2453,11 +2453,15 @@ select.input option:hover{
 
 /* Fade-in on scroll */
 .fade-in{
+  opacity:1;
+  transform:none;
+}
+.fade-in[data-fade]{
   opacity:0;
   transform: translateY(10px);
   transition: all .35s ease;
 }
-.fade-in.show{
+.fade-in[data-fade].show{
   opacity:1;
   transform: translateY(0);
 }

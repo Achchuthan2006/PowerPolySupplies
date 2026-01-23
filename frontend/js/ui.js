@@ -39,13 +39,32 @@ function setupNavbar(){
 
 function setupFadeIn(){
   const els = document.querySelectorAll(".fade-in");
+  if(!els.length) return;
+  if(typeof IntersectionObserver === "undefined"){
+    els.forEach(el=>{
+      el.classList.add("show");
+      el.removeAttribute("data-fade");
+    });
+    return;
+  }
   const io = new IntersectionObserver((entries)=>{
     entries.forEach(e=>{
       if(e.isIntersecting) e.target.classList.add("show");
     });
   }, { threshold: 0.12 });
 
-  els.forEach(el=>io.observe(el));
+  const vh = Math.max(1, window.innerHeight || 1);
+  els.forEach(el=>{
+    const rect = el.getBoundingClientRect();
+    const inInitialView = rect.top < vh * 0.95;
+    if(inInitialView){
+      el.classList.add("show");
+      el.removeAttribute("data-fade");
+      return;
+    }
+    el.setAttribute("data-fade", "1");
+    io.observe(el);
+  });
 }
 
 function setupStickyHeader(){
