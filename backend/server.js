@@ -1524,13 +1524,36 @@ app.post("/api/order", async (req,res)=>{
 
 // ---- Contact form -> email ----
 app.post("/api/contact", async (req,res)=>{
-  const { name, email, phone, message } = req.body;
+  const { name, email, phone, message, orderType, attachment } = req.body;
   if(!email || !message) return res.status(400).json({ ok:false, message:"Email and message required" });
   if(!requireSupabase(res)) return;
 
   try{
     const emailReady = !!buildTransportConfig() && !!process.env.ORDER_TO;
     let emailSent = false;
+    const orderTypeSafe = String(orderType || "").trim();
+
+    const msgParts = [];
+    if(orderTypeSafe) msgParts.push(`Order type: ${orderTypeSafe}`);
+    msgParts.push(String(message || ""));
+    const messageForStorage = msgParts.filter(Boolean).join("\n\n");
+
+    let emailAttachments = undefined;
+    let attachmentNote = "";
+    if(attachment && typeof attachment === "object"){
+      const filename = String(attachment.name || "").trim();
+      const contentType = String(attachment.type || "application/octet-stream").trim();
+      const base64 = String(attachment.base64 || "");
+      if(filename && base64){
+        const buf = Buffer.from(base64, "base64");
+        const MAX_BYTES = 2 * 1024 * 1024;
+        if(buf.length > MAX_BYTES){
+          return res.status(400).json({ ok:false, message:"Attachment too large (max 2MB)." });
+        }
+        emailAttachments = [{ filename, content: buf, contentType }];
+        attachmentNote = `Attachment: ${filename}`;
+      }
+    }
 
     const msgId = "MSG-" + Date.now();
     const entry = {
@@ -1538,7 +1561,7 @@ app.post("/api/contact", async (req,res)=>{
       name: name || "",
       email,
       phone: phone || "",
-      message,
+      message: messageForStorage,
       created_at: new Date().toISOString()
     };
     const { error } = await supabase.from("messages").insert(entry);
@@ -1552,7 +1575,7 @@ app.post("/api/contact", async (req,res)=>{
           name || "",
           email,
           phone || "",
-          message
+          messageForStorage
         ]);
       }catch(sheetErr){
         console.error("Message sheet append failed", sheetErr);
@@ -1569,9 +1592,12 @@ app.post("/api/contact", async (req,res)=>{
           <p><b>Name:</b> ${name || ""}</p>
           <p><b>Email:</b> ${email}</p>
           <p><b>Phone:</b> ${phone || ""}</p>
+          ${orderTypeSafe ? `<p><b>Order type:</b> ${escapeHtml(orderTypeSafe)}</p>` : ""}
+          ${attachmentNote ? `<p><b>${escapeHtml(attachmentNote)}</b></p>` : ""}
           <hr/>
-          <p>${(message || "").replace(/\n/g,"<br/>")}</p>
-        `
+          <p>${(messageForStorage || "").replace(/\n/g,"<br/>")}</p>
+        `,
+        attachments: emailAttachments
       });
       emailSent = out.ok;
     }

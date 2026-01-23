@@ -51,6 +51,11 @@ const postalInput = document.getElementById("postal");
 
 async function checkBackendHealth(){
   if(!backendStatus) return;
+  const showDebug = new URLSearchParams(window.location.search).get("debug") === "1";
+  if(!showDebug){
+    backendStatus.style.display = "none";
+    return;
+  }
   const base = String(PPS.API_BASE || "").trim().replace(/\/+$/,"");
   if(!base) return;
   try{

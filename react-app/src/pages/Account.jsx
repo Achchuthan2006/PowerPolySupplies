@@ -7,6 +7,22 @@ export default function Account() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    let cancelled = false;
+    const tryRedirect = async () => {
+      try {
+        const res = await fetch("/account.html", { method: "HEAD", cache: "no-store" });
+        if (!cancelled && res.ok) window.location.href = "/account.html";
+      } catch {
+        // ignore
+      }
+    };
+    tryRedirect();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
     window.PPS_I18N?.applyTranslations?.();
     const session = window.PPS?.getSession?.();
     if (!session) {
@@ -65,11 +81,11 @@ export default function Account() {
         <p style={{ margin: 0, fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase", color: "var(--muted)" }} data-i18n="account.kicker">
           Account
         </p>
-        <h1 data-i18n="account.title">Order history</h1>
-        <p data-i18n="account.subtitle">View your previous orders, track details, and reorder in one click.</p>
+        <h1 data-i18n="account.title">Your dashboard</h1>
+        <p data-i18n="account.subtitle">Track orders, reorder fast, and see your member savings.</p>
         <div className="account-highlight">
           <span className="verified-badge">
-            <span className="tick">✓</span>
+            <span className="tick">{"\u2713"}</span>
             <span data-i18n="account.verified">Verified Power Poly Member</span>
           </span>
           <button className="btn btn-outline" type="button" onClick={logout} data-i18n="account.logout">

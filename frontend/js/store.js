@@ -423,11 +423,11 @@ function toggleFavorite(productId){
 }
 
 function updateCartBadge(){
-  const badge = document.querySelector("[data-cart-badge]");
-  if(!badge) return;
+  const badges = document.querySelectorAll("[data-cart-badge]");
+  if(!badges.length) return;
   const cart = getCart();
   const count = cart.reduce((sum,i)=>sum+i.qty,0);
-  badge.textContent = count;
+  badges.forEach(b=>{ b.textContent = count; });
 }
 
 function addToCart(product, qty=1){

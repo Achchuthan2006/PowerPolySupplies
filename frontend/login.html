@@ -135,7 +135,21 @@
         });
         const data = await res.json().catch(()=> ({}));
         if(res.ok && data.ok && data.token){
-          PPS.setSession({ token: data.token, email: data.email, name: data.name || "", expiresAt: data.expiresAt });
+          const lowerEmail = String(data.email || email).trim().toLowerCase();
+          let profile = {};
+          try{
+            profile = JSON.parse(localStorage.getItem(`pps_profile_${lowerEmail}`) || "{}");
+          }catch(err){
+            profile = {};
+          }
+          PPS.setSession({
+            token: data.token,
+            email: lowerEmail,
+            name: data.name || "",
+            phone: String(profile?.phone || ""),
+            province: String(profile?.province || ""),
+            expiresAt: data.expiresAt
+          });
           window.location.href = "./account.html";
         }else{
           const normalized = normalizeLoginStatus(data?.message);

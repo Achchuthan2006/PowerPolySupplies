@@ -4,6 +4,7 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>My Account | Power Poly Supplies</title>
+  <meta name="description" content="Your Power Poly Supplies account dashboard: orders, favorites, quick reorder, and profile."/>
   <link rel="stylesheet" href="./css/styles.css"/>
   <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
 </head>
@@ -41,13 +42,12 @@
           <a href="./about.html" data-i18n="nav.about">About Us</a>
           <a href="./contact.html"><span class="nav-icon phone-icon" aria-hidden="true"></span><span data-i18n="nav.contact">Contact</span></a>
           <a href="./feedback.html"><span class="nav-icon pen-icon" aria-hidden="true"></span><span data-i18n="nav.feedback">Feedback</span></a>
-          <a href="./account.html"><span class="nav-icon user-icon" aria-hidden="true"></span><span data-i18n="nav.my_account">My Account</span></a>
+          <a href="./account.html" aria-current="page"><span class="nav-icon user-icon" aria-hidden="true"></span><span data-i18n="nav.my_account">My Account</span></a>
           <a href="./cart.html"><span class="nav-icon cart-icon" aria-hidden="true"></span><span data-i18n="nav.cart">Cart</span> <span class="badge" data-cart-badge>0</span></a>
           <form class="search-bar nav-search" action="./products.html" method="get" role="search">
             <input type="search" name="q" placeholder="Search" aria-label="Search products">
             <button type="submit">Search</button>
           </form>
-
         </nav>
       </div>
     </div>
@@ -56,302 +56,124 @@
   <div class="container page">
     <section class="hero fade-in">
       <p style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);" data-i18n="account.kicker">Account</p>
-      <h1 data-i18n="account.title">Order history</h1>
-      <p data-i18n="account.subtitle">View your previous orders, track details, and reorder in one click.</p>
-      <div class="account-highlight">
-        <div id="accountName" style="font-weight:800;"></div>
-        <div class="verified-badge" id="accountBadge" style="display:none;">
-          <span class="tick">&#10003;</span>
-          <span data-i18n="account.verified">Verified Power Poly Member</span>
+      <h1 data-i18n="account.title">Your dashboard</h1>
+      <p data-i18n="account.subtitle">Track orders, reorder fast, and see your member savings.</p>
+    </section>
+
+    <div class="account-layout" style="margin-top:16px;">
+      <aside class="account-sidebar card fade-in">
+        <div class="account-sidebar-header">
+          <div id="accountName" style="font-weight:900;"></div>
+          <div class="verified-badge" id="accountBadge" style="display:none;">
+            <span class="tick">&#10003;</span>
+            <span data-i18n="account.verified">Verified Power Poly Member</span>
+          </div>
+          <div id="accountProvince" style="color:var(--muted); font-size:13px;"></div>
         </div>
-        <div id="accountProvince" style="color:var(--muted); font-size:13px;"></div>
-        <button class="btn btn-outline" type="button" id="logoutBtn" data-i18n="account.logout">Log out</button>
-      </div>
-    </section>
+        <nav class="account-nav" aria-label="Account navigation">
+          <a href="#dashboard" class="active">Dashboard</a>
+          <a href="#orders">Orders <span class="badge" id="ordersCountBadge">0</span></a>
+          <a href="#favorites">Favorites <span class="badge" id="favoritesCountBadge">0</span></a>
+          <a href="#reorder">Quick Reorder</a>
+          <a href="#profile">Profile</a>
+        </nav>
+        <div class="account-sidebar-footer">
+          <button class="btn btn-outline" type="button" id="logoutBtn" data-i18n="account.logout">Log out</button>
+        </div>
+      </aside>
 
-    <section style="margin-top:16px;">
-      <h2 style="margin:0 0 10px;" data-i18n="account.favorites.title">Favorites</h2>
-      <div id="favoritesMsg" style="font-size:13px; color:var(--muted); margin-bottom:8px;"></div>
-      <div id="favoritesGrid" class="grid grid-4"></div>
-    </section>
+      <main class="account-content">
+        <section id="dashboard" class="card fade-in" style="padding:18px;">
+          <div class="dashboard-head">
+            <div>
+              <div class="dashboard-kicker">Welcome back</div>
+              <div class="dashboard-sub" id="dashboardSub">Loading your account...</div>
+            </div>
+            <div class="dashboard-actions">
+              <a class="btn btn-outline" href="./products.html">Browse products</a>
+              <a class="btn btn-primary" href="./cart.html">Go to cart</a>
+            </div>
+          </div>
+          <div class="account-highlight" style="margin-top:10px;">
+            <span class="verified-badge" id="dashboardBadge" style="display:none;">
+              <span class="tick">&#10003;</span>
+              <span data-i18n="account.verified">Verified Power Poly Member</span>
+            </span>
+          </div>
 
-    <section style="margin-top:16px;">
-      <div id="ordersMsg" style="font-size:13px; color:var(--muted); margin-bottom:8px;"></div>
-      <div id="ordersGrid" class="grid" style="gap:12px;"></div>
-    </section>
+          <div class="dashboard-stats" id="dashboardStats"></div>
+          <div class="dashboard-insights" id="dashboardInsights"></div>
+        </section>
+
+        <section id="orders" style="margin-top:16px;">
+          <div class="card fade-in" style="padding:14px;">
+            <div class="order-filters">
+              <input class="input" type="search" id="orderSearch" placeholder="Search orders... (order id, product name)">
+              <select class="input" id="orderStatus">
+                <option value="">All status</option>
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+                <option value="fulfilled">Fulfilled</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+              <select class="input" id="orderRange">
+                <option value="all">All time</option>
+                <option value="30">Last 30 days</option>
+                <option value="90">Last 3 months</option>
+                <option value="180">Last 6 months</option>
+                <option value="365">Last year</option>
+              </select>
+              <button class="btn btn-outline btn-sm" type="button" id="exportOrders">Export CSV</button>
+            </div>
+          </div>
+
+          <div id="ordersMsg" style="font-size:13px; color:var(--muted); margin:10px 0 8px;"></div>
+          <div id="ordersGrid" class="grid" style="gap:12px;"></div>
+        </section>
+
+        <section id="favorites" style="margin-top:16px;">
+          <div class="card fade-in" style="padding:18px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+              <h2 style="margin:0;" data-i18n="account.favorites.title">Favorites</h2>
+              <a class="btn btn-outline btn-sm" href="./products.html">Browse products</a>
+            </div>
+            <div id="favoritesMsg" style="font-size:13px; color:var(--muted); margin:10px 0 8px;"></div>
+            <div id="favoritesGrid" class="grid grid-4"></div>
+            <div id="favoritesSuggestions" style="margin-top:12px;"></div>
+          </div>
+        </section>
+
+        <section id="reorder" style="margin-top:16px;">
+          <div class="card fade-in" style="padding:18px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+              <h2 style="margin:0;">Reorder your usuals</h2>
+              <a class="btn btn-outline btn-sm" href="./products.html">Browse all</a>
+            </div>
+            <div id="frequentMsg" style="font-size:13px; color:var(--muted); margin:10px 0 8px;"></div>
+            <div id="frequentGrid" class="grid grid-3"></div>
+          </div>
+        </section>
+
+        <section id="profile" style="margin-top:16px;">
+          <div class="card fade-in" style="padding:18px;">
+            <h2 style="margin:0 0 10px;">Profile</h2>
+            <div id="profileGrid" class="profile-grid"></div>
+            <div style="margin-top:12px; color:var(--muted); font-size:13px;">Want to update your details? Contact support and we'll help you.</div>
+          </div>
+        </section>
+      </main>
+    </div>
 
     <div class="footer">&copy; <span id="y"></span> Power Poly Supplies. Power your packaging.</div>
   </div>
 
   <script src="./config.js"></script>
-
   <script src="./js/store.js"></script>
   <script src="./js/i18n.js"></script>
   <script src="./js/ui.js"></script>
-  <script>
-    document.getElementById("y").textContent = new Date().getFullYear();
-    PPS.updateCartBadge();
-
-    const session = PPS.getSession();
-    if(!session){
-      window.location.href = "./login.html";
-    }
-
-    const ordersGrid = document.getElementById("ordersGrid");
-    const ordersMsg = document.getElementById("ordersMsg");
-    const favoritesGrid = document.getElementById("favoritesGrid");
-    const favoritesMsg = document.getElementById("favoritesMsg");
-    const nameEl = document.getElementById("accountName");
-    const badgeEl = document.getElementById("accountBadge");
-    const provinceEl = document.getElementById("accountProvince");
-    const logoutBtn = document.getElementById("logoutBtn");
-    let orders = [];
-
-    function firstName(value){
-      return String(value || "").trim().split(/\s+/)[0] || "";
-    }
-
-    function provinceLabel(code){
-      const lang = window.PPS_I18N?.getLang?.() || "en";
-      const namesEn = {
-        ON:"Ontario", NS:"Nova Scotia", NB:"New Brunswick", NL:"Newfoundland and Labrador", PE:"Prince Edward Island",
-        AB:"Alberta", BC:"British Columbia", SK:"Saskatchewan", MB:"Manitoba", QC:"Quebec",
-        YT:"Yukon", NT:"Northwest Territories", NU:"Nunavut"
-      };
-      const namesFr = {
-        ON:"Ontario", NS:"Nouvelle-Ecosse", NB:"Nouveau-Brunswick", NL:"Terre-Neuve-et-Labrador", PE:"Ile-du-Prince-Edouard",
-        AB:"Alberta", BC:"Colombie-Britannique", SK:"Saskatchewan", MB:"Manitoba", QC:"Quebec",
-        YT:"Yukon", NT:"Territoires du Nord-Ouest", NU:"Nunavut"
-      };
-      const map = lang === "fr" ? namesFr : namesEn;
-      return map[code] || code || "";
-    }
-
-    const heartIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.7-4.4-9.5-7.2A5.6 5.6 0 0 1 12 5.6a5.6 5.6 0 0 1 9.5 8.2C18.7 16.6 12 21 12 21z"/></svg>';
-
-    function favoriteTitle(active){
-      return active
-        ? (window.PPS_I18N?.t("favorite.remove") || "Remove from favorites")
-        : (window.PPS_I18N?.t("favorite.add") || "Add to favorites");
-    }
-
-    function favoriteButton(productId){
-      const active = PPS.isFavorite(productId);
-      return `<button class="favorite-btn ${active ? "active" : ""}" type="button" data-fav-id="${productId}" aria-pressed="${active ? "true" : "false"}" title="${favoriteTitle(active)}">${heartIcon}</button>`;
-    }
-
-    function syncFavoriteButton(btn){
-      const id = btn.dataset.favId;
-      const active = PPS.isFavorite(id);
-      btn.classList.toggle("active", active);
-      btn.setAttribute("aria-pressed", active ? "true" : "false");
-      btn.title = favoriteTitle(active);
-    }
-
-    document.addEventListener("click", (e)=>{
-      const btn = e.target.closest(".favorite-btn");
-      if(!btn) return;
-      e.preventDefault();
-      e.stopPropagation();
-      PPS.toggleFavorite(btn.dataset.favId);
-      syncFavoriteButton(btn);
-    });
-
-    window.addEventListener("pps:favorites", ()=>{
-      document.querySelectorAll(".favorite-btn").forEach(syncFavoriteButton);
-      renderFavorites(window._products || []);
-    });
-
-    if(nameEl && session){
-      const welcomeName = window.PPS_I18N?.t("account.welcome_name") || "Welcome, {{name}}";
-      const welcomeBack = window.PPS_I18N?.t("account.welcome_back") || "Welcome back";
-      const displayName = firstName(session.name);
-      nameEl.textContent = displayName ? welcomeName.replace("{{name}}", displayName) : welcomeBack;
-    }
-
-    function renderFavorites(products){
-      if(!favoritesGrid || !favoritesMsg) return;
-      const ids = PPS.getFavorites();
-      if(!ids.length){
-        favoritesMsg.textContent = window.PPS_I18N?.t("account.favorites.empty") || "No favorite items yet.";
-        favoritesGrid.innerHTML = "";
-        return;
-      }
-      const map = new Map((products || []).map(p=>[p.id, p]));
-      const items = ids.map(id=>map.get(id)).filter(Boolean);
-      if(items.length === 0){
-        favoritesMsg.textContent = window.PPS_I18N?.t("account.favorites.unavailable") || "Favorites will show once products are loaded.";
-        favoritesGrid.innerHTML = "";
-        return;
-      }
-      favoritesMsg.textContent = "";
-      const lang = window.PPS_I18N?.getLang?.() || "en";
-      favoritesGrid.innerHTML = items.map(p=>{
-        const displayName = lang === "es"
-          ? (window.PPS_I18N?.autoTranslate?.(p.name || "", "es") || p.name)
-          : p.name;
-        return `
-        <div class="card fade-in">
-          <a href="./product.html?slug=${encodeURIComponent(p.slug)}">
-            <img src="${p.image}" alt="${displayName}" loading="lazy" decoding="async" width="400" height="190">
-          </a>
-          <div class="card-body">
-            <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(p.slug)}">${displayName}</a>
-            <div class="price-row"><div class="price">${PPS.money(p.priceCents,p.currency)}</div>${favoriteButton(p.id)}</div>
-            <div style="margin-top:12px; display:flex; gap:10px;">
-              <a class="btn" href="./product.html?slug=${encodeURIComponent(p.slug)}">${window.PPS_I18N?.t("product.view") || "View"}</a>
-              <button class="btn btn-primary" ${p.stock<=0 ? "disabled" : ""} onclick="addFavoriteToCart('${p.id}')">${window.PPS_I18N?.t("product.add") || "Add"}</button>
-            </div>
-          </div>
-        </div>
-      `;}).join("");
-      document.querySelectorAll(".fade-in").forEach(el => el.classList.add("show"));
-    }
-
-    async function loadFavorites(){
-      if(!favoritesGrid || !favoritesMsg) return;
-      favoritesMsg.textContent = window.PPS_I18N?.t("account.favorites.loading") || "Loading favorites...";
-      try{
-        const products = await PPS.loadProducts();
-        renderFavorites(products);
-      }catch(err){
-        favoritesMsg.textContent = window.PPS_I18N?.t("account.favorites.failed") || "Unable to load favorites right now.";
-      }
-    }
-
-    window.addFavoriteToCart = (productId)=>{
-      const products = window._products || [];
-      const product = products.find(p=>p.id === productId);
-      if(!product || product.stock <= 0) return;
-      PPS.addToCart(product);
-      PPS.updateCartBadge();
-    };
-
-    async function loadOrders(){
-      if(!session) return;
-      ordersMsg.textContent = window.PPS_I18N?.t("account.status.loading") || "Loading orders...";
-      try{
-        const res = await fetch(`${PPS.API_BASE}/api/account/orders`,{
-          headers:{ Authorization: `Bearer ${session.token}` }
-        });
-        const data = await res.json().catch(()=> ({}));
-        if(res.status === 401){
-          PPS.clearSession();
-          window.location.href = "./login.html";
-          return;
-        }
-        if(!res.ok || !data.ok){
-          ordersMsg.textContent = data?.message || (window.PPS_I18N?.t("account.status.failed") || "Unable to load orders.");
-          return;
-        }
-        orders = data.orders || [];
-        const latest = orders[0];
-        if(latest && badgeEl){
-          badgeEl.style.display = "inline-flex";
-        }
-        if(latest && latest.customer?.name && nameEl && !session?.name){
-          const welcomeName = window.PPS_I18N?.t("account.welcome_name") || "Welcome, {{name}}";
-          nameEl.textContent = welcomeName.replace("{{name}}", firstName(latest.customer.name));
-        }
-        if(latest && latest.customer?.province && provinceEl){
-          const provinceLabelText = window.PPS_I18N?.t("account.province") || "Province: {{province}}";
-          const provinceName = provinceLabel(latest.customer.province);
-          provinceEl.textContent = provinceLabelText.replace("{{province}}", provinceName);
-        }
-        renderOrders();
-      }catch(err){
-        ordersMsg.textContent = window.PPS_I18N?.t("account.status.unreachable") || "Server unreachable. Start the backend to load your orders.";
-      }
-    }
-
-    function renderOrders(){
-      if(orders.length === 0){
-        ordersMsg.textContent = window.PPS_I18N?.t("account.status.empty") || "No orders found for this account yet.";
-        ordersGrid.innerHTML = "";
-        return;
-      }
-      ordersMsg.textContent = "";
-      ordersGrid.innerHTML = orders.map(order=>{
-        const date = new Date(order.createdAt).toLocaleString();
-        const lang = (order.language === "fr" || order.language === "ko" || order.language === "hi" || order.language === "ta" || order.language === "es")
-          ? order.language
-          : (window.PPS_I18N?.getLang?.() || "en");
-        const items = (order.items || []).map(item=>{
-          const desc = lang === "fr"
-            ? (item.description_fr || item.description || "")
-            : lang === "ko"
-              ? (item.description_ko || item.description || "")
-              : lang === "hi"
-                ? (item.description_hi || item.description || "")
-                : lang === "ta"
-                  ? (item.description_ta || item.description || "")
-                  : lang === "es"
-                    ? (window.PPS_I18N?.autoTranslate?.(item.description_es || item.description || "", "es") || (item.description_es || item.description || ""))
-                    : (item.description || item.description_fr || item.description_ko || item.description_hi || item.description_ta || item.description_es || "");
-          const displayName = lang === "es"
-            ? (window.PPS_I18N?.autoTranslate?.(item.name || "", "es") || item.name)
-            : item.name;
-          const descHtml = desc
-            ? `<div style="color:var(--muted); font-size:12px; margin-top:4px;">${desc}</div>`
-            : "";
-          return `
-            <div style="display:flex; justify-content:space-between; gap:10px;">
-              <div>
-                <div>${displayName} <span style="color:var(--muted)">x${item.qty}</span></div>
-                ${descHtml}
-              </div>
-              <div style="font-weight:700;">${PPS.money(item.priceCents * item.qty, item.currency)}</div>
-            </div>
-          `;
-        }).join("");
-        return `
-          <div class="card fade-in" style="padding:16px;">
-            <div style="display:flex; justify-content:space-between; gap:10px; align-items:center;">
-              <div>
-                <div style="font-weight:800;">${(window.PPS_I18N?.t("account.order") || "Order")} ${order.id}</div>
-                <div style="color:var(--muted); font-size:13px;">${date}</div>
-              </div>
-              <div style="text-align:right;">
-                <div style="font-weight:800;">${PPS.money(order.totalCents || 0, order.currency || "CAD")}</div>
-                <div style="color:var(--muted); font-size:13px;">${order.status || (window.PPS_I18N?.t("account.status.pending") || "pending")}</div>
-              </div>
-            </div>
-            <div style="margin-top:12px; display:grid; gap:6px;">
-              ${items}
-            </div>
-            <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
-              <button class="btn btn-primary" type="button" onclick="reorder('${order.id}')">${window.PPS_I18N?.t("account.reorder") || "Reorder"}</button>
-              <a class="btn btn-outline" href="./products.html">${window.PPS_I18N?.t("account.browse") || "Browse products"}</a>
-            </div>
-          </div>
-        `;
-      }).join("");
-      document.querySelectorAll(".fade-in").forEach(el => el.classList.add("show"));
-    }
-
-    window.reorder = (orderId)=>{
-      const order = orders.find(o=>o.id===orderId);
-      if(!order) return;
-      PPS.addItemsToCart(order.items || []);
-      PPS.updateCartBadge();
-      ordersMsg.textContent = window.PPS_I18N?.t("account.status.added") || "Items added to cart. Ready to checkout.";
-    };
-
-    logoutBtn.addEventListener("click", async ()=>{
-      try{
-        await fetch(`${PPS.API_BASE}/api/auth/logout`,{
-          method:"POST",
-          headers:{ Authorization: `Bearer ${session.token}` }
-        });
-      }catch(err){
-        // ignore
-      }
-      PPS.clearSession();
-      window.location.href = "./login.html";
-    });
-
-    loadOrders();
-    loadFavorites();
-  </script>
+  <script src="./js/account.js" defer></script>
 </body>
 </html>
+

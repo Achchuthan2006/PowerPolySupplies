@@ -63,10 +63,29 @@
     <section class="card fade-in" style="padding:18px; margin-top:16px;">
       <form class="grid" style="gap:12px; max-width:720px;">
         <div style="display:grid; gap:12px; grid-template-columns: repeat(auto-fit, minmax(240px,1fr));">
-          <input class="input" type="text" placeholder="First name" data-i18n-placeholder="signup.form.first" required id="signupName">
-          <input class="input" type="text" placeholder="Last name" data-i18n-placeholder="signup.form.last" required>
+          <input class="input" type="text" placeholder="First name" data-i18n-placeholder="signup.form.first" required id="signupFirst">
+          <input class="input" type="text" placeholder="Last name" data-i18n-placeholder="signup.form.last" required id="signupLast">
         </div>
         <input class="input" type="email" placeholder="Email address" data-i18n-placeholder="signup.form.email" required id="signupEmail">
+        <div style="display:grid; gap:12px; grid-template-columns: repeat(auto-fit, minmax(240px,1fr));">
+          <input class="input" type="tel" placeholder="Phone" data-i18n-placeholder="signup.form.phone" id="signupPhone" autocomplete="tel">
+          <select class="input" id="signupProvince" aria-label="Province" data-i18n-aria-label="signup.form.province">
+            <option value="" selected data-i18n="signup.form.province">Province</option>
+            <option value="ON">Ontario</option>
+            <option value="QC">Quebec</option>
+            <option value="BC">British Columbia</option>
+            <option value="AB">Alberta</option>
+            <option value="MB">Manitoba</option>
+            <option value="SK">Saskatchewan</option>
+            <option value="NS">Nova Scotia</option>
+            <option value="NB">New Brunswick</option>
+            <option value="NL">Newfoundland and Labrador</option>
+            <option value="PE">Prince Edward Island</option>
+            <option value="NT">Northwest Territories</option>
+            <option value="NU">Nunavut</option>
+            <option value="YT">Yukon</option>
+          </select>
+        </div>
         <div class="signup-code-row" style="display:grid; gap:12px; grid-template-columns: minmax(0,1fr) 170px; align-items:center;">
           <div class="code-inputs" id="codeInputs">
             <input class="input code-box" type="text" inputmode="numeric" maxlength="1" aria-label="Digit 1" data-i18n-title="signup.code.d1" disabled>
@@ -115,7 +134,10 @@
     const sendBtn = document.querySelector("#sendCode");
     const statusEl = document.querySelector("#signupStatus");
     const emailInput = document.querySelector("#signupEmail");
-    const nameInput = document.querySelector("#signupName");
+    const firstInput = document.querySelector("#signupFirst");
+    const lastInput = document.querySelector("#signupLast");
+    const phoneInput = document.querySelector("#signupPhone");
+    const provinceInput = document.querySelector("#signupProvince");
     const codeInputs = Array.from(document.querySelectorAll(".code-box"));
     const createBtn = document.querySelector("#createAccount");
 
@@ -136,6 +158,12 @@
 
     function getCodeValue(){
       return codeInputs.map(input => input.value).join("");
+    }
+
+    function fullName(){
+      const first = String(firstInput?.value || "").trim();
+      const last = String(lastInput?.value || "").trim();
+      return `${first} ${last}`.trim();
     }
 
     function setCodeInputsEnabled(enabled, keepValue=false){
@@ -162,7 +190,7 @@
         statusEl.textContent = window.PPS_I18N?.t("signup.status.email_first") || "Please enter an email first.";
         return;
       }
-      const name = nameInput.value.trim();
+      const name = fullName();
       sendBtn.disabled = true;
       try{
         const res = await fetch(`${PPS.API_BASE}/api/auth/send-code`,{
@@ -266,14 +294,23 @@
       statusEl.textContent = window.PPS_I18N?.t("signup.status.creating") || "Creating account...";
       createBtn.disabled = true;
       try{
+        const phone = String(phoneInput?.value || "").trim();
+        const province = String(provinceInput?.value || "").trim();
+        const name = fullName();
         const res = await fetch(`${PPS.API_BASE}/api/auth/register`,{
           method:"POST",
           headers:{ "Content-Type":"application/json" },
-          body: JSON.stringify({ email, code, password, name: nameInput.value.trim() })
+          body: JSON.stringify({ email, code, password, name, phone, province })
         });
         const data = await res.json().catch(()=> ({}));
         if(res.ok && data.ok && data.token){
-          PPS.setSession({ token: data.token, email: data.email, name: data.name || nameInput.value.trim(), expiresAt: data.expiresAt });
+          const lowerEmail = String(data.email || email).trim().toLowerCase();
+          try{
+            localStorage.setItem(`pps_profile_${lowerEmail}`, JSON.stringify({ phone, province }));
+          }catch(err){
+            // ignore
+          }
+          PPS.setSession({ token: data.token, email: lowerEmail, name: data.name || name, phone, province, expiresAt: data.expiresAt });
           window.location.href = "./account.html";
         }else{
           const normalized = normalizeSignupStatus(data?.message);

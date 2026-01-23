@@ -7,6 +7,8 @@ const navLinkClass = ({ isActive }) =>
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [shopOpen, setShopOpen] = useState(false);
+  const hasSession = Boolean(window.PPS?.getSession?.());
+  const accountActive = window.location.pathname === "/account.html";
 
   useEffect(() => {
     window.PPS?.updateCartBadge?.();
@@ -114,10 +116,17 @@ export default function Header() {
               <span className="nav-icon pen-icon" aria-hidden="true" />
               <span data-i18n="nav.feedback">Feedback</span>
             </NavLink>
-            <NavLink to="/login" className={navLinkClass}>
-              <span className="nav-icon user-icon" aria-hidden="true" />
-              <span data-i18n="nav.account">Account</span>
-            </NavLink>
+            {hasSession ? (
+              <a href="/account.html" className={accountActive ? "active" : undefined}>
+                <span className="nav-icon user-icon" aria-hidden="true" />
+                <span data-i18n="nav.my_account">My Account</span>
+              </a>
+            ) : (
+              <NavLink to="/login" className={navLinkClass}>
+                <span className="nav-icon user-icon" aria-hidden="true" />
+                <span data-i18n="nav.account">Account</span>
+              </NavLink>
+            )}
             <NavLink to="/cart" className={navLinkClass}>
               <span className="nav-icon cart-icon" aria-hidden="true" />
               <span data-i18n="nav.cart">Cart</span>{" "}

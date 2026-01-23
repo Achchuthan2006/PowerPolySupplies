@@ -4,6 +4,7 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Products | Power Poly Supplies</title>
+  <meta name="description" content="Browse Power Poly Supplies products: garment cover bags, hangers, polybags, and more. Filter by category, stock, and price.">
   <link rel="stylesheet" href="./css/styles.css"/>
   <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
 </head>
@@ -64,6 +65,43 @@
         <span id="hint" style="font-weight:700;"></span>
       </div>
     </section>
+
+    <div class="filters card fade-in is-collapsed" id="filtersPanel" style="margin-top:16px; padding:14px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+        <button class="btn btn-outline btn-sm" type="button" id="toggleFilters" aria-expanded="false" aria-controls="filtersGrid">Filters</button>
+        <button class="btn btn-outline btn-sm" type="button" id="clearFilters">Clear</button>
+      </div>
+      <div class="filters-grid" id="filtersGrid" style="margin-top:12px;">
+        <label class="filter-field">
+          <div class="filter-label">Category</div>
+          <select class="input" id="filterCat">
+            <option value="">All</option>
+            <option value="Garment Bags">Garment Bags</option>
+            <option value="Hangers">Hangers</option>
+            <option value="Polybags">Polybags</option>
+            <option value="Wraps">Wraps</option>
+            <option value="Racks">Racks</option>
+          </select>
+        </label>
+        <label class="filter-field">
+          <div class="filter-label">Stock</div>
+          <select class="input" id="filterStock">
+            <option value="">All</option>
+            <option value="in">In stock</option>
+            <option value="low">Low stock</option>
+            <option value="out">Out of stock</option>
+          </select>
+        </label>
+        <label class="filter-field">
+          <div class="filter-label">Min price</div>
+          <input class="input" id="filterMin" inputmode="decimal" placeholder="0">
+        </label>
+        <label class="filter-field">
+          <div class="filter-label">Max price</div>
+          <input class="input" id="filterMax" inputmode="decimal" placeholder="100">
+        </label>
+      </div>
+    </div>
 
     <h2 style="margin:20px 0 12px;" data-i18n="products.list_title">Products</h2>
     <div class="grid grid-4" id="grid"></div>
@@ -184,6 +222,18 @@
       return window.PPS_I18N?.t("products.stock.in") || "In stock";
     }
 
+    function qualityBadgesHtml(category){
+      const cat = String(category || "");
+      if(cat !== "Garment Bags" && cat !== "Polybags") return "";
+      return `
+        <div class="feature-badges" aria-label="Product features">
+          <span class="feature-pill">100% Korean-made</span>
+          <span class="feature-pill">100% virgin material</span>
+          <span class="feature-pill">Easy-tear perforation</span>
+        </div>
+      `;
+    }
+
     const heartIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.7-4.4-9.5-7.2A5.6 5.6 0 0 1 12 5.6a5.6 5.6 0 0 1 9.5 8.2C18.7 16.6 12 21 12 21z"/></svg>';
 
     function favoriteTitle(active){
@@ -231,71 +281,219 @@
       renderSkeletons(grid);
       const products = await PPS.loadProducts();
 
-      const cat = qs("cat");
-      const query = (qs("q") || "").trim();
-      const base = cat
-        ? products.filter(p => (p.category || "").toLowerCase() === cat.toLowerCase())
-        : products;
-      const normQuery = normalizeSearchText(query);
-      const queryTokens = buildQueryTokens(query);
-      const filtered = normQuery
-        ? base.filter(p=>{
-            const haystack = [
-              p.name,
-              p.category,
-              p.description,
-              p.description_fr,
-              p.description_ko,
-              p.description_hi,
-              p.description_ta,
-              p.description_es,
-              p.slug
-            ].map(normalizeSearchText);
-            const joined = haystack.join(" ");
-            if(joined.includes(normQuery)) return true;
-            const hayTokens = Array.from(new Set(joined.split(" ").filter(Boolean)));
-            if(!queryTokens.length) return false;
-            if(queryTokens.length === 1){
-              const token = queryTokens[0];
-              return hayTokens.some(t=>t.startsWith(token) || token.startsWith(t) || isCloseMatch(token, t));
-            }
-            return queryTokens.every(qt=>{
-              return hayTokens.some(t=>t.startsWith(qt) || qt.startsWith(t) || isCloseMatch(qt, t));
-            });
-          })
-        : base;
+      let currentFiltered = [];
 
-      const showLabel = window.PPS_I18N?.t("products.hint.show") || "Showing category: {{cat}}";
-      const browseLabel = window.PPS_I18N?.t("products.hint.browse") || "Browse all products";
-      const catLabel = cat ? categoryLabel(cat) : "";
-      const lang = window.PPS_I18N?.getLang?.() || "en";
-      const resultsForLabel = lang === "es"
-        ? (window.PPS_I18N?.autoTranslate?.("Results for", "es") || "Resultados para")
-        : "Results for";
-      if(cat && query){
-        hint.textContent = `${showLabel.replace("{{cat}}", catLabel)} ? ${resultsForLabel} "${query}"`;
-      }else if(query){
-        hint.textContent = `${resultsForLabel} "${query}"`;
-      }else{
-        hint.textContent = cat ? showLabel.replace("{{cat}}", catLabel) : browseLabel;
+      const filterCat = document.getElementById("filterCat");
+      const filterStock = document.getElementById("filterStock");
+      const filterMin = document.getElementById("filterMin");
+      const filterMax = document.getElementById("filterMax");
+      const clearBtn = document.getElementById("clearFilters");
+      const filtersPanel = document.getElementById("filtersPanel");
+      const toggleFiltersBtn = document.getElementById("toggleFilters");
+
+      function setFiltersOpen(open){
+        if(!filtersPanel || !toggleFiltersBtn) return;
+        const isOpen = Boolean(open);
+        filtersPanel.classList.toggle("is-collapsed", !isOpen);
+        toggleFiltersBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        toggleFiltersBtn.textContent = isOpen ? "Hide filters" : "Filters";
       }
 
-      if(filtered.length === 0){
-        const noTitle = window.PPS_I18N?.t("products.no_results") || "No results found";
-        const noBody = window.PPS_I18N?.t("products.no_results_body") || "Try a different search, or browse the full catalog.";
-        grid.innerHTML = `
-          <div class="no-results">
-            <img src="./assets/poly%20logo%20without%20background.png" alt="Power Poly Supplies" width="62" height="62" decoding="async">
-            <h3>${noTitle}</h3>
-            <p>${noBody}</p>
-            <div class="no-results-actions">
-              <a class="btn btn-primary" href="./products.html">${window.PPS_I18N?.t("products.no_results_all") || "Browse all products"}</a>
-              <a class="btn btn-outline" href="./contact.html">${window.PPS_I18N?.t("products.no_results_help") || "Ask for help"}</a>
+      function shouldAutoOpenFilters(){
+        const stock = qs("stock");
+        const min = qs("min");
+        const max = qs("max");
+        return Boolean((stock || "").trim() || (min || "").trim() || (max || "").trim());
+      }
+
+      function setParam(key, value){
+        const url = new URL(window.location.href);
+        if(value === null || value === undefined || value === ""){
+          url.searchParams.delete(key);
+        }else{
+          url.searchParams.set(key, String(value));
+        }
+        window.history.replaceState({}, "", url.toString());
+      }
+
+      function readMoneyInput(input){
+        const raw = String(input?.value || "").trim().replace(/,/g, "");
+        const val = Number(raw);
+        if(!raw || !Number.isFinite(val)) return null;
+        return val;
+      }
+
+      function levenshtein(a, b, max=3){
+        const s = String(a || "");
+        const t = String(b || "");
+        const al = s.length;
+        const bl = t.length;
+        if(!al || !bl) return Math.max(al, bl);
+        if(Math.abs(al - bl) > max) return max + 1;
+        let prev = new Array(bl + 1).fill(0).map((_, i)=>i);
+        for(let i = 1; i <= al; i++){
+          let cur = [i];
+          let rowMin = cur[0];
+          for(let j = 1; j <= bl; j++){
+            const cost = s[i - 1] === t[j - 1] ? 0 : 1;
+            cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + cost);
+            rowMin = Math.min(rowMin, cur[j]);
+          }
+          if(rowMin > max) return max + 1;
+          prev = cur;
+        }
+        return prev[bl];
+      }
+
+      function didYouMeanSuggestion(query){
+        const q = normalizeSearchText(query);
+        if(!q) return null;
+        let best = null;
+        products.forEach(p=>{
+          const name = normalizeSearchText(p.name);
+          const d = levenshtein(q, name, 3);
+          if(d <= 3 && (!best || d < best.d)){
+            best = { type:"product", value: p.name, d };
+          }
+          const cat = normalizeSearchText(p.category);
+          const dc = levenshtein(q, cat, 2);
+          if(dc <= 2 && (!best || dc < best.d)){
+            best = { type:"category", value: p.category, d: dc };
+          }
+        });
+        return best;
+      }
+
+      function syncControlsFromParams(){
+        const cat = qs("cat") || "";
+        const stock = qs("stock") || "";
+        const min = qs("min") || "";
+        const max = qs("max") || "";
+        if(filterCat) filterCat.value = cat;
+        if(filterStock) filterStock.value = stock;
+        if(filterMin) filterMin.value = min || "";
+        if(filterMax) filterMax.value = max || "";
+      }
+
+      function applyFilters(){
+        const cat = (qs("cat") || "").trim();
+        const query = (qs("q") || "").trim();
+        const stock = (qs("stock") || "").trim();
+        const minRaw = qs("min");
+        const maxRaw = qs("max");
+        const minVal = minRaw === null || String(minRaw).trim() === "" ? null : Number(minRaw);
+        const maxVal = maxRaw === null || String(maxRaw).trim() === "" ? null : Number(maxRaw);
+        const minCents = Number.isFinite(minVal) ? Math.round(minVal * 100) : null;
+        const maxCents = Number.isFinite(maxVal) ? Math.round(maxVal * 100) : null;
+
+        const base = cat
+          ? products.filter(p => (p.category || "").toLowerCase() === cat.toLowerCase())
+          : products;
+
+        const normQuery = normalizeSearchText(query);
+        const queryTokens = buildQueryTokens(query);
+        let filtered = normQuery
+          ? base.filter(p=>{
+              const haystack = [
+                p.name,
+                p.category,
+                p.description,
+                p.description_fr,
+                p.description_ko,
+                p.description_hi,
+                p.description_ta,
+                p.description_es,
+                p.slug
+              ].map(normalizeSearchText);
+              const joined = haystack.join(" ");
+              if(joined.includes(normQuery)) return true;
+              const hayTokens = Array.from(new Set(joined.split(" ").filter(Boolean)));
+              if(!queryTokens.length) return false;
+              if(queryTokens.length === 1){
+                const token = queryTokens[0];
+                return hayTokens.some(t=>t.startsWith(token) || token.startsWith(t) || isCloseMatch(token, t));
+              }
+              return queryTokens.every(qt=>{
+                return hayTokens.some(t=>t.startsWith(qt) || qt.startsWith(t) || isCloseMatch(qt, t));
+              });
+            })
+          : base;
+
+        if(stock){
+          filtered = filtered.filter(p=>{
+            const s = Number(p.stock) || 0;
+            if(stock === "out") return s <= 0;
+            if(stock === "low") return s > 0 && s <= 10;
+            if(stock === "in") return s > 10;
+            return true;
+          });
+        }
+
+        if(minCents !== null || maxCents !== null){
+          filtered = filtered.filter(p=>{
+            const cents = PPS.convertCents
+              ? PPS.convertCents(PPS.getTieredPriceCents?.(p, 1) ?? p.priceCents, p.currency, PPS.getCurrency?.())
+              : (PPS.getTieredPriceCents?.(p, 1) ?? p.priceCents);
+            if(minCents !== null && cents < minCents) return false;
+            if(maxCents !== null && cents > maxCents) return false;
+            return true;
+          });
+        }
+
+        currentFiltered = filtered.slice();
+
+        const showLabel = window.PPS_I18N?.t("products.hint.show") || "Showing category: {{cat}}";
+        const browseLabel = window.PPS_I18N?.t("products.hint.browse") || "Browse all products";
+        const catLabel = cat ? categoryLabel(cat) : "";
+        const lang = window.PPS_I18N?.getLang?.() || "en";
+        const resultsForLabel = lang === "es"
+          ? (window.PPS_I18N?.autoTranslate?.("Results for", "es") || "Resultados para")
+          : "Results for";
+        if(cat && query){
+          hint.textContent = `${showLabel.replace("{{cat}}", catLabel)} • ${resultsForLabel} "${query}"`;
+        }else if(query){
+          hint.textContent = `${resultsForLabel} "${query}"`;
+        }else{
+          hint.textContent = cat ? showLabel.replace("{{cat}}", catLabel) : browseLabel;
+        }
+
+        if(currentFiltered.length === 0){
+          const noTitle = window.PPS_I18N?.t("products.no_results") || "No results found";
+          const noBody = window.PPS_I18N?.t("products.no_results_body") || "Try a different search, or browse the full catalog.";
+          const suggestion = query ? didYouMeanSuggestion(query) : null;
+          const suggestionHtml = suggestion
+            ? `<div class="did-you-mean">
+                Did you mean
+                <button class="link-btn" type="button" id="dymBtn">"${suggestion.value}"</button>?
+              </div>`
+            : "";
+          grid.innerHTML = `
+            <div class="no-results">
+              <img src="./assets/poly%20logo%20without%20background.png" alt="Power Poly Supplies" width="62" height="62" decoding="async">
+              <h3>${noTitle}</h3>
+              <p>${noBody}</p>
+              ${suggestionHtml}
+              <div class="no-results-actions">
+                <a class="btn btn-primary" href="./products.html">${window.PPS_I18N?.t("products.no_results_all") || "Browse all products"}</a>
+                <a class="btn btn-outline" href="./contact.html">${window.PPS_I18N?.t("products.no_results_help") || "Ask for help"}</a>
+              </div>
             </div>
-          </div>
-        `;
-      }else{
-          grid.innerHTML = filtered.map(p=>{
+          `;
+          const dymBtn = document.getElementById("dymBtn");
+          if(dymBtn && suggestion){
+            dymBtn.addEventListener("click", ()=>{
+              if(suggestion.type === "category"){
+                setParam("cat", suggestion.value);
+                setParam("q", "");
+              }else{
+                setParam("q", suggestion.value);
+              }
+              applyFilters();
+              syncControlsFromParams();
+            });
+          }
+        }else{
+          grid.innerHTML = currentFiltered.map(p=>{
             const lang = window.PPS_I18N?.getLang?.() || "en";
             const displayName = lang === "es"
               ? (window.PPS_I18N?.autoTranslate?.(p.name || "", "es") || p.name)
@@ -307,48 +505,99 @@
             const bannerTemplate = window.PPS_I18N?.t("member.banner") || "Log in to save {{amount}} with Power Poly Member Pricing";
             const bannerText = bannerTemplate.replace("{{amount}}", PPS.money(savingsCents, p.currency));
             return `
-            <div class="card fade-in">
-              <a href="./product.html?slug=${encodeURIComponent(p.slug)}">
-                <img src="${p.image}" alt="${displayName}" loading="lazy" decoding="async" width="400" height="190">
-              </a>
-              <div class="card-body">
-                <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(p.slug)}">${displayName}</a>
-                <div class="card-meta">${categoryLabel(p.category)}</div>
-                <div class="member-pricing">
-                  <div>
-                    <div class="market-label" data-i18n="market.price.label">Market price</div>
-                    <span class="compare-price">${PPS.money(compareCents,p.currency)}</span>
+              <div class="card fade-in">
+                <a href="./product.html?slug=${encodeURIComponent(p.slug)}">
+                  <img src="${p.image}" alt="${displayName}" loading="lazy" decoding="async" width="400" height="190">
+                </a>
+                <div class="card-body">
+                  <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(p.slug)}">${displayName}</a>
+                  <div class="card-meta">${categoryLabel(p.category)}</div>
+                  ${qualityBadgesHtml(p.category)}
+                  <div class="member-pricing">
+                    <div>
+                      <div class="market-label" data-i18n="market.price.label">Market price</div>
+                      <span class="compare-price">${PPS.money(compareCents,p.currency)}</span>
+                    </div>
+                    <div>
+                      <div class="member-label" data-i18n="member.price.label">Power Poly Member Price</div>
+                      <span class="price">${PPS.money(memberCents,p.currency)}</span>
+                    </div>
+                    ${favoriteButton(p.id)}
                   </div>
-                  <div>
-                    <div class="member-label" data-i18n="member.price.label">Power Poly Member Price</div>
-                    <span class="price">${PPS.money(memberCents,p.currency)}</span>
+                  ${!isMember && savingsCents > 0 ? `<a class="member-banner" href="./login.html">${bannerText}</a>` : ""}
+                  <div class="stock ${stockClass(p.stock)}">
+                    <span class="dot"></span>
+                    ${stockLabel(p.stock)}
                   </div>
-                  ${favoriteButton(p.id)}
-                </div>
-                ${!isMember && savingsCents > 0 ? `<a class="member-banner" href="./login.html">${bannerText}</a>` : ""}
-                <div class="stock ${stockClass(p.stock)}">
-                  <span class="dot"></span>
-                  ${stockLabel(p.stock)}
-                </div>
-                <div class="product-actions" style="margin-top:12px; display:flex; gap:10px;">
-                  <a class="btn" href="./product.html?slug=${encodeURIComponent(p.slug)}">${window.PPS_I18N?.t("products.action.view") || "View"}</a>
-                  <button class="btn btn-primary" ${p.stock<=0?'disabled':''} onclick='add(event,"${p.id}")'>${window.PPS_I18N?.t("products.action.add") || "Add"}</button>
-                  <a class="btn btn-outline" href="./cart.html" data-i18n="products.action.cart">${window.PPS_I18N?.t("products.action.cart") || "Go to cart"}</a>
-                </div>
-                <div class="bulk-quick">
-                  <button class="btn btn-outline" ${p.stock<=0?'disabled':''} onclick='addBulk(event,"${p.id}",10)'>${window.PPS_I18N?.t("products.bulk.10") || "10+ boxes"}</button>
-                  <button class="btn btn-outline" ${p.stock<=0?'disabled':''} onclick='addBulk(event,"${p.id}",15)'>${window.PPS_I18N?.t("products.bulk.15") || "15+ boxes"}</button>
-                  <button class="btn btn-outline" ${p.stock<=0?'disabled':''} onclick='addBulk(event,"${p.id}",20)'>${window.PPS_I18N?.t("products.bulk.20") || "20+ boxes"}</button>
+                  <div class="product-actions" style="margin-top:12px; display:flex; gap:10px;">
+                    <a class="btn" href="./product.html?slug=${encodeURIComponent(p.slug)}">${window.PPS_I18N?.t("products.action.view") || "View"}</a>
+                    <button class="btn btn-primary" ${p.stock<=0?'disabled':''} onclick='add(event,"${p.id}")'>${window.PPS_I18N?.t("products.action.add") || "Add"}</button>
+                    <a class="btn btn-outline" href="./cart.html" data-i18n="products.action.cart">${window.PPS_I18N?.t("products.action.cart") || "Go to cart"}</a>
+                  </div>
+                  <div class="bulk-quick">
+                    <button class="btn btn-outline" ${p.stock<=0?'disabled':''} onclick='addBulk(event,"${p.id}",10)'>${window.PPS_I18N?.t("products.bulk.10") || "10+ boxes"}</button>
+                    <button class="btn btn-outline" ${p.stock<=0?'disabled':''} onclick='addBulk(event,"${p.id}",15)'>${window.PPS_I18N?.t("products.bulk.15") || "15+ boxes"}</button>
+                    <button class="btn btn-outline" ${p.stock<=0?'disabled':''} onclick='addBulk(event,"${p.id}",20)'>${window.PPS_I18N?.t("products.bulk.20") || "20+ boxes"}</button>
+                  </div>
                 </div>
               </div>
-            </div>
-          `;}).join("");
+            `;
+          }).join("");
+        }
+
+        document.querySelectorAll(".fade-in").forEach(el => el.classList.add("show"));
+        window.PPS_I18N?.applyTranslations?.();
       }
 
-      document.querySelectorAll(".fade-in").forEach(el => el.classList.add("show"));
+      function wireControls(){
+        if(toggleFiltersBtn){
+          toggleFiltersBtn.addEventListener("click", ()=>{
+            setFiltersOpen(filtersPanel?.classList.contains("is-collapsed"));
+          });
+        }
+        if(filterCat){
+          filterCat.addEventListener("change", ()=>{
+            setParam("cat", filterCat.value);
+            applyFilters();
+          });
+        }
+        if(filterStock){
+          filterStock.addEventListener("change", ()=>{
+            setParam("stock", filterStock.value);
+            applyFilters();
+          });
+        }
+        if(filterMin){
+          filterMin.addEventListener("change", ()=>{
+            const v = readMoneyInput(filterMin);
+            setParam("min", v === null ? "" : v);
+            applyFilters();
+          });
+        }
+        if(filterMax){
+          filterMax.addEventListener("change", ()=>{
+            const v = readMoneyInput(filterMax);
+            setParam("max", v === null ? "" : v);
+            applyFilters();
+          });
+        }
+        if(clearBtn){
+          clearBtn.addEventListener("click", ()=>{
+            ["cat","stock","min","max"].forEach(k=> setParam(k, ""));
+            syncControlsFromParams();
+            applyFilters();
+            setFiltersOpen(false);
+          });
+        }
+      }
+
+      syncControlsFromParams();
+      wireControls();
+      setFiltersOpen(shouldAutoOpenFilters());
+      applyFilters();
 
       window.add = (e,id)=>{
-        const p = filtered.find(x=>x.id===id);
+        const p = currentFiltered.find(x=>x.id===id);
         if(!p || p.stock<=0) return;
         PPS.addToCart(p);
         if(e && e.target){
@@ -364,7 +613,7 @@
       };
 
       window.addBulk = (e,id,qty)=>{
-        const p = filtered.find(x=>x.id===id);
+        const p = currentFiltered.find(x=>x.id===id);
         if(!p || p.stock<=0) return;
         PPS.addToCart(p, qty);
         if(e && e.target){

@@ -48,6 +48,22 @@ function setupFadeIn(){
   els.forEach(el=>io.observe(el));
 }
 
+function setupStickyHeader(){
+  const header = document.querySelector(".site-header");
+  if(!header) return;
+  let ticking = false;
+  const onScroll = ()=>{
+    if(ticking) return;
+    ticking = true;
+    requestAnimationFrame(()=>{
+      header.classList.toggle("scrolled", window.scrollY > 8);
+      ticking = false;
+    });
+  };
+  window.addEventListener("scroll", onScroll, { passive:true });
+  onScroll();
+}
+
 function syncAccountLink(){
   const accountLink = document.querySelector('a[href="./login.html"]');
   if(!accountLink || !window.PPS?.getSession) return;
@@ -251,6 +267,14 @@ function injectFooter(){
           <span data-i18n="brand.name">Power Poly Supplies</span>
           <span style="color:#ffb25c; font-size:12px;" data-i18n="brand.tagline">Power your packaging</span>
           <div class="footer-meta" data-i18n="footer.meta">Bulk-ready stock | Fast response | Canada-wide supply</div>
+          <div class="footer-newsletter">
+            <div class="footer-newsletter-title">Get updates & specials</div>
+            <form class="newsletter-form" id="newsletterForm">
+              <input class="input" type="email" name="email" placeholder="Email address" aria-label="Email address" required>
+              <button class="btn btn-primary btn-sm" type="submit">Subscribe</button>
+            </form>
+            <div class="newsletter-note" id="newsletterNote">No spam. 1–2 emails/month.</div>
+          </div>
         </div>
         <div>
           <h4 data-i18n="footer.shop">Shop</h4>
@@ -329,13 +353,38 @@ function injectFooter(){
         </div>
         <div class="footer-bottom">
           <span data-i18n="footer.rights">(C) {{year}} Power Poly Supplies. All rights reserved.</span>
-          <span data-i18n="footer.secure">Secure payments via Square</span>
+          <span class="footer-trust">
+            <span class="guarantee-badge" title="Satisfaction guarantee">Money-back guarantee</span>
+            <span class="payment-icons" aria-label="Payment methods">
+              <span class="pay-badge" aria-hidden="true">VISA</span>
+              <span class="pay-badge" aria-hidden="true">Mastercard</span>
+              <span class="pay-badge" aria-hidden="true">Square</span>
+            </span>
+          </span>
         </div>
       </div>
   `;
   footer.remove();
   document.body.appendChild(newFooter);
   window.PPS_I18N?.applyTranslations?.();
+
+  const newsletterForm = document.getElementById("newsletterForm");
+  const newsletterNote = document.getElementById("newsletterNote");
+  if(newsletterForm && newsletterNote){
+    newsletterForm.addEventListener("submit", (e)=>{
+      e.preventDefault();
+      const email = String(newsletterForm.email?.value || "").trim();
+      if(!email) return;
+      try{
+        const key = "pps_newsletter_email_v1";
+        localStorage.setItem(key, email);
+      }catch(_err){
+        // ignore
+      }
+      newsletterNote.textContent = "Thanks! You’re on the list.";
+      newsletterForm.reset();
+    });
+  }
 
   // Reveal animation when footer comes into view
   const io = new IntersectionObserver(entries=>{
@@ -406,9 +455,22 @@ function setupSearch(){
       }
       box.innerHTML = items.map(item=>{
         if(item.type === "category"){
-          return `<button type="button" data-cat="${item.value}">${item.label}</button>`;
+          return `<button type="button" data-cat="${item.value}" class="suggestion suggestion-category">
+            <span class="suggestion-text">
+              <span class="suggestion-title">${item.label}</span>
+              <span class="suggestion-meta">${window.PPS_I18N?.t("search.suggestion.category") || "Category"}</span>
+            </span>
+          </button>`;
         }
-        return `<button type="button" data-slug="${item.value}">${item.label}</button>`;
+        const img = item.image ? `<img class="suggestion-thumb" src="${item.image}" alt="" loading="lazy" decoding="async" width="44" height="34">` : "";
+        const meta = [item.category, item.price, item.stockLabel].filter(Boolean).join(" · ");
+        return `<button type="button" data-slug="${item.value}" class="suggestion suggestion-product">
+          ${img}
+          <span class="suggestion-text">
+            <span class="suggestion-title">${item.label}</span>
+            <span class="suggestion-meta">${meta}</span>
+          </span>
+        </button>`;
       }).join("");
       box.hidden = false;
     };
@@ -429,7 +491,11 @@ function setupSearch(){
       const productItems = matches.slice(0, 8).map(p=>({
         type: "product",
         value: p.slug,
-        label: p.name
+        label: p.name,
+        image: p.image,
+        category: p.category,
+        price: window.PPS?.money ? PPS.money(PPS.getTieredPriceCents?.(p, 1) ?? p.priceCents, p.currency) : "",
+        stockLabel: p.stock <= 0 ? (window.PPS_I18N?.t("products.stock.out") || "Out of stock") : p.stock <= 10 ? (window.PPS_I18N?.t("products.stock.low") || "Almost out") : (window.PPS_I18N?.t("products.stock.in") || "In stock")
       }));
 
       const categories = Array.from(new Set(products.map(p=>p.category).filter(Boolean)));
@@ -496,6 +562,159 @@ function setupSearch(){
       window.location.href = `./products.html?q=${encodeURIComponent(query)}`;
     });
   });
+}
+
+function setupCountUp(){
+  const els = document.querySelectorAll("[data-count-up]");
+  if(!els.length) return;
+
+  const prefersReduce = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+  const format = (n)=> String(Math.round(n));
+
+  const animate = (el)=>{
+    const raw = el.getAttribute("data-count-up");
+    const suffix = el.getAttribute("data-count-suffix") || "";
+    const target = Number(raw);
+    if(!Number.isFinite(target)) return;
+    if(prefersReduce){
+      el.textContent = format(target) + suffix;
+      return;
+    }
+    const start = performance.now();
+    const duration = 900;
+    const from = 0;
+    const step = (now)=>{
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      const val = from + (target - from) * eased;
+      el.textContent = format(val) + suffix;
+      if(t < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  };
+
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(!e.isIntersecting) return;
+      const el = e.target;
+      if(el.dataset.counted === "1") return;
+      el.dataset.counted = "1";
+      animate(el);
+    });
+  }, { threshold: 0.35 });
+
+  els.forEach(el=> io.observe(el));
+}
+
+function setupExitIntentOffer(){
+  const prefersReduce = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+  const isMobile = window.matchMedia?.("(max-width: 860px)")?.matches;
+  if(isMobile) return;
+
+  const key = "pps_exit_offer_v1";
+  let dismissed = false;
+  try{
+    dismissed = localStorage.getItem(key) === "1";
+  }catch(_err){
+    dismissed = false;
+  }
+  if(dismissed) return;
+
+  const overlay = document.createElement("div");
+  overlay.className = "pps-modal-overlay";
+  overlay.id = "exitOffer";
+  overlay.innerHTML = `
+    <div class="pps-modal" role="dialog" aria-modal="true" aria-label="Special offer">
+      <div class="pps-modal-header">
+        <div>
+          <div class="pps-modal-title">Get 10% off your first order</div>
+          <div class="pps-modal-subtitle">Use this code at checkout or mention it in your bulk quote request.</div>
+        </div>
+        <button class="pps-modal-close" type="button" aria-label="Close" data-close>×</button>
+      </div>
+      <div class="pps-modal-body">
+        <div class="offer-code-row">
+          <div class="offer-code" id="offerCode">WELCOME10</div>
+          <button class="btn btn-primary btn-sm" type="button" id="copyOffer">Copy</button>
+        </div>
+        <div id="offerMsg" style="color:var(--muted); font-size:13px; margin-top:8px;"></div>
+        <div class="pps-modal-row" style="margin-top:14px;">
+          <a class="btn btn-primary" href="./products.html">Shop now</a>
+          <a class="btn btn-outline" href="./contact.html">Get a bulk quote</a>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const close = ()=>{
+    overlay.remove();
+    try{ localStorage.setItem(key, "1"); }catch(_err){}
+  };
+
+  overlay.addEventListener("click", (e)=>{
+    const t = e.target;
+    if(!(t instanceof HTMLElement)) return;
+    if(t.hasAttribute("data-close")) close();
+    if(t === overlay) close();
+  });
+
+  const show = ()=>{
+    if(document.getElementById("exitOffer")) return;
+    document.body.appendChild(overlay);
+    overlay.classList.add("open");
+    const btn = document.getElementById("copyOffer");
+    const msg = document.getElementById("offerMsg");
+    btn?.addEventListener("click", async ()=>{
+      try{
+        await navigator.clipboard.writeText("WELCOME10");
+        if(msg) msg.textContent = "Copied to clipboard.";
+      }catch(_err){
+        if(msg) msg.textContent = "Copy manually: WELCOME10";
+      }
+    });
+    // Focus close for accessibility
+    overlay.querySelector(".pps-modal-close")?.focus?.();
+  };
+
+  const handler = (e)=>{
+    if(e.clientY > 0) return;
+    document.removeEventListener("mouseout", handler);
+    show();
+  };
+  document.addEventListener("mouseout", handler);
+}
+
+function injectBottomNav(){
+  if(document.querySelector(".bottom-nav")) return;
+  const isMobile = window.matchMedia?.("(max-width: 860px)")?.matches;
+  if(!isMobile) return;
+
+  const nav = document.createElement("nav");
+  nav.className = "bottom-nav";
+  nav.setAttribute("aria-label", "Quick navigation");
+  nav.innerHTML = `
+    <a class="bottom-nav-item" href="./products.html">
+      <span class="bicon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </span>
+      <span>Categories</span>
+    </a>
+    <a class="bottom-nav-item" href="./products.html">
+      <span class="bicon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M10.5 18a7.5 7.5 0 1 1 5.3-2.2L21 21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M15 15l1.8 1.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </span>
+      <span>Search</span>
+    </a>
+    <a class="bottom-nav-item" href="./cart.html">
+      <span class="bicon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M6 6h14.2l-1.2 6H8.1L7.2 6H4V4h2a1 1 0 0 1 .99.86L7.8 6h12.42a1 1 0 0 1 .98 1.2l-1.4 7a1 1 0 0 1-.98.8H8a1 1 0 0 1-.99-.87L5.8 7H4V5h1.2L6 6zm2.5 12a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm9 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z" fill="currentColor"/></svg>
+      </span>
+      <span>Cart</span>
+      <span class="bottom-badge" data-cart-badge>0</span>
+    </a>
+  `;
+  document.body.appendChild(nav);
+  window.PPS?.updateCartBadge?.();
 }
 
 function injectHelpWidget(){
@@ -680,10 +899,14 @@ function injectHelpWidget(){
 window.addEventListener("DOMContentLoaded", ()=>{
   setupNavbar();
   setupFadeIn();
+  setupStickyHeader();
   syncAccountLink();
   injectLangSwitcher();
   injectCurrencySwitcher();
   setupSearch();
+  setupCountUp();
+  setupExitIntentOffer();
+  injectBottomNav();
   injectFooter();
   injectHelpWidget();
   scheduleLanguagePrompt();

@@ -53,9 +53,9 @@
 
   <div class="container page">
     <section class="hero fade-in">
-      <p style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);" data-i18n="thankyou.kicker">Thank you</p>
-      <h1 data-i18n="thankyou.title">Order received</h1>
-      <p data-i18n="thankyou.subtitle">We have your order details. We will review and follow up with confirmation, delivery timing, or payment details.</p>
+      <p id="thankKicker" style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);" data-i18n="thankyou.kicker">Thank you</p>
+      <h1 id="thankTitle" data-i18n="thankyou.title">Order received</h1>
+      <p id="thankSubtitle" data-i18n="thankyou.subtitle">We have your order details. We will review and follow up with confirmation, delivery timing, or payment details.</p>
       <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
         <a class="btn btn-primary" href="./products.html" data-i18n="thankyou.continue">Continue shopping</a>
         <a class="btn btn-outline" href="./contact.html" data-i18n="thankyou.adjust">Need to adjust? Contact us</a>
@@ -73,6 +73,16 @@
   <script>
     document.getElementById("y").textContent = new Date().getFullYear();
     PPS.updateCartBadge();
+    const type = new URLSearchParams(location.search).get("type");
+    if(type === "contact"){
+      document.title = "Thank You | Power Poly Supplies";
+      const title = document.getElementById("thankTitle");
+      const subtitle = document.getElementById("thankSubtitle");
+      const kicker = document.getElementById("thankKicker");
+      if(kicker) kicker.textContent = "Thank you";
+      if(title) title.textContent = "Message received";
+      if(subtitle) subtitle.textContent = "Thanks — we’ll reply within 2 hours during business hours.";
+    }
   </script>
 </body>
 </html>

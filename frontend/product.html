@@ -4,6 +4,7 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Product | Power Poly Supplies</title>
+  <meta name="description" content="Product details, bulk pricing tiers, and availability for Power Poly Supplies.">
   <link rel="stylesheet" href="./css/styles.css"/>
   <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
 </head>
@@ -170,7 +171,79 @@
         const base = Math.max(0, Number(product?.priceCents) || 0);
         if(qty >= 20) return Math.max(0, base - 300);
         if(qty >= 15) return Math.max(0, base - 200);
-        return Math.max(0, base - 100);
+        if(qty >= 10) return Math.max(0, base - 100);
+        return base;
+      }
+
+      const RECENT_KEY = "pps_recently_viewed_v1";
+      function readRecentSlugs(){
+        try{
+          const raw = localStorage.getItem(RECENT_KEY);
+          const arr = JSON.parse(raw || "[]");
+          return Array.isArray(arr) ? arr.map(String).filter(Boolean) : [];
+        }catch(_err){
+          return [];
+        }
+      }
+      function writeRecentSlugs(slugs){
+        try{
+          localStorage.setItem(RECENT_KEY, JSON.stringify(slugs.slice(0, 10)));
+        }catch(_err){
+          // ignore
+        }
+      }
+      function rememberRecent(slug){
+        const s = String(slug || "");
+        if(!s) return;
+        const prev = readRecentSlugs().filter(x=>x !== s);
+        prev.unshift(s);
+        writeRecentSlugs(prev);
+      }
+
+      function extractSpecsFromName(name){
+        const text = String(name || "");
+        const specs = [];
+        const sizeMatch = text.match(/(\d+(?:\.\d+)?)\s*\"\s*x\s*(\d+(?:\.\d+)?)\s*\"\s*x\s*(\d+(?:\.\d+)?)\s*\"/i);
+        if(sizeMatch){
+          specs.push({ label: "Size", value: `${sizeMatch[1]}" x ${sizeMatch[2]}" x ${sizeMatch[3]}"` });
+        }
+        const paren = text.match(/\(([^)]+)\)/);
+        if(paren && paren[1]){
+          specs.push({ label: "Variant", value: paren[1].trim() });
+        }
+        return specs;
+      }
+
+      function qualityBadgesHtml(category){
+        const cat = String(category || "");
+        if(cat !== "Garment Bags" && cat !== "Polybags") return "";
+        return `
+          <div class="feature-badges" aria-label="Product features">
+            <span class="feature-pill">100% Korean-made</span>
+            <span class="feature-pill">100% virgin material</span>
+            <span class="feature-pill">Easy-tear perforation</span>
+          </div>
+        `;
+      }
+
+      function addBusinessDays(date, days){
+        const d = new Date(date.getTime());
+        let left = Math.max(0, Number(days) || 0);
+        while(left > 0){
+          d.setDate(d.getDate() + 1);
+          const day = d.getDay();
+          if(day !== 0 && day !== 6){
+            left -= 1;
+          }
+        }
+        return d;
+      }
+      function formatShortDate(d){
+        try{
+          return new Intl.DateTimeFormat(undefined, { month:"short", day:"numeric" }).format(d);
+        }catch(_err){
+          return d.toDateString();
+        }
       }
 
       async function loadReviews(){
@@ -231,13 +304,45 @@
 
       wrap.innerHTML = `
         <section class="hero fade-in" style="margin-bottom:16px;">
+          <nav class="breadcrumbs" aria-label="Breadcrumb">
+            <a href="./index.html">Home</a>
+            <span class="crumb-sep" aria-hidden="true">/</span>
+            <a href="./products.html?cat=${encodeURIComponent(p.category || "")}">${displayCategory || "Products"}</a>
+            <span class="crumb-sep" aria-hidden="true">/</span>
+            <span aria-current="page">${displayName}</span>
+          </nav>
           <p style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);" data-i18n="product.kicker">Product detail</p>
           <h1 style="margin:4px 0 6px;">${displayName}</h1>
           <p style="margin:0; color:var(--muted);">${window.PPS_I18N?.t("product.category") || "Category:"} ${displayCategory || "N/A"}</p>
         </section>
         <div class="grid product-detail-grid" style="grid-template-columns: 1.1fr .9fr; gap:24px;">
           <div class="card fade-in">
-            <img src="${p.image}" alt="${displayName}" width="800" height="420" decoding="async" style="height:420px;">
+            ${(()=>{
+              const images = Array.from(new Set([
+                p.image,
+                ...(Array.isArray(p.images) ? p.images : []),
+                p.image2,
+                p.image3
+              ].filter(Boolean)));
+              const main = images[0] || "./assets/poly%20logo%20without%20background.png";
+              const thumbs = images.length > 1
+                ? `<div class="product-gallery-thumbs" id="galleryThumbs">
+                    ${images.map((src, idx)=>`
+                      <button type="button" class="thumb ${idx===0 ? "active" : ""}" data-src="${String(src).replace(/"/g,"&quot;")}" aria-label="View image ${idx+1}">
+                        <img src="${src}" alt="" loading="lazy" decoding="async" width="120" height="86">
+                      </button>
+                    `).join("")}
+                  </div>`
+                : "";
+              return `
+                <div class="product-gallery">
+                  <div class="product-gallery-main">
+                    <img id="mainImg" src="${main}" alt="${displayName}" width="900" height="640" decoding="async">
+                  </div>
+                  ${thumbs}
+                </div>
+              `;
+            })()}
           </div>
           <div class="card fade-in" style="padding:18px;">
             <h2 style="margin:0;">${displayName}</h2>
@@ -255,6 +360,21 @@
             </div>
             ${!isMember && savingsCents > 0 ? `<a class="member-banner" href="./login.html">${bannerText}</a>` : ""}
             ${(()=>{ const s = stockClass(p.stock); return `<div class="stock ${s.cls}"><span class="dot"></span>${s.label}</div>`; })()}
+            ${p.stock > 0 && p.stock <= 15 ? `<div class="stock-urgency">Only <strong>${p.stock}</strong> boxes left — order soon.</div>` : ""}
+            ${qualityBadgesHtml(p.category)}
+
+            ${(()=>{
+              const specs = extractSpecsFromName(displayName);
+              if(!specs.length) return "";
+              return `
+                <div class="specs">
+                  <div class="specs-title">Quick specs</div>
+                  <ul class="specs-list">
+                    ${specs.map(s=>`<li><span class="check">✓</span><span><strong>${s.label}:</strong> ${s.value}</span></li>`).join("")}
+                  </ul>
+                </div>
+              `;
+            })()}
             <p style="margin-top:14px; color:var(--text); line-height:1.5;">${desc || ""}</p>
 
             <div class="pricing-tiers">
@@ -266,11 +386,24 @@
               </div>
             </div>
 
-            <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
+            <div class="qty-row" style="margin-top:16px;">
+              <div class="qty-stepper" aria-label="Quantity selector">
+                <button class="qty-btn" type="button" id="qtyMinus" aria-label="Decrease quantity">-</button>
+                <input class="qty-input" id="qty" inputmode="numeric" pattern="[0-9]*" value="1" aria-label="Quantity">
+                <button class="qty-btn" type="button" id="qtyPlus" aria-label="Increase quantity">+</button>
+              </div>
+              <div class="qty-meta">
+                <div class="qty-total" id="qtyTotal"></div>
+                <div class="qty-note" id="qtyNote"></div>
+              </div>
+            </div>
+            <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
               <button class="btn btn-primary" ${p.stock<=0 ? "disabled" : ""} id="add">${window.PPS_I18N?.t("product.add") || "Add to cart"}</button>
               <a class="btn" href="./cart.html">${window.PPS_I18N?.t("product.go_cart") || "Go to cart"}</a>
               <a class="btn btn-outline" href="./contact.html">${window.PPS_I18N?.t("product.bulk_quote") || "Bulk quote"}</a>
             </div>
+
+            <div class="delivery-estimate" id="deliveryEstimate" aria-live="polite"></div>
             <div style="margin-top:10px;">
               <button class="share-btn" type="button" id="shareBtn" aria-label="${window.PPS_I18N?.t("product.share") || "Share"}">
                 <span class="share-icon" aria-hidden="true">
@@ -310,18 +443,176 @@
           </div>
           <div id="relatedGrid" class="grid grid-4" style="margin-top:12px;"></div>
         </div>
+        <div class="card fade-in" style="margin-top:18px; padding:18px;">
+          <div class="related-header" style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+            <h3 style="margin:0;">Recently viewed</h3>
+            <a class="btn btn-outline" href="./products.html">Browse all</a>
+          </div>
+          <div id="recentGrid" class="grid grid-4" style="margin-top:12px;"></div>
+        </div>
         <div class="footer">&copy; <span id="y"></span> Power Poly Supplies. Power your packaging.</div>
       `;
+
+      // Product structured data (Schema.org)
+      try{
+        const productUrl = window.location.href;
+        const imageUrl = p.image ? new URL(p.image, window.location.href).href : undefined;
+        const scriptId = "productJsonLd";
+        document.getElementById(scriptId)?.remove?.();
+        const ld = {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "BreadcrumbList",
+              "itemListElement": [
+                { "@type":"ListItem", "position":1, "name":"Home", "item": new URL("./index.html", productUrl).href },
+                { "@type":"ListItem", "position":2, "name": String(displayCategory || "Products"), "item": new URL(`./products.html?cat=${encodeURIComponent(p.category || "")}`, productUrl).href },
+                { "@type":"ListItem", "position":3, "name": String(displayName || ""), "item": productUrl }
+              ]
+            },
+            {
+              "@type": "Product",
+              "name": String(displayName || ""),
+              "category": String(displayCategory || ""),
+              "image": imageUrl ? [imageUrl] : undefined,
+              "description": String(desc || ""),
+              "sku": String(p.id || ""),
+              "brand": { "@type":"Brand", "name":"Power Poly Supplies" },
+              "offers": {
+                "@type": "Offer",
+                "priceCurrency": String(PPS.getCurrency?.() || p.currency || "CAD"),
+                "price": ((Number(PPS.convertCents?.(memberCents, p.currency, PPS.getCurrency?.()) ?? memberCents) || 0) / 100).toFixed(2),
+                "availability": (Number(p.stock) || 0) <= 0 ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
+                "url": productUrl
+              }
+            }
+          ]
+        };
+        const s = document.createElement("script");
+        s.id = scriptId;
+        s.type = "application/ld+json";
+        s.textContent = JSON.stringify(ld);
+        document.head.appendChild(s);
+      }catch(_err){
+        // ignore
+      }
 
       window.PPS_I18N?.applyTranslations?.();
       document.getElementById("y").textContent = new Date().getFullYear();
       document.querySelectorAll(".fade-in").forEach(el => el.classList.add("show"));
       if(window.injectFooter) window.injectFooter();
 
+      // Gallery thumbnails
+      const mainImg = document.getElementById("mainImg");
+      const thumbs = document.getElementById("galleryThumbs");
+      if(mainImg && thumbs){
+        thumbs.addEventListener("click", (e)=>{
+          const btn = e.target.closest("button.thumb");
+          if(!btn) return;
+          const src = btn.getAttribute("data-src");
+          if(!src) return;
+          mainImg.src = src;
+          thumbs.querySelectorAll("button.thumb").forEach(b=>b.classList.remove("active"));
+          btn.classList.add("active");
+        });
+      }
+
+      // Quantity + live price
+      const qtyInput = document.getElementById("qty");
+      const qtyMinus = document.getElementById("qtyMinus");
+      const qtyPlus = document.getElementById("qtyPlus");
+      const qtyTotal = document.getElementById("qtyTotal");
+      const qtyNote = document.getElementById("qtyNote");
+      function clampQty(val){
+        const n = Math.max(1, Math.floor(Number(val) || 1));
+        if(Number.isFinite(p.stock) && p.stock > 0){
+          return Math.min(n, p.stock);
+        }
+        return n;
+      }
+      function updateQtyPricing(){
+        if(!qtyInput || !qtyTotal || !qtyNote) return;
+        const qty = clampQty(qtyInput.value);
+        qtyInput.value = String(qty);
+        const unit = getBulkTierPriceCents(p, qty);
+        const total = unit * qty;
+        qtyTotal.textContent = `Total: ${PPS.money(total, p.currency)}`;
+        const tierMsg = qty >= 20 ? "20+ pricing applied" : qty >= 15 ? "15+ pricing applied" : qty >= 10 ? "10+ pricing applied" : "Standard pricing";
+        qtyNote.textContent = `${PPS.money(unit, p.currency)} / box · ${tierMsg}`;
+      }
+      function setQty(val){
+        if(!qtyInput) return;
+        qtyInput.value = String(clampQty(val));
+        updateQtyPricing();
+      }
+      if(qtyInput){
+        qtyInput.addEventListener("input", updateQtyPricing);
+        qtyInput.addEventListener("blur", ()=> setQty(qtyInput.value));
+        updateQtyPricing();
+      }
+      if(qtyMinus) qtyMinus.addEventListener("click", ()=> setQty((Number(qtyInput?.value) || 1) - 1));
+      if(qtyPlus) qtyPlus.addEventListener("click", ()=> setQty((Number(qtyInput?.value) || 1) + 1));
+
       document.getElementById("add").onclick = ()=>{
         if(p.stock<=0) return;
-        PPS.addToCart(p);
+        const qty = clampQty(qtyInput?.value);
+        PPS.addToCart(p, qty);
       };
+
+      // Estimated delivery (business days)
+      const deliveryEl = document.getElementById("deliveryEstimate");
+      if(deliveryEl){
+        const start = addBusinessDays(new Date(), 2);
+        const end = addBusinessDays(new Date(), 5);
+        deliveryEl.textContent = `Estimated delivery: ${formatShortDate(start)} – ${formatShortDate(end)} (business days)`;
+      }
+
+      // Recently viewed
+      rememberRecent(p.slug);
+      const recentGrid = document.getElementById("recentGrid");
+      if(recentGrid){
+        const recentSlugs = readRecentSlugs().filter(s=>s !== p.slug);
+        const recent = recentSlugs
+          .map(slug => products.find(x=>String(x.slug) === slug))
+          .filter(Boolean)
+          .slice(0, 4);
+        if(!recent.length){
+          recentGrid.innerHTML = `<div style="color:var(--muted); font-size:13px;">No recently viewed products yet.</div>`;
+        }else{
+          recentGrid.innerHTML = recent.map(item=>{
+            const compareCents = (Number(item.priceCents) || 0) + 1000;
+            const memberCents = Number(item.priceCents) || 0;
+            const s = item.stock<=0 ? "out" : item.stock<=10 ? "low" : "in";
+            const label = item.stock<=0
+              ? (window.PPS_I18N?.t("product.stock.out") || "Out of stock")
+              : item.stock<=10
+                ? (window.PPS_I18N?.t("product.stock.low") || "Almost out of stock")
+                : (window.PPS_I18N?.t("product.stock.in") || "In stock");
+            return `
+              <div class="card">
+                <a href="./product.html?slug=${encodeURIComponent(item.slug)}">
+                  <img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async" width="400" height="190">
+                </a>
+                <div class="card-body">
+                  <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(item.slug)}">${item.name}</a>
+                  <div class="member-pricing">
+                    <div>
+                      <div class="market-label" data-i18n="market.price.label">Market price</div>
+                      <span class="compare-price">${PPS.money(compareCents,item.currency)}</span>
+                    </div>
+                    <div>
+                      <div class="member-label" data-i18n="member.price.label">Power Poly Member Price</div>
+                      <span class="price">${PPS.money(memberCents,item.currency)}</span>
+                    </div>
+                  </div>
+                  <div class="stock ${s}"><span class="dot"></span>${label}</div>
+                </div>
+              </div>
+            `;
+          }).join("");
+          window.PPS_I18N?.applyTranslations?.();
+        }
+      }
       const shareBtn = document.getElementById("shareBtn");
       const shareMsg = document.getElementById("shareMsg");
       const shareData = {

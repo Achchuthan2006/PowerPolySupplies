@@ -4,6 +4,7 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Contact | Power Poly Supplies</title>
+  <meta name="description" content="Contact Power Poly Supplies for bulk quotes, product questions, and support. Fast replies during business hours.">
   <link rel="stylesheet" href="./css/styles.css"/>
   <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
 </head>
@@ -68,9 +69,19 @@
           <input required class="input" name="name" placeholder="Full Name" data-i18n-placeholder="contact.form.name">
           <input required class="input" type="email" name="email" placeholder="Email" data-i18n-placeholder="contact.form.email">
           <input class="input" name="phone" placeholder="Phone (optional)" data-i18n-placeholder="contact.form.phone">
+          <select class="input" name="orderType" aria-label="Order type">
+            <option value="bulk_quote">Bulk Quote</option>
+            <option value="new_customer">New Customer</option>
+            <option value="returning_customer">Returning Customer</option>
+          </select>
+          <div>
+            <label style="font-size:12px; font-weight:900; color:var(--muted); letter-spacing:.2px;">Attach bulk order list (CSV, Excel)</label>
+            <input class="input" type="file" name="attachment" accept=".csv,.xlsx,.xls" style="padding:10px;">
+          </div>
           <textarea required class="input" name="message" placeholder="Your message..." data-i18n-placeholder="contact.form.message" style="min-height:120px;"></textarea>
 
           <button class="btn btn-primary" type="submit" data-i18n="contact.form.send">Send Message</button>
+          <div style="font-size:12px; color:var(--muted); font-weight:800;">We respond within 2 hours during business hours.</div>
           <div id="status" style="font-size:13px; color:var(--muted);"></div>
         </form>
       </div>
@@ -83,7 +94,7 @@
 
         <div style="margin-top:14px;">
           <div style="font-weight:800;" data-i18n="contact.business.email">Email</div>
-          <div style="color:var(--muted);">powerpolysupplies@email.com</div>
+          <div style="color:var(--muted);"><a href="mailto:powerpolysupplies@gmail.com" style="color:inherit; text-decoration:none;">powerpolysupplies@gmail.com</a></div>
         </div>
 
           <div style="margin-top:12px;">
@@ -148,12 +159,36 @@
       status.textContent = window.PPS_I18N?.t("contact.status.sending") || "Sending...";
 
       const form = e.target;
+      const file = form.attachment?.files?.[0] || null;
+      const MAX_BYTES = 2 * 1024 * 1024;
+      const arrayBufferToBase64 = (buffer)=>{
+        let binary = "";
+        const bytes = new Uint8Array(buffer);
+        const chunkSize = 0x8000;
+        for(let i=0; i<bytes.length; i+=chunkSize){
+          binary += String.fromCharCode(...bytes.subarray(i, i+chunkSize));
+        }
+        return btoa(binary);
+      };
       const payload = {
         name: form.name.value.trim(),
         email: form.email.value.trim(),
         phone: form.phone.value.trim(),
+        orderType: form.orderType?.value || "",
         message: form.message.value.trim()
       };
+      if(file){
+        if(file.size > MAX_BYTES){
+          status.textContent = "Attachment too large (max 2MB). Please upload a smaller file or paste the list into your message.";
+          return;
+        }
+        const buf = await file.arrayBuffer();
+        payload.attachment = {
+          name: file.name,
+          type: file.type || "application/octet-stream",
+          base64: arrayBufferToBase64(buf)
+        };
+      }
 
       try{
         const res = await fetch(`${PPS.API_BASE}/api/contact`,{
@@ -163,8 +198,7 @@
         });
         const data = await res.json().catch(()=> ({}));
         if(res.ok && data.ok){
-          status.textContent = window.PPS_I18N?.t("contact.status.sent") || "Message sent. We'll get back to you.";
-          form.reset();
+          window.location.href = "./thank-you.html?type=contact";
         }else{
           status.textContent = data?.message || (window.PPS_I18N?.t("contact.status.failed") || "Failed to send. Check backend/email settings.");
         }
