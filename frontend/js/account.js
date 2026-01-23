@@ -222,19 +222,98 @@
       return sum + diff * (Number(item.qty) || 0);
     }, 0);
 
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const toDayNumber = (iso) => {
+    const t = new Date(iso).getTime();
+    if (!Number.isFinite(t)) return null;
+    return Math.floor(t / DAY_MS);
+  };
+
+  const median = (values) => {
+    const v = (Array.isArray(values) ? values : []).map((x) => Number(x) || 0).filter((x) => x > 0).sort((a, b) => a - b);
+    if (!v.length) return null;
+    return v[Math.floor(v.length / 2)] || null;
+  };
+
+  const mean = (values) => {
+    const v = (Array.isArray(values) ? values : []).map((x) => Number(x) || 0).filter((x) => Number.isFinite(x) && x > 0);
+    if (!v.length) return null;
+    return v.reduce((s, x) => s + x, 0) / v.length;
+  };
+
+  const predictionText = ({ avgIntervalDays, daysUntilNext }) => {
+    const n = Math.max(1, Math.round(Number(avgIntervalDays) || 0));
+    if (!Number.isFinite(daysUntilNext)) return "";
+    const d = Math.round(daysUntilNext);
+    if (d <= 0) return `You typically order every ${n} days — order now?`;
+    if (d === 1) return "Based on your pattern, you'll need to reorder in 1 day.";
+    return `Based on your pattern, you'll need to reorder in ${d} days.`;
+  };
+
   const computeFrequent = () => {
-    const counts = new Map();
+    const stats = new Map();
+    const todayDay = Math.floor(Date.now() / DAY_MS);
+
     state.orders.forEach((o) => {
+      const day = toDayNumber(o?.createdAt);
       (o.items || []).forEach((it) => {
         const id = String(it.id || "");
         if (!id) return;
-        counts.set(id, (counts.get(id) || 0) + 1);
+        const qty = Math.max(0, Number(it.qty) || 0);
+        const s = stats.get(id) || { count: 0, qtySum: 0, qtyCount: 0, days: [] };
+        s.count += 1;
+        if (qty > 0) {
+          s.qtySum += qty;
+          s.qtyCount += 1;
+        }
+        if (day !== null) s.days.push(day);
+        stats.set(id, s);
       });
     });
-    return Array.from(counts.entries())
-      .map(([id, count]) => ({ id, count, product: state.productsById.get(id) }))
+
+    const rows = Array.from(stats.entries()).map(([id, s]) => {
+      const uniqueDays = Array.from(new Set(s.days)).sort((a, b) => b - a);
+      const intervals = [];
+      for (let i = 0; i + 1 < uniqueDays.length; i++) {
+        const diff = uniqueDays[i] - uniqueDays[i + 1];
+        if (diff > 0) intervals.push(diff);
+      }
+      const avgIntervalDaysRaw = mean(intervals);
+      const avgIntervalDays = avgIntervalDaysRaw ? Math.max(1, Math.round(avgIntervalDaysRaw)) : null;
+      const lastDay = uniqueDays.length ? uniqueDays[0] : null;
+      const daysSinceLast = lastDay === null ? null : Math.max(0, todayDay - lastDay);
+      const daysUntilNext =
+        avgIntervalDays && daysSinceLast !== null
+          ? Math.round(avgIntervalDays - daysSinceLast)
+          : null;
+
+      const avgQty = s.qtyCount ? s.qtySum / s.qtyCount : null;
+      const avgQtyRounded = avgQty ? Math.max(1, Math.round(avgQty)) : 1;
+
+      return {
+        id,
+        count: s.count,
+        product: state.productsById.get(id),
+        avgQty: avgQtyRounded,
+        medianQty: median(
+          state.orders.flatMap((o) => (o.items || []).filter((it) => String(it.id) === String(id)).map((it) => Number(it.qty) || 0))
+        ) || 1,
+        avgIntervalDays,
+        daysUntilNext,
+        prediction: predictionText({ avgIntervalDays, daysUntilNext }),
+      };
+    });
+
+    const pinName = "Garment Cover Bags 21x6x42 Extra Heavy";
+    const isPinned = (row) => String(row?.product?.name || "").toLowerCase() === pinName.toLowerCase();
+
+    return rows
       .filter((x) => x.product)
-      .sort((a, b) => b.count - a.count);
+      .sort((a, b) => {
+        if (isPinned(a) && !isPinned(b)) return -1;
+        if (!isPinned(a) && isPinned(b)) return 1;
+        return (b.count || 0) - (a.count || 0);
+      });
   };
 
   const typicalQtyFor = (productId) => {
@@ -1181,8 +1260,8 @@
     }
     els.frequentMsg.textContent = "";
     els.frequentGrid.innerHTML = freq
-      .map(({ product, count }) => {
-        const typicalQty = typicalQtyFor(product.id);
+      .map(({ product, count, avgQty, prediction }, idx) => {
+        const defaultQty = Math.max(1, Math.round(Number(avgQty) || 1));
         return `
           <div class="card fade-in">
             <a href="./product.html?slug=${encodeURIComponent(product.slug)}">
@@ -1190,9 +1269,17 @@
             </a>
             <div class="card-body">
               <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(product.slug)}">${esc(product.name)}</a>
-              <div class="card-meta">Ordered ${count} time${count === 1 ? "" : "s"} &middot; Typical qty: ${typicalQty}</div>
-              <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
-                <button class="btn btn-primary" ${product.stock <= 0 ? "disabled" : ""} type="button" onclick="quickAdd('${esc(product.id)}', ${typicalQty})">Add ${typicalQty} to cart</button>
+              <div class="card-meta">
+                ${idx === 0 ? `<span class="count-badge count-badge-muted" title="Frequently ordered" style="margin-right:8px;">Frequently ordered</span>` : ""}
+                Ordered ${count} time${count === 1 ? "" : "s"} &middot; Avg qty: ${defaultQty}
+              </div>
+              ${prediction ? `<div style="margin-top:8px; color:var(--muted); font-size:13px;">${esc(prediction)}</div>` : ""}
+              <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                <label style="display:flex; align-items:center; gap:8px; font-weight:800;">
+                  <span style="color:var(--muted); font-size:13px;">Qty</span>
+                  <input class="input" type="number" min="1" step="1" value="${defaultQty}" style="max-width:110px;" data-freq-qty>
+                </label>
+                <button class="btn btn-primary" ${product.stock <= 0 ? "disabled" : ""} type="button" data-freq-add="${esc(product.id)}">Add to cart</button>
                 <button class="btn btn-outline" type="button" onclick="addFav('${esc(product.id)}')">Favorite</button>
               </div>
             </div>
@@ -1201,6 +1288,19 @@
       })
       .join("");
     $$(".fade-in").forEach((el) => el.classList.add("show"));
+
+    if (!state._frequentBound) {
+      state._frequentBound = true;
+      els.frequentGrid.addEventListener("click", (e) => {
+        const btn = e.target.closest?.("[data-freq-add]");
+        if (!btn) return;
+        const productId = String(btn.getAttribute("data-freq-add") || "");
+        const card = btn.closest(".card");
+        const input = card ? card.querySelector("[data-freq-qty]") : null;
+        const qty = Math.max(1, Math.round(Number(input?.value) || 1));
+        window.quickAdd?.(productId, qty);
+      });
+    }
   }
 
   window.quickAdd = (productId, qty) => {
