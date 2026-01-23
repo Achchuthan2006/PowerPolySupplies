@@ -958,11 +958,12 @@
         const step = status === "processing" ? 1 : status === "shipped" ? 2 : ["delivered", "fulfilled"].includes(status) ? 3 : 0;
         const currency = order.currency || "CAD";
 
-        const items = (order.items || [])
+        const itemRows = (order.items || [])
           .map((it) => {
             const p = state.productsById.get(String(it.id || "")) || {};
             const desc = descForLang(p);
             const img = p.image || "./assets/poly%20logo%20without%20background.png";
+            const reviewHref = p.slug ? `./product.html?slug=${encodeURIComponent(p.slug)}#reviewForm` : "";
             const lineTotal = Number(it.priceCents || 0) * Number(it.qty || 0);
             return `
               <div class="order-item">
@@ -971,6 +972,7 @@
                   <div class="order-item-title">${esc(it.name || "")}</div>
                   <div class="order-item-qty">Qty: ${Number(it.qty) || 0}</div>
                   ${desc ? `<div class="order-item-desc">${esc(desc)}</div>` : ""}
+                  ${reviewHref ? `<div style="margin-top:8px;"><a class="btn btn-outline btn-sm" style="padding:6px 10px; font-size:12px;" href="${reviewHref}">Write review</a></div>` : ""}
                 </div>
                 <div class="order-item-price">${money(lineTotal, currency)}</div>
               </div>
@@ -978,22 +980,51 @@
           })
           .join("");
 
-        const start = new Date(order.createdAt);
-        const end = new Date(order.createdAt);
-        start.setDate(start.getDate() + 2);
-        end.setDate(end.getDate() + 4);
-        const delivery = `Estimated delivery: ${fmtShortDate(start)} - ${fmtShortDate(end)}`;
+        const estimateDelivery = () => {
+          const created = new Date(order.createdAt);
+          if (Number.isNaN(created.getTime())) return { label: "Estimated delivery", value: "-" };
+
+          if (["delivered", "fulfilled"].includes(status)) {
+            return { label: "Delivered", value: fmtShortDate(created) };
+          }
+
+          const start = new Date(created);
+          const end = new Date(created);
+          const startDays = status === "shipped" ? 1 : status === "processing" ? 2 : 2;
+          const endDays = status === "shipped" ? 3 : status === "processing" ? 5 : 4;
+          start.setDate(start.getDate() + startDays);
+          end.setDate(end.getDate() + endDays);
+          return { label: "Estimated delivery", value: `${fmtShortDate(start)} - ${fmtShortDate(end)}` };
+        };
+        const eta = estimateDelivery();
 
         const contactTracking = `./contact.html?topic=tracking&order=${encodeURIComponent(order.id)}`;
         const contactIssue = `./contact.html?topic=issue&order=${encodeURIComponent(order.id)}`;
-        const feedback = `./feedback.html?order=${encodeURIComponent(order.id)}`;
+
+        const thumbs = (order.items || [])
+          .map((it) => state.productsById.get(String(it.id || "")) || {})
+          .filter((p) => p && p.image)
+          .slice(0, 3);
+        const moreCount = Math.max(0, (order.items || []).length - thumbs.length);
+        const thumbsHtml = thumbs.length
+          ? `
+            <div class="order-summary-thumbs" aria-label="Order items">
+              ${thumbs.map((p) => `<img src="${esc(p.image)}" alt="" loading="lazy" decoding="async" width="34" height="34">`).join("")}
+              ${moreCount ? `<span class="order-summary-more">+${moreCount}</span>` : ""}
+            </div>
+          `
+          : "";
 
         return `
           <div class="card fade-in order-card">
             <div class="order-top">
-              <div>
-                <div class="order-id">Order #${esc(order.id)}</div>
-                <div class="order-date">${esc(fmtDateTime(order.createdAt))}</div>
+              <div class="order-top-left">
+                ${thumbsHtml}
+                <div>
+                  <div class="order-id">Order #${esc(order.id)}</div>
+                  <div class="order-date">${esc(fmtDateTime(order.createdAt))}</div>
+                  <div style="margin-top:6px; font-weight:1000;">${esc(eta.label)}: <span style="color:rgba(17,24,39,.95);">${esc(eta.value)}</span></div>
+                </div>
               </div>
               <div class="order-right">
                 <div class="status-pill ${esc(status)}">${esc(statusLabel(status))}</div>
@@ -1005,7 +1036,7 @@
                 ${["Order placed", "Processing", "Shipped", "Delivered"]
                   .map(
                     (label, i) => `
-                      <div class="track-step ${i <= step ? "done" : ""}">
+                      <div class="track-step ${i < step ? "done" : ""} ${i === step ? "active" : ""} ${step === 3 && i <= 3 ? "done" : ""}">
                         <div class="dot"></div>
                         <div class="label">${label}</div>
                       </div>
@@ -1014,16 +1045,13 @@
                   .join("")}
               </div>
             </div>
-            <div class="order-items">${items}</div>
-            <div class="order-delivery">
-              <div>${esc(delivery)}</div>
-              <a class="btn btn-outline btn-sm" href="${contactTracking}">Track order</a>
-            </div>
+            <div class="order-items">${itemRows}</div>
             <div class="order-actions">
               <button class="btn btn-primary" type="button" onclick="reorder('${esc(order.id)}')">${window.PPS_I18N?.t("account.reorder") || "Reorder"}</button>
-              <button class="btn btn-outline" type="button" onclick="downloadInvoice('${esc(order.id)}')">Invoice</button>
+              <button class="btn btn-outline" type="button" onclick="trackOrder('${esc(order.id)}')">Track order</button>
+              <button class="btn btn-outline" type="button" onclick="downloadInvoice('${esc(order.id)}')">Download invoice</button>
+              <button class="btn btn-outline" type="button" onclick="emailReceipt('${esc(order.id)}')">Email receipt</button>
               <button class="btn btn-outline" type="button" onclick="shareOrder('${esc(order.id)}')">Share</button>
-              <a class="btn btn-outline" href="${feedback}">Write review</a>
               <a class="btn btn-outline" href="${contactIssue}">Report problem</a>
             </div>
           </div>
@@ -1137,6 +1165,33 @@
     setTimeout(() => URL.revokeObjectURL(url), 4000);
   };
 
+  window.trackOrder = (orderId) => {
+    const order = state.orders.find((o) => o.id === orderId);
+    if (!order) return;
+    const url = `./contact.html?topic=tracking&order=${encodeURIComponent(order.id)}`;
+    window.location.href = url;
+  };
+
+  window.emailReceipt = (orderId) => {
+    const order = state.orders.find((o) => o.id === orderId);
+    if (!order) return;
+    const currency = order.currency || "CAD";
+    const lines = (order.items || []).map((it) => `- ${it.name} x${it.qty}`).join("\n");
+    const subject = `Receipt - Order ${order.id} (Power Poly Supplies)`;
+    const body =
+      `Power Poly Supplies - Receipt\n` +
+      `Order: ${order.id}\n` +
+      `Date: ${fmtShortDate(order.createdAt)}\n` +
+      `Status: ${statusLabel(order.status)}\n` +
+      `Total: ${money(order.totalCents, currency)}\n\n` +
+      `Items:\n${lines}\n\n` +
+      `Need help? Reply with your order number.`;
+
+    const to = encodeURIComponent(String(session?.email || "").trim());
+    const href = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = href;
+  };
+
   window.reorder = (orderId) => {
     const order = state.orders.find((o) => o.id === orderId);
     if (!order) return;
@@ -1152,6 +1207,11 @@
     const lines = (order.items || []).map((it) => `- ${it.name} x${it.qty}`).join("\n");
     const text = `Power Poly Supplies - Order ${order.id}\nDate: ${fmtShortDate(order.createdAt)}\nStatus: ${statusLabel(order.status)}\nTotal: ${money(order.totalCents, currency)}\n\nItems:\n${lines}`;
     try {
+      if (navigator.share) {
+        await navigator.share({ title: `Order ${order.id}`, text });
+        toast("Shared.");
+        return;
+      }
       await navigator.clipboard.writeText(text);
       toast("Order details copied.");
     } catch {
