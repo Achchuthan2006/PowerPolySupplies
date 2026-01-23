@@ -1,7 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="720" height="460" viewBox="0 0 720 460" fill="none" role="img" aria-label="Delivery and packaging illustration">
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="520" viewBox="0 0 720 520" fill="none" role="img" aria-label="Delivery and packaging illustration">
   <defs>
     <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#FFF2DC" stop-opacity="0.92"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.10"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.55"/>
       <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.10"/>
     </linearGradient>
     <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
@@ -10,44 +14,71 @@
   </defs>
 
   <!-- soft ground -->
-  <ellipse cx="372" cy="400" rx="260" ry="44" fill="#111827" opacity="0.20"/>
-  <ellipse cx="372" cy="396" rx="260" ry="44" fill="url(#g1)" opacity="0.55"/>
+  <ellipse cx="380" cy="452" rx="292" ry="50" fill="#111827" opacity="0.20"/>
+  <ellipse cx="380" cy="448" rx="292" ry="50" fill="url(#g1)" opacity="0.55"/>
 
-  <!-- poly bag -->
-  <g filter="url(#shadow)" opacity="0.95">
-    <path d="M128 124c0-14 12-26 26-26h118c14 0 26 12 26 26v178c0 18-14 32-32 32H160c-18 0-32-14-32-32V124Z" fill="rgba(255,255,255,0.60)" stroke="rgba(255,255,255,0.55)" stroke-width="2"/>
-    <path d="M168 88c0-8 6-14 14-14h58c8 0 14 6 14 14v10h-86V88Z" fill="rgba(255,255,255,0.35)"/>
-    <path d="M154 146h132" stroke="rgba(17,24,39,0.14)" stroke-width="2"/>
-    <path d="M168 170h104" stroke="rgba(17,24,39,0.12)" stroke-width="2"/>
-    <path d="M168 196h92" stroke="rgba(17,24,39,0.10)" stroke-width="2"/>
+  <!-- poly bag roll -->
+  <g transform="translate(74 214)" filter="url(#shadow)" opacity="0.98">
+    <path d="M86 32c0-18 14-32 32-32h56c18 0 32 14 32 32v166c0 18-14 32-32 32h-56c-18 0-32-14-32-32V32Z" fill="rgba(255,255,255,0.42)" stroke="rgba(255,255,255,0.60)" stroke-width="2"/>
+    <path d="M118 20h56" stroke="rgba(17,24,39,0.10)" stroke-width="2" stroke-linecap="round"/>
+    <path d="M118 52h56" stroke="rgba(17,24,39,0.10)" stroke-width="2" stroke-linecap="round"/>
+    <path d="M110 196c10 10 22 16 36 16 14 0 26-6 36-16" stroke="rgba(255,255,255,0.70)" stroke-width="3" stroke-linecap="round"/>
+    <rect x="106" y="74" width="80" height="92" rx="10" fill="rgba(255,255,255,0.18)"/>
+    <path d="M116 94h60" stroke="rgba(17,24,39,0.10)" stroke-width="2"/>
+    <path d="M116 116h52" stroke="rgba(17,24,39,0.10)" stroke-width="2"/>
+    <path d="M116 138h46" stroke="rgba(17,24,39,0.10)" stroke-width="2"/>
   </g>
 
-  <!-- hanger -->
-  <g transform="translate(112 280)" opacity="0.95">
-    <path d="M126 18c0-8 6-14 14-14 8 0 14 6 14 14 0 6-3 10-8 13l-7 4c-6 3-10 8-10 14v10" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="6" stroke-linecap="round"/>
-    <path d="M82 82c56-40 116-40 172 0" fill="none" stroke="rgba(255,255,255,0.80)" stroke-width="6" stroke-linecap="round"/>
-    <path d="M82 82c16 34 156 34 172 0" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="6" stroke-linecap="round"/>
+  <!-- hanger rack + hangers -->
+  <g transform="translate(54 402)" opacity="0.96">
+    <path d="M52 0h256" stroke="rgba(255,255,255,0.55)" stroke-width="6" stroke-linecap="round"/>
+    <path d="M72 0v40" stroke="rgba(255,255,255,0.40)" stroke-width="6" stroke-linecap="round"/>
+    <path d="M288 0v40" stroke="rgba(255,255,255,0.40)" stroke-width="6" stroke-linecap="round"/>
+    <g transform="translate(92 8)">
+      <path d="M22 10c0-6 4-10 10-10 6 0 10 4 10 10 0 4-2 7-6 9l-5 3c-4 2-7 6-7 10v8" fill="none" stroke="rgba(255,255,255,0.86)" stroke-width="4" stroke-linecap="round"/>
+      <path d="M0 56c26-18 54-18 80 0" fill="none" stroke="rgba(255,255,255,0.82)" stroke-width="4" stroke-linecap="round"/>
+      <path d="M0 56c8 14 72 14 80 0" fill="none" stroke="rgba(255,255,255,0.60)" stroke-width="4" stroke-linecap="round"/>
+    </g>
+    <g transform="translate(188 8)" opacity="0.9">
+      <path d="M22 10c0-6 4-10 10-10 6 0 10 4 10 10 0 4-2 7-6 9l-5 3c-4 2-7 6-7 10v8" fill="none" stroke="rgba(255,255,255,0.86)" stroke-width="4" stroke-linecap="round"/>
+      <path d="M0 56c26-18 54-18 80 0" fill="none" stroke="rgba(255,255,255,0.82)" stroke-width="4" stroke-linecap="round"/>
+      <path d="M0 56c8 14 72 14 80 0" fill="none" stroke="rgba(255,255,255,0.60)" stroke-width="4" stroke-linecap="round"/>
+    </g>
   </g>
 
-  <!-- boxes -->
-  <g transform="translate(356 250)" filter="url(#shadow)">
-    <path d="M0 80 74 40l74 40-74 40L0 80Z" fill="rgba(255,255,255,0.30)"/>
-    <path d="M74 40v80" stroke="rgba(255,255,255,0.55)" stroke-width="2"/>
-    <path d="M0 80v74l74 40 74-40V80" fill="rgba(255,255,255,0.18)" stroke="rgba(255,255,255,0.55)" stroke-width="2" stroke-linejoin="round"/>
-    <path d="M74 120l74-40" stroke="rgba(255,255,255,0.35)" stroke-width="2"/>
-    <path d="M74 120 0 80" stroke="rgba(255,255,255,0.35)" stroke-width="2"/>
+  <!-- stacked boxes -->
+  <g transform="translate(340 260)" filter="url(#shadow)" opacity="0.98">
+    <path d="M18 86 90 46l72 40-72 40-72-40Z" fill="rgba(255,255,255,0.30)"/>
+    <path d="M90 46v80" stroke="rgba(255,255,255,0.55)" stroke-width="2"/>
+    <path d="M18 86v70l72 40 72-40V86" fill="rgba(255,255,255,0.18)" stroke="rgba(255,255,255,0.55)" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M90 126l72-40" stroke="rgba(255,255,255,0.35)" stroke-width="2"/>
+    <path d="M90 126 18 86" stroke="rgba(255,255,255,0.35)" stroke-width="2"/>
+
+    <g transform="translate(122 10)" opacity="0.9">
+      <path d="M0 64 54 34l54 30-54 30L0 64Z" fill="rgba(255,255,255,0.24)"/>
+      <path d="M54 34v60" stroke="rgba(255,255,255,0.45)" stroke-width="2"/>
+      <path d="M0 64v52l54 30 54-30V64" fill="rgba(255,255,255,0.14)" stroke="rgba(255,255,255,0.45)" stroke-width="2" stroke-linejoin="round"/>
+    </g>
   </g>
 
   <!-- delivery van -->
-  <g transform="translate(278 150)" filter="url(#shadow)">
-    <path d="M46 148c0-10 8-18 18-18h210c8 0 14 6 14 14v56c0 12-10 22-22 22H64c-10 0-18-8-18-18v-56Z" fill="rgba(255,255,255,0.85)"/>
-    <path d="M210 130h58c8 0 16 4 20 10l24 36c2 4 3 8 3 12v12c0 12-10 22-22 22h-30" fill="rgba(255,255,255,0.78)"/>
-    <path d="M86 146h96" stroke="rgba(17,24,39,0.10)" stroke-width="10" stroke-linecap="round"/>
-    <path d="M234 154h44l16 24h-60v-24Z" fill="rgba(17,24,39,0.06)"/>
-    <circle cx="96" cy="222" r="22" fill="#111827" opacity="0.85"/>
-    <circle cx="96" cy="222" r="10" fill="rgba(255,255,255,0.75)"/>
-    <circle cx="246" cy="222" r="22" fill="#111827" opacity="0.85"/>
-    <circle cx="246" cy="222" r="10" fill="rgba(255,255,255,0.75)"/>
-    <path d="M62 204h204" stroke="rgba(17,24,39,0.10)" stroke-width="2"/>
+  <g transform="translate(250 150)" filter="url(#shadow)">
+    <path d="M46 168c0-10 8-18 18-18h238c8 0 14 6 14 14v64c0 12-10 22-22 22H64c-10 0-18-8-18-18v-64Z" fill="rgba(255,255,255,0.88)"/>
+    <path d="M236 150h70c8 0 16 4 20 10l26 40c2 4 3 8 3 12v16c0 12-10 22-22 22h-34" fill="rgba(255,255,255,0.80)"/>
+    <path d="M86 172h106" stroke="rgba(17,24,39,0.10)" stroke-width="10" stroke-linecap="round"/>
+    <path d="M256 178h52l18 28h-70v-28Z" fill="rgba(17,24,39,0.06)"/>
+    <circle cx="104" cy="252" r="22" fill="#111827" opacity="0.85"/>
+    <circle cx="104" cy="252" r="10" fill="rgba(255,255,255,0.75)"/>
+    <circle cx="276" cy="252" r="22" fill="#111827" opacity="0.85"/>
+    <circle cx="276" cy="252" r="10" fill="rgba(255,255,255,0.75)"/>
+    <path d="M62 232h236" stroke="rgba(17,24,39,0.10)" stroke-width="2"/>
+    <path d="M112 150v40" stroke="rgba(17,24,39,0.10)" stroke-width="2"/>
+    <path d="M124 150v40" stroke="rgba(17,24,39,0.10)" stroke-width="2"/>
+  </g>
+
+  <!-- floating icons -->
+  <g opacity="0.55">
+    <path d="M572 60c24 0 44 20 44 44s-20 44-44 44-44-20-44-44 20-44 44-44Z" fill="url(#g2)"/>
+    <path d="M596 86c0-8 6-14 14-14 8 0 14 6 14 14 0 6-3 10-8 13l-7 4c-6 3-10 8-10 14v10" fill="none" stroke="rgba(255,255,255,0.60)" stroke-width="4" stroke-linecap="round"/>
   </g>
 </svg>
