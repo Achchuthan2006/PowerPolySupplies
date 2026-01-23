@@ -80,7 +80,7 @@
           <a href="#orders">Orders <span class="badge" id="ordersCountBadge">0</span></a>
           <a href="#favorites">Favorites <span class="badge" id="favoritesCountBadge">0</span></a>
           <a href="#reorder">Quick Reorder</a>
-          <a href="#templates">Order templates</a>
+          <a href="#templates" data-i18n="account.templates.nav">Order templates</a>
           <a href="#profile">Profile</a>
         </nav>
         <div class="account-sidebar-footer">
@@ -351,15 +351,15 @@
           <div class="card fade-in" style="padding:18px;">
             <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
               <div>
-                <h2 style="margin:0;">Order templates</h2>
-                <div style="color:var(--muted); font-size:13px; margin-top:4px;">Save “Weekly Stock” or “Monthly Bulk Order” and reorder in one click.</div>
+                <h2 style="margin:0;" data-i18n="account.templates.title">Order templates</h2>
+                <div style="color:var(--muted); font-size:13px; margin-top:4px;" data-i18n="account.templates.subtitle">Save “Weekly Stock” or “Monthly Bulk Order” and reorder in one click.</div>
               </div>
-              <a class="btn btn-outline btn-sm" href="./cart.html">View cart</a>
+              <a class="btn btn-outline btn-sm" href="./cart.html" data-i18n="account.templates.view_cart">View cart</a>
             </div>
 
             <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-              <input class="input" id="templateName" placeholder="Template name (e.g., Weekly Stock)" style="max-width:320px;">
-              <button class="btn btn-primary btn-sm" type="button" id="templateSaveFromCart">Save current cart as template</button>
+              <input class="input" id="templateName" placeholder="Template name (e.g., Weekly Stock)" data-i18n-placeholder="account.templates.name_placeholder" style="max-width:320px;">
+              <button class="btn btn-primary btn-sm" type="button" id="templateSaveFromCart" data-i18n="account.templates.save_cart">Save current cart as template</button>
             </div>
 
             <div id="templatesMsg" style="font-size:13px; color:var(--muted); margin:10px 0 8px;"></div>
@@ -367,8 +367,8 @@
 
             <div style="margin-top:16px;">
               <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
-                <div style="font-weight:1000;">Your usual combinations</div>
-                <div style="color:var(--muted); font-size:13px;">Based on your order history</div>
+                <div style="font-weight:1000;" data-i18n="account.combos.title">Your usual combinations</div>
+                <div style="color:var(--muted); font-size:13px;" data-i18n="account.combos.subtitle">Based on your order history</div>
               </div>
               <div id="combosMsg" style="font-size:13px; color:var(--muted); margin:10px 0 8px;"></div>
               <div id="combosGrid" class="grid grid-3"></div>

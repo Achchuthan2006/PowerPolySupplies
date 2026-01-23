@@ -92,6 +92,7 @@
 
   const firstName = (value) => String(value || "").trim().split(/\s+/)[0] || "";
   const money = (cents, currency) => window.PPS?.money?.(Number(cents) || 0, currency || "CAD") || "";
+  const tt = (key, fallback) => window.PPS_I18N?.t?.(key) || fallback || "";
 
   const fmtShortDate = (value) => {
     try {
@@ -457,7 +458,7 @@
 
     window.PPS?.addItemsToCart?.(enriched);
     window.PPS?.updateCartBadge?.();
-    toast("Added to cart.");
+    toast(tt("account.toast.added_to_cart", "Added to cart."));
   };
 
   const saveTemplate = ({ name, items }) => {
@@ -465,7 +466,7 @@
     const safeName = trimmed || "Order template";
     const normalized = normalizeTemplateItems(items);
     if (!normalized.length) {
-      toast("Template is empty.");
+      toast(tt("account.templates.empty", "Template is empty."));
       return;
     }
     const now = new Date().toISOString();
@@ -473,14 +474,19 @@
     templates.unshift({ id: makeId("tpl"), name: safeName, createdAt: now, updatedAt: now, items: normalized });
     writeTemplates(templates);
     renderTemplates();
-    toast("Template saved.");
+    toast(tt("account.templates.saved", "Template saved."));
   };
 
   function renderTemplates() {
     if (!els.templatesList || !els.templatesMsg) return;
+    const labelReorder = tt("account.reorder", "Reorder");
+    const labelRename = tt("common.rename", "Rename");
+    const labelDelete = tt("common.delete", "Delete");
+    const labelSave = tt("common.save", "Save");
+    const labelCancel = tt("common.cancel", "Cancel");
     const templates = readTemplates();
     if (!templates.length) {
-      els.templatesMsg.textContent = "No templates yet. Save your cart or a usual combo.";
+      els.templatesMsg.textContent = tt("account.templates.none", "No templates yet. Save your cart or a usual combo.");
       els.templatesList.innerHTML = "";
       return;
     }
@@ -502,17 +508,17 @@
                 }
                 <div style="color:var(--muted); font-size:12px; margin-top:4px;">${t.items.length} item${t.items.length === 1 ? "" : "s"}</div>
               </div>
-              <button class="btn btn-primary btn-sm" type="button" data-template-reorder="${esc(t.id)}">Reorder</button>
+              <button class="btn btn-primary btn-sm" type="button" data-template-reorder="${esc(t.id)}">${esc(labelReorder)}</button>
             </div>
             <div style="margin-top:10px;">${lines}${more ? `<div style="color:var(--muted); font-size:12px; margin-top:4px;">+${more} more</div>` : ""}</div>
             <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
               ${
                 isEditing
-                  ? `<button class="btn btn-outline btn-sm" type="button" data-template-rename-save="${esc(t.id)}">Save</button>
-                     <button class="btn btn-outline btn-sm" type="button" data-template-rename-cancel>Cancel</button>`
-                  : `<button class="btn btn-outline btn-sm" type="button" data-template-rename="${esc(t.id)}">Rename</button>`
+                  ? `<button class="btn btn-outline btn-sm" type="button" data-template-rename-save="${esc(t.id)}">${esc(labelSave)}</button>
+                     <button class="btn btn-outline btn-sm" type="button" data-template-rename-cancel>${esc(labelCancel)}</button>`
+                  : `<button class="btn btn-outline btn-sm" type="button" data-template-rename="${esc(t.id)}">${esc(labelRename)}</button>`
               }
-              <button class="btn btn-outline btn-sm" type="button" data-template-delete="${esc(t.id)}">Delete</button>
+              <button class="btn btn-outline btn-sm" type="button" data-template-delete="${esc(t.id)}">${esc(labelDelete)}</button>
             </div>
           </div>
         `;
@@ -524,29 +530,35 @@
   function renderCombos() {
     if (!els.combosGrid || !els.combosMsg) return;
     if (!state.orders.length) {
-      els.combosMsg.textContent = "Place a couple of orders and your usual combinations will show here.";
+      els.combosMsg.textContent = tt("account.combos.empty", "Place a couple of orders and your usual combinations will show here.");
       els.combosGrid.innerHTML = "";
       return;
     }
     const combos = computeCombos().slice(0, 3);
     if (!combos.length) {
-      els.combosMsg.textContent = "No repeated combinations found yet. Reorder a previous order to build your usuals.";
+      els.combosMsg.textContent = tt("account.combos.none", "No repeated combinations found yet. Reorder a previous order to build your usuals.");
       els.combosGrid.innerHTML = "";
       return;
     }
+    const labelReorder = tt("account.combos.reorder", "Reorder combo");
+    const labelSave = tt("account.combos.save_template", "Save as template");
     els.combosMsg.textContent = "";
     els.combosGrid.innerHTML = combos
       .map((c) => {
         const topLines = c.items.slice(0, 4).map((it) => `<div style="color:var(--muted); font-size:13px;">${esc(it.qty)}x ${esc(it.name)}</div>`).join("");
         const more = Math.max(0, c.items.length - 4);
+        const metaTpl = tt("account.combos.meta", "Ordered {{count}} times · Last: {{date}}");
+        const meta = metaTpl
+          .replace("{{count}}", String(c.count))
+          .replace("{{date}}", fmtShortDate(c.lastAt));
         return `
           <div class="card fade-in" style="padding:14px;">
             <div style="font-weight:1000;">${esc(c.title)}</div>
-            <div style="color:var(--muted); font-size:12px; margin-top:4px;">Ordered ${c.count} times · Last: ${esc(fmtShortDate(c.lastAt))}</div>
+            <div style="color:var(--muted); font-size:12px; margin-top:4px;">${esc(meta)}</div>
             <div style="margin-top:10px;">${topLines}${more ? `<div style="color:var(--muted); font-size:12px; margin-top:4px;">+${more} more</div>` : ""}</div>
             <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
-              <button class="btn btn-primary btn-sm" type="button" data-combo-reorder="${esc(c.sig)}">Reorder combo</button>
-              <button class="btn btn-outline btn-sm" type="button" data-combo-save="${esc(c.sig)}">Save as template</button>
+              <button class="btn btn-primary btn-sm" type="button" data-combo-reorder="${esc(c.sig)}">${esc(labelReorder)}</button>
+              <button class="btn btn-outline btn-sm" type="button" data-combo-save="${esc(c.sig)}">${esc(labelSave)}</button>
             </div>
           </div>
         `;
@@ -1938,7 +1950,7 @@
     els.templateSaveFromCart.addEventListener("click", () => {
       const cart = window.PPS?.getCart?.() || [];
       if (!Array.isArray(cart) || !cart.length) {
-        toast("Cart is empty.");
+        toast(tt("account.templates.empty_cart", "Cart is empty."));
         return;
       }
       const name = String(els.templateName?.value || "").trim() || "Weekly Stock";
@@ -1963,7 +1975,7 @@
       const next = readTemplates().filter((x) => String(x.id) !== String(id));
       writeTemplates(next);
       renderTemplates();
-      toast("Template deleted.");
+      toast(tt("account.templates.deleted", "Template deleted."));
       return;
     }
 
@@ -1982,7 +1994,7 @@
       const input = card ? card.querySelector("[data-template-edit-name]") : null;
       const nextName = String(input?.value || "").trim();
       if (!nextName) {
-        toast("Enter a template name.");
+        toast(tt("account.templates.enter_name", "Enter a template name."));
         return;
       }
       const templates = readTemplates();
@@ -1993,7 +2005,7 @@
       writeTemplates(templates);
       state.templateEditingId = "";
       renderTemplates();
-      toast("Template renamed.");
+      toast(tt("account.templates.renamed", "Template renamed."));
       return;
     }
 

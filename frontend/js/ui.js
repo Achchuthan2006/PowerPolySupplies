@@ -745,24 +745,25 @@ function injectBottomNav(){
       <span class="bicon" aria-hidden="true">
         <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       </span>
-      <span>Categories</span>
+      <span data-i18n="bottom.categories">Categories</span>
     </a>
     <a class="bottom-nav-item" href="#pps-search" data-bottom-search>
       <span class="bicon" aria-hidden="true">
         <svg viewBox="0 0 24 24"><path d="M10.5 18a7.5 7.5 0 1 1 5.3-2.2L21 21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M15 15l1.8 1.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       </span>
-      <span>Search</span>
+      <span data-i18n="bottom.search">Search</span>
     </a>
     <a class="bottom-nav-item" href="./cart.html">
       <span class="bicon" aria-hidden="true">
         <svg viewBox="0 0 24 24"><path d="M6 6h14.2l-1.2 6H8.1L7.2 6H4V4h2a1 1 0 0 1 .99.86L7.8 6h12.42a1 1 0 0 1 .98 1.2l-1.4 7a1 1 0 0 1-.98.8H8a1 1 0 0 1-.99-.87L5.8 7H4V5h1.2L6 6zm2.5 12a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm9 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z" fill="currentColor"/></svg>
       </span>
-      <span>Cart</span>
+      <span data-i18n="nav.cart">Cart</span>
       <span class="bottom-badge" data-cart-badge>0</span>
     </a>
   `;
   document.body.appendChild(nav);
   window.PPS?.updateCartBadge?.();
+  window.PPS_I18N?.applyTranslations?.();
 }
 
 function focusSmartSearch(){
