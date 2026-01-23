@@ -747,7 +747,7 @@ function injectBottomNav(){
       </span>
       <span>Categories</span>
     </a>
-    <a class="bottom-nav-item" href="./products.html">
+    <a class="bottom-nav-item" href="#pps-search" data-bottom-search>
       <span class="bicon" aria-hidden="true">
         <svg viewBox="0 0 24 24"><path d="M10.5 18a7.5 7.5 0 1 1 5.3-2.2L21 21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M15 15l1.8 1.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       </span>
@@ -763,6 +763,65 @@ function injectBottomNav(){
   `;
   document.body.appendChild(nav);
   window.PPS?.updateCartBadge?.();
+}
+
+function focusSmartSearch(){
+  const navLinks = document.getElementById("navLinks");
+  const dropdown = document.querySelector(".dropdown");
+  if(navLinks){
+    navLinks.classList.add("open");
+  }
+  dropdown?.classList.remove("open");
+
+  const input =
+    (navLinks ? navLinks.querySelector('form.search-bar input[type="search"]') : null) ||
+    document.querySelector('form.search-bar input[type="search"]');
+
+  if(!input) return false;
+
+  try{
+    input.scrollIntoView({ behavior: "smooth", block: "center" });
+  }catch(_err){
+    // ignore
+  }
+  try{
+    input.focus();
+    input.select?.();
+  }catch(_err){
+    // ignore
+  }
+  return true;
+}
+
+function setupBottomNavSearch(){
+  if(window.__ppsBottomNavSearchBound) return;
+  window.__ppsBottomNavSearchBound = true;
+
+  // Support deep links like /products.html#pps-search
+  if(window.location.hash === "#pps-search"){
+    setTimeout(()=>{
+      const focused = focusSmartSearch();
+      if(focused){
+        try{
+          history.replaceState(null, "", window.location.pathname + window.location.search);
+        }catch(_err){
+          // ignore
+        }
+      }
+    }, 0);
+  }
+
+  document.addEventListener("click", (e)=>{
+    const a = e.target?.closest?.("a[data-bottom-search]");
+    if(!a) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    const focused = focusSmartSearch();
+    if(!focused){
+      window.location.href = "./products.html#pps-search";
+    }
+  });
 }
 
 function injectHelpWidget(){
@@ -956,6 +1015,7 @@ window.addEventListener("DOMContentLoaded", ()=>{
   setupCountUp();
   setupExitIntentOffer();
   injectBottomNav();
+  setupBottomNavSearch();
   injectFooter();
   injectHelpWidget();
   scheduleLanguagePrompt();
