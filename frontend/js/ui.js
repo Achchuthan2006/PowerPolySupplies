@@ -4,9 +4,25 @@ function setupNavbar(){
   const dropdowns = Array.from(document.querySelectorAll(".dropdown"));
   const dropBtns = Array.from(document.querySelectorAll(".dropdown .dropbtn"));
 
+  const syncMobileNavTop = ()=>{
+    const header = document.querySelector(".site-header");
+    if(!header) return;
+    const rect = header.getBoundingClientRect();
+    const height = Math.max(48, Math.round(rect.height));
+    document.documentElement?.style?.setProperty("--mobile-nav-top", `${height}px`);
+  };
+
+  const syncNavOpenClass = ()=>{
+    if(!navLinks) return;
+    const isOpen = navLinks.classList.contains("open");
+    document.body?.classList?.toggle("nav-open", isOpen);
+    if(isOpen) syncMobileNavTop();
+  };
+
   if(menuBtn && navLinks){
     menuBtn.addEventListener("click", ()=>{
       navLinks.classList.toggle("open");
+      syncNavOpenClass();
     });
   }
   if(navLinks){
@@ -14,6 +30,7 @@ function setupNavbar(){
       const link = event.target.closest("a");
       if(link && navLinks.classList.contains("open")){
         navLinks.classList.remove("open");
+        syncNavOpenClass();
       }
     });
   }
@@ -25,6 +42,7 @@ function setupNavbar(){
       if(!(target instanceof Node)) return;
       if(navLinks.contains(target) || menuBtn.contains(target)) return;
       navLinks.classList.remove("open");
+      syncNavOpenClass();
       dropdowns.forEach((d)=> d.classList.remove("open"));
     });
   }
@@ -49,6 +67,12 @@ function setupNavbar(){
     if(target.closest?.(".dropdown")) return;
     dropdowns.forEach((d)=> d.classList.remove("open"));
   });
+
+  if(navLinks){
+    window.addEventListener("resize", syncMobileNavTop, { passive:true });
+    window.addEventListener("orientationchange", syncMobileNavTop);
+    syncNavOpenClass();
+  }
 }
 
 function setupFadeIn(){
