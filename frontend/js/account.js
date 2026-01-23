@@ -16,7 +16,8 @@
   const state = {
     orders: [],
     products: [],
-    productsById: new Map()
+    productsById: new Map(),
+    templateEditingId: ""
   };
 
   const els = {
@@ -55,6 +56,13 @@
     settingsForm: $("#settingsForm"),
     notifCountBadge: $("#notifCountBadge"),
     milestonesPrefsForm: $("#milestonesPrefsForm")
+    ,
+    templateName: $("#templateName"),
+    templateSaveFromCart: $("#templateSaveFromCart"),
+    templatesMsg: $("#templatesMsg"),
+    templatesList: $("#templatesList"),
+    combosMsg: $("#combosMsg"),
+    combosGrid: $("#combosGrid")
   };
 
   if (els.year) els.year.textContent = String(new Date().getFullYear());
@@ -315,6 +323,237 @@
         return (b.count || 0) - (a.count || 0);
       });
   };
+
+  const TEMPLATE_KEY = "order_templates_v1";
+
+  const readTemplates = () => {
+    const key = userKey(TEMPLATE_KEY);
+    const data = readJson(key, { templates: [] });
+    const list = Array.isArray(data?.templates) ? data.templates : [];
+    return list
+      .filter((t) => t && t.id && Array.isArray(t.items) && t.items.length)
+      .map((t) => ({
+        id: String(t.id),
+        name: String(t.name || "Template").trim() || "Template",
+        createdAt: String(t.createdAt || ""),
+        updatedAt: String(t.updatedAt || ""),
+        items: t.items
+          .map((it) => ({
+            id: String(it?.id || ""),
+            name: String(it?.name || ""),
+            qty: Math.max(1, Math.round(Number(it?.qty) || 1))
+          }))
+          .filter((it) => it.id)
+      }));
+  };
+
+  const writeTemplates = (templates) => {
+    const key = userKey(TEMPLATE_KEY);
+    const safe = Array.isArray(templates) ? templates.slice(0, 50) : [];
+    writeJson(key, { templates: safe });
+  };
+
+  const makeId = (prefix) => `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+
+  const normalizeTemplateItems = (items) =>
+    (Array.isArray(items) ? items : [])
+      .map((it) => ({
+        id: String(it?.id || it?.productId || ""),
+        name: String(it?.name || ""),
+        qty: Math.max(1, Math.round(Number(it?.qty) || 1))
+      }))
+      .filter((it) => it.id)
+      .slice(0, 40);
+
+  const computeCombos = () => {
+    // Signature-based combos from order history. We only consider orders with 2+ items.
+    const map = new Map(); // sig -> { count, lastAt, itemIds:Set, qtyById:Map<id, qtys[]> }
+
+    state.orders.forEach((o) => {
+      const rawItems = Array.isArray(o?.items) ? o.items : [];
+      const items = rawItems
+        .map((it) => ({ id: String(it?.id || ""), qty: Math.max(1, Math.round(Number(it?.qty) || 1)) }))
+        .filter((it) => it.id);
+      if (items.length < 2) return;
+
+      // Use full item set signature (stable): sorted IDs.
+      const ids = Array.from(new Set(items.map((x) => x.id))).sort();
+      const sig = ids.join("|");
+      if (!sig) return;
+
+      const entry = map.get(sig) || {
+        sig,
+        count: 0,
+        lastAt: "",
+        qtyById: new Map()
+      };
+
+      entry.count += 1;
+      const createdAt = String(o?.createdAt || "");
+      if (!entry.lastAt || new Date(createdAt) > new Date(entry.lastAt)) entry.lastAt = createdAt;
+
+      items.forEach((it) => {
+        const list = entry.qtyById.get(it.id) || [];
+        list.push(it.qty);
+        entry.qtyById.set(it.id, list);
+      });
+
+      map.set(sig, entry);
+    });
+
+    const combos = Array.from(map.values())
+      .filter((c) => c.count >= 2)
+      .map((c) => {
+        const items = Array.from(c.qtyById.entries())
+          .map(([id, qtys]) => {
+            const product = state.productsById.get(String(id)) || null;
+            const name = product?.name || (state.orders.flatMap((o) => o.items || []).find((it) => String(it.id) === String(id))?.name) || "Item";
+            qtys.sort((a, b) => a - b);
+            const medianQty = qtys[Math.floor(qtys.length / 2)] || 1;
+            return {
+              id,
+              name,
+              qty: Math.max(1, Math.round(Number(medianQty) || 1)),
+              product
+            };
+          })
+          .sort((a, b) => (b.qty || 0) - (a.qty || 0));
+
+        const top = items.slice(0, 2).map((it) => `${it.qty}x ${it.name}`);
+        const title = top.length ? `Your usual: ${top.join(" + ")}` : "Your usual";
+
+        return {
+          sig: c.sig,
+          count: c.count,
+          lastAt: c.lastAt,
+          title,
+          items
+        };
+      })
+      .sort((a, b) => {
+        if ((b.count || 0) !== (a.count || 0)) return (b.count || 0) - (a.count || 0);
+        return new Date(b.lastAt || 0) - new Date(a.lastAt || 0);
+      });
+
+    return combos.slice(0, 6);
+  };
+
+  const addItemsAndConfirm = (items) => {
+    const normalized = normalizeTemplateItems(items);
+    if (!normalized.length) return;
+    const enriched = normalized
+      .map((it) => {
+        const p = state.productsById.get(String(it.id)) || {};
+        return {
+          id: it.id,
+          name: it.name || p.name || "Item",
+          qty: it.qty,
+          priceCents: Number(p.priceCents || 0),
+          currency: p.currency || "CAD",
+          description: p.description || ""
+        };
+      })
+      .filter((it) => it.id);
+
+    window.PPS?.addItemsToCart?.(enriched);
+    window.PPS?.updateCartBadge?.();
+    toast("Added to cart.");
+  };
+
+  const saveTemplate = ({ name, items }) => {
+    const trimmed = String(name || "").trim();
+    const safeName = trimmed || "Order template";
+    const normalized = normalizeTemplateItems(items);
+    if (!normalized.length) {
+      toast("Template is empty.");
+      return;
+    }
+    const now = new Date().toISOString();
+    const templates = readTemplates();
+    templates.unshift({ id: makeId("tpl"), name: safeName, createdAt: now, updatedAt: now, items: normalized });
+    writeTemplates(templates);
+    renderTemplates();
+    toast("Template saved.");
+  };
+
+  function renderTemplates() {
+    if (!els.templatesList || !els.templatesMsg) return;
+    const templates = readTemplates();
+    if (!templates.length) {
+      els.templatesMsg.textContent = "No templates yet. Save your cart or a usual combo.";
+      els.templatesList.innerHTML = "";
+      return;
+    }
+    els.templatesMsg.textContent = "";
+    els.templatesList.innerHTML = templates
+      .slice(0, 9)
+      .map((t) => {
+        const isEditing = String(state.templateEditingId || "") === String(t.id);
+        const lines = t.items.slice(0, 4).map((it) => `<div style="color:var(--muted); font-size:13px;">${esc(it.qty)}x ${esc(it.name || "Item")}</div>`).join("");
+        const more = Math.max(0, t.items.length - 4);
+        return `
+          <div class="card fade-in" style="padding:14px;">
+            <div style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start;">
+              <div>
+                ${
+                  isEditing
+                    ? `<input class="input" data-template-edit-name="${esc(t.id)}" value="${esc(t.name)}" style="max-width:260px;">`
+                    : `<div style="font-weight:1000;">${esc(t.name)}</div>`
+                }
+                <div style="color:var(--muted); font-size:12px; margin-top:4px;">${t.items.length} item${t.items.length === 1 ? "" : "s"}</div>
+              </div>
+              <button class="btn btn-primary btn-sm" type="button" data-template-reorder="${esc(t.id)}">Reorder</button>
+            </div>
+            <div style="margin-top:10px;">${lines}${more ? `<div style="color:var(--muted); font-size:12px; margin-top:4px;">+${more} more</div>` : ""}</div>
+            <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+              ${
+                isEditing
+                  ? `<button class="btn btn-outline btn-sm" type="button" data-template-rename-save="${esc(t.id)}">Save</button>
+                     <button class="btn btn-outline btn-sm" type="button" data-template-rename-cancel>Cancel</button>`
+                  : `<button class="btn btn-outline btn-sm" type="button" data-template-rename="${esc(t.id)}">Rename</button>`
+              }
+              <button class="btn btn-outline btn-sm" type="button" data-template-delete="${esc(t.id)}">Delete</button>
+            </div>
+          </div>
+        `;
+      })
+      .join("");
+    $$(".fade-in").forEach((el) => el.classList.add("show"));
+  }
+
+  function renderCombos() {
+    if (!els.combosGrid || !els.combosMsg) return;
+    if (!state.orders.length) {
+      els.combosMsg.textContent = "Place a couple of orders and your usual combinations will show here.";
+      els.combosGrid.innerHTML = "";
+      return;
+    }
+    const combos = computeCombos().slice(0, 3);
+    if (!combos.length) {
+      els.combosMsg.textContent = "No repeated combinations found yet. Reorder a previous order to build your usuals.";
+      els.combosGrid.innerHTML = "";
+      return;
+    }
+    els.combosMsg.textContent = "";
+    els.combosGrid.innerHTML = combos
+      .map((c) => {
+        const topLines = c.items.slice(0, 4).map((it) => `<div style="color:var(--muted); font-size:13px;">${esc(it.qty)}x ${esc(it.name)}</div>`).join("");
+        const more = Math.max(0, c.items.length - 4);
+        return `
+          <div class="card fade-in" style="padding:14px;">
+            <div style="font-weight:1000;">${esc(c.title)}</div>
+            <div style="color:var(--muted); font-size:12px; margin-top:4px;">Ordered ${c.count} times · Last: ${esc(fmtShortDate(c.lastAt))}</div>
+            <div style="margin-top:10px;">${topLines}${more ? `<div style="color:var(--muted); font-size:12px; margin-top:4px;">+${more} more</div>` : ""}</div>
+            <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="btn btn-primary btn-sm" type="button" data-combo-reorder="${esc(c.sig)}">Reorder combo</button>
+              <button class="btn btn-outline btn-sm" type="button" data-combo-save="${esc(c.sig)}">Save as template</button>
+            </div>
+          </div>
+        `;
+      })
+      .join("");
+    $$(".fade-in").forEach((el) => el.classList.add("show"));
+  }
 
   const typicalQtyFor = (productId) => {
     const qtys = [];
@@ -1531,6 +1770,8 @@
       renderFavorites();
       renderFrequent();
       renderOrders();
+      renderTemplates();
+      renderCombos();
       try {
         const favorites = window.PPS?.getFavorites?.() || [];
         const frequent = computeFrequent();
@@ -1567,6 +1808,8 @@
       renderProfile(latest);
       renderOrders();
       renderFrequent();
+      renderTemplates();
+      renderCombos();
       renderReports();
       try {
         const favorites = window.PPS?.getFavorites?.() || [];
@@ -1687,6 +1930,99 @@
         // ignore
       }
       renderRewards();
+      return;
+    }
+  });
+
+  if (els.templateSaveFromCart) {
+    els.templateSaveFromCart.addEventListener("click", () => {
+      const cart = window.PPS?.getCart?.() || [];
+      if (!Array.isArray(cart) || !cart.length) {
+        toast("Cart is empty.");
+        return;
+      }
+      const name = String(els.templateName?.value || "").trim() || "Weekly Stock";
+      saveTemplate({ name, items: cart.map((c) => ({ id: c.id, name: c.name, qty: c.qty })) });
+      if (els.templateName) els.templateName.value = "";
+    });
+  }
+
+  document.addEventListener("click", (e) => {
+    const tReorder = e.target.closest("[data-template-reorder]");
+    if (tReorder) {
+      const id = tReorder.getAttribute("data-template-reorder");
+      const t = readTemplates().find((x) => String(x.id) === String(id));
+      if (!t) return;
+      addItemsAndConfirm(t.items);
+      return;
+    }
+
+    const tDelete = e.target.closest("[data-template-delete]");
+    if (tDelete) {
+      const id = tDelete.getAttribute("data-template-delete");
+      const next = readTemplates().filter((x) => String(x.id) !== String(id));
+      writeTemplates(next);
+      renderTemplates();
+      toast("Template deleted.");
+      return;
+    }
+
+    const tRename = e.target.closest("[data-template-rename]");
+    if (tRename) {
+      const id = tRename.getAttribute("data-template-rename");
+      state.templateEditingId = String(id || "");
+      renderTemplates();
+      return;
+    }
+
+    const tRenameSave = e.target.closest("[data-template-rename-save]");
+    if (tRenameSave) {
+      const id = tRenameSave.getAttribute("data-template-rename-save");
+      const card = tRenameSave.closest(".card");
+      const input = card ? card.querySelector("[data-template-edit-name]") : null;
+      const nextName = String(input?.value || "").trim();
+      if (!nextName) {
+        toast("Enter a template name.");
+        return;
+      }
+      const templates = readTemplates();
+      const t = templates.find((x) => String(x.id) === String(id));
+      if (!t) return;
+      t.name = nextName;
+      t.updatedAt = new Date().toISOString();
+      writeTemplates(templates);
+      state.templateEditingId = "";
+      renderTemplates();
+      toast("Template renamed.");
+      return;
+    }
+
+    const tRenameCancel = e.target.closest("[data-template-rename-cancel]");
+    if (tRenameCancel) {
+      state.templateEditingId = "";
+      renderTemplates();
+      return;
+    }
+
+    const cReorder = e.target.closest("[data-combo-reorder]");
+    if (cReorder) {
+      const sig = cReorder.getAttribute("data-combo-reorder");
+      const combo = computeCombos().find((c) => String(c.sig) === String(sig));
+      if (!combo) return;
+      addItemsAndConfirm(combo.items);
+      return;
+    }
+
+    const cSave = e.target.closest("[data-combo-save]");
+    if (cSave) {
+      const sig = cSave.getAttribute("data-combo-save");
+      const combo = computeCombos().find((c) => String(c.sig) === String(sig));
+      if (!combo) return;
+      const defaultName = combo.title.replace(/^Your usual:\s*/i, "").slice(0, 40);
+      const nameFromInput = String(els.templateName?.value || "").trim();
+      const name = nameFromInput || (defaultName ? `Weekly Stock - ${defaultName}` : "Weekly Stock");
+      saveTemplate({ name, items: combo.items });
+      if (els.templateName) els.templateName.value = "";
       return;
     }
   });

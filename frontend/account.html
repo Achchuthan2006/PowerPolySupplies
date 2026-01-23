@@ -80,6 +80,7 @@
           <a href="#orders">Orders <span class="badge" id="ordersCountBadge">0</span></a>
           <a href="#favorites">Favorites <span class="badge" id="favoritesCountBadge">0</span></a>
           <a href="#reorder">Quick Reorder</a>
+          <a href="#templates">Order templates</a>
           <a href="#profile">Profile</a>
         </nav>
         <div class="account-sidebar-footer">
@@ -343,6 +344,35 @@
             <div style="color:var(--muted); font-size:13px; margin-top:6px;">Quick reorder with your typical quantity and a predicted reorder window.</div>
             <div id="frequentMsg" style="font-size:13px; color:var(--muted); margin:10px 0 8px;"></div>
             <div id="frequentGrid" class="grid grid-3"></div>
+          </div>
+        </section>
+
+        <section id="templates" style="margin-top:16px;">
+          <div class="card fade-in" style="padding:18px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+              <div>
+                <h2 style="margin:0;">Order templates</h2>
+                <div style="color:var(--muted); font-size:13px; margin-top:4px;">Save “Weekly Stock” or “Monthly Bulk Order” and reorder in one click.</div>
+              </div>
+              <a class="btn btn-outline btn-sm" href="./cart.html">View cart</a>
+            </div>
+
+            <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+              <input class="input" id="templateName" placeholder="Template name (e.g., Weekly Stock)" style="max-width:320px;">
+              <button class="btn btn-primary btn-sm" type="button" id="templateSaveFromCart">Save current cart as template</button>
+            </div>
+
+            <div id="templatesMsg" style="font-size:13px; color:var(--muted); margin:10px 0 8px;"></div>
+            <div id="templatesList" class="grid grid-3"></div>
+
+            <div style="margin-top:16px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+                <div style="font-weight:1000;">Your usual combinations</div>
+                <div style="color:var(--muted); font-size:13px;">Based on your order history</div>
+              </div>
+              <div id="combosMsg" style="font-size:13px; color:var(--muted); margin:10px 0 8px;"></div>
+              <div id="combosGrid" class="grid grid-3"></div>
+            </div>
           </div>
         </section>
 
