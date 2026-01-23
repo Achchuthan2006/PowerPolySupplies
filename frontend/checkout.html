@@ -95,10 +95,19 @@
       <div class="card fade-in" style="padding:18px;">
         <h2 style="margin:0 0 10px;" data-i18n="checkout.summary.title">Order summary</h2>
         <div id="summary" style="display:flex; flex-direction:column; gap:10px;"></div>
+        <div class="offer-code-row" style="margin-top:12px;">
+          <input class="input offer-code" id="rewardCode" placeholder="Rewards code (optional)" autocomplete="off" spellcheck="false">
+          <button class="btn btn-outline btn-sm" type="button" id="applyReward">Apply</button>
+        </div>
+        <div id="rewardNote" style="margin-top:8px; color:var(--muted); font-size:13px;"></div>
         <div class="summary-totals">
           <div class="summary-row">
             <span data-i18n="checkout.summary.subtotal">Subtotal</span>
             <span id="subtotal"></span>
+          </div>
+          <div class="summary-row" id="rewardRow" style="display:none;">
+            <span>Rewards</span>
+            <span id="rewardAmount"></span>
           </div>
           <div class="summary-row">
             <span id="taxLabel">Tax</span>
@@ -139,6 +148,7 @@
   <script src="./js/store.js"></script>
   <script src="./js/i18n.js"></script>
   <script src="./js/ui.js"></script>
+  <script src="./js/activity.js"></script>
   <script src="./js/checkout.js"></script>
 </body>
 </html>

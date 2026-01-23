@@ -81,6 +81,7 @@ function render(){
         <button class="btn" onclick="dec('${i.id}')">-</button>
         <div style="min-width:30px; text-align:center; font-weight:800;">${i.qty}</div>
         <button class="btn" onclick="inc('${i.id}')">+</button>
+        <button class="btn btn-outline" onclick="saveForLater('${i.id}')">Save for later</button>
         <button class="btn btn-outline" onclick="removeItem('${i.id}')">${window.PPS_I18N?.t("cart.remove") || "Remove"}</button>
       </div>
     </div>
@@ -110,6 +111,18 @@ window.dec = (id)=>{
 };
 
 window.removeItem = (id)=>{
+  const next = PPS.getCart().filter(x=>x.id!==id);
+  PPS.setCart(next);
+  render();
+};
+
+window.saveForLater = (id)=>{
+  const session = PPS.getSession?.();
+  if(!session){
+    window.location.href = "./login.html";
+    return;
+  }
+  PPS.addToWishlist?.(id);
   const next = PPS.getCart().filter(x=>x.id!==id);
   PPS.setCart(next);
   render();

@@ -48,6 +48,7 @@
         <button class="btn btn-outline" id="refresh" type="button" data-i18n="admin.orders.refresh">Refresh</button>
         <a class="btn" href="./admin-messages.html" data-i18n="admin.messages.title">Messages</a>
       </div>
+      <div id="adminStatus" class="status muted" style="margin-top:10px;"></div>
     </section>
 
     <div id="orders" class="grid" style="gap:12px; margin-top:14px;"></div>
@@ -120,11 +121,13 @@
     }
 
     async function fulfill(id){
+      const status = document.getElementById("adminStatus");
       try{
+        if(status) status.textContent = "";
         await fetch(`${PPS.API_BASE}/api/admin/orders/${id}/fulfill`,{method:"POST"});
         load();
       }catch(err){
-        alert(window.PPS_I18N?.t("admin.orders.fulfill_failed") || "Failed to mark as fulfilled. Check the backend server.");
+        if(status) status.textContent = window.PPS_I18N?.t("admin.orders.fulfill_failed") || "Failed to mark as fulfilled. Check the backend server.";
       }
     }
 

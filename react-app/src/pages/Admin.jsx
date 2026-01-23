@@ -41,7 +41,7 @@ export default function Admin() {
       await fetch(`${window.PPS?.API_BASE}/api/admin/orders/${id}/fulfill`, { method: "POST" });
       load();
     } catch (err) {
-      window.alert(window.PPS_I18N?.t("admin.orders.fulfill_failed") || "Failed to mark as fulfilled. Check the backend server.");
+      setStatus(window.PPS_I18N?.t("admin.orders.fulfill_failed") || "Failed to mark as fulfilled. Check the backend server.");
     }
   };
 

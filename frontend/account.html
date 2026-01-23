@@ -72,6 +72,11 @@
         </div>
         <nav class="account-nav" aria-label="Account navigation">
           <a href="#dashboard" class="active">Dashboard</a>
+          <a href="#wishlists">Wishlists</a>
+          <a href="#payments">Payment methods</a>
+          <a href="#rewards">Rewards</a>
+          <a href="#activity">Activity</a>
+          <a href="#notifications">Notifications <span class="badge" id="notifCountBadge" style="display:none;">0</span></a>
           <a href="#orders">Orders <span class="badge" id="ordersCountBadge">0</span></a>
           <a href="#favorites">Favorites <span class="badge" id="favoritesCountBadge">0</span></a>
           <a href="#reorder">Quick Reorder</a>
@@ -83,6 +88,7 @@
       </aside>
 
       <main class="account-content">
+        <div id="accountMsg" class="account-msg" role="status" aria-live="polite"></div>
         <section id="dashboard" class="card fade-in" style="padding:18px;">
           <div class="dashboard-head">
             <div>
@@ -103,6 +109,8 @@
 
           <div class="dashboard-stats" id="dashboardStats"></div>
           <div class="dashboard-insights" id="dashboardInsights"></div>
+          <div id="milestonesBody" style="margin-top:14px;"></div>
+          <div id="analyticsBody" style="margin-top:14px;"></div>
         </section>
 
         <section id="orders" style="margin-top:16px;">
@@ -131,6 +139,187 @@
 
           <div id="ordersMsg" style="font-size:13px; color:var(--muted); margin:10px 0 8px;"></div>
           <div id="ordersGrid" class="grid" style="gap:12px;"></div>
+        </section>
+
+        <section id="wishlists" style="margin-top:16px;">
+          <div class="card fade-in" style="padding:18px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
+              <div>
+                <h2 style="margin:0;">Wishlists</h2>
+                <div style="color:var(--muted); font-size:13px; margin-top:4px;">Create lists for future purchases, seasonal needs, or items you're considering.</div>
+              </div>
+              <a class="btn btn-outline btn-sm" href="./products.html">Browse products</a>
+            </div>
+
+            <div class="wishlist-tools" style="margin-top:12px;">
+              <select class="input" id="wishlistSelect" aria-label="Select wishlist" style="max-width:260px;"></select>
+              <input class="input" id="wishlistRename" placeholder="Rename wishlist" style="max-width:260px;">
+              <button class="btn btn-outline btn-sm" type="button" id="wishlistRenameBtn">Rename</button>
+              <button class="btn btn-outline btn-sm" type="button" id="wishlistDelete">Delete</button>
+            </div>
+
+            <div class="wishlist-tools" style="margin-top:10px;">
+              <input class="input" id="wishlistName" placeholder="New wishlist name" style="max-width:260px;">
+              <button class="btn btn-primary btn-sm" type="button" id="wishlistCreate">Create</button>
+            </div>
+
+            <div id="wishlistsMsg" style="font-size:13px; color:var(--muted); margin:10px 0 8px;"></div>
+            <div id="wishlistItems" class="wishlist-list"></div>
+
+            <div style="margin-top:14px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+                <div style="font-weight:1000;">You might need these soon</div>
+                <div style="color:var(--muted); font-size:13px;">Based on your reorder patterns</div>
+              </div>
+              <div id="wishlistSoonMsg" style="font-size:13px; color:var(--muted); margin:10px 0 8px;"></div>
+              <div id="wishlistSoon" class="grid grid-3"></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="payments" style="margin-top:16px;">
+          <div class="card fade-in" style="padding:18px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
+              <div>
+                <h2 style="margin:0;">Payment methods</h2>
+                <div style="color:var(--muted); font-size:13px; margin-top:4px;">Cards are tokenized and saved with Square. We never store full card numbers.</div>
+              </div>
+            </div>
+
+            <div id="paymentMethodsMsg" style="font-size:13px; color:var(--muted); margin:10px 0 8px;"></div>
+            <div id="paymentMethodsList" class="pm-list"></div>
+
+            <details style="margin-top:14px;">
+              <summary>Add a card</summary>
+              <div style="margin-top:10px;">
+                <div id="pmSetupMsg" style="color:var(--muted); font-size:13px; margin-bottom:10px;"></div>
+                <div class="pm-grid">
+                  <label class="pref-field">
+                    <span style="font-size:13px; color:var(--muted);">Name on card</span>
+                    <input class="input" id="pmCardholder" placeholder="Full name">
+                  </label>
+                </div>
+                <div id="squareCard" class="pm-card-slot" style="margin-top:10px;"></div>
+                <div style="margin-top:12px; display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
+                  <button class="btn btn-primary btn-sm" type="button" id="pmSaveCard">Save card</button>
+                </div>
+              </div>
+            </details>
+          </div>
+        </section>
+
+        <section id="rewards" style="margin-top:16px;">
+          <div class="card fade-in" style="padding:18px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+              <div>
+                <h2 style="margin:0;">Rewards</h2>
+                <div style="color:var(--muted); font-size:13px; margin-top:4px;">Earn 1 point per $1 spent. Redeem points for discounts or free items.</div>
+              </div>
+              <a class="btn btn-outline btn-sm" href="./products.html">Shop to earn more</a>
+            </div>
+
+            <div id="rewardsBody" style="margin-top:12px;"></div>
+
+            <details class="milestone-prefs" style="margin-top:14px;">
+              <summary>Milestones settings</summary>
+              <form id="milestonesPrefsForm" style="margin-top:10px;">
+                <label class="pref-item">
+                  <input type="checkbox" name="showMilestones">
+                  <span>Show customer milestones on your dashboard</span>
+                </label>
+                <div style="margin-top:10px; display:flex; justify-content:flex-end;">
+                  <button class="btn btn-primary btn-sm" type="submit">Save</button>
+                </div>
+              </form>
+            </details>
+          </div>
+        </section>
+
+        <section id="activity" style="margin-top:16px;">
+          <div class="card fade-in" style="padding:18px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+              <div>
+                <h2 style="margin:0;">Account activity</h2>
+                <div id="activityIpHint" style="color:var(--muted); font-size:13px; margin-top:4px;">IP address is shown when available.</div>
+              </div>
+              <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <select class="input" id="activityType" style="max-width:260px;">
+                  <option value="">All activity</option>
+                  <option value="login">Logins</option>
+                  <option value="logout">Logouts</option>
+                  <option value="order_placed">Order placements</option>
+                  <option value="password_change">Password changes</option>
+                  <option value="profile_update">Profile updates</option>
+                </select>
+                <button class="btn btn-outline btn-sm" type="button" id="activityClear">Clear</button>
+              </div>
+            </div>
+            <div id="activityMsg" style="font-size:13px; color:var(--muted); margin:10px 0 8px;"></div>
+            <div id="activityList" class="activity-list"></div>
+          </div>
+        </section>
+
+        <section id="notifications" style="margin-top:16px;">
+          <div class="card fade-in" style="padding:18px;">
+            <div class="notif-head">
+              <h2 style="margin:0;">Notifications</h2>
+              <div class="notif-actions">
+                <button class="btn btn-outline btn-sm" type="button" id="notifMarkAllRead">Mark all read</button>
+                <button class="btn btn-outline btn-sm" type="button" id="notifClearRead">Clear read</button>
+                <button class="btn btn-outline btn-sm" type="button" id="notifClearAll">Clear all</button>
+              </div>
+            </div>
+
+            <div class="notif-filters" style="margin-top:10px;">
+              <button class="pill active" type="button" data-notif-tab="all">All</button>
+              <button class="pill" type="button" data-notif-tab="unread">Unread</button>
+              <select class="input" id="notifTypeFilter" style="max-width:260px;">
+                <option value="">All types</option>
+                <option value="order_update">Order updates</option>
+                <option value="back_in_stock">Back in stock</option>
+                <option value="member_deal">Member-only deals</option>
+                <option value="low_stock">Low stock</option>
+                <option value="price_drop">Price drops</option>
+              </select>
+            </div>
+
+            <div id="notificationsMsg" style="font-size:13px; color:var(--muted); margin:10px 0 8px;"></div>
+            <div id="notificationsList" class="notif-list"></div>
+
+            <details class="notif-prefs" style="margin-top:14px;">
+              <summary>Preferences</summary>
+              <form id="notifPrefsForm" class="notif-prefs-form" style="margin-top:10px;">
+                <div class="prefs-grid">
+                  <label class="pref-item"><input type="checkbox" name="orderUpdates"> <span>Order updates</span></label>
+                  <label class="pref-item"><input type="checkbox" name="backInStock"> <span>Back-in-stock alerts</span></label>
+                  <label class="pref-item"><input type="checkbox" name="memberDeals"> <span>Member-only deals</span></label>
+                  <label class="pref-item"><input type="checkbox" name="lowStock"> <span>Low stock warnings (frequent items)</span></label>
+                  <label class="pref-item"><input type="checkbox" name="priceDrops"> <span>Price drop alerts</span></label>
+                </div>
+
+                <div class="prefs-grid" style="margin-top:10px;">
+                  <label class="pref-field">
+                    <span style="font-size:13px; color:var(--muted);">Low stock threshold</span>
+                    <input class="input" type="number" min="0" step="1" name="lowStockThreshold" placeholder="20">
+                  </label>
+                  <label class="pref-field">
+                    <span style="font-size:13px; color:var(--muted);">Price drop minimum (%)</span>
+                    <input class="input" type="number" min="0" max="90" step="1" name="priceDropPercent" placeholder="5">
+                  </label>
+                </div>
+
+                <div style="margin-top:12px;">
+                  <div style="font-weight:900;">Watchlist</div>
+                  <div id="notifWatchHint" style="font-size:13px; color:var(--muted); margin-top:4px;"></div>
+                  <div id="notifWatchlist" class="notif-watchlist" style="margin-top:8px;"></div>
+                </div>
+
+                <div style="margin-top:12px; display:flex; gap:10px; justify-content:flex-end;">
+                  <button class="btn btn-primary btn-sm" type="submit">Save preferences</button>
+                </div>
+              </form>
+            </details>
+          </div>
         </section>
 
         <section id="favorites" style="margin-top:16px;">
@@ -173,6 +362,10 @@
   <script src="./js/store.js"></script>
   <script src="./js/i18n.js"></script>
   <script src="./js/ui.js"></script>
+  <script src="./js/activity.js"></script>
+  <script src="./js/notifications.js"></script>
+  <script src="./js/wishlists.js"></script>
+  <script src="./js/payment-methods.js"></script>
   <script src="./js/account.js" defer></script>
 </body>
 </html>

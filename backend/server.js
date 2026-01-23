@@ -409,6 +409,8 @@ function buildReceiptHtml({
   customer,
   items,
   subtotalCents,
+  discountCents = 0,
+  discountLabel = "",
   taxCents,
   totalCents,
   currency,
@@ -444,6 +446,14 @@ function buildReceiptHtml({
       <tr>
         <td style="padding:6px 0; color:#6b7280;">You saved</td>
         <td style="padding:6px 0; text-align:right;">${formatMoney(savingsCents, currency)}</td>
+      </tr>
+    `
+    : "";
+  const discountRow = discountCents > 0
+    ? `
+      <tr>
+        <td style="padding:6px 0; color:#6b7280;">${escapeHtml(discountLabel || "Discount")}</td>
+        <td style="padding:6px 0; text-align:right;">-${formatMoney(discountCents, currency)}</td>
       </tr>
     `
     : "";
@@ -504,6 +514,7 @@ function buildReceiptHtml({
           <td style="padding:6px 0; color:#6b7280;">${labels.subtotal}</td>
           <td style="padding:6px 0; text-align:right;">${formatMoney(subtotalCents, currency)}</td>
         </tr>
+        ${discountRow}
         <tr>
           <td style="padding:6px 0; color:#6b7280;">${escapeHtml(taxLabel)}</td>
           <td style="padding:6px 0; text-align:right;">${formatMoney(taxCents, currency)}</td>
@@ -1196,7 +1207,7 @@ app.post("/api/admin/orders/:id/fulfill", async (req,res)=>{
 
 // ---- Create pay-later order + reduce stock + email ----
 app.post("/api/order", async (req,res)=>{
-  const { customer, items, totalCents, currency, paymentMethod, shipping } = req.body;
+  const { customer, items, currency, paymentMethod, shipping, discount } = req.body;
   if(!customer?.email || !items?.length) return res.status(400).json({ ok:false, message:"Missing email or items" });
   if(!requireSupabase(res)) return;
 
@@ -1240,14 +1251,27 @@ app.post("/api/order", async (req,res)=>{
         }
       : getShippingForPostal(customer?.postal);
     const subtotalCents = normalizedItems.reduce((sum, item) => sum + (item.priceCents * item.qty), 0);
-    const taxData = calculateTaxCents(subtotalCents, customer?.province);
-    const totalCentsComputed = subtotalCents + (shippingInfo.amountCents || 0) + taxData.taxCents;
+    const rawDiscountCents = Math.max(0, Math.round(Number(discount?.amountCents ?? 0)));
+    const discountCents = Math.min(subtotalCents, rawDiscountCents);
+    const discountedSubtotalCents = Math.max(0, subtotalCents - discountCents);
+    const taxData = calculateTaxCents(discountedSubtotalCents, customer?.province);
+    const totalCentsComputed = discountedSubtotalCents + (shippingInfo.amountCents || 0) + taxData.taxCents;
     const orderId = "ORD-" + Date.now();
+    const customerWithRewards = discountCents > 0
+      ? {
+          ...(customer || {}),
+          rewards: {
+            source: String(discount?.source || "rewards"),
+            code: String(discount?.code || "").trim(),
+            amountCents: discountCents
+          }
+        }
+      : customer;
     const order = {
       id: orderId,
       status: "pending",
       payment_method: paymentMethod || "pay_later",
-      customer,
+      customer: customerWithRewards,
       customer_email: (customer?.email || "").toLowerCase(),
       shipping: {
         zone: shippingInfo.zone,
@@ -1321,9 +1345,13 @@ app.post("/api/order", async (req,res)=>{
 
       const receiptHtml = buildReceiptHtml({
         orderId,
-        customer,
+        customer: customerWithRewards,
         items: normalizedItems,
         subtotalCents,
+        discountCents,
+        discountLabel: discountCents > 0
+          ? (customerWithRewards?.rewards?.code ? `Rewards (${customerWithRewards.rewards.code})` : "Rewards")
+          : "",
         taxCents: taxCentsNow,
         totalCents: totalCentsComputed,
         currency,
@@ -1890,6 +1918,219 @@ app.post("/api/auth/logout", (req,res)=>{
   const session = getSessionFromRequest(req);
   if(session) authSessions.delete(session.token);
   res.json({ ok:true });
+});
+
+// ---- Account helpers ----
+app.get("/api/account/ip", (req, res) => {
+  const forwardedFor = String(req.headers["x-forwarded-for"] || "").trim();
+  const forwardedIp = forwardedFor ? String(forwardedFor.split(",")[0] || "").trim() : "";
+  const ip = forwardedIp || String(req.ip || req.socket?.remoteAddress || "").trim();
+  res.json({ ok: true, ip, forwardedFor });
+});
+
+// ---- Saved payment methods (Square cards on file) ----
+const paymentMethodsByEmail = new Map(); // fallback when Supabase table isn't present
+const squareCustomerByEmail = new Map(); // fallback mapping
+
+function normalizePaymentMethodRow(row){
+  if(!row) return row;
+  return {
+    ...row,
+    createdAt: row.created_at ?? row.createdAt
+  };
+}
+
+async function getOrCreateSquareCustomerId(email){
+  const lower = String(email || "").trim().toLowerCase();
+  if(!lower) return "";
+  if(squareCustomerByEmail.has(lower)) return squareCustomerByEmail.get(lower) || "";
+
+  try{
+    const customerId = await withSquareClient(async (client)=>{
+      const customersApi = client.customersApi;
+      const { result: search } = await customersApi.searchCustomers({
+        limit: BigInt(1),
+        query: {
+          filter: {
+            emailAddress: { exact: lower }
+          }
+        }
+      });
+      const existing = Array.isArray(search?.customers) ? search.customers[0] : null;
+      if(existing?.id) return existing.id;
+      const { result: created } = await customersApi.createCustomer({ emailAddress: lower, referenceId: lower });
+      return created?.customer?.id || "";
+    });
+    if(customerId) squareCustomerByEmail.set(lower, customerId);
+    return customerId || "";
+  }catch(err){
+    // If Customers API isn't available or fails, fall back to empty (cards won't save).
+    return "";
+  }
+}
+
+async function listPaymentMethods(email){
+  const lower = String(email || "").trim().toLowerCase();
+  if(!lower) return [];
+  if(supabase){
+    try{
+      const { data, error } = await supabase
+        .from("payment_methods")
+        .select("*")
+        .eq("customer_email", lower)
+        .order("created_at", { ascending: false });
+      if(error) throw error;
+      return (data || []).map(normalizePaymentMethodRow);
+    }catch(err){
+      // Table might not exist; fall back.
+    }
+  }
+  const list = paymentMethodsByEmail.get(lower);
+  return Array.isArray(list) ? list : [];
+}
+
+async function addPaymentMethod(email, sourceId){
+  const lower = String(email || "").trim().toLowerCase();
+  if(!lower) throw new Error("Missing email.");
+  if(!sourceId) throw new Error("Missing card token.");
+
+  if(!(squareClientSandbox || squareClientProduction) || !squareLocationId){
+    const missing = [];
+    if(!squareAccessToken) missing.push("SQUARE_ACCESS_TOKEN");
+    if(!squareLocationId) missing.push("SQUARE_LOCATION_ID");
+    const error = new Error(`Square not configured (missing ${missing.join(" + ") || "keys"}).`);
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const customerId = await getOrCreateSquareCustomerId(lower);
+  if(!customerId){
+    const error = new Error("Unable to create or locate Square customer for this account.");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const out = await withSquareClient(async (client)=>{
+    const cardsApi = client.cardsApi;
+    const body = {
+      idempotencyKey: crypto.randomUUID(),
+      sourceId: String(sourceId),
+      card: {
+        customerId,
+        referenceId: lower
+      }
+    };
+    const { result } = await cardsApi.createCard(body);
+    return result?.card || null;
+  });
+
+  if(!out?.id){
+    const error = new Error("Failed to save card.");
+    error.statusCode = 500;
+    throw error;
+  }
+
+  const record = {
+    id: String(out.id),
+    customer_email: lower,
+    square_customer_id: String(customerId),
+    brand: String(out.cardBrand || out.card_brand || ""),
+    last4: String(out.last4 || ""),
+    expMonth: Number(out.expMonth ?? out.exp_month ?? 0) || 0,
+    expYear: Number(out.expYear ?? out.exp_year ?? 0) || 0,
+    created_at: new Date().toISOString()
+  };
+
+  if(supabase){
+    try{
+      const { error } = await supabase.from("payment_methods").insert(record);
+      if(!error){
+        return record;
+      }
+    }catch(err){
+      // fall back
+    }
+  }
+
+  const list = paymentMethodsByEmail.get(lower);
+  const next = Array.isArray(list) ? [record, ...list] : [record];
+  paymentMethodsByEmail.set(lower, next.slice(0, 50));
+  return record;
+}
+
+async function removePaymentMethod(email, id){
+  const lower = String(email || "").trim().toLowerCase();
+  const cardId = String(id || "").trim();
+  if(!lower || !cardId) return;
+
+  // Disable card at Square when possible (safe even if already disabled).
+  if((squareClientSandbox || squareClientProduction)){
+    try{
+      await withSquareClient((client)=> client.cardsApi.disableCard(cardId));
+    }catch(err){
+      // ignore; still remove from local records
+    }
+  }
+
+  if(supabase){
+    try{
+      await supabase.from("payment_methods").delete().eq("customer_email", lower).eq("id", cardId);
+      return;
+    }catch(err){
+      // fall back
+    }
+  }
+
+  const list = paymentMethodsByEmail.get(lower);
+  if(Array.isArray(list)){
+    paymentMethodsByEmail.set(lower, list.filter(m=> String(m?.id || "") !== cardId));
+  }
+}
+
+app.get("/api/account/payment-methods", async (req,res)=>{
+  const session = getSessionFromRequest(req);
+  if(!session) return res.status(401).json({ ok:false, message:"Unauthorized" });
+  try{
+    const methods = await listPaymentMethods(session.email);
+    res.json({
+      ok:true,
+      methods: methods.map((m)=>({
+        id: String(m.id || ""),
+        brand: String(m.brand || ""),
+        last4: String(m.last4 || ""),
+        expMonth: Number(m.expMonth ?? m.exp_month ?? 0) || 0,
+        expYear: Number(m.expYear ?? m.exp_year ?? 0) || 0,
+        createdAt: m.createdAt || m.created_at || ""
+      }))
+    });
+  }catch(err){
+    res.status(500).json({ ok:false, message:"Unable to load payment methods." });
+  }
+});
+
+app.post("/api/account/payment-methods", async (req,res)=>{
+  const session = getSessionFromRequest(req);
+  if(!session) return res.status(401).json({ ok:false, message:"Unauthorized" });
+  try{
+    const sourceId = String(req.body?.sourceId || "").trim();
+    const record = await addPaymentMethod(session.email, sourceId);
+    res.json({ ok:true, method: { id: record.id, brand: record.brand, last4: record.last4, expMonth: record.expMonth, expYear: record.expYear } });
+  }catch(err){
+    const status = getHttpStatus(err?.statusCode || err?.status || 0, 400);
+    const summary = summarizeSquareError(err);
+    res.status(status).json({ ok:false, message: String(err?.message || summary?.message || "Unable to save card.") });
+  }
+});
+
+app.delete("/api/account/payment-methods/:id", async (req,res)=>{
+  const session = getSessionFromRequest(req);
+  if(!session) return res.status(401).json({ ok:false, message:"Unauthorized" });
+  try{
+    await removePaymentMethod(session.email, req.params.id);
+    res.json({ ok:true });
+  }catch(err){
+    res.status(500).json({ ok:false, message:"Unable to remove card." });
+  }
 });
 
 // ---- Square Checkout ----

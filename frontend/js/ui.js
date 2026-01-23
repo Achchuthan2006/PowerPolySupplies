@@ -255,6 +255,54 @@ function injectCurrencySwitcher(){
   }
 }
 
+function getNotifUnreadCount(){
+  try{
+    const session = window.PPS?.getSession?.();
+    const email = String(session?.email || "").trim().toLowerCase();
+    if(!email) return 0;
+    const key = `pps_account_${email}_notifications_v1`;
+    const raw = localStorage.getItem(key);
+    const list = raw ? JSON.parse(raw) : [];
+    if(!Array.isArray(list)) return 0;
+    return list.reduce((sum, n)=> sum + (!n?.readAt ? 1 : 0), 0);
+  }catch(_err){
+    return 0;
+  }
+}
+
+function updateNotifBadges(){
+  const count = getNotifUnreadCount();
+  document.querySelectorAll("[data-notif-badge]").forEach((el)=>{
+    el.textContent = String(count);
+    el.style.display = count ? "" : "none";
+  });
+}
+
+function injectNotificationsBell(){
+  const navLinks = document.getElementById("navLinks");
+  if(!navLinks || !window.PPS?.getSession) return;
+  if(navLinks.querySelector(".notif-bell")) return;
+  const session = window.PPS.getSession();
+  if(!session) return;
+
+  const tools = getNavTools(navLinks);
+  const link = document.createElement("a");
+  link.className = "notif-bell";
+  link.href = "./account.html#notifications";
+  link.setAttribute("aria-label", "Notifications");
+  link.innerHTML = `
+    <span class="nav-icon bell-icon" aria-hidden="true"></span>
+    <span class="badge" data-notif-badge style="display:none;">0</span>
+  `;
+  tools.appendChild(link);
+
+  updateNotifBadges();
+  window.addEventListener("storage", (e)=>{
+    if(String(e?.key || "").includes("_notifications_v1")) updateNotifBadges();
+  });
+  window.addEventListener("pps:notifs", updateNotifBadges);
+}
+
 function injectFooter(){
   const footer = document.querySelector(".footer");
   if(!footer) return;
@@ -903,6 +951,7 @@ window.addEventListener("DOMContentLoaded", ()=>{
   syncAccountLink();
   injectLangSwitcher();
   injectCurrencySwitcher();
+  injectNotificationsBell();
   setupSearch();
   setupCountUp();
   setupExitIntentOffer();

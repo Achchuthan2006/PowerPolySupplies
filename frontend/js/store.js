@@ -13,6 +13,7 @@ const CART_COOKIE = "pps_cart";
 const CAPED_WE_LOVE_IMAGE = "./assets/welovecaped%20hanger.webp";
 const PRODUCTS_CACHE_KEY = "pps_products_cache_v1";
 const PRODUCTS_FAST_MS = 400;
+const WISHLISTS_SUFFIX = "wishlists_v1";
 
 function normalizeImagePath(value){
   if(!value) return value;
@@ -497,6 +498,147 @@ function clearSession(){
   localStorage.removeItem("pps_session");
 }
 
+function getAccountEmail(){
+  const session = getSession();
+  const email = String(session?.email || "").trim().toLowerCase();
+  return email || "";
+}
+
+function accountKey(email, suffix){
+  const e = String(email || "").trim().toLowerCase();
+  if(!e) return "";
+  return `pps_account_${e}_${suffix}`;
+}
+
+function readJson(key, fallback){
+  try{
+    const raw = localStorage.getItem(key);
+    if(!raw) return fallback;
+    return JSON.parse(raw);
+  }catch(err){
+    return fallback;
+  }
+}
+
+function writeJson(key, value){
+  try{
+    localStorage.setItem(key, JSON.stringify(value));
+    return true;
+  }catch(err){
+    return false;
+  }
+}
+
+function normalizeWishlists(data){
+  const lists = Array.isArray(data?.lists) ? data.lists : [];
+  const normalized = lists.map((l)=>({
+    id: String(l?.id || ""),
+    name: String(l?.name || "Wishlist").trim() || "Wishlist",
+    createdAt: String(l?.createdAt || ""),
+    items: Array.isArray(l?.items)
+      ? l.items.map((it)=>({
+          productId: String(it?.productId || it?.id || ""),
+          addedAt: String(it?.addedAt || "")
+        })).filter(it=>it.productId)
+      : []
+  })).filter(l=>l.id);
+
+  if(!normalized.length){
+    return {
+      lists: [{
+        id: `wl_${Date.now()}`,
+        name: "Wishlist",
+        createdAt: new Date().toISOString(),
+        items: []
+      }]
+    };
+  }
+  return { lists: normalized };
+}
+
+function getWishlists(){
+  const email = getAccountEmail();
+  if(!email) return null;
+  const key = accountKey(email, WISHLISTS_SUFFIX);
+  const data = normalizeWishlists(readJson(key, null));
+  writeJson(key, data);
+  return data;
+}
+
+function setWishlists(next){
+  const email = getAccountEmail();
+  if(!email) return null;
+  const key = accountKey(email, WISHLISTS_SUFFIX);
+  const data = normalizeWishlists(next);
+  writeJson(key, data);
+  window.dispatchEvent(new CustomEvent("pps:wishlists", { detail:{ email, wishlists: data } }));
+  return data;
+}
+
+function createWishlist(name){
+  const data = getWishlists();
+  if(!data) return null;
+  const clean = String(name || "").trim() || "Wishlist";
+  const id = `wl_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+  return setWishlists({ lists: [{ id, name: clean, createdAt: new Date().toISOString(), items: [] }, ...data.lists] });
+}
+
+function renameWishlist(listId, name){
+  const data = getWishlists();
+  if(!data) return null;
+  const clean = String(name || "").trim();
+  if(!clean) return data;
+  return setWishlists({
+    lists: data.lists.map(l=> l.id === String(listId) ? { ...l, name: clean } : l)
+  });
+}
+
+function deleteWishlist(listId){
+  const data = getWishlists();
+  if(!data) return null;
+  const id = String(listId || "");
+  const remaining = data.lists.filter(l=>l.id !== id);
+  return setWishlists({ lists: remaining });
+}
+
+function addToWishlist(productId, listId){
+  const data = getWishlists();
+  if(!data) return null;
+  const pid = String(productId || "").trim();
+  if(!pid) return data;
+  const targetId = String(listId || data.lists[0]?.id || "");
+  return setWishlists({
+    lists: data.lists.map((l)=>{
+      if(l.id !== targetId) return l;
+      const exists = l.items.some(it=>it.productId === pid);
+      if(exists) return l;
+      return { ...l, items: [{ productId: pid, addedAt: new Date().toISOString() }, ...l.items] };
+    })
+  });
+}
+
+function removeFromWishlist(productId, listId){
+  const data = getWishlists();
+  if(!data) return null;
+  const pid = String(productId || "").trim();
+  if(!pid) return data;
+  const id = String(listId || "");
+  return setWishlists({
+    lists: data.lists.map((l)=>{
+      if(id && l.id !== id) return l;
+      return { ...l, items: l.items.filter(it=>it.productId !== pid) };
+    })
+  });
+}
+
+function isInAnyWishlist(productId){
+  const data = getWishlists();
+  if(!data) return false;
+  const pid = String(productId || "").trim();
+  if(!pid) return false;
+  return data.lists.some(l=> l.items.some(it=>it.productId === pid));
+}
+
 function addItemsToCart(items){
   if(!Array.isArray(items)) return;
   items.forEach((item)=>{
@@ -519,4 +661,4 @@ function addItemsToCart(items){
   });
 }
 
-window.PPS = { API_BASE, money, convertCents, getTieredPriceCents, getCurrency, setCurrency, pingBackend, loadProducts, fetchReviews, submitReview, getCart, setCart, updateCartBadge, addToCart, addItemsToCart, getFavorites, isFavorite, toggleFavorite, getSession, setSession, clearSession, setApiBaseOverride };
+window.PPS = { API_BASE, money, convertCents, getTieredPriceCents, getCurrency, setCurrency, pingBackend, loadProducts, fetchReviews, submitReview, getCart, setCart, updateCartBadge, addToCart, addItemsToCart, getFavorites, isFavorite, toggleFavorite, getSession, setSession, clearSession, setApiBaseOverride, getWishlists, createWishlist, renameWishlist, deleteWishlist, addToWishlist, removeFromWishlist, isInAnyWishlist };

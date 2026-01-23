@@ -102,6 +102,7 @@
     }
 
     const heartIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.7-4.4-9.5-7.2A5.6 5.6 0 0 1 12 5.6a5.6 5.6 0 0 1 9.5 8.2C18.7 16.6 12 21 12 21z"/></svg>';
+    const bookmarkIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12a1 1 0 0 1 1 1v18l-7-4-7 4V4a1 1 0 0 1 1-1z"/></svg>';
 
     function favoriteTitle(active){
       return active
@@ -112,6 +113,23 @@
     function favoriteButton(productId){
       const active = PPS.isFavorite(productId);
       return `<button class="favorite-btn ${active ? "active" : ""}" type="button" data-fav-id="${productId}" aria-pressed="${active ? "true" : "false"}" title="${favoriteTitle(active)}">${heartIcon}</button>`;
+    }
+
+    function wishlistTitle(active){
+      return active ? "Remove from wishlist" : "Add to wishlist";
+    }
+
+    function wishlistButton(productId){
+      const active = PPS.isInAnyWishlist?.(productId);
+      return `<button class="wishlist-btn ${active ? "active" : ""}" type="button" data-wl-id="${productId}" aria-pressed="${active ? "true" : "false"}" title="${wishlistTitle(active)}">${bookmarkIcon}</button>`;
+    }
+
+    function syncWishlistButton(btn){
+      const id = btn.dataset.wlId;
+      const active = PPS.isInAnyWishlist?.(id);
+      btn.classList.toggle("active", !!active);
+      btn.setAttribute("aria-pressed", active ? "true" : "false");
+      btn.title = wishlistTitle(active);
     }
 
     function syncFavoriteButton(btn){
@@ -131,8 +149,32 @@
       syncFavoriteButton(btn);
     });
 
+    document.addEventListener("click", (e)=>{
+      const btn = e.target.closest(".wishlist-btn");
+      if(!btn) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const session = PPS.getSession?.();
+      if(!session){
+        window.location.href = "./login.html";
+        return;
+      }
+      const id = btn.dataset.wlId;
+      const active = PPS.isInAnyWishlist?.(id);
+      if(active){
+        PPS.removeFromWishlist?.(id);
+      }else{
+        PPS.addToWishlist?.(id);
+      }
+      syncWishlistButton(btn);
+    });
+
     window.addEventListener("pps:favorites", ()=>{
       document.querySelectorAll(".favorite-btn").forEach(syncFavoriteButton);
+    });
+
+    window.addEventListener("pps:wishlists", ()=>{
+      document.querySelectorAll(".wishlist-btn").forEach(syncWishlistButton);
     });
 
     (async ()=>{
@@ -347,17 +389,18 @@
           <div class="card fade-in" style="padding:18px;">
             <h2 style="margin:0;">${displayName}</h2>
             <p style="color:var(--muted); margin-top:8px;">${displayCategory}</p>
-            <div class="member-pricing">
-              <div>
-                <div class="market-label" data-i18n="market.price.label">Market price</div>
-                <span class="compare-price">${PPS.money(compareCents, p.currency)}</span>
-              </div>
-              <div>
-                <div class="member-label" data-i18n="member.price.label">Power Poly Member Price</div>
-                <span class="price" style="font-size:22px;">${PPS.money(memberCents,p.currency)}</span>
-              </div>
+              <div class="member-pricing">
+                <div>
+                  <div class="market-label" data-i18n="market.price.label">Market price</div>
+                  <span class="compare-price">${PPS.money(compareCents, p.currency)}</span>
+                </div>
+                <div>
+                  <div class="member-label" data-i18n="member.price.label">Power Poly Member Price</div>
+                  <span class="price" style="font-size:22px;">${PPS.money(memberCents,p.currency)}</span>
+                </div>
               ${favoriteButton(p.id)}
-            </div>
+              ${wishlistButton(p.id)}
+              </div>
             ${!isMember && savingsCents > 0 ? `<a class="member-banner" href="./login.html">${bannerText}</a>` : ""}
             ${(()=>{ const s = stockClass(p.stock); return `<div class="stock ${s.cls}"><span class="dot"></span>${s.label}</div>`; })()}
             ${p.stock > 0 && p.stock <= 15 ? `<div class="stock-urgency">Only <strong>${p.stock}</strong> boxes left — order soon.</div>` : ""}
@@ -784,6 +827,7 @@
                   <span class="price">${PPS.money(memberCents,item.currency)}</span>
                 </div>
                 ${favoriteButton(item.id)}
+                ${wishlistButton(item.id)}
               </div>
               ${!isMember && savingsCents > 0 ? `<a class="member-banner" href="./login.html">${bannerText}</a>` : ""}
               <div class="stock ${s}"><span class="dot"></span>${label}</div>

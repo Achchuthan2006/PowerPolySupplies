@@ -21,6 +21,7 @@
 
   const els = {
     year: $("#y"),
+    accountMsg: $("#accountMsg"),
     ordersGrid: $("#ordersGrid"),
     ordersMsg: $("#ordersMsg"),
     favoritesGrid: $("#favoritesGrid"),
@@ -48,30 +49,30 @@
     paymentGrid: $("#paymentGrid"),
     addPaymentForm: $("#addPaymentForm"),
     rewardsBody: $("#rewardsBody"),
+    milestonesBody: $("#milestonesBody"),
+    analyticsBody: $("#analyticsBody"),
     reportsBody: $("#reportsBody"),
-    settingsForm: $("#settingsForm")
+    settingsForm: $("#settingsForm"),
+    notifCountBadge: $("#notifCountBadge"),
+    milestonesPrefsForm: $("#milestonesPrefsForm")
   };
 
   if (els.year) els.year.textContent = String(new Date().getFullYear());
   window.PPS?.updateCartBadge?.();
+  try {
+    window.PPS_NOTIFS?.initAccountCenter?.();
+    window.PPS_ACTIVITY?.initAccountActivity?.();
+    window.PPS_WISHLISTS?.init?.();
+    window.PPS_PAYMENT_METHODS?.init?.();
+  } catch {
+    // ignore
+  }
 
+  // No popups/toasts/alerts: keep feedback inline.
   const toast = (message) => {
     if (!message) return;
-    const el = document.createElement("div");
-    el.style.position = "fixed";
-    el.style.right = "16px";
-    el.style.bottom = "16px";
-    el.style.zIndex = "9999";
-    el.style.padding = "10px 12px";
-    el.style.borderRadius = "14px";
-    el.style.border = "1px solid rgba(17,24,39,.12)";
-    el.style.background = "rgba(255,255,255,.95)";
-    el.style.boxShadow = "0 18px 45px rgba(17,24,39,.12)";
-    el.style.fontWeight = "900";
-    el.style.fontSize = "13px";
-    el.textContent = message;
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), 2200);
+    if (!els.accountMsg) return;
+    els.accountMsg.textContent = String(message);
   };
 
   const esc = (s) =>
@@ -165,6 +166,49 @@
     }
   };
 
+  const REWARDS_LEDGER_KEY = userKey("rewards_ledger_v1");
+  const MILESTONES_PREFS_KEY = userKey("milestones_prefs_v1");
+
+  const getMilestonesPrefs = () => {
+    const raw = readJson(MILESTONES_PREFS_KEY, { showMilestones: true });
+    return { showMilestones: raw?.showMilestones !== false };
+  };
+
+  const saveMilestonesPrefs = (prefs) => {
+    const next = { showMilestones: prefs?.showMilestones !== false };
+    writeJson(MILESTONES_PREFS_KEY, next);
+    return next;
+  };
+
+  const getRewardsLedger = () => {
+    const raw = readJson(REWARDS_LEDGER_KEY, { redemptions: [] });
+    const redemptions = Array.isArray(raw?.redemptions) ? raw.redemptions : [];
+    return { redemptions };
+  };
+
+  const saveRewardsLedger = (ledger) => {
+    const safe = {
+      redemptions: Array.isArray(ledger?.redemptions) ? ledger.redemptions.filter(Boolean).slice(0, 200) : []
+    };
+    writeJson(REWARDS_LEDGER_KEY, safe);
+    return safe;
+  };
+
+  const pointsFromCents = (cents) => Math.max(0, Math.floor((Number(cents) || 0) / 100));
+
+  const computeRewards = () => {
+    const totalSpentCents = state.orders.reduce((s, o) => s + Number(o.totalCents || 0), 0);
+    const earned = pointsFromCents(totalSpentCents);
+    const ledger = getRewardsLedger();
+    const redeemed = ledger.redemptions.reduce((s, r) => s + (Number(r?.pointsCost) || 0), 0);
+    const balance = Math.max(0, earned - redeemed);
+    return { earned, redeemed, balance, ledger };
+  };
+
+  const fmtPoints = (n) => (Number(n) || 0).toLocaleString();
+
+  const makeRewardCode = () => `PPS-${Math.random().toString(16).slice(2, 6).toUpperCase()}-${Date.now().toString().slice(-6)}`;
+
   const setActiveNavByHash = () => {
     const hash = window.location.hash || "#dashboard";
     $$(".account-nav a").forEach((a) => a.classList.toggle("active", a.getAttribute("href") === hash));
@@ -225,19 +269,29 @@
 
   function renderRewards() {
     if (!els.rewardsBody) return;
-    const totalSpent = state.orders.reduce((s, o) => s + Number(o.totalCents || 0), 0);
-    const points = Math.floor(totalSpent / 100);
-    const tier = points >= 25000 ? "Gold" : points >= 10000 ? "Silver" : "Bronze";
+    const { earned, redeemed, balance, ledger } = computeRewards();
+    const points = balance;
+    const tier = earned >= 25000 ? "Gold" : earned >= 10000 ? "Silver" : "Bronze";
     const nextTier = tier === "Bronze" ? "Silver" : tier === "Silver" ? "Gold" : null;
     const nextTarget = tier === "Bronze" ? 10000 : tier === "Silver" ? 25000 : points;
-    const progress = nextTier ? Math.min(100, Math.round((points / nextTarget) * 100)) : 100;
+    const progressBase = tier === "Bronze" ? 10000 : tier === "Silver" ? 25000 : points;
+    const progress = nextTier ? Math.min(100, Math.round((earned / progressBase) * 100)) : 100;
+
+    const catalog = [
+      { id: "disc_5", title: "$5 off your next order", pointsCost: 500, valueCents: 500, kind: "discount" },
+      { id: "disc_10", title: "$10 off your next order", pointsCost: 1000, valueCents: 1000, kind: "discount" },
+      { id: "disc_25", title: "$25 off your next order", pointsCost: 2500, valueCents: 2500, kind: "discount" },
+      { id: "free_20", title: "Free product voucher (up to $20)", pointsCost: 2000, valueCents: 2000, kind: "free_product" }
+    ];
+
+    const available = (ledger?.redemptions || []).filter((r) => r && !r.usedAt);
 
     els.rewardsBody.innerHTML = `
       <div class="insights-grid">
         <div class="insight">
-          <div class="insight-title">Points balance</div>
-          <div class="insight-body">${points.toLocaleString()}</div>
-          <div class="insight-sub">1 point per $1 spent (estimated)</div>
+          <div class="insight-title">Points</div>
+          <div class="insight-body">${fmtPoints(points)}</div>
+          <div class="insight-sub">${fmtPoints(earned)} earned · ${fmtPoints(redeemed)} redeemed</div>
         </div>
         <div class="insight">
           <div class="insight-title">Member tier</div>
@@ -245,6 +299,488 @@
           <div class="insight-sub">${nextTier ? `Progress to ${nextTier}: ${progress}%` : "Top tier reached"}</div>
           <div style="margin-top:10px; height:10px; border-radius:999px; background:rgba(17,24,39,.08); overflow:hidden;">
             <div style="height:100%; width:${progress}%; background:linear-gradient(90deg, var(--primary), var(--primary-strong));"></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+          <div style="font-weight:1000;">Rewards catalog</div>
+          <div style="color:var(--muted); font-size:13px;">Redeem points for a code you can use at checkout.</div>
+        </div>
+        <div class="grid grid-3" style="margin-top:10px;">
+          ${catalog
+            .map((item) => {
+              const canRedeem = points >= item.pointsCost;
+              return `
+                <div class="card" style="padding:14px;">
+                  <div style="font-weight:1000;">${esc(item.title)}</div>
+                  <div style="margin-top:6px; color:var(--muted); font-size:13px;">${fmtPoints(item.pointsCost)} points</div>
+                  <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
+                    <button class="btn btn-primary btn-sm" type="button" data-reward-redeem="${esc(item.id)}" ${canRedeem ? "" : "disabled"}>${canRedeem ? "Redeem" : "Not enough points"}</button>
+                  </div>
+                </div>
+              `;
+            })
+            .join("")}
+        </div>
+      </div>
+
+      <div style="margin-top:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+          <div style="font-weight:1000;">Your reward codes</div>
+          <div style="color:var(--muted); font-size:13px;">Unused codes: ${fmtPoints(available.length)}</div>
+        </div>
+        <div style="margin-top:10px; display:grid; gap:10px;">
+          ${
+            available.length
+              ? available
+                  .slice(0, 12)
+                  .map((r) => {
+                    const code = esc(r.code || "");
+                    const title = esc(r.title || "Reward");
+                    const createdAt = fmtDateTime(r.createdAt);
+                    return `
+                      <div class="card" style="padding:14px;">
+                        <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+                          <div>
+                            <div style="font-weight:1000;">${title}</div>
+                            <div style="color:var(--muted); font-size:13px; margin-top:4px;">Code: <span style="font-weight:900; letter-spacing:.6px;">${code}</span>${createdAt ? ` · ${createdAt}` : ""}</div>
+                          </div>
+                          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <a class="btn btn-primary btn-sm" href="./checkout.html?reward=${encodeURIComponent(r.code || "")}">Use at checkout</a>
+                            <button class="btn btn-outline btn-sm" type="button" data-reward-copy="${code}">Copy code</button>
+                            <button class="btn btn-outline btn-sm" type="button" data-reward-mark-used="${code}">Mark used</button>
+                          </div>
+                        </div>
+                      </div>
+                    `;
+                  })
+                  .join("")
+              : `<div style="color:var(--muted); font-size:13px;">No reward codes yet. Redeem from the catalog above.</div>`
+          }
+        </div>
+      </div>
+    `;
+  }
+
+  function renderMilestonesPrefs() {
+    if (!els.milestonesPrefsForm) return;
+    const prefs = getMilestonesPrefs();
+    const box = els.milestonesPrefsForm.querySelector('[name="showMilestones"]');
+    if (box) box.checked = !!prefs.showMilestones;
+  }
+
+  const computeMilestones = () => {
+    const ordersCount = state.orders.length;
+    const itemsCount = state.orders.reduce((sum, o) => sum + (o?.items || []).reduce((s, it) => s + (Number(it.qty) || 0), 0), 0);
+    const spentCents = state.orders.reduce((sum, o) => sum + Number(o.totalCents || 0), 0);
+    const currency = String(state.orders[0]?.currency || "CAD").toUpperCase();
+    const spentDollars = Math.floor(spentCents / 100);
+
+    const defs = [
+      {
+        id: "loyal_20",
+        title: "Loyal customer",
+        detail: "20 orders placed",
+        metric: { current: ordersCount, target: 20, unit: "orders" }
+      },
+      {
+        id: "loyal_50",
+        title: "Loyal customer",
+        detail: "50 orders placed",
+        metric: { current: ordersCount, target: 50, unit: "orders" }
+      },
+      {
+        id: "bulk_500",
+        title: "Bulk buyer",
+        detail: "500+ items ordered",
+        metric: { current: itemsCount, target: 500, unit: "items" }
+      },
+      {
+        id: "bulk_1000",
+        title: "Bulk buyer",
+        detail: "1,000+ items ordered",
+        metric: { current: itemsCount, target: 1000, unit: "items" }
+      },
+      {
+        id: "partner_5000",
+        title: "Trusted partner",
+        detail: `${currency} 5,000+ spent`,
+        metric: { current: spentDollars, target: 5000, unit: currency }
+      },
+      {
+        id: "partner_10000",
+        title: "Trusted partner",
+        detail: `${currency} 10,000+ spent`,
+        metric: { current: spentDollars, target: 10000, unit: currency }
+      }
+    ];
+
+    const achieved = defs.filter((d) => (Number(d.metric.current) || 0) >= (Number(d.metric.target) || 0));
+    const nextUp = defs.filter((d) => (Number(d.metric.current) || 0) < (Number(d.metric.target) || 0));
+
+    return {
+      ordersCount,
+      itemsCount,
+      spentCents,
+      achieved,
+      nextUp: nextUp.slice(0, 3)
+    };
+  };
+
+  function renderMilestones() {
+    if (!els.milestonesBody) return;
+    const prefs = getMilestonesPrefs();
+    if (!prefs.showMilestones) {
+      els.milestonesBody.innerHTML = `
+        <div class="card" style="padding:14px;">
+          <div style="font-weight:1000;">Customer milestones</div>
+          <div style="color:var(--muted); font-size:13px; margin-top:6px;">Hidden in your settings.</div>
+        </div>
+      `;
+      return;
+    }
+
+    if (!state.orders.length) {
+      els.milestonesBody.innerHTML = `
+        <div class="card" style="padding:14px;">
+          <div style="font-weight:1000;">Customer milestones</div>
+          <div style="color:var(--muted); font-size:13px; margin-top:6px;">Place your first order to start building your purchase history.</div>
+        </div>
+      `;
+      return;
+    }
+
+    const { achieved, nextUp } = computeMilestones();
+
+    const pill = (label) => `<span class="milestone-pill">${esc(label)}</span>`;
+    const progressHtml = (m) => {
+      const current = Math.max(0, Number(m?.current) || 0);
+      const target = Math.max(1, Number(m?.target) || 1);
+      const pct = Math.min(100, Math.round((current / target) * 100));
+      return `
+        <div class="milestone-progress">
+          <div class="milestone-progress-bar" style="width:${pct}%;"></div>
+        </div>
+        <div class="milestone-sub">${current.toLocaleString()} / ${target.toLocaleString()}</div>
+      `;
+    };
+
+    els.milestonesBody.innerHTML = `
+      <div class="milestones-head">
+        <div style="font-weight:1000;">Customer milestones</div>
+        <div style="color:var(--muted); font-size:13px;">Based on your orders</div>
+      </div>
+
+      ${achieved.length ? `
+        <div class="milestone-row" style="margin-top:10px;">
+          ${achieved.slice(0, 4).map((m) => pill(`${m.title} · ${m.detail}`)).join("")}
+        </div>
+      ` : `
+        <div style="margin-top:10px; color:var(--muted); font-size:13px;">Milestones will appear here as your order history grows.</div>
+      `}
+
+      ${nextUp.length ? `
+        <div style="margin-top:12px;">
+          <div style="font-weight:1000;">Next up</div>
+          <div class="milestone-grid" style="margin-top:10px;">
+            ${nextUp.map((m) => `
+              <div class="milestone-card">
+                <div style="font-weight:1000;">${esc(m.title)}</div>
+                <div class="milestone-sub">${esc(m.detail)}</div>
+                ${progressHtml(m.metric)}
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      ` : ""}
+    `;
+  }
+
+  const monthKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+  const monthLabel = (key) => {
+    const [y, m] = String(key || "").split("-");
+    const d = new Date(Number(y) || 0, Math.max(0, (Number(m) || 1) - 1), 1);
+    try {
+      return d.toLocaleDateString(undefined, { month: "short" });
+    } catch {
+      return key;
+    }
+  };
+
+  const lastNMonthKeys = (n = 12) => {
+    const out = [];
+    const now = new Date();
+    for (let i = n - 1; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      out.push(monthKey(d));
+    }
+    return out;
+  };
+
+  const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+
+  const svgLineChart = ({ points, labels, unitLabel = "" }) => {
+    const w = 640;
+    const h = 220;
+    const pad = 28;
+    const innerW = w - pad * 2;
+    const innerH = h - pad * 2;
+    const max = Math.max(1, ...points.map((x) => Number(x) || 0));
+    const min = 0;
+    const xFor = (i) => pad + (innerW * (points.length <= 1 ? 0 : i / (points.length - 1)));
+    const yFor = (v) => pad + innerH - ((Number(v) || 0) - min) / (max - min) * innerH;
+
+    const poly = points
+      .map((v, i) => `${xFor(i).toFixed(1)},${yFor(v).toFixed(1)}`)
+      .join(" ");
+    const area = `${pad},${pad + innerH} ${poly} ${pad + innerW},${pad + innerH}`;
+
+    const lastLabel = labels[labels.length - 1] || "";
+    const lastValue = points[points.length - 1] || 0;
+
+    return `
+      <svg class="chart-svg" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(unitLabel)} over time">
+        <line class="chart-axis" x1="${pad}" y1="${pad + innerH}" x2="${pad + innerW}" y2="${pad + innerH}"></line>
+        <path class="chart-area" d="M ${area} Z"></path>
+        <polyline class="chart-line" points="${poly}"></polyline>
+        ${points
+          .map((v, i) => `<circle class="chart-dot" cx="${xFor(i).toFixed(1)}" cy="${yFor(v).toFixed(1)}" r="${i === points.length - 1 ? 5 : 3}"></circle>`)
+          .join("")}
+        <text class="chart-label" x="${pad}" y="${pad - 8}">${esc(unitLabel)}</text>
+        <text class="chart-label" x="${pad + innerW}" y="${pad - 8}" text-anchor="end">${esc(String(lastLabel))}: ${esc(String(lastValue))}</text>
+        ${labels
+          .map((l, i) => (i % 2 ? "" : `<text class="chart-label" x="${xFor(i).toFixed(1)}" y="${pad + innerH + 18}" text-anchor="middle">${esc(l)}</text>`))
+          .join("")}
+      </svg>
+    `;
+  };
+
+  const svgBarChart = ({ values, labels, unitLabel = "" }) => {
+    const w = 640;
+    const h = 220;
+    const pad = 28;
+    const innerW = w - pad * 2;
+    const innerH = h - pad * 2;
+    const max = Math.max(1, ...values.map((x) => Number(x) || 0));
+    const barW = innerW / Math.max(1, values.length);
+    const yFor = (v) => pad + innerH - (Number(v) || 0) / max * innerH;
+    return `
+      <svg class="chart-svg" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(unitLabel)} over time">
+        <line class="chart-axis" x1="${pad}" y1="${pad + innerH}" x2="${pad + innerW}" y2="${pad + innerH}"></line>
+        ${values
+          .map((v, i) => {
+            const x = pad + i * barW + barW * 0.12;
+            const bw = barW * 0.76;
+            const y = yFor(v);
+            const bh = pad + innerH - y;
+            return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" rx="8" fill="rgba(240,127,41,.25)" stroke="rgba(240,127,41,.35)"></rect>`;
+          })
+          .join("")}
+        <text class="chart-label" x="${pad}" y="${pad - 8}">${esc(unitLabel)}</text>
+        ${labels
+          .map((l, i) => (i % 2 ? "" : `<text class="chart-label" x="${(pad + i * barW + barW / 2).toFixed(1)}" y="${pad + innerH + 18}" text-anchor="middle">${esc(l)}</text>`))
+          .join("")}
+      </svg>
+    `;
+  };
+
+  const svgPieChart = ({ parts }) => {
+    // parts: [{label, value, color}]
+    const total = parts.reduce((s, p) => s + (Number(p.value) || 0), 0) || 1;
+    const cx = 110;
+    const cy = 110;
+    const r = 82;
+    const c = 2 * Math.PI * r;
+    let offset = 0;
+    const circles = parts
+      .filter((p) => (Number(p.value) || 0) > 0)
+      .map((p) => {
+        const frac = (Number(p.value) || 0) / total;
+        const dash = frac * c;
+        const out = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="transparent" stroke="${p.color}" stroke-width="20" stroke-dasharray="${dash.toFixed(2)} ${(c - dash).toFixed(2)}" stroke-dashoffset="${(-offset).toFixed(2)}"></circle>`;
+        offset += dash;
+        return out;
+      })
+      .join("");
+    return `
+      <svg class="chart-svg" viewBox="0 0 220 220" role="img" aria-label="Product category breakdown">
+        <circle cx="${cx}" cy="${cy}" r="${r}" fill="transparent" stroke="rgba(17,24,39,.08)" stroke-width="20"></circle>
+        <g transform="rotate(-90 ${cx} ${cy})">
+          ${circles}
+        </g>
+        <text class="chart-label" x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="middle">${Math.round(total).toLocaleString()}</text>
+      </svg>
+    `;
+  };
+
+  function renderAnalytics() {
+    if (!els.analyticsBody) return;
+    if (!state.orders.length) {
+      els.analyticsBody.innerHTML = "";
+      return;
+    }
+
+    const currency = String(state.orders[0]?.currency || "CAD").toUpperCase();
+    const totalOrders = state.orders.length;
+    const totalSpent = state.orders.reduce((s, o) => s + Number(o.totalCents || 0), 0);
+    const avgOrderCents = totalOrders ? Math.round(totalSpent / totalOrders) : 0;
+
+    const year = new Date().getFullYear();
+    const yearStart = new Date(year, 0, 1).getTime();
+    const ordersThisYear = state.orders.filter((o) => new Date(o.createdAt).getTime() >= yearStart);
+
+    // Monthly spend + frequency (last 12 months)
+    const keys = lastNMonthKeys(12);
+    const spendByMonth = new Map(keys.map((k) => [k, 0]));
+    const countByMonth = new Map(keys.map((k) => [k, 0]));
+    state.orders.forEach((o) => {
+      const d = new Date(o.createdAt);
+      const k = monthKey(d);
+      if (!spendByMonth.has(k)) return;
+      spendByMonth.set(k, (spendByMonth.get(k) || 0) + Number(o.totalCents || 0));
+      countByMonth.set(k, (countByMonth.get(k) || 0) + 1);
+    });
+    const spendPoints = keys.map((k) => Math.round((spendByMonth.get(k) || 0) / 100));
+    const freqPoints = keys.map((k) => countByMonth.get(k) || 0);
+    const labels = keys.map(monthLabel);
+
+    // Category breakdown (spend)
+    const catSpend = new Map();
+    const addCat = (cat, cents) => catSpend.set(cat, (catSpend.get(cat) || 0) + cents);
+    state.orders.forEach((o) => {
+      (o.items || []).forEach((it) => {
+        const id = String(it.id || "");
+        const p = state.productsById.get(id);
+        const cat = String(p?.category || "Other") || "Other";
+        const line = (Number(it.priceCents || 0) * Number(it.qty || 0));
+        addCat(cat, line);
+      });
+    });
+    const canonical = (cat) => {
+      const c = String(cat || "");
+      if (/garment/i.test(c)) return "Garment Bags";
+      if (/hanger/i.test(c)) return "Hangers";
+      if (/poly/i.test(c)) return "Polybags";
+      if (/wrap/i.test(c)) return "Wraps";
+      if (/rack/i.test(c)) return "Racks";
+      return "Other";
+    };
+    const grouped = new Map();
+    Array.from(catSpend.entries()).forEach(([cat, cents]) => {
+      const k = canonical(cat);
+      grouped.set(k, (grouped.get(k) || 0) + cents);
+    });
+    const partsBase = Array.from(grouped.entries())
+      .map(([label, cents]) => ({ label, value: Math.round(cents / 100) }))
+      .sort((a, b) => b.value - a.value);
+    const palette = ["#f07f29", "#3b82f6", "#10b981", "#8b5cf6", "#f59e0b", "#64748b"];
+    const parts = partsBase.slice(0, 6).map((p, i) => ({ ...p, color: palette[i] }));
+    const totalParts = parts.reduce((s, p) => s + p.value, 0) || 1;
+
+    // Top product this year (by qty)
+    const qtyById = new Map();
+    ordersThisYear.forEach((o) => {
+      (o.items || []).forEach((it) => {
+        const id = String(it.id || "");
+        if (!id) return;
+        qtyById.set(id, (qtyById.get(id) || 0) + (Number(it.qty) || 0));
+      });
+    });
+    const topId = Array.from(qtyById.entries()).sort((a, b) => b[1] - a[1])[0]?.[0] || "";
+    const topQty = topId ? qtyById.get(topId) || 0 : 0;
+    const topName = topId ? (state.productsById.get(topId)?.name || (ordersThisYear.flatMap((o) => o.items || []).find((it) => String(it.id) === topId)?.name) || "Item") : "-";
+
+    // Savings vs retail (priceCentsBase vs priceCents)
+    const savedLifetime = state.orders.reduce((s, o) => s + moneySavedCentsFromOrder(o), 0);
+    const savedThisYear = ordersThisYear.reduce((s, o) => s + moneySavedCentsFromOrder(o), 0);
+
+    const avgItemsPerOrder = totalOrders
+      ? Math.round(state.orders.reduce((s, o) => s + (o?.items || []).reduce((t, it) => t + (Number(it.qty) || 0), 0), 0) / totalOrders)
+      : 0;
+
+    els.analyticsBody.innerHTML = `
+      <div class="analytics-grid">
+        <div class="chart-card">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title">Monthly spending</div>
+              <div class="chart-sub">Last 12 months (${esc(currency)})</div>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            ${svgLineChart({ points: spendPoints, labels, unitLabel: `Spend (${currency})` })}
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title">Order frequency</div>
+              <div class="chart-sub">Orders per month (last 12 months)</div>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            ${svgBarChart({ values: freqPoints, labels, unitLabel: "Orders" })}
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title">Product breakdown</div>
+              <div class="chart-sub">Share of spend by category</div>
+            </div>
+          </div>
+          <div class="chart-wrap" style="display:flex; gap:14px; align-items:center; flex-wrap:wrap;">
+            <div style="width:220px; max-width:220px;">
+              ${svgPieChart({ parts })}
+            </div>
+            <div class="chart-legend" style="flex:1 1 240px;">
+              ${parts
+                .map((p) => {
+                  const pct = Math.round((p.value / totalParts) * 100);
+                  return `
+                    <div class="legend-item">
+                      <span class="legend-swatch" style="background:${p.color};"></span>
+                      <span>${esc(p.label)}: ${pct}%</span>
+                    </div>
+                  `;
+                })
+                .join("")}
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title">Smart insights</div>
+              <div class="chart-sub">Based on your orders</div>
+            </div>
+          </div>
+          <div class="insights-list">
+            <div class="insight-row">
+              <span class="insight-k">Average per order</span>
+              <span class="insight-v">${money(avgOrderCents, currency)}</span>
+            </div>
+            <div class="insight-row">
+              <span class="insight-k">Average items per order</span>
+              <span class="insight-v">${avgItemsPerOrder}</span>
+            </div>
+            <div class="insight-row">
+              <span class="insight-k">Top product (${year})</span>
+              <span class="insight-v">${esc(topName)} · ${topQty} units</span>
+            </div>
+            <div class="insight-row">
+              <span class="insight-k">Saved vs retail (lifetime)</span>
+              <span class="insight-v">${money(savedLifetime, currency)}</span>
+            </div>
+            <div class="insight-row">
+              <span class="insight-k">Saved vs retail (${year})</span>
+              <span class="insight-v">${money(savedThisYear, currency)}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -301,6 +837,7 @@
     }
 
     renderRewards();
+    renderAnalytics();
   }
 
   function renderOrders() {
@@ -432,6 +969,7 @@
       <div class="profile-item"><div class="k">Province</div><div class="v">${esc(province || "-")}</div></div>
       <div class="profile-item"><div class="k">Member status</div><div class="v">&#10003; Verified Power Poly Member</div></div>
     `;
+    renderMilestones();
   }
 
   function exportOrdersCsv() {
@@ -833,6 +1371,15 @@
       renderFavorites();
       renderFrequent();
       renderOrders();
+      try {
+        const favorites = window.PPS?.getFavorites?.() || [];
+        const frequent = computeFrequent();
+        window.PPS_NOTIFS?.refreshFromAccount?.({ session, orders: state.orders, products: state.products, favorites, frequent });
+        window.PPS_NOTIFS?.initAccountCenter?.();
+        window.PPS_WISHLISTS?.setContext?.({ orders: state.orders, products: state.products });
+      } catch {
+        // ignore
+      }
     } catch {
       // ignore
     }
@@ -861,6 +1408,15 @@
       renderOrders();
       renderFrequent();
       renderReports();
+      try {
+        const favorites = window.PPS?.getFavorites?.() || [];
+        const frequent = computeFrequent();
+        window.PPS_NOTIFS?.refreshFromAccount?.({ session, orders: state.orders, products: state.products, favorites, frequent });
+        window.PPS_NOTIFS?.initAccountCenter?.();
+        window.PPS_WISHLISTS?.setContext?.({ orders: state.orders, products: state.products });
+      } catch {
+        // ignore
+      }
     } catch {
       if (els.ordersMsg) els.ordersMsg.textContent = window.PPS_I18N?.t("account.status.unreachable") || "Server unreachable. Start the backend to load your orders.";
       renderDashboard();
@@ -900,6 +1456,79 @@
 
     const payDel = e.target.closest("[data-pay-del]");
     if (payDel) return deletePayment(payDel.getAttribute("data-pay-del"));
+
+    const redeemBtn = e.target.closest("[data-reward-redeem]");
+    if (redeemBtn) {
+      const id = redeemBtn.getAttribute("data-reward-redeem") || "";
+      const { balance, ledger } = computeRewards();
+      const catalog = {
+        disc_5: { title: "$5 off your next order", pointsCost: 500, valueCents: 500, kind: "discount" },
+        disc_10: { title: "$10 off your next order", pointsCost: 1000, valueCents: 1000, kind: "discount" },
+        disc_25: { title: "$25 off your next order", pointsCost: 2500, valueCents: 2500, kind: "discount" },
+        free_20: { title: "Free product voucher (up to $20)", pointsCost: 2000, valueCents: 2000, kind: "free_product" }
+      };
+      const item = catalog[id];
+      if (!item) return;
+      if (balance < item.pointsCost) return;
+
+      const code = makeRewardCode();
+      const next = {
+        id: `rw_${Date.now()}`,
+        code,
+        kind: item.kind,
+        title: item.title,
+        pointsCost: item.pointsCost,
+        valueCents: item.valueCents,
+        createdAt: new Date().toISOString(),
+        usedAt: ""
+      };
+      const updated = saveRewardsLedger({ redemptions: [next, ...(ledger?.redemptions || [])] });
+      toast(`Redeemed: ${item.title}. Code: ${code}`);
+      try{
+        window.PPS_ACTIVITY?.record?.("reward_redeemed", { title: item.title, code, pointsCost: item.pointsCost });
+      }catch{
+        // ignore
+      }
+      renderRewards();
+      return;
+    }
+
+    const copyBtn = e.target.closest("[data-reward-copy]");
+    if (copyBtn) {
+      const code = copyBtn.getAttribute("data-reward-copy") || "";
+      if (!code) return;
+      (async () => {
+        try {
+          await navigator.clipboard.writeText(code);
+          toast("Reward code copied.");
+        } catch {
+          toast("Could not copy (clipboard blocked).");
+        }
+      })();
+      return;
+    }
+
+    const usedBtn = e.target.closest("[data-reward-mark-used]");
+    if (usedBtn) {
+      const code = usedBtn.getAttribute("data-reward-mark-used") || "";
+      if (!code) return;
+      const ledger = getRewardsLedger();
+      const next = (ledger.redemptions || []).map((r) => {
+        if (!r) return r;
+        if (String(r.code || "") !== String(code)) return r;
+        if (r.usedAt) return r;
+        return { ...r, usedAt: new Date().toISOString() };
+      });
+      saveRewardsLedger({ redemptions: next });
+      toast("Reward marked used.");
+      try{
+        window.PPS_ACTIVITY?.record?.("reward_used", { code });
+      }catch{
+        // ignore
+      }
+      renderRewards();
+      return;
+    }
   });
 
   window.addEventListener("hashchange", setActiveNavByHash);
@@ -923,6 +1552,11 @@
       els.addAddressForm.reset();
       delete els.addAddressForm.dataset.editId;
       toast("Address saved.");
+      try{
+        window.PPS_ACTIVITY?.record?.("address_saved", { label: addr.label || "" });
+      }catch{
+        // ignore
+      }
     });
   }
 
@@ -937,6 +1571,11 @@
       addPayment({ id: `pm_${Date.now()}`, label, brand, last4, exp });
       els.addPaymentForm.reset();
       toast("Payment method saved.");
+      try{
+        window.PPS_ACTIVITY?.record?.("payment_saved", { label: label || (brand ? `${brand} ••••${last4}` : "") });
+      }catch{
+        // ignore
+      }
     });
   }
 
@@ -944,6 +1583,22 @@
     els.settingsForm.addEventListener("submit", (e) => {
       e.preventDefault();
       saveSettingsFromForm();
+      try{
+        window.PPS_ACTIVITY?.record?.("settings_update", {});
+      }catch{
+        // ignore
+      }
+    });
+  }
+
+  if (els.milestonesPrefsForm) {
+    els.milestonesPrefsForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const show = Boolean(els.milestonesPrefsForm.querySelector('[name="showMilestones"]')?.checked);
+      saveMilestonesPrefs({ showMilestones: show });
+      toast("Milestones settings saved.");
+      renderMilestones();
+      renderMilestonesPrefs();
     });
   }
 
@@ -957,6 +1612,11 @@
       } catch {
         // ignore
       }
+      try{
+        window.PPS_ACTIVITY?.record?.("logout", {});
+      }catch{
+        // ignore
+      }
       window.PPS?.clearSession?.();
       window.location.href = "./login.html";
     });
@@ -965,6 +1625,7 @@
   renderAddresses();
   renderPayments();
   renderSettings();
+  renderMilestonesPrefs();
   renderReports();
 
   loadProducts();

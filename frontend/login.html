@@ -91,10 +91,11 @@
   </div>
 
   <script src="./config.js"></script>
-
+ 
   <script src="./js/store.js"></script>
   <script src="./js/i18n.js"></script>
   <script src="./js/ui.js"></script>
+  <script src="./js/activity.js"></script>
   <script>
     document.getElementById("y").textContent = new Date().getFullYear();
     PPS.updateCartBadge();
@@ -150,6 +151,11 @@
             province: String(profile?.province || ""),
             expiresAt: data.expiresAt
           });
+          try{
+            window.PPS_ACTIVITY?.record?.("login", { email: lowerEmail });
+          }catch(err){
+            // ignore
+          }
           window.location.href = "./account.html";
         }else{
           const normalized = normalizeLoginStatus(data?.message);
