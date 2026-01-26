@@ -16,3 +16,8 @@ backend/db.json
 .DS_Store
 Thumbs.db
 
+# Local recovery folder (do not commit)
+.git_old/
+.git-work/
+.git_blocked/
+

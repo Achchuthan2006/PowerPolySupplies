@@ -60,30 +60,59 @@
       <p data-i18n="login.subtitle">Log in to view your orders and check out faster.</p>
     </section>
 
-    <section class="grid auth-grid" style="grid-template-columns: 1fr 1fr; gap:16px; margin-top:16px;">
-      <div class="card fade-in" style="padding:18px;">
-        <h2 style="margin:0 0 10px;" data-i18n="login.form.title">Log in</h2>
-        <form class="grid" id="loginForm" style="gap:10px;">
+    <section class="auth-panel fade-in">
+      <div class="auth-promo">
+        <div class="promo-tagline">PowerPolySupplies.com</div>
+        <h2>Canada-wide B2B sourcing</h2>
+        <p>
+          Sign in to reorder faster, save multiple delivery addresses, and manage invoices with full visibility.
+        </p>
+        <ul class="promo-list">
+          <li>
+            <span class="promo-icon promo-icon-van" aria-hidden="true"></span>
+            <span>Order protection & same-day quotes</span>
+          </li>
+          <li>
+            <span class="promo-icon promo-icon-bag" aria-hidden="true"></span>
+            <span>Multi-address delivery ready</span>
+          </li>
+          <li>
+            <span class="promo-icon promo-icon-box" aria-hidden="true"></span>
+            <span>Canada-wide inventory, bulk rates</span>
+          </li>
+        </ul>
+      </div>
+      <div class="auth-card">
+        <h2>Sign in or create account</h2>
+        <div class="social-login">
+          <button class="social-btn google" type="button">
+            <span class="social-icon google-icon" aria-hidden="true"></span>
+            <span>Continue with Google</span>
+          </button>
+          <button class="social-btn facebook" type="button">
+            <span class="social-icon facebook-icon" aria-hidden="true"></span>
+            <span>Continue with Facebook</span>
+          </button>
+        </div>
+        <div class="divider"><span>OR</span></div>
+        <form id="loginForm" class="auth-form">
+          <label class="input-label" for="loginEmail">Email</label>
           <input class="input" type="email" placeholder="Email" data-i18n-placeholder="login.form.email" required id="loginEmail">
+          <label class="input-label" for="loginPassword">Password</label>
           <div class="password-field">
             <input class="input" type="password" placeholder="Password" data-i18n-placeholder="login.form.password" required id="loginPassword">
             <button class="toggle-visibility hidden" type="button" aria-label="Show password" data-i18n-title="signup.password.show" data-toggle="loginPassword">
               <span class="eye"></span>
             </button>
           </div>
-          <button class="btn btn-primary" type="button" id="loginBtn" data-i18n="login.form.submit">Log in</button>
-          <div id="loginStatus" style="color:var(--muted); font-size:13px;"></div>
+          <button class="btn btn-primary btn-full" type="button" id="loginBtn" data-i18n="login.form.submit">Continue</button>
+          <div id="loginStatus" class="status muted"></div>
+          <p class="auth-note">Need help? <a href="./contact.html">Ask our support team</a></p>
+          <div class="auth-actions">
+            <a class="btn btn-outline" href="./signup.html" data-i18n="login.create.signup">Create an account</a>
+            <a class="btn" href="./products.html" data-i18n="login.create.browse">Browse products</a>
+          </div>
         </form>
-      </div>
-
-      <div class="card fade-in" style="padding:18px;">
-        <h2 style="margin:0 0 10px;" data-i18n="login.create.title">Create account</h2>
-        <p style="margin:0; color:var(--muted); line-height:1.5;" data-i18n="login.create.desc">Create an account to save your details, view orders, and check out faster.</p>
-        <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
-          <a class="btn btn-outline" href="./signup.html" data-i18n="login.create.signup">Sign up</a>
-          <a class="btn" href="./products.html" data-i18n="login.create.browse">Browse products</a>
-        </div>
-        <div style="color:var(--muted); font-size:13px; margin-top:12px;" data-i18n="login.create.note">(Signup flows live on the next page.)</div>
       </div>
     </section>
 
