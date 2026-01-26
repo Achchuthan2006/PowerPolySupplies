@@ -3974,11 +3974,26 @@ select.input option:hover{
     padding-left:14px;
     padding-right:14px;
   }
-  .navbar-inner{ flex-wrap:wrap; gap:8px; }
+  .navbar-inner{
+    flex-wrap:nowrap;
+    gap:10px;
+  }
+  .brand{
+    flex:1;
+    min-width:0;
+  }
+  .brand-text{
+    min-width:0;
+  }
+  .menu-btn{
+    flex:0 0 auto;
+    padding:10px 14px;
+    border-radius:14px;
+  }
   .brand img{ height:52px; }
   .brand-title{ font-size:16px; }
   .brand-tagline{ font-size:10px; }
-  .hero{ padding:22px; border-radius:20px; }
+  .hero{ padding:18px; border-radius:20px; }
   .hero-logo{ width:84px; height:84px; }
   .hero h1{ font-size:28px; }
   .hero p{ font-size:14px; }
