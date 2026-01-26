@@ -209,6 +209,8 @@ a{color:inherit;}
 .promo-strip .container{
   padding-left:18px;
   padding-right:18px;
+  padding-top:0;
+  padding-bottom:0;
   transform: translateX(-14%);
 }
 
@@ -3233,9 +3235,14 @@ select.input option:hover{
 }
 
 @media (max-width: 860px){
+  .promo-strip{
+    height:auto !important;
+    min-height:0 !important;
+    max-height:none !important;
+  }
   .promo-strip .container{
-    padding-top:10px;
-    padding-bottom:10px;
+    padding-top:8px !important;
+    padding-bottom:8px !important;
   }
   .promo-strip{
     font-size:11px;
@@ -3244,6 +3251,7 @@ select.input option:hover{
     flex-direction:column;
     align-items:flex-start;
     gap:4px;
+    justify-content:flex-start;
   }
   .promo-right{
     margin-left:0;
@@ -3952,11 +3960,12 @@ select.input option:hover{
     align-items:flex-start;
     text-align:left;
     gap:6px;
+    justify-content:flex-start;
   }
   .promo-right{
     margin-left:0;
     width:100%;
-    text-align:right;
+    text-align:left;
     transform:none;
   }
   .promo-strip .container,
