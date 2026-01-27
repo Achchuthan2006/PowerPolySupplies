@@ -204,17 +204,11 @@ a{color:inherit;}
 .navbar .container{
   padding-left:18px;
   padding-right:18px;
-  --pps-nav-shift-x: 0;
+  --pps-nav-shift-x: -4%;
   transform: translateX(var(--pps-nav-shift-x));
 }
 .navbar .container{
   will-change: transform;
-}
-html[lang="en"] .navbar .container{
-  --pps-nav-shift-x: -3%;
-}
-html[lang="ta"] .navbar .container{
-  --pps-nav-shift-x: -4%;
 }
 .promo-strip .container{
   padding-left:18px;
