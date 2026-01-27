@@ -221,7 +221,7 @@ a{color:inherit;}
   justify-content:flex-start;
   gap:10px;
   position:relative;
-  flex-wrap:wrap;
+  flex-wrap:nowrap;
 }
 
 html[lang="ta"] .navbar-inner,
@@ -275,11 +275,21 @@ html[lang="es"] .navbar .container{
   display:flex;
   gap:8px;
   align-items:center;
-  flex-wrap:wrap;
-  white-space:normal;
+  flex-wrap:nowrap;
+  white-space:nowrap;
   flex:1;
   justify-content:flex-start;
   min-width:0;
+}
+
+/* Desktop-only: shift navbar left so everything fits on one line */
+@media (min-width: 861px){
+  .navbar .container{
+    transform: translateX(-5%);
+  }
+  .nav-search{
+    flex: 0 1 260px;
+  }
 }
 
 @media (max-width: 1240px){
