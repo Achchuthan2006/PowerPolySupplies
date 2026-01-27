@@ -46,8 +46,8 @@
           <a href="./login.html"><span class="nav-icon user-icon" aria-hidden="true"></span><span data-i18n="nav.account">Account</span></a>
           <a href="./cart.html"><span class="nav-icon cart-icon" aria-hidden="true"></span><span data-i18n="nav.cart">Cart</span> <span class="badge" data-cart-badge>0</span></a>
           <form class="search-bar nav-search" action="./products.html" method="get" role="search">
-            <input type="search" name="q" placeholder="Search" aria-label="Search products">
-            <button type="submit">Search</button>
+            <input type="search" name="q" placeholder="Search" aria-label="Search products" data-i18n-placeholder="nav.search_placeholder">
+            <button type="submit" data-i18n="nav.search_button">Search</button>
           </form>
 
         </nav>
@@ -178,6 +178,102 @@
       </div>
     </section>
 
+    <section class="card fade-in testimonials" style="padding:18px; margin-top:16px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
+        <div>
+          <h2 style="margin:0;">What customers say</h2>
+          <div style="color:var(--muted); font-size:13px; margin-top:4px;">Real conversations, fast replies, and supply that stays consistent.</div>
+        </div>
+        <a class="btn btn-outline btn-sm" href="./feedback.html">Leave feedback</a>
+      </div>
+
+      <div class="testimonials-grid" style="margin-top:14px;">
+        <figure class="testimonial">
+          <div class="testimonial-stars" aria-label="5 out of 5 stars" title="5 out of 5">
+            <span aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+          </div>
+          <blockquote class="testimonial-quote">
+            &ldquo;I have always loved dealing with Andrew from PowerPolySupplies. This is a fantastic company!&rdquo;
+          </blockquote>
+          <figcaption class="testimonial-meta">
+            <span class="testimonial-name">Tony Stephen</span>
+            <span class="testimonial-org">Finchdale Cleaners</span>
+          </figcaption>
+        </figure>
+
+        <figure class="testimonial">
+          <div class="testimonial-stars" aria-label="5 out of 5 stars" title="5 out of 5">
+            <span aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+          </div>
+          <blockquote class="testimonial-quote">
+            &ldquo;Angel helped us pick the right garment bag sizes in minutes. Orders are always smooth and on time.&rdquo;
+          </blockquote>
+          <figcaption class="testimonial-meta">
+            <span class="testimonial-name">Sonia Patel</span>
+            <span class="testimonial-org">Downtown Cleaners</span>
+          </figcaption>
+        </figure>
+
+        <figure class="testimonial">
+          <div class="testimonial-stars" aria-label="5 out of 5 stars" title="5 out of 5">
+            <span aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+          </div>
+          <blockquote class="testimonial-quote">
+            &ldquo;Achchu always answers fast and makes sure we get the hanger style we need. Great service.&rdquo;
+          </blockquote>
+          <figcaption class="testimonial-meta">
+            <span class="testimonial-name">Marco R.</span>
+            <span class="testimonial-org">Northside Laundry</span>
+          </figcaption>
+        </figure>
+      </div>
+
+      <div class="team-strip" style="margin-top:16px;">
+        <div class="team-strip-head">
+          <h3 style="margin:0;">People behind Power Poly</h3>
+          <div class="team-strip-sub">Talk to a real person. Get the right size, fast.</div>
+        </div>
+
+        <div class="team-grid" style="margin-top:12px;">
+          <div class="team-card">
+            <div class="team-avatar" aria-hidden="true">AG</div>
+            <div class="team-main">
+              <div class="team-name">Angel</div>
+              <div class="team-role">Sales & customer care</div>
+              <div class="team-actions">
+                <a class="btn btn-outline btn-sm" href="tel:+16475238645">Call</a>
+                <a class="btn btn-primary btn-sm" href="./contact.html">Message</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="team-card">
+            <div class="team-avatar" aria-hidden="true">AW</div>
+            <div class="team-main">
+              <div class="team-name">Andrew</div>
+              <div class="team-role">Sales & product guidance</div>
+              <div class="team-actions">
+                <a class="btn btn-outline btn-sm" href="tel:+14374256638">Call</a>
+                <a class="btn btn-primary btn-sm" href="./contact.html">Message</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="team-card">
+            <div class="team-avatar" aria-hidden="true">AC</div>
+            <div class="team-main">
+              <div class="team-name">Achchu</div>
+              <div class="team-role">Orders & fast support</div>
+              <div class="team-actions">
+                <a class="btn btn-outline btn-sm" href="tel:+16475704878">Call</a>
+                <a class="btn btn-primary btn-sm" href="./contact.html">Message</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <div class="support-band">
         <div class="support-item">
           <div class="support-label" data-i18n="index.support.help">Help line</div>
@@ -195,12 +291,13 @@
       </div>
     </div>
 
-    <div class="footer">&copy; <span id="y"></span> Power Poly Supplies. Power your packaging.</div>
+    <div class="footer">&copy; <span id="y"></span> <span data-i18n="footer.short">Power Poly Supplies. Power your packaging.</span></div>
   </div>
 
   <script src="./config.js"></script>
 
   <script src="./js/store.js"></script>
+  <script src="./js/notifications.js"></script>
   <script src="./js/i18n.js"></script>
   <script src="./js/ui.js"></script>
   <script>

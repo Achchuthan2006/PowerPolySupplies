@@ -44,8 +44,8 @@
           <a href="./login.html"><span class="nav-icon user-icon" aria-hidden="true"></span><span data-i18n="nav.account">Account</span></a>
           <a href="./cart.html"><span class="nav-icon cart-icon" aria-hidden="true"></span><span data-i18n="nav.cart">Cart</span> <span class="badge" data-cart-badge>0</span></a>
           <form class="search-bar nav-search" action="./products.html" method="get" role="search">
-            <input type="search" name="q" placeholder="Search" aria-label="Search products">
-            <button type="submit">Search</button>
+            <input type="search" name="q" placeholder="Search" aria-label="Search products" data-i18n-placeholder="nav.search_placeholder">
+            <button type="submit" data-i18n="nav.search_button">Search</button>
           </form>
 
         </nav>
@@ -60,7 +60,7 @@
       <p data-i18n="checkout.subtitle">Confirm your order details. Choose to pay online or place the order now and pay later.</p>
     </section>
 
-    <section class="grid" style="grid-template-columns: 1.1fr .9fr; gap:16px; margin-top:16px;">
+    <section class="grid checkout-grid" style="grid-template-columns: 1.1fr .9fr; gap:16px; margin-top:16px;">
       <div class="card fade-in" style="padding:18px;">
       <h2 style="margin:0 0 10px;" data-i18n="checkout.billing.title">Billing & Delivery</h2>
       <form id="form" class="grid" style="gap:10px;">
@@ -154,12 +154,13 @@
       </div>
     </section>
 
-    <div class="footer">&copy; <span id="y"></span> Power Poly Supplies. Power your packaging.</div>
+    <div class="footer">&copy; <span id="y"></span> <span data-i18n="footer.short">Power Poly Supplies. Power your packaging.</span></div>
   </div>
 
   <script src="./config.js"></script>
 
   <script src="./js/store.js"></script>
+  <script src="./js/notifications.js"></script>
   <script src="./js/i18n.js"></script>
   <script src="./js/ui.js"></script>
   <script src="./js/activity.js"></script>

@@ -44,8 +44,8 @@
           <a href="./login.html"><span class="nav-icon user-icon" aria-hidden="true"></span><span data-i18n="nav.account">Account</span></a>
           <a href="./cart.html"><span class="nav-icon cart-icon" aria-hidden="true"></span><span data-i18n="nav.cart">Cart</span> <span class="badge" data-cart-badge>0</span></a>
           <form class="search-bar nav-search" action="./products.html" method="get" role="search">
-            <input type="search" name="q" placeholder="Search" aria-label="Search products">
-            <button type="submit">Search</button>
+            <input type="search" name="q" placeholder="Search" aria-label="Search products" data-i18n-placeholder="nav.search_placeholder">
+            <button type="submit" data-i18n="nav.search_button">Search</button>
           </form>
 
         </nav>
@@ -85,11 +85,11 @@
       <div class="auth-card">
         <h2>Sign in or create account</h2>
         <div class="social-login">
-          <button class="social-btn google" type="button">
+          <button class="social-btn google" type="button" data-oauth-provider="google" disabled>
             <span class="social-icon google-icon" aria-hidden="true"></span>
             <span>Continue with Google</span>
           </button>
-          <button class="social-btn facebook" type="button">
+          <button class="social-btn facebook" type="button" data-oauth-provider="facebook" disabled>
             <span class="social-icon facebook-icon" aria-hidden="true"></span>
             <span>Continue with Facebook</span>
           </button>
@@ -116,12 +116,13 @@
       </div>
     </section>
 
-    <div class="footer">&copy; <span id="y"></span> Power Poly Supplies. Power your packaging.</div>
+    <div class="footer">&copy; <span id="y"></span> <span data-i18n="footer.short">Power Poly Supplies. Power your packaging.</span></div>
   </div>
 
   <script src="./config.js"></script>
  
   <script src="./js/store.js"></script>
+  <script src="./js/notifications.js"></script>
   <script src="./js/i18n.js"></script>
   <script src="./js/ui.js"></script>
   <script src="./js/activity.js"></script>
@@ -196,6 +197,47 @@
         loginBtn.disabled = false;
       }
     }
+
+    function getSafeNextUrl(){
+      try{
+        const stored = String(sessionStorage.getItem("pps_login_next") || "").trim();
+        if(stored) return stored;
+      }catch(err){
+        // ignore
+      }
+      return "./account.html";
+    }
+
+    function startOauth(provider){
+      const next = getSafeNextUrl();
+      window.location.href = `${PPS.API_BASE}/api/auth/oauth/${encodeURIComponent(provider)}/start?next=${encodeURIComponent(next)}`;
+    }
+
+    async function refreshOauthButtons(){
+      const googleBtn = document.querySelector('[data-oauth-provider="google"]');
+      const facebookBtn = document.querySelector('[data-oauth-provider="facebook"]');
+      if(googleBtn) googleBtn.disabled = true;
+      if(facebookBtn) facebookBtn.disabled = true;
+      try{
+        const res = await fetch(`${PPS.API_BASE}/api/auth/oauth/status`, { cache:"no-store" });
+        const data = await res.json().catch(()=> ({}));
+        const googleOk = !!data?.providers?.google?.configured;
+        const fbOk = !!data?.providers?.facebook?.configured;
+        if(googleBtn) googleBtn.disabled = !googleOk;
+        if(facebookBtn) facebookBtn.disabled = !fbOk;
+      }catch(err){
+        // keep disabled on failure
+      }
+    }
+
+    document.querySelectorAll("[data-oauth-provider]").forEach((btn)=>{
+      btn.addEventListener("click", ()=>{
+        const provider = btn.getAttribute("data-oauth-provider") || "";
+        if(!provider) return;
+        startOauth(provider);
+      });
+    });
+    refreshOauthButtons();
 
     function setToggleLabel(btn, fieldType){
       const show = window.PPS_I18N?.t("signup.password.show") || "Show password";

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Resources | Power Poly Supplies</title>
+  <title data-i18n="resources.page_title">Resources | Power Poly Supplies</title>
   <meta name="description" content="Practical guides for dry cleaners, laundromats, and retailers: garment bag sizing, poly thickness, and monthly packaging planning."/>
   <link rel="stylesheet" href="./css/styles.css?v=20260126"/>
   <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
@@ -45,8 +45,8 @@
           <a href="./login.html"><span class="nav-icon user-icon" aria-hidden="true"></span><span data-i18n="nav.account">Account</span></a>
           <a href="./cart.html"><span class="nav-icon cart-icon" aria-hidden="true"></span><span data-i18n="nav.cart">Cart</span> <span class="badge" data-cart-badge>0</span></a>
           <form class="search-bar nav-search" action="./products.html" method="get" role="search">
-            <input type="search" name="q" placeholder="Search" aria-label="Search products">
-            <button type="submit">Search</button>
+            <input type="search" name="q" placeholder="Search" aria-label="Search products" data-i18n-placeholder="nav.search_placeholder">
+            <button type="submit" data-i18n="nav.search_button">Search</button>
           </form>
         </nav>
       </div>
@@ -55,35 +55,35 @@
 
   <div class="container page">
     <section class="hero fade-in">
-      <p style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);">Resources</p>
-      <h1>Guides for dry cleaners & retailers</h1>
-      <p style="max-width:72ch;">Practical sizing, thickness, and planning tips to help you buy the right packaging the first time.</p>
+      <p style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);" data-i18n="resources.hero.kicker">Resources</p>
+      <h1 data-i18n="resources.hero.title">Guides for dry cleaners & retailers</h1>
+      <p style="max-width:72ch;" data-i18n="resources.hero.subtitle">Practical sizing, thickness, and planning tips to help you buy the right packaging the first time.</p>
     </section>
 
     <section class="card fade-in" style="padding:18px; margin-top:16px;">
       <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
         <div>
-          <h2 style="margin:0;">Quick links</h2>
-          <div style="color:var(--muted); font-size:13px; margin-top:4px;">Jump to a guide, or share the link with your team.</div>
+          <h2 style="margin:0;" data-i18n="resources.quick.title">Quick links</h2>
+          <div style="color:var(--muted); font-size:13px; margin-top:4px;" data-i18n="resources.quick.desc">Jump to a guide, or share the link with your team.</div>
         </div>
-        <a class="btn btn-outline btn-sm" href="./products.html">Browse products</a>
+        <a class="btn btn-outline btn-sm" href="./products.html" data-i18n="resources.quick.browse">Browse products</a>
       </div>
 
       <div class="resource-toc" style="margin-top:12px;">
         <a class="card card-link resource-card" href="#guide-garment-bag-sizes">
-          <div class="resource-kicker">Guide</div>
-          <div class="resource-title">Choosing garment bag sizes</div>
-          <div class="resource-desc">How to measure, pick width/length, and avoid returns.</div>
+          <div class="resource-kicker" data-i18n="resources.label.guide">Guide</div>
+          <div class="resource-title" data-i18n="resources.toc.garment.title">Choosing garment bag sizes</div>
+          <div class="resource-desc" data-i18n="resources.toc.garment.desc">How to measure, pick width/length, and avoid returns.</div>
         </a>
         <a class="card card-link resource-card" href="#heavy-vs-extra-heavy">
-          <div class="resource-kicker">Guide</div>
-          <div class="resource-title">Heavy vs Extra Heavy thickness</div>
-          <div class="resource-desc">When to go thicker (and when not to).</div>
+          <div class="resource-kicker" data-i18n="resources.label.guide">Guide</div>
+          <div class="resource-title" data-i18n="resources.toc.thickness.title">Heavy vs Extra Heavy thickness</div>
+          <div class="resource-desc" data-i18n="resources.toc.thickness.desc">When to go thicker (and when not to).</div>
         </a>
         <a class="card card-link resource-card" href="#dry-cleaner-packaging-usage">
-          <div class="resource-kicker">Planner</div>
-          <div class="resource-title">Monthly packaging usage</div>
-          <div class="resource-desc">A simple way to estimate how much you’ll use.</div>
+          <div class="resource-kicker" data-i18n="resources.label.planner">Planner</div>
+          <div class="resource-title" data-i18n="resources.toc.planner.title">Monthly packaging usage</div>
+          <div class="resource-desc" data-i18n="resources.toc.planner.desc">A simple way to estimate how much you'll use.</div>
         </a>
       </div>
     </section>
@@ -91,32 +91,32 @@
     <section id="guide-garment-bag-sizes" class="card fade-in resource-article" style="padding:18px; margin-top:16px;">
       <div class="resource-article-head">
         <div>
-          <div class="count-badge count-badge-muted">Guide</div>
-          <h2 style="margin:10px 0 0;">Guide to choosing garment bag sizes</h2>
-          <div class="resource-meta">Best for: dry cleaners, alteration shops, uniform services, retailers.</div>
+          <div class="count-badge count-badge-muted" data-i18n="resources.label.guide">Guide</div>
+          <h2 style="margin:10px 0 0;" data-i18n="resources.garment.title">Guide to choosing garment bag sizes</h2>
+          <div class="resource-meta" data-i18n="resources.garment.meta">Best for: dry cleaners, alteration shops, uniform services, retailers.</div>
         </div>
-        <a class="btn btn-outline btn-sm" href="./products.html?cat=Garment%20Bags">Shop garment bags</a>
+        <a class="btn btn-outline btn-sm" href="./products.html?cat=Garment%20Bags" data-i18n="resources.garment.cta">Shop garment bags</a>
       </div>
 
       <div class="resource-prose">
-        <h3>1) Measure the garment (not the hanger)</h3>
-        <ul>
+        <h3 data-i18n="resources.garment.step1.title">1) Measure the garment (not the hanger)</h3>
+        <ul data-i18n-html="resources.garment.step1.list">
           <li><b>Width</b>: shoulder-to-shoulder at the widest point.</li>
           <li><b>Length</b>: from the top of the hanger hook area to the bottom of the garment.</li>
           <li><b>Bulk</b>: coats and layered items need extra room (gusset / wider bag).</li>
         </ul>
 
-        <h3>2) Quick sizing rules (easy to remember)</h3>
-        <ul>
-          <li><b>Bag width</b> ≈ garment width + 4–6 inches (room for the hanger + movement).</li>
-          <li><b>Bag length</b> ≈ garment length + 4–8 inches (so hems don’t press the bottom).</li>
+        <h3 data-i18n="resources.garment.step2.title">2) Quick sizing rules (easy to remember)</h3>
+        <ul data-i18n-html="resources.garment.step2.list">
+          <li><b>Bag width</b> ≈ garment width + 4-6 inches (room for the hanger + movement).</li>
+          <li><b>Bag length</b> ≈ garment length + 4-8 inches (so hems don't press the bottom).</li>
           <li><b>Gusset</b>: use gusseted bags for bulky winter coats, layered suits, or multiple items on one hanger.</li>
         </ul>
 
-        <h3>3) Common use-cases (quick reference)</h3>
+        <h3 data-i18n="resources.garment.step3.title">3) Common use-cases (quick reference)</h3>
         <div class="resource-table-wrap">
           <table class="resource-table">
-            <thead>
+            <thead data-i18n-html="resources.garment.table.head">
               <tr>
                 <th>Use-case</th>
                 <th>Typical width</th>
@@ -124,47 +124,47 @@
                 <th>Notes</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody data-i18n-html="resources.garment.table.body">
               <tr>
                 <td>Shirts / blouses</td>
-                <td>18–21"</td>
-                <td>36–40"</td>
+                <td>18-21"</td>
+                <td>36-40"</td>
                 <td>Most daily dry-cleaning volume.</td>
               </tr>
               <tr>
                 <td>Pants (folded)</td>
-                <td>18–21"</td>
-                <td>36–40"</td>
+                <td>18-21"</td>
+                <td>36-40"</td>
                 <td>Fold over hanger; shorter bags often work.</td>
               </tr>
               <tr>
                 <td>Suits / dresses</td>
-                <td>21–24"</td>
-                <td>40–54"</td>
+                <td>21-24"</td>
+                <td>40-54"</td>
                 <td>Go longer for formalwear and maxi dresses.</td>
               </tr>
               <tr>
                 <td>Coats / outerwear</td>
-                <td>24–28"</td>
-                <td>48–60"</td>
+                <td>24-28"</td>
+                <td>48-60"</td>
                 <td>Consider gusset + thicker film for transport.</td>
               </tr>
               <tr>
                 <td>Wedding / formal gowns</td>
-                <td>24–30"+</td>
-                <td>60–72"</td>
+                <td>24-30"+</td>
+                <td>60-72"</td>
                 <td>Extra room prevents wrinkling and snagging.</td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <h3>4) Choose the right thickness</h3>
-        <p>For daily use, “standard” thickness is often enough. If customers transport garments long distance, or items are heavy/bulky, go thicker. Use the next guide for a simple thickness decision.</p>
+        <h3 data-i18n="resources.garment.step4.title">4) Choose the right thickness</h3>
+        <p data-i18n="resources.garment.step4.p">For daily use, "standard" thickness is often enough. If customers transport garments long distance, or items are heavy/bulky, go thicker. Use the next guide for a simple thickness decision.</p>
 
         <div class="resource-callout">
-          <div style="font-weight:1000;">Tip</div>
-          <div style="margin-top:6px;">If you’re between two sizes, choose the <b>longer</b> length first (it reduces crushed hems), then adjust width.</div>
+          <div style="font-weight:1000;" data-i18n="resources.label.tip">Tip</div>
+          <div style="margin-top:6px;" data-i18n-html="resources.garment.callout.body">If you're between two sizes, choose the <b>longer</b> length first (it reduces crushed hems), then adjust width.</div>
         </div>
       </div>
     </section>
@@ -172,38 +172,38 @@
     <section id="heavy-vs-extra-heavy" class="card fade-in resource-article" style="padding:18px; margin-top:16px;">
       <div class="resource-article-head">
         <div>
-          <div class="count-badge count-badge-muted">Guide</div>
-          <h2 style="margin:10px 0 0;">Heavy vs Extra Heavy: which thickness do you need?</h2>
-          <div class="resource-meta">A simple decision guide for poly film thickness (often measured in mil).</div>
+          <div class="count-badge count-badge-muted" data-i18n="resources.label.guide">Guide</div>
+          <h2 style="margin:10px 0 0;" data-i18n="resources.thickness.title">Heavy vs Extra Heavy: which thickness do you need?</h2>
+          <div class="resource-meta" data-i18n="resources.thickness.meta">A simple decision guide for poly film thickness (often measured in mil).</div>
         </div>
-        <a class="btn btn-outline btn-sm" href="./products.html?cat=Polybags">Shop poly bags</a>
+        <a class="btn btn-outline btn-sm" href="./products.html?cat=Polybags" data-i18n="resources.thickness.cta">Shop poly bags</a>
       </div>
 
       <div class="resource-prose">
-        <h3>What “heavy” and “extra heavy” usually mean</h3>
-        <ul>
+        <h3 data-i18n="resources.thickness.meaning.title">What "heavy" and "extra heavy" usually mean</h3>
+        <ul data-i18n-html="resources.thickness.meaning.list">
           <li><b>Heavy</b>: a common choice for everyday handling (good balance of cost + durability).</li>
           <li><b>Extra heavy</b>: higher puncture/tear resistance for sharper items, heavier loads, or rougher transport.</li>
         </ul>
-        <p style="color:var(--muted); font-size:13px;">Thickness naming varies by supplier; always check the product’s stated mil / gauge if you need a precise spec.</p>
+        <p style="color:var(--muted); font-size:13px;" data-i18n="resources.thickness.note">Thickness naming varies by supplier; always check the product's stated mil / gauge if you need a precise spec.</p>
 
-        <h3>Pick “Heavy” when</h3>
-        <ul>
-          <li>You’re packing lightweight items (folded garments, liners, standard packaging).</li>
+        <h3 data-i18n="resources.thickness.heavy_when.title">Pick "Heavy" when</h3>
+        <ul data-i18n-html="resources.thickness.heavy_when.list">
+          <li>You're packing lightweight items (folded garments, liners, standard packaging).</li>
           <li>Orders are short-distance/local and handled gently.</li>
           <li>You want the best value for high monthly volume.</li>
         </ul>
 
-        <h3>Pick “Extra Heavy” when</h3>
-        <ul>
+        <h3 data-i18n="resources.thickness.extra_when.title">Pick "Extra Heavy" when</h3>
+        <ul data-i18n-html="resources.thickness.extra_when.list">
           <li>Items have edges/corners (hangers in bulk, hardware, sharp boxed items).</li>
           <li>Loads are heavy or stacked in transit.</li>
           <li>Customers carry garments long distance or you need fewer tears/returns.</li>
         </ul>
 
         <div class="resource-callout">
-          <div style="font-weight:1000;">Quick test</div>
-          <div style="margin-top:6px;">If you’re double-bagging often, it’s usually cheaper (and cleaner) to switch to a thicker bag once.</div>
+          <div style="font-weight:1000;" data-i18n="resources.label.quick_test">Quick test</div>
+          <div style="margin-top:6px;" data-i18n="resources.thickness.callout.body">If you're double-bagging often, it's usually cheaper (and cleaner) to switch to a thicker bag once.</div>
         </div>
       </div>
     </section>
@@ -211,30 +211,30 @@
     <section id="dry-cleaner-packaging-usage" class="card fade-in resource-article" style="padding:18px; margin-top:16px;">
       <div class="resource-article-head">
         <div>
-          <div class="count-badge count-badge-muted">Planner</div>
-          <h2 style="margin:10px 0 0;">How much packaging do dry cleaners use per month?</h2>
-          <div class="resource-meta">Use this simple method to estimate monthly bags, hangers, and wrap needs.</div>
+          <div class="count-badge count-badge-muted" data-i18n="resources.label.planner">Planner</div>
+          <h2 style="margin:10px 0 0;" data-i18n="resources.planner.title">How much packaging do dry cleaners use per month?</h2>
+          <div class="resource-meta" data-i18n="resources.planner.meta">Use this simple method to estimate monthly bags, hangers, and wrap needs.</div>
         </div>
-        <a class="btn btn-outline btn-sm" href="./contact.html">Get a bulk quote</a>
+        <a class="btn btn-outline btn-sm" href="./contact.html" data-i18n="resources.planner.cta">Get a bulk quote</a>
       </div>
 
       <div class="resource-prose">
-        <h3>Step 1: Start with garments per day</h3>
-        <p><b>Monthly garments</b> = (average garments/day) × (operating days/month)</p>
-        <p class="resource-formula">Example: 160 garments/day × 26 days = <b>4,160 garments/month</b></p>
+        <h3 data-i18n="resources.planner.step1.title">Step 1: Start with garments per day</h3>
+        <p data-i18n-html="resources.planner.step1.formula"><b>Monthly garments</b> = (average garments/day) x (operating days/month)</p>
+        <p class="resource-formula" data-i18n-html="resources.planner.step1.example">Example: 160 garments/day x 26 days = <b>4,160 garments/month</b></p>
 
-        <h3>Step 2: Add “mix” by category</h3>
-        <p>Most shops have a mix (example below). Adjust to match your business.</p>
+        <h3 data-i18n="resources.planner.step2.title">Step 2: Add "mix" by category</h3>
+        <p data-i18n="resources.planner.step2.p">Most shops have a mix (example below). Adjust to match your business.</p>
         <div class="resource-table-wrap">
           <table class="resource-table">
-            <thead>
+            <thead data-i18n-html="resources.planner.table.head">
               <tr>
                 <th>Category</th>
                 <th>Share</th>
                 <th>Packaging used</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody data-i18n-html="resources.planner.table.body">
               <tr>
                 <td>Shirts / tops</td>
                 <td>45%</td>
@@ -259,36 +259,37 @@
           </table>
         </div>
 
-        <h3>Step 3: Add a waste/redo buffer</h3>
-        <ul>
-          <li>Recommended buffer: <b>5–12%</b> (mis-bags, tears, rewraps, rush orders).</li>
+        <h3 data-i18n="resources.planner.step3.title">Step 3: Add a waste/redo buffer</h3>
+        <ul data-i18n-html="resources.planner.step3.list">
+          <li>Recommended buffer: <b>5-12%</b> (mis-bags, tears, rewraps, rush orders).</li>
           <li>Higher buffer if you do lots of delivery routes or high-volume weekends.</li>
         </ul>
-        <p class="resource-formula"><b>Monthly order quantity</b> = estimated usage × (1 + buffer)</p>
+        <p class="resource-formula" data-i18n-html="resources.planner.step3.formula"><b>Monthly order quantity</b> = estimated usage x (1 + buffer)</p>
 
-        <h3>Step 4: Convert to a buying plan</h3>
-        <ul>
-          <li><b>Daily staples</b> (most common sizes): keep 2–4 weeks of stock.</li>
-          <li><b>Specialty sizes</b> (extra-long / gusset): keep 4–8 weeks of stock (lower volume).</li>
+        <h3 data-i18n="resources.planner.step4.title">Step 4: Convert to a buying plan</h3>
+        <ul data-i18n-html="resources.planner.step4.list">
+          <li><b>Daily staples</b> (most common sizes): keep 2-4 weeks of stock.</li>
+          <li><b>Specialty sizes</b> (extra-long / gusset): keep 4-8 weeks of stock (lower volume).</li>
           <li><b>Delivery/transport businesses</b>: plan extra for rewraps and heavier film.</li>
         </ul>
 
         <div class="resource-callout">
-          <div style="font-weight:1000;">Want a fast estimate?</div>
-          <div style="margin-top:6px;">Tell us your average garments/day, operating days, and whether you deliver. We’ll recommend sizes + quantities for your next order.</div>
+          <div style="font-weight:1000;" data-i18n="resources.planner.callout.title">Want a fast estimate?</div>
+          <div style="margin-top:6px;" data-i18n="resources.planner.callout.body">Tell us your average garments/day, operating days, and whether you deliver. We'll recommend sizes + quantities for your next order.</div>
           <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
-            <a class="btn btn-primary btn-sm" href="./contact.html">Contact us</a>
-            <a class="btn btn-outline btn-sm" href="./products.html">Browse products</a>
+            <a class="btn btn-primary btn-sm" href="./contact.html" data-i18n="resources.planner.callout.cta_contact">Contact us</a>
+            <a class="btn btn-outline btn-sm" href="./products.html" data-i18n="resources.planner.callout.cta_browse">Browse products</a>
           </div>
         </div>
       </div>
     </section>
 
-    <div class="footer">&copy; <span id="y"></span> Power Poly Supplies. Power your packaging.</div>
+    <div class="footer">&copy; <span id="y"></span> <span data-i18n="footer.short">Power Poly Supplies. Power your packaging.</span></div>
   </div>
 
   <script src="./config.js"></script>
   <script src="./js/store.js"></script>
+  <script src="./js/notifications.js"></script>
   <script src="./js/i18n.js"></script>
   <script src="./js/ui.js"></script>
   <script>

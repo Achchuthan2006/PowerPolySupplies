@@ -44,8 +44,8 @@
           <a href="./login.html"><span class="nav-icon user-icon" aria-hidden="true"></span><span data-i18n="nav.account">Account</span></a>
           <a href="./cart.html"><span class="nav-icon cart-icon" aria-hidden="true"></span><span data-i18n="nav.cart">Cart</span> <span class="badge" data-cart-badge>0</span></a>
           <form class="search-bar nav-search" action="./products.html" method="get" role="search">
-            <input type="search" name="q" placeholder="Search" aria-label="Search products">
-            <button type="submit">Search</button>
+            <input type="search" name="q" placeholder="Search" aria-label="Search products" data-i18n-placeholder="nav.search_placeholder">
+            <button type="submit" data-i18n="nav.search_button">Search</button>
           </form>
 
         </nav>
@@ -110,6 +110,13 @@
             <span class="eye"></span>
           </button>
         </div>
+
+        <div class="pps-recaptcha-wrap" id="ppsRecaptchaWrap" style="display:none;">
+          <div class="pps-recaptcha-label">Security check</div>
+          <div id="ppsRecaptcha"></div>
+          <div class="pps-recaptcha-help">This helps us block spam signups.</div>
+        </div>
+
         <button class="btn btn-primary" type="button" id="createAccount" disabled data-i18n="signup.form.create">Create account</button>
         <div id="signupStatus" style="color:var(--muted); font-size:13px;"></div>
       </form>
@@ -119,12 +126,13 @@
       </div>
     </section>
 
-    <div class="footer">&copy; <span id="y"></span> Power Poly Supplies. Power your packaging.</div>
+    <div class="footer">&copy; <span id="y"></span> <span data-i18n="footer.short">Power Poly Supplies. Power your packaging.</span></div>
   </div>
 
   <script src="./config.js"></script>
 
   <script src="./js/store.js"></script>
+  <script src="./js/notifications.js"></script>
   <script src="./js/i18n.js"></script>
   <script src="./js/ui.js"></script>
   <script>
@@ -145,6 +153,8 @@
     const passConfirmInput = document.querySelector("#signupPasswordConfirm");
     const toggleButtons = Array.from(document.querySelectorAll(".toggle-visibility"));
     const verifyBtn = document.getElementById("verifyCode");
+    const recaptchaWrap = document.getElementById("ppsRecaptchaWrap");
+    let recaptchaWidgetId = null;
     let codeVerified = false;
 
     function normalizeSignupStatus(message){
@@ -180,8 +190,37 @@
       passConfirmInput.disabled = !enabled;
       createBtn.disabled = !enabled;
       toggleButtons.forEach((btn)=>{ btn.disabled = !enabled; });
+      if(recaptchaWrap){
+        recaptchaWrap.style.display = enabled ? "" : "none";
+        if(enabled) loadRecaptcha();
+      }
     }
     setPasswordEnabled(false);
+
+    function loadRecaptcha(){
+      const siteKey = String(window.RECAPTCHA_SITE_KEY || "").trim();
+      if(!siteKey) return;
+      if(document.getElementById("ppsRecaptchaScript")) return;
+
+      window.ppsRecaptchaOnload = ()=>{
+        try{
+          if(!window.grecaptcha) return;
+          const host = document.getElementById("ppsRecaptcha");
+          if(!host) return;
+          if(recaptchaWidgetId !== null) return;
+          recaptchaWidgetId = window.grecaptcha.render(host, { sitekey: siteKey });
+        }catch(_err){
+          // ignore
+        }
+      };
+
+      const script = document.createElement("script");
+      script.id = "ppsRecaptchaScript";
+      script.src = "https://www.google.com/recaptcha/api.js?onload=ppsRecaptchaOnload&render=explicit";
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    }
 
     async function sendCode(){
       statusEl.textContent = window.PPS_I18N?.t("signup.status.sending") || "Sending code...";
@@ -291,6 +330,22 @@
         statusEl.textContent = window.PPS_I18N?.t("signup.status.pass_match") || "Passwords do not match.";
         return;
       }
+
+      const siteKey = String(window.RECAPTCHA_SITE_KEY || "").trim();
+      let recaptchaToken = "";
+      if(siteKey){
+        if(!window.grecaptcha || recaptchaWidgetId === null){
+          statusEl.textContent = "reCAPTCHA is still loading. Please wait a moment and try again.";
+          loadRecaptcha();
+          return;
+        }
+        recaptchaToken = String(window.grecaptcha.getResponse(recaptchaWidgetId) || "");
+        if(!recaptchaToken){
+          statusEl.textContent = "Please complete the reCAPTCHA.";
+          return;
+        }
+      }
+
       statusEl.textContent = window.PPS_I18N?.t("signup.status.creating") || "Creating account...";
       createBtn.disabled = true;
       try{
@@ -300,7 +355,7 @@
         const res = await fetch(`${PPS.API_BASE}/api/auth/register`,{
           method:"POST",
           headers:{ "Content-Type":"application/json" },
-          body: JSON.stringify({ email, code, password, name, phone, province })
+          body: JSON.stringify({ email, code, password, name, phone, province, recaptchaToken })
         });
         const data = await res.json().catch(()=> ({}));
         if(res.ok && data.ok && data.token){
@@ -320,6 +375,13 @@
         statusEl.textContent = window.PPS_I18N?.t("signup.status.unreachable") || "Server unreachable. Is the backend running?";
       }finally{
         createBtn.disabled = false;
+        try{
+          if(window.grecaptcha && recaptchaWidgetId !== null){
+            window.grecaptcha.reset(recaptchaWidgetId);
+          }
+        }catch(_err){
+          // ignore
+        }
       }
     }
 

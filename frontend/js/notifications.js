@@ -1,5 +1,4 @@
-// Notification center (in-app only).
-// No browser notifications, no alerts, no popups.
+// Notification center (in-app + optional browser notifications).
 
 (() => {
   "use strict";
@@ -8,6 +7,7 @@
   const STORAGE_SUFFIX_NOTIFS = "notifications_v1";
   const STORAGE_SUFFIX_PREFS = "notif_prefs_v1";
   const STORAGE_SUFFIX_SNAPSHOT = "notif_snapshot_v1";
+  const STORAGE_SUFFIX_WEB_LAST = "notif_web_last_v1";
 
   const DEFAULT_PREFS = {
     orderUpdates: true,
@@ -15,6 +15,7 @@
     memberDeals: true,
     lowStock: true,
     priceDrops: true,
+    browserNotifications: false,
     lowStockThreshold: 20,
     priceDropPercent: 5,
     watchedProductIds: []
@@ -53,6 +54,24 @@
     }
   };
 
+  const readStr = (key, fallback = "") => {
+    try {
+      const v = localStorage.getItem(key);
+      return v == null ? fallback : String(v);
+    } catch {
+      return fallback;
+    }
+  };
+
+  const writeStr = (key, value) => {
+    try {
+      localStorage.setItem(key, String(value ?? ""));
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   const normalizePrefs = (prefs) => {
     const out = { ...DEFAULT_PREFS, ...(prefs || {}) };
     out.lowStockThreshold = Math.max(0, Math.round(Number(out.lowStockThreshold) || DEFAULT_PREFS.lowStockThreshold));
@@ -63,6 +82,7 @@
     out.memberDeals = Boolean(out.memberDeals);
     out.lowStock = Boolean(out.lowStock);
     out.priceDrops = Boolean(out.priceDrops);
+    out.browserNotifications = Boolean(out.browserNotifications);
     return out;
   };
 
@@ -112,6 +132,99 @@
 
   const hasDuplicate = (existing, type, dedupeKey) =>
     existing.some((n) => n?.type === type && String(n?.meta?.dedupeKey || "") === String(dedupeKey || ""));
+
+  const canBrowserNotify = () => typeof window !== "undefined" && "Notification" in window;
+
+  const getBrowserStatusMessage = (enabled) => {
+    if (!canBrowserNotify()) return "Browser notifications are not supported on this device/browser.";
+    const p = Notification.permission;
+    if (!enabled) return "Enable to receive a single pop-up notification for new updates (when this site is open).";
+    if (p === "granted") return "Browser notifications are enabled.";
+    if (p === "denied") return "Browser notifications are blocked in your browser settings.";
+    return "Browser notifications are enabled, but permission is not granted yet. Click Save preferences to allow.";
+  };
+
+  const setBrowserStatus = (msg) => {
+    const el = document.getElementById("notifBrowserStatus");
+    if (el) el.textContent = String(msg || "");
+  };
+
+  const ensureServiceWorker = async () => {
+    if (!("serviceWorker" in navigator)) return null;
+    try {
+      const reg = await navigator.serviceWorker.getRegistration("./");
+      if (reg) return reg;
+    } catch {
+      // ignore
+    }
+    try {
+      return await navigator.serviceWorker.register("./sw.js", { scope: "./" });
+    } catch {
+      return null;
+    }
+  };
+
+  const ensureBrowserPermission = async () => {
+    if (!canBrowserNotify()) return false;
+    if (Notification.permission === "granted") return true;
+    if (Notification.permission === "denied") return false;
+    try {
+      const res = await Notification.requestPermission();
+      return res === "granted";
+    } catch {
+      return false;
+    }
+  };
+
+  const showBrowserNotification = async (email, notif) => {
+    const e = safeEmail(email);
+    if (!e) return;
+    const prefs = getPrefs(e);
+    if (!prefs.browserNotifications) return;
+    if (!canBrowserNotify()) return;
+    if (Notification.permission !== "granted") return;
+
+    // Avoid noisy popups while the user is actively looking at the page.
+    try {
+      const focused = typeof document.hasFocus === "function" ? document.hasFocus() : true;
+      if (document.visibilityState === "visible" && focused) return;
+    } catch {
+      // ignore
+    }
+
+    const id = String(notif?.id || "");
+    if (!id) return;
+    const lastKey = userKey(e, STORAGE_SUFFIX_WEB_LAST);
+    if (readStr(lastKey, "") === id) return;
+
+    const title = String(notif?.title || "Power Poly Supplies");
+    const body = String(notif?.message || "");
+    const url = "./account.html#notifications";
+    const icon = "./assets/poly%20logo%20without%20background.png";
+
+    const opts = {
+      body,
+      icon,
+      badge: icon,
+      tag: id,
+      renotify: false,
+      data: { url }
+    };
+
+    try {
+      const reg = await ensureServiceWorker();
+      if (reg?.showNotification) {
+        await reg.showNotification(title, opts);
+      } else {
+        // Fallback: page-context notification (less reliable).
+        // eslint-disable-next-line no-new
+        new Notification(title, opts);
+      }
+      writeStr(lastKey, id);
+    } catch {
+      // ignore
+    }
+  };
 
   const refreshFromAccount = ({ session, orders, products, favorites, frequent }) => {
     const email = safeEmail(session?.email);
@@ -263,6 +376,8 @@
     if (created.length) {
       const merged = [...created, ...existing].slice(0, MAX_NOTIFS);
       setNotifications(email, merged);
+      // Fire at most one browser notification per refresh.
+      void showBrowserNotification(email, created[0]);
     } else {
       emitChanged(email);
     }
@@ -383,8 +498,11 @@
     setChecked("memberDeals", prefs.memberDeals);
     setChecked("lowStock", prefs.lowStock);
     setChecked("priceDrops", prefs.priceDrops);
+    setChecked("browserNotifications", prefs.browserNotifications);
     setValue("lowStockThreshold", prefs.lowStockThreshold);
     setValue("priceDropPercent", prefs.priceDropPercent);
+
+    setBrowserStatus(getBrowserStatusMessage(prefs.browserNotifications));
 
     const watchWrap = document.getElementById("notifWatchlist");
     const hint = document.getElementById("notifWatchHint");
@@ -522,6 +640,7 @@
           memberDeals: Boolean(form.querySelector("[name=memberDeals]")?.checked),
           lowStock: Boolean(form.querySelector("[name=lowStock]")?.checked),
           priceDrops: Boolean(form.querySelector("[name=priceDrops]")?.checked),
+          browserNotifications: Boolean(form.querySelector("[name=browserNotifications]")?.checked),
           lowStockThreshold: Number(form.querySelector("[name=lowStockThreshold]")?.value),
           priceDropPercent: Number(form.querySelector("[name=priceDropPercent]")?.value),
           watchedProductIds: [] // populated below
@@ -536,6 +655,17 @@
         // If user explicitly manages the list, store it; otherwise fall back to favorites.
         next.watchedProductIds = checkedIds.length ? checkedIds : [];
         setPrefs(email2, next);
+
+        if (next.browserNotifications) {
+          void (async () => {
+            await ensureServiceWorker();
+            const ok = await ensureBrowserPermission();
+            setBrowserStatus(getBrowserStatusMessage(Boolean(next.browserNotifications)));
+            if (!ok) return;
+          })();
+        } else {
+          setBrowserStatus(getBrowserStatusMessage(false));
+        }
         renderAccountCenter();
       });
     }

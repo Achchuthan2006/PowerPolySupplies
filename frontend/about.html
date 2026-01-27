@@ -44,8 +44,8 @@
           <a href="./login.html"><span class="nav-icon user-icon" aria-hidden="true"></span><span data-i18n="nav.account">Account</span></a>
           <a href="./cart.html"><span class="nav-icon cart-icon" aria-hidden="true"></span><span data-i18n="nav.cart">Cart</span> <span class="badge" data-cart-badge>0</span></a>
           <form class="search-bar nav-search" action="./products.html" method="get" role="search">
-            <input type="search" name="q" placeholder="Search" aria-label="Search products">
-            <button type="submit">Search</button>
+            <input type="search" name="q" placeholder="Search" aria-label="Search products" data-i18n-placeholder="nav.search_placeholder">
+            <button type="submit" data-i18n="nav.search_button">Search</button>
           </form>
 
         </nav>
@@ -54,68 +54,172 @@
   </header>
 
   <div class="container page">
-    <section class="hero fade-in">
-      <p style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);" data-i18n="about.kicker">About</p>
-      <h1 data-i18n="about.title">About Power Poly Supplies</h1>
-      <p>
-        <span data-i18n="about.subtitle">We supply garment packaging and hanger products built for daily business use. Reliable supply, bulk-friendly ordering, and consistent quality.</span>
-      </p>
-    </section>
-
-    <section class="grid grid-3" style="margin-top:16px;">
-      <div class="card fade-in" style="padding:16px;">
-        <h3 style="margin:0 0 6px;" data-i18n="about.card.sell.title">What we sell</h3>
-        <p style="margin:0; color:var(--muted); line-height:1.5;">
-          <span data-i18n="about.card.sell.desc">Plastic garment cover bags for dry cleaning, poly bags, and professional-grade hangers (strut, capped, suit, shirt).</span>
+    <section class="hero hero-split fade-in about-hero">
+      <div class="hero-content">
+        <p class="about-kicker" data-i18n="about.kicker">About</p>
+        <h1 data-i18n="about.title">About Power Poly Supplies</h1>
+        <p>
+          <span data-i18n="about.subtitle">We supply garment packaging and hanger products built for daily business use. Reliable supply, bulk-friendly ordering, and consistent quality.</span>
         </p>
+
+        <div class="hero-callouts" aria-label="What you can expect">
+          <span class="callout-pill"><span class="callout-icon ship-icon" aria-hidden="true"></span>Canada-wide supply</span>
+          <span class="callout-pill pulse delay-1"><span class="callout-icon lock-icon" aria-hidden="true"></span>Dependable stock</span>
+          <span class="callout-pill pulse delay-2"><span class="callout-icon leaf-icon" aria-hidden="true"></span>Consistent quality</span>
+        </div>
+
+        <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
+          <a class="btn btn-primary" href="./products.html">Browse Products</a>
+          <a class="btn btn-outline" href="./contact.html">Contact Sales</a>
+        </div>
       </div>
 
-      <div class="card fade-in" style="padding:16px;">
-        <h3 style="margin:0 0 6px;" data-i18n="about.card.serve.title">Who we serve</h3>
-        <p style="margin:0; color:var(--muted); line-height:1.5;">
-          <span data-i18n="about.card.serve.desc">Dry cleaners, laundromats, retailers, warehouses, uniform suppliers, and distributors across Canada.</span>
-        </p>
-      </div>
-
-      <div class="card fade-in" style="padding:16px;">
-        <h3 style="margin:0 0 6px;" data-i18n="about.card.why.title">Why choose us</h3>
-        <p style="margin:0; color:var(--muted); line-height:1.5;">
-          <span data-i18n="about.card.why.desc">Clear pricing, dependable stock, and fast response. No unnecessary fluff. Just supply done right.</span>
-        </p>
+      <div class="hero-media" aria-hidden="true">
+        <div class="hero-collage about-collage">
+          <div class="hero-shot hero-shot-1">
+            <img src="./assets/Clear%20Poly%20Bags.webp" alt="" loading="lazy" decoding="async" width="640" height="480">
+          </div>
+          <div class="hero-shot hero-shot-2">
+            <img src="./assets/shirt%20hanger%20pic.webp" alt="" loading="lazy" decoding="async" width="640" height="480">
+          </div>
+          <div class="hero-shot hero-shot-3">
+            <img src="./assets/Strut%20Hangers.webp" alt="" loading="lazy" decoding="async" width="640" height="480">
+          </div>
+        </div>
       </div>
     </section>
 
-    <section class="card fade-in" style="padding:18px; margin-top:16px;">
-      <h2 style="margin:0 0 10px;" data-i18n="about.approach.title">Our approach</h2>
-      <p style="margin:0; color:var(--muted); line-height:1.6;">
-        <span data-i18n="about.approach.desc">Packaging and hanger supplies should be simple to order, consistent in quality, and delivered on time. That is the whole idea.</span>
-      </p>
+    <nav class="card fade-in about-subnav" aria-label="About page sections">
+      <a class="about-subnav-link" href="#about">About</a>
+      <a class="about-subnav-link" href="#why">Why Power Poly</a>
+      <a class="about-subnav-link" href="#sectors">Sectors we serve</a>
+      <a class="about-subnav-link" href="#quality">Quality promise</a>
+      <a class="about-subnav-link" href="#contacts">Contacts</a>
+    </nav>
 
-      <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
-        <a class="btn btn-primary" href="./products.html" data-i18n="about.approach.browse">Browse Products</a>
-        <a class="btn btn-outline" href="./contact.html" data-i18n="about.approach.contact">Contact Sales</a>
+    <section class="card fade-in about-section" id="about">
+      <div class="about-section-head">
+        <h2 style="margin:0;">What we do</h2>
+        <div class="about-section-sub">Packaging and hanger supply, built for everyday business operations.</div>
+      </div>
+
+      <div class="grid grid-3" style="margin-top:14px;">
+        <div class="about-mini-card">
+          <div class="about-mini-title" data-i18n="about.card.sell.title">What we sell</div>
+          <div class="about-mini-desc" data-i18n="about.card.sell.desc">Plastic garment cover bags for dry cleaning, poly bags, and professional-grade hangers (strut, capped, suit, shirt).</div>
+        </div>
+        <div class="about-mini-card">
+          <div class="about-mini-title" data-i18n="about.card.serve.title">Who we serve</div>
+          <div class="about-mini-desc" data-i18n="about.card.serve.desc">Dry cleaners, laundromats, retailers, warehouses, uniform suppliers, and distributors across Canada.</div>
+        </div>
+        <div class="about-mini-card">
+          <div class="about-mini-title" data-i18n="about.card.why.title">Why choose us</div>
+          <div class="about-mini-desc" data-i18n="about.card.why.desc">Clear pricing, dependable stock, and fast response. No unnecessary fluff. Just supply done right.</div>
+        </div>
       </div>
     </section>
 
-    <section class="card fade-in" style="padding:18px; margin-top:16px;">
-      <h2 style="margin:0 0 10px;" data-i18n="about.sales.title">Sales Contacts</h2>
-      <p style="margin:0; color:var(--muted); line-height:1.6;">
-        Angel - <a href="tel:+16475238645" style="color:inherit; text-decoration:none;">647-523-8645</a>
-      </p>
-      <p style="margin:6px 0 0; color:var(--muted); line-height:1.6;">
-        Andrew - <a href="tel:+14374256638" style="color:inherit; text-decoration:none;">437-425-6638</a>
-      </p>
-      <p style="margin:6px 0 0; color:var(--muted); line-height:1.6;">
-        Achchu - <a href="tel:+16475704878" style="color:inherit; text-decoration:none;">647-570-4878</a>
-      </p>
+    <section class="grid grid-2" style="margin-top:16px;">
+      <section class="card fade-in about-section" id="why">
+        <div class="about-section-head">
+          <h2 style="margin:0;">Why Power Poly</h2>
+          <div class="about-section-sub">Built for people who need supplies on time, every time.</div>
+        </div>
+        <ul class="about-list" aria-label="Why choose Power Poly">
+          <li>Bulk-friendly ordering and straightforward pricing.</li>
+          <li>Quick replies during business hours (no ticket maze).</li>
+          <li>Products selected for consistency across repeat orders.</li>
+          <li>Help choosing sizes, styles, and quantities for your workflow.</li>
+        </ul>
+        <div class="about-cta-row">
+          <a class="btn btn-primary btn-sm" href="./products.html">Shop categories</a>
+          <a class="btn btn-outline btn-sm" href="./resources.html">Read guides</a>
+        </div>
+      </section>
+
+      <section class="card fade-in about-section" id="quality">
+        <div class="about-section-head">
+          <h2 style="margin:0;">Quality promise</h2>
+          <div class="about-section-sub">Simple checks that keep your packaging looking professional.</div>
+        </div>
+        <ul class="about-list" aria-label="Quality promise">
+          <li>Consistent product specs so you can reorder with confidence.</li>
+          <li>Clean presentation: strong, neat, and business-ready.</li>
+          <li>We highlight what matters (size, thickness, quantity, use-case).</li>
+          <li>Fast help if you need to swap to a better fit.</li>
+        </ul>
+        <div class="about-cta-row">
+          <a class="btn btn-primary btn-sm" href="./contact.html">Ask a question</a>
+          <a class="btn btn-outline btn-sm" href="./products.html?cat=Hangers">Shop hangers</a>
+        </div>
+      </section>
     </section>
 
-    <div class="footer">&copy; <span id="y"></span> Power Poly Supplies. Power your packaging.</div>
+    <section class="card fade-in about-section" id="sectors" style="margin-top:16px;">
+      <div class="about-section-head">
+        <h2 style="margin:0;">Sectors we serve</h2>
+        <div class="about-section-sub">If you package garments daily, we’re built for you.</div>
+      </div>
+
+      <div class="grid grid-3" style="margin-top:14px;">
+        <div class="about-sector">
+          <div class="about-sector-title">Dry cleaners</div>
+          <div class="about-sector-desc">Garment cover bags + hangers that keep clothes protected and presentable.</div>
+        </div>
+        <div class="about-sector">
+          <div class="about-sector-title">Laundromats</div>
+          <div class="about-sector-desc">Easy-reorder supplies for busy counter service and daily volume.</div>
+        </div>
+        <div class="about-sector">
+          <div class="about-sector-title">Retail & boutiques</div>
+          <div class="about-sector-desc">Clean packaging for customers picking up ready-to-wear and altered items.</div>
+        </div>
+        <div class="about-sector">
+          <div class="about-sector-title">Warehouses</div>
+          <div class="about-sector-desc">Bulk packaging and protective poly for storage, sorting, and shipment.</div>
+        </div>
+        <div class="about-sector">
+          <div class="about-sector-title">Uniform suppliers</div>
+          <div class="about-sector-desc">Repeat orders with consistent specs for ongoing contracts and programs.</div>
+        </div>
+        <div class="about-sector">
+          <div class="about-sector-title">Distributors</div>
+          <div class="about-sector-desc">Reliable supply for customers that expect steady, predictable availability.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card fade-in about-section about-band" style="margin-top:16px;">
+      <div class="about-band-left">
+        <h2 style="margin:0;">Ready to stock up?</h2>
+        <div class="about-section-sub" style="margin-top:6px;">Tell us what you use now and we'll help you match sizes and quantities.</div>
+      </div>
+      <div class="about-band-right">
+        <a class="btn btn-primary" href="./contact.html">Get help</a>
+        <a class="btn btn-outline" href="./products.html">Browse products</a>
+      </div>
+    </section>
+
+    <section class="card fade-in about-section" id="contacts" style="margin-top:16px;">
+      <div class="about-section-head">
+        <h2 style="margin:0;">Sales contacts</h2>
+        <div class="about-section-sub">Call, text, or email &mdash; we reply fast during business hours.</div>
+      </div>
+      <div class="about-contacts">
+        <a class="about-contact" href="tel:+16475238645"><span>Angel</span><span>647-523-8645</span></a>
+        <a class="about-contact" href="tel:+14374256638"><span>Andrew</span><span>437-425-6638</span></a>
+        <a class="about-contact" href="tel:+16475704878"><span>Achchu</span><span>647-570-4878</span></a>
+        <a class="about-contact" href="mailto:powerpolysupplies@gmail.com"><span>Email</span><span>powerpolysupplies@gmail.com</span></a>
+      </div>
+    </section>
+
+    <div class="footer">&copy; <span id="y"></span> <span data-i18n="footer.short">Power Poly Supplies. Power your packaging.</span></div>
   </div>
 
   <script src="./config.js"></script>
 
   <script src="./js/store.js"></script>
+  <script src="./js/notifications.js"></script>
   <script src="./js/i18n.js"></script>
   <script src="./js/ui.js"></script>
   <script>

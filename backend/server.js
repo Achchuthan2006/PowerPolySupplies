@@ -6,6 +6,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import crypto from "crypto";
+import https from "https";
 import { createClient } from "@supabase/supabase-js";
 import { appendMessageToSheet, appendOrderToSheet, appendReviewToSheet, appendFeedbackToSheet, syncProductsToSheet, isSheetsConfigured } from "./googleSheets.js";
 import squarePkg from "square";
@@ -74,9 +75,11 @@ function getSquareEnvironment(){
 const squareAccessTokenMeta = readEnvFirstMeta("SQUARE_ACCESS_TOKEN", "SQUARE_TOKEN", "SQUARE_ACCESS");
 const squareLocationIdMeta = readEnvFirstMeta("SQUARE_LOCATION_ID", "SQUARE_LOCATIONID", "SQUARE_LOCATION", "SQUARE_LOC_ID");
 const siteUrlMeta = readEnvFirstMeta("SITE_URL", "FRONTEND_URL", "PUBLIC_SITE_URL");
+const recaptchaSecretMeta = readEnvFirstMeta("RECAPTCHA_SECRET_KEY", "RECAPTCHA_SECRET", "GOOGLE_RECAPTCHA_SECRET");
 const squareAccessToken = squareAccessTokenMeta.value;
 const squareLocationId = squareLocationIdMeta.value;
 const siteUrl = siteUrlMeta.value;
+const recaptchaSecretKey = recaptchaSecretMeta.value;
 const squareEnvRaw = String(process.env.SQUARE_ENV || "").trim().toLowerCase();
 const squareEnvMode = squareEnvRaw === "sandbox" ? "sandbox" : (squareEnvRaw === "production" ? "production" : "auto");
 const squareClientSandbox = squareAccessToken
@@ -138,6 +141,60 @@ function maskSecret(value){
   if(!text) return "";
   if(text.length <= 10) return `${text.slice(0,2)}…${text.slice(-2)}`;
   return `${text.slice(0,6)}…${text.slice(-4)}`;
+}
+
+function postUrlEncoded(url, params){
+  const body = new URLSearchParams(params || {}).toString();
+  if(typeof fetch === "function"){
+    return fetch(url, {
+      method:"POST",
+      headers:{ "Content-Type":"application/x-www-form-urlencoded" },
+      body
+    }).then(async (res)=> {
+      const text = await res.text().catch(()=> "");
+      return { ok: res.ok, status: res.status, text };
+    });
+  }
+  return new Promise((resolve, reject)=> {
+    try{
+      const parsed = new URL(url);
+      const req = https.request({
+        method:"POST",
+        hostname: parsed.hostname,
+        path: parsed.pathname + (parsed.search || ""),
+        headers:{
+          "Content-Type":"application/x-www-form-urlencoded",
+          "Content-Length": Buffer.byteLength(body)
+        }
+      }, (res)=> {
+        let text = "";
+        res.on("data", (chunk)=>{ text += String(chunk); });
+        res.on("end", ()=> resolve({ ok: (res.statusCode || 0) >= 200 && (res.statusCode || 0) < 300, status: res.statusCode || 0, text }));
+      });
+      req.on("error", reject);
+      req.write(body);
+      req.end();
+    }catch(err){
+      reject(err);
+    }
+  });
+}
+
+async function verifyRecaptcha(token){
+  if(!recaptchaSecretKey) return { ok:true, skipped:true, reason:"not_configured" };
+  const response = String(token || "").trim();
+  if(!response) return { ok:false, skipped:false, reason:"missing_token" };
+  try{
+    const result = await postUrlEncoded("https://www.google.com/recaptcha/api/siteverify", {
+      secret: recaptchaSecretKey,
+      response
+    });
+    if(!result.ok) return { ok:false, skipped:false, reason:"http_error", status: result.status };
+    const data = JSON.parse(result.text || "{}");
+    return { ok: !!data?.success, skipped:false, data };
+  }catch(err){
+    return { ok:false, skipped:false, reason:"network_error", error: String(err?.message || err) };
+  }
 }
 
 async function squareTest(client, label){
@@ -1902,9 +1959,14 @@ app.post("/api/auth/check-code", (req,res)=>{
 
 // ---- Auth: register ----
 app.post("/api/auth/register", async (req,res)=>{
-  const { email, code, password, name } = req.body;
+  const { email, code, password, name, recaptchaToken } = req.body;
   const emailKey = String(email || "").trim().toLowerCase();
   if(!emailKey || !code || !password) return res.status(400).json({ ok:false, message:"Email, code, and password required" });
+
+  const recaptcha = await verifyRecaptcha(recaptchaToken);
+  if(!recaptcha.ok){
+    return res.status(400).json({ ok:false, message:"reCAPTCHA failed. Please try again." });
+  }
 
   const entry = verificationCodes.get(emailKey);
   if(!entry) return res.status(400).json({ ok:false, message:"No code sent. Please request a code first." });

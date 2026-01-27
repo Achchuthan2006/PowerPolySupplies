@@ -224,7 +224,18 @@ async function pingBackend(){
 
 async function loadProducts(){
   const cached = readCachedProducts();
-  if(cached) return cached;
+  if(cached){
+    try{
+      const session = window.PPS?.getSession?.();
+      if(session?.email && window.PPS_NOTIFS?.refreshFromAccount){
+        const favorites = window.PPS?.getFavorites?.() || [];
+        window.PPS_NOTIFS.refreshFromAccount({ session, orders: [], products: cached, favorites, frequent: [] });
+      }
+    }catch(_err){
+      // ignore
+    }
+    return cached;
+  }
 
   const backendPromise = fetchBackendProducts();
   const localPromise = fetchLocalProducts();
@@ -237,12 +248,30 @@ async function loadProducts(){
 
   if(fast.source !== "timeout" && Array.isArray(fast.data)){
     cacheProducts(fast.data);
+    try{
+      const session = window.PPS?.getSession?.();
+      if(session?.email && window.PPS_NOTIFS?.refreshFromAccount){
+        const favorites = window.PPS?.getFavorites?.() || [];
+        window.PPS_NOTIFS.refreshFromAccount({ session, orders: [], products: fast.data, favorites, frequent: [] });
+      }
+    }catch(_err){
+      // ignore
+    }
     return fast.data;
   }
 
   const [backend, local] = await Promise.all([backendPromise, localPromise]);
   const chosen = Array.isArray(backend) ? backend : (Array.isArray(local) ? local : []);
   cacheProducts(chosen);
+  try{
+    const session = window.PPS?.getSession?.();
+    if(session?.email && window.PPS_NOTIFS?.refreshFromAccount){
+      const favorites = window.PPS?.getFavorites?.() || [];
+      window.PPS_NOTIFS.refreshFromAccount({ session, orders: [], products: chosen, favorites, frequent: [] });
+    }
+  }catch(_err){
+    // ignore
+  }
   return chosen;
 }
 

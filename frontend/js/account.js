@@ -17,7 +17,8 @@
     orders: [],
     products: [],
     productsById: new Map(),
-    templateEditingId: ""
+    templateEditingId: "",
+    profileEditing: false
   };
 
   const els = {
@@ -33,6 +34,7 @@
     frequentGrid: $("#frequentGrid"),
     frequentMsg: $("#frequentMsg"),
     profileGrid: $("#profileGrid"),
+    profileActions: $("#profileActions"),
     nameEl: $("#accountName"),
     badgeEl: $("#accountBadge"),
     dashboardBadge: $("#dashboardBadge"),
@@ -1483,6 +1485,100 @@
       <div class="profile-item"><div class="k">Province</div><div class="v">${esc(province || "-")}</div></div>
       <div class="profile-item"><div class="k">Member status</div><div class="v">&#10003; Verified Power Poly Member</div></div>
     `;
+
+    if (els.profileActions) {
+      const editLabel = state.profileEditing ? "Cancel" : "Edit profile";
+      els.profileActions.innerHTML = `
+        <div class="profile-actions">
+          <button class="btn btn-outline btn-sm" type="button" id="toggleProfileEdit">${editLabel}</button>
+        </div>
+        <form id="profileEditForm" class="profile-edit ${state.profileEditing ? "" : "is-hidden"}" novalidate>
+          <div class="profile-edit-grid">
+            <label class="pref-field">
+              <span style="font-size:13px; color:var(--muted);">Name</span>
+              <input class="input" name="name" value="${esc(name || "")}" autocomplete="name">
+            </label>
+            <label class="pref-field">
+              <span style="font-size:13px; color:var(--muted);">Phone</span>
+              <input class="input" name="phone" value="${esc(phone || "")}" autocomplete="tel">
+            </label>
+            <label class="pref-field">
+              <span style="font-size:13px; color:var(--muted);">Province</span>
+              <select class="input" name="province" aria-label="Province">
+                <option value="">Select province/territory</option>
+                <option value="ON" ${provinceCode === "ON" ? "selected" : ""}>Ontario</option>
+                <option value="QC" ${provinceCode === "QC" ? "selected" : ""}>Quebec</option>
+                <option value="BC" ${provinceCode === "BC" ? "selected" : ""}>British Columbia</option>
+                <option value="AB" ${provinceCode === "AB" ? "selected" : ""}>Alberta</option>
+                <option value="MB" ${provinceCode === "MB" ? "selected" : ""}>Manitoba</option>
+                <option value="SK" ${provinceCode === "SK" ? "selected" : ""}>Saskatchewan</option>
+                <option value="NS" ${provinceCode === "NS" ? "selected" : ""}>Nova Scotia</option>
+                <option value="NB" ${provinceCode === "NB" ? "selected" : ""}>New Brunswick</option>
+                <option value="NL" ${provinceCode === "NL" ? "selected" : ""}>Newfoundland and Labrador</option>
+                <option value="PE" ${provinceCode === "PE" ? "selected" : ""}>Prince Edward Island</option>
+                <option value="YT" ${provinceCode === "YT" ? "selected" : ""}>Yukon</option>
+                <option value="NT" ${provinceCode === "NT" ? "selected" : ""}>Northwest Territories</option>
+                <option value="NU" ${provinceCode === "NU" ? "selected" : ""}>Nunavut</option>
+              </select>
+            </label>
+          </div>
+          <div class="profile-edit-actions">
+            <button class="btn btn-primary btn-sm" type="submit">Save changes</button>
+          </div>
+          <div class="profile-edit-note">Updates your saved profile on this device.</div>
+        </form>
+      `;
+
+      const toggleBtn = $("#toggleProfileEdit");
+      if (toggleBtn) {
+        toggleBtn.addEventListener("click", () => {
+          state.profileEditing = !state.profileEditing;
+          renderProfile(latest);
+        });
+      }
+
+      const form = $("#profileEditForm");
+      if (form) {
+        form.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const fd = new FormData(form);
+          const nextName = String(fd.get("name") || "").trim().slice(0, 80);
+          const nextPhone = String(fd.get("phone") || "").trim().slice(0, 40);
+          const nextProvince = String(fd.get("province") || "").trim().slice(0, 2);
+
+          session.name = nextName;
+          session.phone = nextPhone;
+          session.province = nextProvince;
+          try {
+            window.PPS?.setSession?.(session);
+          } catch {
+            // ignore
+          }
+
+          try {
+            const key = `pps_profile_${String(session.email || "").trim().toLowerCase()}`;
+            const existing = readJson(key, {});
+            writeJson(key, { ...existing, name: nextName, phone: nextPhone, province: nextProvince });
+          } catch {
+            // ignore
+          }
+
+          if (els.nameEl) {
+            const welcomeName = window.PPS_I18N?.t("account.welcome_name") || "Welcome, {{name}}";
+            const welcomeBack = window.PPS_I18N?.t("account.welcome_back") || "Welcome back";
+            const displayName = firstName(session.name);
+            els.nameEl.textContent = displayName ? welcomeName.replace("{{name}}", displayName) : welcomeBack;
+          }
+          if (els.provinceEl) {
+            els.provinceEl.textContent = nextProvince ? provinceLabel(nextProvince) : "";
+          }
+
+          state.profileEditing = false;
+          toast("Profile updated.");
+          renderProfile(latest);
+        });
+      }
+    }
     renderMilestones();
   }
 

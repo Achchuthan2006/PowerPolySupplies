@@ -1,8 +1,7 @@
 function setupNavbar(){
   const menuBtn = document.getElementById("menuBtn");
   const navLinks = document.getElementById("navLinks");
-  const dropdown = document.querySelector(".dropdown");
-  const dropBtn = document.querySelector(".dropbtn");
+  const dropdowns = Array.from(document.querySelectorAll(".dropdown"));
 
   if(menuBtn && navLinks){
     menuBtn.addEventListener("click", ()=>{
@@ -25,16 +24,18 @@ function setupNavbar(){
       if(!(target instanceof Node)) return;
       if(navLinks.contains(target) || menuBtn.contains(target)) return;
       navLinks.classList.remove("open");
-      dropdown?.classList.remove("open");
+      dropdowns.forEach(d=> d.classList.remove("open"));
     });
   }
 
-  // Mobile dropdown toggle
-  if(dropBtn && dropdown){
+  // Mobile dropdown toggle (supports multiple dropdowns)
+  dropdowns.forEach((dropdown)=>{
+    const dropBtn = dropdown.querySelector(".dropbtn");
+    if(!dropBtn) return;
     dropBtn.addEventListener("click", ()=>{
       dropdown.classList.toggle("open");
     });
-  }
+  });
 }
 
 function setupFadeIn(){
@@ -229,9 +230,10 @@ function showLanguageModal(){
   closeBtn?.addEventListener("click", close);
   laterBtn?.addEventListener("click", close);
   continueBtn?.addEventListener("click", ()=>{
-    const lang = select?.value || "en";
+    const lang = String(select?.value || "en").trim() || "en";
     try{ localStorage.setItem("pps_lang_prompt_dismissed", "1"); }catch(err){}
-    window.PPS_I18N?.setLang?.(lang);
+    try{ window.PPS_I18N?.setLang?.(lang); }catch(err){ /* ignore */ }
+    close();
   });
 
   // basic focus
@@ -281,14 +283,47 @@ function injectResourcesNavLink(){
 
   const link = document.createElement("a");
   link.href = "./resources.html";
+  link.setAttribute("data-i18n", "nav.resources");
   link.textContent = "Resources";
 
   const anchorAfter = navLinks.querySelector('a[href="./specials.html"]');
   if(anchorAfter && anchorAfter.parentElement === navLinks){
     anchorAfter.insertAdjacentElement("afterend", link);
+    try{ window.PPS_I18N?.applyTranslations?.(); }catch{}
     return;
   }
   navLinks.appendChild(link);
+  try{ window.PPS_I18N?.applyTranslations?.(); }catch{}
+}
+
+function injectAboutDropdown(){
+  const navLinks = document.getElementById("navLinks");
+  if(!navLinks) return;
+  if(navLinks.querySelector(".dropdown.about-dropdown")) return;
+
+  const aboutLink = navLinks.querySelector('a[href="./about.html"]');
+  if(!aboutLink) return;
+
+  const wrap = document.createElement("div");
+  wrap.className = "dropdown about-dropdown";
+  wrap.innerHTML = `
+    <button class="dropbtn" type="button"><span data-i18n="nav.about">About Us</span> <span class="caret" aria-hidden="true"></span></button>
+    <div class="dropdown-menu">
+      <a href="./about.html" data-i18n="nav.about_overview">About Power Poly Supplies</a>
+      <a href="./about.html#why" data-i18n="nav.about_why">Why Power Poly</a>
+      <a href="./about.html#sectors" data-i18n="nav.about_sectors">Sectors we serve</a>
+      <a href="./about.html#quality" data-i18n="nav.about_quality">Quality promise</a>
+      <a href="./about.html#contacts" data-i18n="nav.about_contacts">Contacts</a>
+    </div>
+  `;
+
+  aboutLink.replaceWith(wrap);
+
+  try{
+    window.PPS_I18N?.applyTranslations?.();
+  }catch{
+    // ignore
+  }
 }
 
 function getNotifUnreadCount(){
@@ -413,9 +448,6 @@ function injectFooter(){
             <a class="footer-icon" aria-label="Facebook" href="#" title="Facebook">
               <svg viewBox="0 0 24 24"><path d="M13 10.5V8.75c0-.66.44-1 .98-1H15V5h-2c-2 0-3 1.4-3 3.1V10.5H8v2.5h2v6h3v-6h2.1l.4-2.5H13z"/></svg>
             </a>
-            <a class="footer-icon" aria-label="LinkedIn" href="#" title="LinkedIn">
-              <svg viewBox="0 0 24 24"><path d="M6.5 19h-3V9h3zm-1.5-12A1.75 1.75 0 1 1 6.75 5.25 1.75 1.75 0 0 1 5 7ZM20.5 19h-3v-5.1c0-1.22-.46-2.05-1.5-2.05-.82 0-1.3.55-1.52 1.08-.08.19-.1.46-.1.73V19h-3s.04-8.15 0-9h3v1.3a3 3 0 0 1 2.72-1.5c1.98 0 3.4 1.29 3.4 4.05z"/></svg>
-            </a>
             <a class="footer-icon" aria-label="Email" href="mailto:powerpolysupplies@gmail.com" title="Email">
               <svg viewBox="0 0 24 24"><path d="M4 6h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1zm0 2.2V17h16V8.2l-7.6 4.53a1.5 1.5 0 0 1-1.54 0zM19.2 7H4.8l7.2 4.28z"/></svg>
             </a>
@@ -465,7 +497,7 @@ function injectFooter(){
       }catch(_err){
         // ignore
       }
-      newsletterNote.textContent = "Thanks! You’re on the list.";
+      newsletterNote.textContent = "Thanks! You're on the list.";
       newsletterForm.reset();
     });
   }
@@ -1255,16 +1287,12 @@ function showAuthModal(options = {}){
           <h2 id="ppsAuthTitle">Sign in or create account</h2>
 
           <button class="pps-auth-provider" type="button" data-auth-provider="google" disabled>
-            <span class="pps-auth-icon" style="background:#4285F4;"></span>
+            <span class="pps-auth-icon google-icon" aria-hidden="true"></span>
             Continue with Google
           </button>
           <button class="pps-auth-provider" type="button" data-auth-provider="facebook" disabled style="margin-top:10px;">
-            <span class="pps-auth-icon" style="background:#1877F2;"></span>
+            <span class="pps-auth-icon facebook-icon" aria-hidden="true"></span>
             Continue with Facebook
-          </button>
-          <button class="pps-auth-provider" type="button" data-auth-provider="linkedin" disabled style="margin-top:10px;">
-            <span class="pps-auth-icon" style="background:#0A66C2;"></span>
-            Continue with LinkedIn
           </button>
 
           <div class="pps-auth-divider">OR</div>
@@ -1302,7 +1330,6 @@ function showAuthModal(options = {}){
   const passwordToggle = overlay.querySelector(".toggle-visibility");
   const googleBtn = overlay.querySelector('[data-auth-provider="google"]');
   const facebookBtn = overlay.querySelector('[data-auth-provider="facebook"]');
-  const linkedinBtn = overlay.querySelector('[data-auth-provider="linkedin"]');
 
   const setStatus = (text, type = "muted") => {
     if(!statusEl) return;
@@ -1413,12 +1440,10 @@ function showAuthModal(options = {}){
       const fbOk = !!data?.providers?.facebook?.configured;
       if(googleBtn) googleBtn.disabled = !googleOk;
       if(facebookBtn) facebookBtn.disabled = !fbOk;
-      if(linkedinBtn) linkedinBtn.disabled = true;
     }catch{
       // Keep disabled on failure.
       if(googleBtn) googleBtn.disabled = true;
       if(facebookBtn) facebookBtn.disabled = true;
-      if(linkedinBtn) linkedinBtn.disabled = true;
     }
   };
 
@@ -1473,9 +1498,6 @@ function showAuthModal(options = {}){
   }
   if(facebookBtn){
     facebookBtn.addEventListener("click", ()=> startOauth("facebook"));
-  }
-  if(linkedinBtn){
-    linkedinBtn.addEventListener("click", ()=> setStatus("LinkedIn sign-in is not available yet.", "muted"));
   }
 
   refreshOauthButtons();
@@ -1596,12 +1618,20 @@ function setupAuthModalTriggers(){
 handleOauthReturn();
 
 window.addEventListener("DOMContentLoaded", ()=>{
+  try{
+    if("serviceWorker" in navigator){
+      navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(()=>{});
+    }
+  }catch{
+    // ignore
+  }
   setupNavbar();
   setupFadeIn();
   setupStickyHeader();
   syncAccountLink();
   setupAuthModalTriggers();
   injectResourcesNavLink();
+  injectAboutDropdown();
   injectLangSwitcher();
   injectCurrencySwitcher();
   injectNotificationsBell();

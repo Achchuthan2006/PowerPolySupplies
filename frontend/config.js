@@ -12,3 +12,7 @@ window.PPS_API_BASE = window.API_BASE_URL;
 window.SQUARE_ENV = "sandbox";
 window.SQUARE_APP_ID = "";
 window.SQUARE_LOCATION_ID = "";
+
+// Google reCAPTCHA (site key is safe to expose publicly; secret key must stay in backend env).
+// Create a key in Google reCAPTCHA admin and paste the *site key* here.
+window.RECAPTCHA_SITE_KEY = "";

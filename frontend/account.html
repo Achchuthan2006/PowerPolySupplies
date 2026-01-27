@@ -45,8 +45,8 @@
           <a href="./account.html" aria-current="page"><span class="nav-icon user-icon" aria-hidden="true"></span><span data-i18n="nav.my_account">My Account</span></a>
           <a href="./cart.html"><span class="nav-icon cart-icon" aria-hidden="true"></span><span data-i18n="nav.cart">Cart</span> <span class="badge" data-cart-badge>0</span></a>
           <form class="search-bar nav-search" action="./products.html" method="get" role="search">
-            <input type="search" name="q" placeholder="Search" aria-label="Search products">
-            <button type="submit">Search</button>
+            <input type="search" name="q" placeholder="Search" aria-label="Search products" data-i18n-placeholder="nav.search_placeholder">
+            <button type="submit" data-i18n="nav.search_button">Search</button>
           </form>
         </nav>
       </div>
@@ -231,13 +231,13 @@
             <details style="margin-top:14px;">
               <summary>Add / edit address</summary>
               <form id="addAddressForm" class="grid" style="gap:10px; margin-top:10px;">
-                <div class="grid" style="grid-template-columns: 1fr 1fr; gap:10px;">
+                <div class="grid addr-row addr-row-2" style="grid-template-columns: 1fr 1fr; gap:10px;">
                   <input class="input" name="label" placeholder="Label (e.g., Main Store)" required>
                   <input class="input" name="name" placeholder="Recipient / Attn" required>
                 </div>
                 <input class="input" name="line1" placeholder="Address line 1" required>
                 <input class="input" name="line2" placeholder="Address line 2 (optional)">
-                <div class="grid" style="grid-template-columns: 1fr 170px 170px; gap:10px;">
+                <div class="grid addr-row addr-row-3" style="grid-template-columns: 1fr 170px 170px; gap:10px;">
                   <input class="input" name="city" placeholder="City" required>
                   <select class="input" name="province" required>
                     <option value="">Select province/territory</option>
@@ -264,7 +264,7 @@
                   <span>Set as default delivery address</span>
                 </label>
 
-                <div style="margin-top:2px; display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
+                <div class="addr-actions" style="margin-top:2px; display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
                   <button class="btn btn-primary btn-sm" type="submit">Save address</button>
                   <button class="btn btn-outline btn-sm" type="button" id="addrCancelEdit">Cancel</button>
                 </div>
@@ -392,8 +392,10 @@
                   <label class="pref-item"><input type="checkbox" name="memberDeals"> <span>Member-only deals</span></label>
                   <label class="pref-item"><input type="checkbox" name="lowStock"> <span>Low stock warnings (frequent items)</span></label>
                   <label class="pref-item"><input type="checkbox" name="priceDrops"> <span>Price drop alerts</span></label>
+                  <label class="pref-item"><input type="checkbox" name="browserNotifications"> <span>Browser notifications (when this site is open)</span></label>
                 </div>
-
+                <div id="notifBrowserStatus" style="margin-top:8px; font-size:13px; color:var(--muted);"></div>
+ 
                 <div class="prefs-grid" style="margin-top:10px;">
                   <label class="pref-field">
                     <span style="font-size:13px; color:var(--muted);">Low stock threshold</span>
@@ -476,13 +478,14 @@
           <div class="card fade-in" style="padding:18px;">
             <h2 style="margin:0 0 10px;">Profile</h2>
             <div id="profileGrid" class="profile-grid"></div>
-            <div style="margin-top:12px; color:var(--muted); font-size:13px;">Want to update your details? Contact support and we'll help you.</div>
+            <div id="profileActions" style="margin-top:12px;"></div>
+            <div style="margin-top:10px; color:var(--muted); font-size:13px;">Changes are saved to this device (browser) for faster checkout.</div>
           </div>
         </section>
       </main>
     </div>
 
-    <div class="footer">&copy; <span id="y"></span> Power Poly Supplies. Power your packaging.</div>
+    <div class="footer">&copy; <span id="y"></span> <span data-i18n="footer.short">Power Poly Supplies. Power your packaging.</span></div>
   </div>
 
   <script src="./config.js"></script>
