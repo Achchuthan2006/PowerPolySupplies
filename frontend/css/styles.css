@@ -211,10 +211,10 @@ a{color:inherit;}
   will-change: transform;
 }
 html[lang="en"] .navbar .container{
-  --pps-nav-shift-x: -3vw;
+  --pps-nav-shift-x: -3%;
 }
 html[lang="ta"] .navbar .container{
-  --pps-nav-shift-x: -4vw;
+  --pps-nav-shift-x: -4%;
 }
 .promo-strip .container{
   padding-left:18px;
