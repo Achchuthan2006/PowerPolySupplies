@@ -8,6 +8,7 @@ frontend/node_modules/
 backend/.env
 frontend/.env
 backend/db.json
+backend/.qbo_tokens.json
 
 # logs
 *.log

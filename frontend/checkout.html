@@ -135,7 +135,7 @@
             <span id="shippingLabel">Shipping</span>
             <span id="shippingAmount"></span>
           </div>
-          <div class="summary-row summary-total">
+         <div class="summary-row summary-total">
             <span data-i18n="checkout.summary.total">Total</span>
             <span id="total"></span>
           </div>
@@ -145,6 +145,16 @@
           </div>
         </div>
         <div class="status muted" style="margin-top:10px;" data-i18n="checkout.shipping.note">Standard GTA delivery is free. Express delivery and non-GTA delivery charges are confirmed by our team.</div>
+        <div style="margin-top:12px;">
+          <div style="font-size:13px; font-weight:900; color:var(--muted);" data-i18n="billing.features.title">Billing features</div>
+          <div class="feature-badges" style="margin-top:8px;">
+            <span class="feature-pill" data-i18n="billing.features.auto_email">Invoice will be emailed automatically</span>
+            <span class="feature-pill" data-i18n="billing.features.receipt">Business receipt provided</span>
+            <span class="feature-pill" data-i18n="billing.features.tax_invoice">GST/HST invoice included</span>
+            <span class="feature-pill" data-i18n="billing.features.statements">Monthly statements for business clients</span>
+            <span class="feature-pill" data-i18n="billing.features.account_billing">Account billing for regular clients</span>
+          </div>
+        </div>
         <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
           <button class="btn btn-outline" type="button" id="payOnline" data-i18n="checkout.pay_online">Pay online with Square</button>
           <a class="btn" href="./cart.html" data-i18n="checkout.back">Back to cart</a>

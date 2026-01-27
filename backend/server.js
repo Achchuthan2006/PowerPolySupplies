@@ -9,6 +9,7 @@ import crypto from "crypto";
 import https from "https";
 import { createClient } from "@supabase/supabase-js";
 import { appendMessageToSheet, appendOrderToSheet, appendReviewToSheet, appendFeedbackToSheet, syncProductsToSheet, isSheetsConfigured } from "./googleSheets.js";
+import { qboBuildAuthUrl, qboDownloadInvoicePdf, qboHandleCallback, qboIsConfigured, qboStatus, qboUpsertInvoiceForOrder } from "./quickbooks.js";
 import squarePkg from "square";
 const SquareClient = squarePkg.SquareClient || squarePkg.Client;
 const SquareEnvironment = squarePkg.SquareEnvironment || squarePkg.Environment;
@@ -64,6 +65,17 @@ function readEnvFirstMeta(...names){
     if(value) return { name, value };
   }
   return { name: "", value: "" };
+}
+
+function requireAdmin(req, res){
+  const adminToken = String(process.env.ADMIN_TOKEN || "").trim();
+  if(!adminToken) return true;
+  const header = String(req.headers["x-admin-token"] || "").trim();
+  if(header !== adminToken){
+    res.status(401).json({ ok:false, message:"Unauthorized" });
+    return false;
+  }
+  return true;
 }
 
 function getSquareEnvironment(){
@@ -1400,6 +1412,84 @@ app.post("/api/admin/orders/:id/fulfill", async (req,res)=>{
   }catch(err){
     console.error("Supabase order fulfill failed", err);
     res.status(500).json({ ok:false, message:"Failed to update order." });
+  }
+});
+
+// ---- Admin: QuickBooks Online ----
+app.get("/api/admin/qbo/status", (req,res)=>{
+  if(!requireAdmin(req,res)) return;
+  res.json({ ok:true, ...qboStatus() });
+});
+
+app.get("/api/admin/qbo/auth-url", (req,res)=>{
+  if(!requireAdmin(req,res)) return;
+  try{
+    const out = qboBuildAuthUrl();
+    res.json({ ok:true, url: out.url });
+  }catch(err){
+    res.status(400).json({ ok:false, message: String(err?.message || "Unable to build QuickBooks auth URL.") });
+  }
+});
+
+app.get("/api/qbo/callback", async (req,res)=>{
+  try{
+    const code = String(req.query?.code || "").trim();
+    const realmId = String(req.query?.realmId || "").trim();
+    const state = String(req.query?.state || "").trim();
+    if(!code || !realmId || !state){
+      return res.status(400).send("Missing code/realmId/state.");
+    }
+    const out = await qboHandleCallback({ code, realmId, state });
+    const env = String(out?.env || "");
+    res.status(200).send(
+      `QuickBooks connected successfully. Realm: ${out?.realmId || ""} (${env}). You can close this tab.`
+    );
+  }catch(err){
+    console.error("QBO callback error", err);
+    res.status(400).send(`QuickBooks connection failed: ${String(err?.message || "Unknown error")}`);
+  }
+});
+
+app.post("/api/admin/qbo/sync-order", async (req,res)=>{
+  if(!requireAdmin(req,res)) return;
+  if(!requireSupabase(res)) return;
+  if(!qboIsConfigured()){
+    return res.status(400).json({ ok:false, message:"QuickBooks not configured on the backend." });
+  }
+
+  try{
+    const orderId = String(req.body?.orderId || "").trim();
+    if(!orderId) return res.status(400).json({ ok:false, message:"orderId is required" });
+
+    const { data: orderRow, error } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("id", orderId)
+      .single();
+    if(error) throw error;
+    if(!orderRow) return res.status(404).json({ ok:false, message:"Order not found." });
+
+    const sendEmail = req.body?.sendEmail;
+    const out = await qboUpsertInvoiceForOrder(orderRow, { sendEmail });
+    res.json({ ok:true, orderId, ...out });
+  }catch(err){
+    console.error("QBO sync order error", err);
+    res.status(500).json({ ok:false, message:String(err?.message || "Unable to sync order to QuickBooks.") });
+  }
+});
+
+app.get("/api/admin/qbo/invoice-pdf", async (req,res)=>{
+  if(!requireAdmin(req,res)) return;
+  try{
+    const invoiceId = String(req.query?.invoiceId || "").trim();
+    if(!invoiceId) return res.status(400).json({ ok:false, message:"invoiceId is required" });
+    const pdf = await qboDownloadInvoicePdf(invoiceId);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `inline; filename=\"invoice-${invoiceId}.pdf\"`);
+    res.status(200).send(pdf);
+  }catch(err){
+    console.error("QBO invoice pdf error", err);
+    res.status(500).json({ ok:false, message:String(err?.message || "Unable to download invoice PDF.") });
   }
 });
 
@@ -2843,6 +2933,17 @@ async function handlePaymentStatus(req,res){
             });
           }
         })().catch((err)=> console.error("Square receipt email failed", err));
+      }
+
+      // Optional: sync to QuickBooks Online for invoicing/accounting.
+      if(qboIsConfigured()){
+        (async ()=>{
+          try{
+            await qboUpsertInvoiceForOrder({ ...orderRow, status });
+          }catch(err){
+            console.error("QBO sync paid order failed", err);
+          }
+        })();
       }
     }
 
