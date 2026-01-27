@@ -3683,10 +3683,10 @@ select.input option:hover{
     padding:14px;
     border:1px solid rgba(241,223,204,.75);
     border-radius:16px;
-    background: rgba(255,250,243,.78);
+    background: rgba(255,250,243,.90);
     box-shadow:0 26px 70px rgba(17,24,39,.25);
-    backdrop-filter: blur(14px) saturate(1.2);
-    -webkit-backdrop-filter: blur(14px) saturate(1.2);
+    backdrop-filter: blur(10px) saturate(1.08);
+    -webkit-backdrop-filter: blur(10px) saturate(1.08);
     z-index:200;
     max-height: calc(100vh - 96px);
     overflow-y:auto;
