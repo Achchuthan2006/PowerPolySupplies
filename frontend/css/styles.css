@@ -2990,6 +2990,10 @@ select.input option:hover{
   animation: marquee-left var(--marquee-duration, 36s) linear infinite;
   will-change: transform;
 }
+.testimonial-marquee:hover .testimonial-track,
+.testimonial-marquee:focus-within .testimonial-track{
+  animation-play-state: paused;
+}
 .testimonial-card{
   border:1px solid var(--border);
   border-radius:16px;
@@ -2999,10 +3003,19 @@ select.input option:hover{
   position:relative;
   overflow:hidden;
   animation: floatCard 6s ease-in-out infinite;
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, filter .18s ease;
 }
 .testimonial-track .testimonial-card{
   flex:0 0 clamp(240px, 32vw, 320px);
   animation:none;
+}
+.testimonial-track .testimonial-card:hover{
+  transform: translateY(-3px);
+  box-shadow:0 18px 44px rgba(240,127,41,.18);
+  border-color: rgba(255,122,26,.22);
+}
+.testimonial-track .testimonial-card:active{
+  transform: translateY(-1px);
 }
 .quote-mark{
   font-size:28px;
