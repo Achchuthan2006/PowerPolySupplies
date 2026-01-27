@@ -3670,6 +3670,23 @@ select.input option:hover{
     flex:1;
     min-width:0;
   }
+  .navlinks .search-bar{
+    background: rgba(255,255,255,.92);
+    border-color: rgba(255,122,26,.22);
+    box-shadow: 0 10px 22px rgba(17,24,39,.12);
+    padding: 6px 8px;
+    border-radius:14px;
+  }
+  .navlinks .search-bar input{
+    font-size:14px;
+    padding:8px 8px;
+    min-width:0;
+  }
+  .navlinks .search-bar button{
+    font-size:12px;
+    padding:8px 12px;
+    border-radius:10px;
+  }
   .menu-btn{ display:inline-flex; }
 
   .navlinks{
@@ -3683,10 +3700,10 @@ select.input option:hover{
     padding:14px;
     border:1px solid rgba(241,223,204,.75);
     border-radius:16px;
-    background: rgba(255,250,243,.90);
+    background: rgba(255,250,243,.96);
     box-shadow:0 26px 70px rgba(17,24,39,.25);
-    backdrop-filter: blur(10px) saturate(1.08);
-    -webkit-backdrop-filter: blur(10px) saturate(1.08);
+    backdrop-filter: blur(8px) saturate(1.03);
+    -webkit-backdrop-filter: blur(8px) saturate(1.03);
     z-index:200;
     max-height: calc(100vh - 96px);
     overflow-y:auto;
