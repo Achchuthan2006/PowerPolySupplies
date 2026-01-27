@@ -230,9 +230,26 @@ function showLanguageModal(){
   closeBtn?.addEventListener("click", close);
   laterBtn?.addEventListener("click", close);
   continueBtn?.addEventListener("click", ()=>{
-    const lang = String(select?.value || "en").trim() || "en";
+    const raw = String(select?.value || "").trim().toLowerCase();
+    const allowed = new Set(["en", "fr", "es", "ko", "hi", "ta"]);
+    const lang = allowed.has(raw) ? raw : "en";
     try{ localStorage.setItem("pps_lang_prompt_dismissed", "1"); }catch(err){}
-    try{ window.PPS_I18N?.setLang?.(lang); }catch(err){ /* ignore */ }
+    try{
+      if(window.PPS_I18N?.setLang){
+        window.PPS_I18N.setLang(lang);
+      }else{
+        try{ localStorage.setItem("pps_lang", lang); }catch(_err){}
+        try{ document.cookie = `pps_lang=${encodeURIComponent(lang)}; max-age=${60*60*24*365}; path=/; samesite=lax`; }catch(_err){}
+        try{
+          const url = new URL(window.location.href);
+          url.searchParams.set("lang", lang);
+          window.history.replaceState({}, "", url.toString());
+        }catch(_err){}
+        document.documentElement.lang = lang;
+      }
+    }catch(err){
+      /* ignore */
+    }
     close();
   });
 
