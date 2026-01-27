@@ -1478,11 +1478,22 @@
     const phone = String(session?.phone || latest?.customer?.phone || "").trim();
     const provinceCode = String(session?.province || latest?.customer?.province || "").trim();
     const province = provinceCode ? provinceLabel(provinceCode) : "";
+    const missingText = tt("account.profile.missing", "Not added yet");
+    const addLabel = tt("account.profile.add", "Add");
+    const addPhoneHint = tt("account.profile.add_phone_hint", "Add a phone number for delivery updates.");
+    const addProvinceHint = tt("account.profile.add_province_hint", "Add your province for accurate tax at checkout.");
+
+    const phoneHtml = phone
+      ? esc(phone)
+      : `<span class="profile-missing">${esc(missingText)}</span> <button class="profile-add-link" type="button" data-profile-edit="phone">${esc(addLabel)}</button><div class="profile-hint">${esc(addPhoneHint)}</div>`;
+    const provinceHtml = province
+      ? esc(province)
+      : `<span class="profile-missing">${esc(missingText)}</span> <button class="profile-add-link" type="button" data-profile-edit="province">${esc(addLabel)}</button><div class="profile-hint">${esc(addProvinceHint)}</div>`;
     els.profileGrid.innerHTML = `
       <div class="profile-item"><div class="k">Name</div><div class="v">${esc(name || "-")}</div></div>
       <div class="profile-item"><div class="k">Email</div><div class="v">${esc(email || "-")}</div></div>
-      <div class="profile-item"><div class="k">Phone</div><div class="v">${esc(phone || "-")}</div></div>
-      <div class="profile-item"><div class="k">Province</div><div class="v">${esc(province || "-")}</div></div>
+      <div class="profile-item"><div class="k">Phone</div><div class="v">${phoneHtml}</div></div>
+      <div class="profile-item"><div class="k">Province</div><div class="v">${provinceHtml}</div></div>
       <div class="profile-item"><div class="k">Member status</div><div class="v">&#10003; Verified Power Poly Member</div></div>
     `;
 
@@ -1579,6 +1590,19 @@
         });
       }
     }
+
+    // Quick "Add" actions on missing fields.
+    Array.from(els.profileGrid.querySelectorAll("[data-profile-edit]")).forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.profileEditing = true;
+        renderProfile(latest);
+        const target = String(btn.getAttribute("data-profile-edit") || "");
+        const form = $("#profileEditForm");
+        const field = form?.querySelector(`[name="${target}"]`);
+        if (form) form.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        if (field && typeof field.focus === "function") field.focus();
+      });
+    });
     renderMilestones();
   }
 

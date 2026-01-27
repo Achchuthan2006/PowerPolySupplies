@@ -4346,6 +4346,28 @@ select.input option:hover{
   font-weight:900;
   word-break:break-word;
 }
+.profile-missing{
+  color:var(--muted);
+  font-weight:800;
+}
+.profile-add-link{
+  border:none;
+  background:transparent;
+  color:var(--primary);
+  font-weight:1000;
+  padding:0;
+  cursor:pointer;
+  text-decoration:underline;
+  text-underline-offset:3px;
+}
+.profile-add-link:hover{ filter:saturate(1.05); }
+.profile-hint{
+  margin-top:6px;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:800;
+  line-height:1.35;
+}
 
 .account-empty{
   margin-top:12px;
