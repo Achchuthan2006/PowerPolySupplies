@@ -102,11 +102,20 @@ const squareClientProduction = squareAccessToken
   : null;
 
 function getSquareClientCandidates(){
-  // In explicit modes, do not fall back to the other environment; it produces confusing results.
-  if(squareEnvMode === "production") return squareClientProduction ? [squareClientProduction] : [];
-  if(squareEnvMode === "sandbox") return squareClientSandbox ? [squareClientSandbox] : [];
-  // auto: try sandbox first, then production
+  // Prefer the configured env first, but fall back to the other env on auth errors.
+  // This helps recover from common misconfigurations (token/location belong to sandbox but SQUARE_ENV=production, or vice-versa).
   const out = [];
+  if(squareEnvMode === "production"){
+    if(squareClientProduction) out.push(squareClientProduction);
+    if(squareClientSandbox) out.push(squareClientSandbox);
+    return out;
+  }
+  if(squareEnvMode === "sandbox"){
+    if(squareClientSandbox) out.push(squareClientSandbox);
+    if(squareClientProduction) out.push(squareClientProduction);
+    return out;
+  }
+  // auto: try sandbox first, then production
   if(squareClientSandbox) out.push(squareClientSandbox);
   if(squareClientProduction) out.push(squareClientProduction);
   return out;
