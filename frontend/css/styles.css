@@ -204,11 +204,7 @@ a{color:inherit;}
 .navbar .container{
   padding-left:18px;
   padding-right:18px;
-  --pps-nav-shift-x: -4%;
-  transform: translateX(var(--pps-nav-shift-x));
-}
-.navbar .container{
-  will-change: transform;
+  transform:none;
 }
 .promo-strip .container{
   padding-left:18px;
@@ -225,6 +221,7 @@ a{color:inherit;}
   justify-content:flex-start;
   gap:10px;
   position:relative;
+  flex-wrap:wrap;
 }
 
 html[lang="ta"] .navbar-inner,
@@ -278,10 +275,11 @@ html[lang="es"] .navbar .container{
   display:flex;
   gap:8px;
   align-items:center;
-  flex-wrap:nowrap;
-  white-space:nowrap;
+  flex-wrap:wrap;
+  white-space:normal;
   flex:1;
   justify-content:flex-start;
+  min-width:0;
 }
 
 @media (max-width: 1240px){
