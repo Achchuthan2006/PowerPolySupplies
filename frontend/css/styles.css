@@ -285,7 +285,7 @@ html[lang="es"] .navbar .container{
 /* Desktop-only: shift navbar left so everything fits on one line */
 @media (min-width: 861px){
   .navbar .container{
-    transform: translateX(-25%);
+    transform: translateX(-24%);
   }
   .nav-search{
     flex: 0 1 260px;
