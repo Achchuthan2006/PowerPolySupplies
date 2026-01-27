@@ -285,10 +285,30 @@ html[lang="es"] .navbar .container{
 /* Desktop-only: shift navbar left so everything fits on one line */
 @media (min-width: 861px){
   .navbar .container{
-    transform: translateX(-27%);
+    transform: translateX(-25%);
   }
   .nav-search{
     flex: 0 1 260px;
+  }
+}
+
+/* Desktop: old stacked wordmark style in navbar */
+@media (min-width: 861px){
+  .navbar .brand-title{
+    font-size:0;
+    line-height:0;
+  }
+  .navbar .brand-title::before{
+    content:"POWER\A POLY\A SUPPLIES";
+    white-space:pre;
+    display:block;
+    font-family:"Space Grotesk","Manrope",sans-serif;
+    font-weight:800;
+    letter-spacing:.3px;
+    font-size:18px;
+    line-height:1.05;
+    text-transform:uppercase;
+    color:var(--text);
   }
 }
 
