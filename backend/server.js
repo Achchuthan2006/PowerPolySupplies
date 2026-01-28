@@ -695,6 +695,21 @@ function buildWelcomeHtml(name, loginDate){
   `;
 }
 
+function buildWelcomeText(name, loginDate){
+  const safeFirstName = firstNameFrom(name);
+  const safeDate = formatLetterDate(loginDate);
+  return [
+    `Dear ${safeFirstName},`,
+    "",
+    "Welcome to Power Poly Supplies.",
+    "This account gives you quick access to bulk pricing, order history, and faster checkout.",
+    "",
+    `Date: ${safeDate}`,
+    "",
+    "Power Poly Supplies"
+  ].join("\n");
+}
+
 function buildVerificationHtml(name, code){
   const safeName = escapeHtml(name || "there");
   return `
@@ -707,6 +722,21 @@ function buildVerificationHtml(name, code){
       <p>If you did not request this, you can safely ignore this email.</p>
     </div>
   `;
+}
+
+function buildVerificationText(name, code){
+  const safeFirstName = firstNameFrom(name);
+  return [
+    `Hi ${safeFirstName},`,
+    "",
+    "Your Power Poly verification code is:",
+    String(code || "").trim(),
+    "",
+    "This code expires in 10 minutes.",
+    "If you did not request this, you can ignore this email.",
+    "",
+    "Power Poly Supplies"
+  ].join("\n");
 }
 
 // ---- Email transporter ----
@@ -934,6 +964,132 @@ async function verifyEmailTransporter({ force = false } = {}){
 const verificationCodes = new Map();
 const authSessions = new Map();
 const oauthStates = new Map(); // state -> { provider, nextUrl, createdAt }
+let verificationStoreMode = "auto"; // auto | supabase | memory
+
+async function trySupabaseUpsertVerificationCode(email, code, expiresAt){
+  if(!supabase) return { ok:false, reason:"no_supabase" };
+  try{
+    const payload = {
+      email: String(email || "").trim().toLowerCase(),
+      code: String(code || ""),
+      expires_at: Number(expiresAt) || 0,
+      updated_at: new Date().toISOString()
+    };
+    const { error } = await supabase
+      .from("verification_codes")
+      .upsert(payload, { onConflict: "email" });
+    if(error){
+      const msg = String(error.message || "");
+      if(msg.toLowerCase().includes("does not exist") || msg.toLowerCase().includes("relation")){
+        return { ok:false, reason:"table_missing", error };
+      }
+      return { ok:false, reason:"supabase_error", error };
+    }
+    return { ok:true };
+  }catch(err){
+    return { ok:false, reason:"exception", error: err };
+  }
+}
+
+async function trySupabaseGetVerificationCode(email){
+  if(!supabase) return { ok:false, reason:"no_supabase", entry:null };
+  try{
+    const key = String(email || "").trim().toLowerCase();
+    if(!key) return { ok:false, reason:"no_email", entry:null };
+    const { data, error } = await supabase
+      .from("verification_codes")
+      .select("*")
+      .eq("email", key)
+      .maybeSingle();
+    if(error){
+      const msg = String(error.message || "");
+      if(msg.toLowerCase().includes("does not exist") || msg.toLowerCase().includes("relation")){
+        return { ok:false, reason:"table_missing", entry:null, error };
+      }
+      return { ok:false, reason:"supabase_error", entry:null, error };
+    }
+    if(!data) return { ok:true, entry:null };
+    return {
+      ok:true,
+      entry: {
+        code: String(data.code || ""),
+        expiresAt: Number(data.expires_at) || 0
+      }
+    };
+  }catch(err){
+    return { ok:false, reason:"exception", entry:null, error: err };
+  }
+}
+
+async function trySupabaseDeleteVerificationCode(email){
+  if(!supabase) return { ok:false, reason:"no_supabase" };
+  try{
+    const key = String(email || "").trim().toLowerCase();
+    if(!key) return { ok:false, reason:"no_email" };
+    const { error } = await supabase.from("verification_codes").delete().eq("email", key);
+    if(error){
+      const msg = String(error.message || "");
+      if(msg.toLowerCase().includes("does not exist") || msg.toLowerCase().includes("relation")){
+        return { ok:false, reason:"table_missing", error };
+      }
+      return { ok:false, reason:"supabase_error", error };
+    }
+    return { ok:true };
+  }catch(err){
+    return { ok:false, reason:"exception", error: err };
+  }
+}
+
+async function putVerificationCode(emailKey, { code, expiresAt }){
+  const key = String(emailKey || "").trim().toLowerCase();
+  if(!key) return;
+
+  // Always keep an in-memory fallback (single-instance dev works without Supabase table).
+  verificationCodes.set(key, { code: String(code || ""), expiresAt: Number(expiresAt) || 0 });
+
+  if(verificationStoreMode === "memory") return;
+  if(verificationStoreMode === "auto" || verificationStoreMode === "supabase"){
+    const out = await trySupabaseUpsertVerificationCode(key, code, expiresAt);
+    if(out.ok){
+      verificationStoreMode = "supabase";
+      return;
+    }
+    // If the table doesn't exist, don't keep spamming Supabase on every request.
+    if(out.reason === "table_missing"){
+      verificationStoreMode = "memory";
+    }
+  }
+}
+
+async function getVerificationCode(emailKey){
+  const key = String(emailKey || "").trim().toLowerCase();
+  if(!key) return null;
+
+  if(verificationStoreMode === "supabase" || verificationStoreMode === "auto"){
+    const out = await trySupabaseGetVerificationCode(key);
+    if(out.ok){
+      if(out.entry) return out.entry;
+      // If Supabase is enabled and says "no row", fall back to memory (useful right after deploy).
+    }else if(out.reason === "table_missing"){
+      verificationStoreMode = "memory";
+    }
+  }
+
+  return verificationCodes.get(key) || null;
+}
+
+async function deleteVerificationCode(emailKey){
+  const key = String(emailKey || "").trim().toLowerCase();
+  if(!key) return;
+
+  verificationCodes.delete(key);
+  if(verificationStoreMode === "supabase"){
+    const out = await trySupabaseDeleteVerificationCode(key);
+    if(!out.ok && out.reason === "table_missing"){
+      verificationStoreMode = "memory";
+    }
+  }
+}
 
 function createSession(email){
   const token = crypto.randomBytes(24).toString("hex");
@@ -2013,7 +2169,7 @@ app.post("/api/auth/send-code", async (req,res)=>{
   try{
     const code = Math.floor(1000 + Math.random()*9000).toString(); // 4-digit
     const expiresAt = Date.now() + 10*60*1000; // 10 minutes
-    verificationCodes.set(emailKey, { code, expiresAt });
+    await putVerificationCode(emailKey, { code, expiresAt });
 
     const emailConfigured = !!buildTransportConfig();
 
@@ -2022,7 +2178,8 @@ app.post("/api/auth/send-code", async (req,res)=>{
         from: getSenderAddress(),
         to: email,
         subject: "Welcome to Power Poly Supplies - your verification code",
-        html: buildVerificationHtml(name, code)
+        html: buildVerificationHtml(name, code),
+        text: buildVerificationText(name, code)
       });
       if(out.ok) res.json({ ok:true, emailSent:true, emailConfigured:true });
       else res.status(500).json({ ok:false, emailSent:false, emailConfigured:true, message:"Failed to send code. Check mail credentials." });
@@ -2038,15 +2195,15 @@ app.post("/api/auth/send-code", async (req,res)=>{
 });
 
 // ---- Auth: check verification code ----
-app.post("/api/auth/check-code", (req,res)=>{
+app.post("/api/auth/check-code", async (req,res)=>{
   const { email, code } = req.body;
   const emailKey = String(email || "").trim().toLowerCase();
   if(!emailKey || !code) return res.status(400).json({ ok:false, message:"Email and code required" });
 
-  const entry = verificationCodes.get(emailKey);
+  const entry = await getVerificationCode(emailKey);
   if(!entry) return res.status(400).json({ ok:false, message:"No code sent. Please request a code first." });
   if(Date.now() > entry.expiresAt){
-    verificationCodes.delete(emailKey);
+    await deleteVerificationCode(emailKey);
     return res.status(400).json({ ok:false, message:"Code expired. Please request a new one." });
   }
   if(entry.code !== code){
@@ -2067,10 +2224,10 @@ app.post("/api/auth/register", async (req,res)=>{
     return res.status(400).json({ ok:false, message:"reCAPTCHA failed. Please try again." });
   }
 
-  const entry = verificationCodes.get(emailKey);
+  const entry = await getVerificationCode(emailKey);
   if(!entry) return res.status(400).json({ ok:false, message:"No code sent. Please request a code first." });
   if(Date.now() > entry.expiresAt){
-    verificationCodes.delete(emailKey);
+    await deleteVerificationCode(emailKey);
     return res.status(400).json({ ok:false, message:"Code expired. Please request a new one." });
   }
   if(entry.code !== code){
@@ -2117,7 +2274,7 @@ app.post("/api/auth/register", async (req,res)=>{
     console.error("Supabase user insert failed", err);
     return res.status(500).json({ ok:false, message:"Unable to create account." });
   }
-  verificationCodes.delete(emailKey);
+  await deleteVerificationCode(emailKey);
 
   const session = createSession(lower);
   const emailConfigured = !!buildTransportConfig();
@@ -2130,7 +2287,8 @@ app.post("/api/auth/register", async (req,res)=>{
         from: getSenderAddress(),
         to: lower,
         subject: "Welcome to Power Poly Supplies!",
-        html: buildWelcomeHtml(user.name || "", new Date(now))
+        html: buildWelcomeHtml(user.name || "", new Date(now)),
+        text: buildWelcomeText(user.name || "", new Date(now))
       });
       welcomeEmailSent = !!out.ok;
       if(out.ok){
@@ -2160,24 +2318,29 @@ app.post("/api/auth/register", async (req,res)=>{
 });
 
 // ---- Auth: verify code (stub, no persistence) ----
-app.post("/api/auth/verify-code", (req,res)=>{
+app.post("/api/auth/verify-code", async (req,res)=>{
   const { email, code } = req.body;
   const emailKey = String(email || "").trim().toLowerCase();
   if(!emailKey || !code) return res.status(400).json({ ok:false, message:"Email and code required" });
 
-  const entry = verificationCodes.get(emailKey);
-  if(!entry) return res.status(400).json({ ok:false, message:"No code sent. Please request a code first." });
-  if(Date.now() > entry.expiresAt){
-    verificationCodes.delete(emailKey);
-    return res.status(400).json({ ok:false, message:"Code expired. Please request a new one." });
-  }
-  if(entry.code !== code){
-    return res.status(400).json({ ok:false, message:"Invalid code." });
-  }
+  try{
+    const entry = await getVerificationCode(emailKey);
+    if(!entry) return res.status(400).json({ ok:false, message:"No code sent. Please request a code first." });
+    if(Date.now() > entry.expiresAt){
+      await deleteVerificationCode(emailKey);
+      return res.status(400).json({ ok:false, message:"Code expired. Please request a new one." });
+    }
+    if(entry.code !== code){
+      return res.status(400).json({ ok:false, message:"Invalid code." });
+    }
 
-  verificationCodes.delete(emailKey);
-  const session = createSession(emailKey);
-  res.json({ ok:true, message:"Code verified.", token: session.token, email: emailKey, expiresAt: session.expiresAt });
+    await deleteVerificationCode(emailKey);
+    const session = createSession(emailKey);
+    res.json({ ok:true, message:"Code verified.", token: session.token, email: emailKey, expiresAt: session.expiresAt });
+  }catch(err){
+    console.error("Verify code failed", err);
+    res.status(500).json({ ok:false, message:"Unable to verify code." });
+  }
 });
 
 // ---- Auth: login ----
