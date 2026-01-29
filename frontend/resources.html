@@ -54,33 +54,77 @@
   </header>
 
   <div class="container page">
-    <section class="hero fade-in">
-      <p style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);" data-i18n="resources.hero.kicker">Resources</p>
-      <h1 data-i18n="resources.hero.title">Guides for dry cleaners & retailers</h1>
-      <p style="max-width:72ch;" data-i18n="resources.hero.subtitle">Practical sizing, thickness, and planning tips to help you buy the right packaging the first time.</p>
+    <section class="hero hero-split resources-hero fade-in">
+      <div class="hero-content">
+        <p class="resources-kicker" data-i18n="resources.hero.kicker">Resources</p>
+        <h1 data-i18n="resources.hero.title">Guides for dry cleaners & retailers</h1>
+        <p class="resources-subtitle" data-i18n="resources.hero.subtitle">Practical sizing, thickness, and planning tips to help you buy the right packaging the first time.</p>
+        <div class="hero-callouts" aria-label="Highlights">
+          <div class="callout-pill pulse">
+            <span class="callout-icon ship-icon" aria-hidden="true"></span>
+            <span>Save time on reorders</span>
+          </div>
+          <div class="callout-pill pulse delay-1">
+            <span class="callout-icon lock-icon" aria-hidden="true"></span>
+            <span>Avoid returns</span>
+          </div>
+          <div class="callout-pill pulse delay-2">
+            <span class="callout-icon leaf-icon" aria-hidden="true"></span>
+            <span>Buy the right size</span>
+          </div>
+        </div>
+        <div class="resources-hero-actions">
+          <a class="btn btn-primary" href="./products.html" data-i18n="resources.quick.browse">Browse products</a>
+          <a class="btn btn-outline" href="./contact.html">Ask a question</a>
+        </div>
+      </div>
+      <div class="hero-media">
+        <aside class="resources-promo" aria-label="Featured quick start">
+          <div class="promo-tagline">POWERPOLYSUPPLIES.COM</div>
+          <h2>Canada-wide B2B packaging supply</h2>
+          <p>Get sizing, thickness, and buying plans—fast.</p>
+          <ul class="promo-list">
+            <li>
+              <span class="promo-icon promo-icon-van" aria-hidden="true"></span>
+              <span>Fast quotes, reliable fulfillment</span>
+            </li>
+            <li>
+              <span class="promo-icon promo-icon-bag" aria-hidden="true"></span>
+              <span>Multi-location delivery ready</span>
+            </li>
+            <li>
+              <span class="promo-icon promo-icon-box" aria-hidden="true"></span>
+              <span>Bulk pricing, consistent inventory</span>
+            </li>
+          </ul>
+        </aside>
+      </div>
     </section>
 
-    <section class="card fade-in" style="padding:18px; margin-top:16px;">
-      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
+    <section class="card fade-in resources-quick">
+      <div class="resources-quick-head">
         <div>
-          <h2 style="margin:0;" data-i18n="resources.quick.title">Quick links</h2>
-          <div style="color:var(--muted); font-size:13px; margin-top:4px;" data-i18n="resources.quick.desc">Jump to a guide, or share the link with your team.</div>
+          <h2 class="resources-quick-title" data-i18n="resources.quick.title">Quick links</h2>
+          <div class="resources-quick-desc" data-i18n="resources.quick.desc">Jump to a guide, or share the link with your team.</div>
         </div>
         <a class="btn btn-outline btn-sm" href="./products.html" data-i18n="resources.quick.browse">Browse products</a>
       </div>
 
       <div class="resource-toc" style="margin-top:12px;">
         <a class="card card-link resource-card" href="#guide-garment-bag-sizes">
+          <div class="resource-card-icon resource-icon-ruler" aria-hidden="true"></div>
           <div class="resource-kicker" data-i18n="resources.label.guide">Guide</div>
           <div class="resource-title" data-i18n="resources.toc.garment.title">Choosing garment bag sizes</div>
           <div class="resource-desc" data-i18n="resources.toc.garment.desc">How to measure, pick width/length, and avoid returns.</div>
         </a>
         <a class="card card-link resource-card" href="#heavy-vs-extra-heavy">
+          <div class="resource-card-icon resource-icon-layers" aria-hidden="true"></div>
           <div class="resource-kicker" data-i18n="resources.label.guide">Guide</div>
           <div class="resource-title" data-i18n="resources.toc.thickness.title">Heavy vs Extra Heavy thickness</div>
           <div class="resource-desc" data-i18n="resources.toc.thickness.desc">When to go thicker (and when not to).</div>
         </a>
         <a class="card card-link resource-card" href="#dry-cleaner-packaging-usage">
+          <div class="resource-card-icon resource-icon-calc" aria-hidden="true"></div>
           <div class="resource-kicker" data-i18n="resources.label.planner">Planner</div>
           <div class="resource-title" data-i18n="resources.toc.planner.title">Monthly packaging usage</div>
           <div class="resource-desc" data-i18n="resources.toc.planner.desc">A simple way to estimate how much you'll use.</div>
