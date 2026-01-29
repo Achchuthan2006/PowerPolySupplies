@@ -59,6 +59,11 @@
         <p class="resources-kicker" data-i18n="resources.hero.kicker">Resources</p>
         <h1 data-i18n="resources.hero.title">Guides for dry cleaners & retailers</h1>
         <p class="resources-subtitle" data-i18n="resources.hero.subtitle">Practical sizing, thickness, and planning tips to help you buy the right packaging the first time.</p>
+        <div class="feature-badges" aria-label="Material and origin highlights">
+          <span class="feature-pill">100% Korean-made</span>
+          <span class="feature-pill">100% virgin material</span>
+          <span class="feature-pill">Bulk-ready inventory</span>
+        </div>
         <div class="hero-callouts" aria-label="Highlights">
           <div class="callout-pill pulse">
             <span class="callout-icon ship-icon" aria-hidden="true"></span>
@@ -79,25 +84,17 @@
         </div>
       </div>
       <div class="hero-media">
-        <aside class="resources-promo" aria-label="Featured quick start">
-          <div class="promo-tagline">POWERPOLYSUPPLIES.COM</div>
-          <h2>Canada-wide B2B packaging supply</h2>
-          <p>Get sizing, thickness, and buying plans—fast.</p>
-          <ul class="promo-list">
-            <li>
-              <span class="promo-icon promo-icon-van" aria-hidden="true"></span>
-              <span>Fast quotes, reliable fulfillment</span>
-            </li>
-            <li>
-              <span class="promo-icon promo-icon-bag" aria-hidden="true"></span>
-              <span>Multi-location delivery ready</span>
-            </li>
-            <li>
-              <span class="promo-icon promo-icon-box" aria-hidden="true"></span>
-              <span>Bulk pricing, consistent inventory</span>
-            </li>
-          </ul>
-        </aside>
+        <div class="hero-collage resources-collage" aria-label="Popular products">
+          <div class="hero-shot hero-shot-1">
+            <img src="./assets/Strut%20Hangers.webp" alt="Strut hangers" loading="lazy" decoding="async">
+          </div>
+          <div class="hero-shot hero-shot-2">
+            <img src="./assets/Clear%20Poly%20Bags.webp" alt="Clear poly bags" loading="lazy" decoding="async">
+          </div>
+          <div class="hero-shot hero-shot-3">
+            <img src="./assets/suit%20hanger%20white.png" alt="Suit hanger" loading="lazy" decoding="async">
+          </div>
+        </div>
       </div>
     </section>
 
@@ -111,19 +108,31 @@
       </div>
 
       <div class="resource-toc" style="margin-top:12px;">
-        <a class="card card-link resource-card" href="#guide-garment-bag-sizes">
+        <a class="card card-link resource-card resource-card--sizes" href="#guide-garment-bag-sizes">
           <div class="resource-card-icon resource-icon-ruler" aria-hidden="true"></div>
           <div class="resource-kicker" data-i18n="resources.label.guide">Guide</div>
           <div class="resource-title" data-i18n="resources.toc.garment.title">Choosing garment bag sizes</div>
           <div class="resource-desc" data-i18n="resources.toc.garment.desc">How to measure, pick width/length, and avoid returns.</div>
         </a>
-        <a class="card card-link resource-card" href="#heavy-vs-extra-heavy">
+        <a class="card card-link resource-card resource-card--thickness" href="#heavy-vs-extra-heavy">
           <div class="resource-card-icon resource-icon-layers" aria-hidden="true"></div>
           <div class="resource-kicker" data-i18n="resources.label.guide">Guide</div>
           <div class="resource-title" data-i18n="resources.toc.thickness.title">Heavy vs Extra Heavy thickness</div>
           <div class="resource-desc" data-i18n="resources.toc.thickness.desc">When to go thicker (and when not to).</div>
         </a>
-        <a class="card card-link resource-card" href="#dry-cleaner-packaging-usage">
+        <a class="card card-link resource-card resource-card--polybags" href="#poly-bags-materials">
+          <div class="resource-card-icon resource-icon-bag" aria-hidden="true"></div>
+          <div class="resource-kicker">Guide</div>
+          <div class="resource-title">Polybags: materials & quality</div>
+          <div class="resource-desc">Virgin vs recycled, clarity, odor, and why it matters.</div>
+        </a>
+        <a class="card card-link resource-card resource-card--hangers" href="#hangers-guide">
+          <div class="resource-card-icon resource-icon-hanger" aria-hidden="true"></div>
+          <div class="resource-kicker">Guide</div>
+          <div class="resource-title">Choosing the right hangers</div>
+          <div class="resource-desc">Match the hanger to garment weight and use-case.</div>
+        </a>
+        <a class="card card-link resource-card resource-card--planner" href="#dry-cleaner-packaging-usage">
           <div class="resource-card-icon resource-icon-calc" aria-hidden="true"></div>
           <div class="resource-kicker" data-i18n="resources.label.planner">Planner</div>
           <div class="resource-title" data-i18n="resources.toc.planner.title">Monthly packaging usage</div>
@@ -248,6 +257,152 @@
         <div class="resource-callout">
           <div style="font-weight:1000;" data-i18n="resources.label.quick_test">Quick test</div>
           <div style="margin-top:6px;" data-i18n="resources.thickness.callout.body">If you're double-bagging often, it's usually cheaper (and cleaner) to switch to a thicker bag once.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="poly-bags-materials" class="card fade-in resource-article" style="padding:18px; margin-top:16px;">
+      <div class="resource-article-head">
+        <div>
+          <div class="count-badge count-badge-muted">Guide</div>
+          <h2 style="margin:10px 0 0;">Polybags: materials, clarity & quality</h2>
+          <div class="resource-meta">Why “virgin material” and country of origin matter for consistency.</div>
+        </div>
+        <a class="btn btn-outline btn-sm" href="./products.html?cat=Polybags">Shop poly bags</a>
+      </div>
+
+      <div class="resource-prose">
+        <div class="feature-badges" aria-label="Polybags highlights">
+          <span class="feature-pill">100% Korean-made</span>
+          <span class="feature-pill">100% virgin material</span>
+          <span class="feature-pill">Clean perforation</span>
+        </div>
+        <div class="resource-media-row">
+          <img class="resource-media" src="./assets/Clear%20Poly%20Bags.webp" alt="Clear poly bags" loading="lazy" decoding="async">
+          <div>
+            <h3 style="margin-top:0;">What “100% virgin material” usually means</h3>
+            <ul>
+              <li><b>Cleaner clarity</b> and more consistent thickness.</li>
+              <li><b>Less odor</b> and fewer visible contaminants.</li>
+              <li><b>More predictable performance</b> when sealing, tearing, and handling.</li>
+            </ul>
+            <div class="resource-callout">
+              <div style="font-weight:1000;">Note</div>
+              <div style="margin-top:6px;">Material and origin can vary by item. Check each product page for the specific details.</div>
+            </div>
+          </div>
+        </div>
+
+        <h3>Made in Korea</h3>
+        <p>Our poly bags are manufactured in Korea for consistent film quality and clean perforation.</p>
+
+        <h3>Quick buying checklist</h3>
+        <ul>
+          <li><b>Use-case</b>: daily store use vs delivery routes vs bulk packing.</li>
+          <li><b>Thickness</b>: “Heavy” for everyday, “Extra Heavy” for sharp edges / heavy loads.</li>
+          <li><b>Clarity</b>: clear presentation helps reduce mix-ups and improves customer experience.</li>
+          <li><b>Finish</b>: look for clean seals, low odor, and consistent tear lines.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="hangers-guide" class="card fade-in resource-article" style="padding:18px; margin-top:16px;">
+      <div class="resource-article-head">
+        <div>
+          <div class="count-badge count-badge-muted">Guide</div>
+          <h2 style="margin:10px 0 0;">Choosing the right hangers (quick guide)</h2>
+          <div class="resource-meta">Pick the right hanger once—reduce returns, rehang time, and damage.</div>
+        </div>
+        <a class="btn btn-outline btn-sm" href="./products.html?cat=Hangers">Shop hangers</a>
+      </div>
+
+      <div class="resource-prose">
+        <h3>Match hanger strength to garment weight</h3>
+        <p>Use heavier hangers for suits/coats and lighter hangers for shirts. Stronger hangers reduce shoulder dents and breakage.</p>
+
+        <div class="resource-products-grid" aria-label="Hanger types">
+          <a class="card card-link resource-product-card" href="./products.html?cat=Hangers">
+            <img src="./assets/Strut%20Hangers.webp" alt="Strut hangers" loading="lazy" decoding="async">
+            <div class="resource-product-body">
+              <div class="resource-product-title">Strut hangers</div>
+              <div class="resource-product-desc">Great all-purpose strength for daily dry-cleaning use.</div>
+            </div>
+          </a>
+          <a class="card card-link resource-product-card" href="./products.html?cat=Hangers">
+            <img src="./assets/suit%20hanger%20white.png" alt="Suit hangers" loading="lazy" decoding="async">
+            <div class="resource-product-body">
+              <div class="resource-product-title">Suit hangers</div>
+              <div class="resource-product-desc">Wider shoulder support helps keep shape for jackets and suits.</div>
+            </div>
+          </a>
+          <a class="card card-link resource-product-card" href="./products.html?cat=Hangers">
+            <img src="./assets/Dress%20Hanger.webp" alt="Dress hangers" loading="lazy" decoding="async">
+            <div class="resource-product-body">
+              <div class="resource-product-title">Dress hangers</div>
+              <div class="resource-product-desc">Smooth curves + notches help reduce slips and creases.</div>
+            </div>
+          </a>
+          <a class="card card-link resource-product-card" href="./products.html?cat=Hangers">
+            <img src="./assets/welovecaped%20hanger.webp" alt="We Love Caped hangers" loading="lazy" decoding="async">
+            <div class="resource-product-body">
+              <div class="resource-product-title">We Love Caped hangers</div>
+              <div class="resource-product-desc">Premium cape hanger style for gowns and long garments that need stability.</div>
+            </div>
+          </a>
+          <a class="card card-link resource-product-card" href="./products.html?cat=Hangers">
+            <img src="./assets/Cape%20Hangers.webp" alt="Cape hangers" loading="lazy" decoding="async">
+            <div class="resource-product-body">
+              <div class="resource-product-title">Cape hangers</div>
+              <div class="resource-product-desc">Good for capes/gowns and long garments that need stability.</div>
+            </div>
+          </a>
+          <a class="card card-link resource-product-card" href="./products.html?cat=Hangers">
+            <img src="./assets/shirt%20hanger%20pic.webp" alt="Shirt hangers" loading="lazy" decoding="async">
+            <div class="resource-product-body">
+              <div class="resource-product-title">Shirt hangers</div>
+              <div class="resource-product-desc">Lightweight, high-volume option for shirts and tops.</div>
+            </div>
+          </a>
+        </div>
+
+        <h3 style="margin-top:18px;">Quick decision table</h3>
+        <div class="resource-table-wrap">
+          <table class="resource-table">
+            <thead>
+              <tr>
+                <th>Garment</th>
+                <th>Recommended hanger</th>
+                <th>Why</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Shirts / tops</td>
+                <td>Shirt hanger</td>
+                <td>Fast, lightweight for daily volume.</td>
+              </tr>
+              <tr>
+                <td>Suits / jackets</td>
+                <td>Suit hanger</td>
+                <td>Better shape retention and shoulder support.</td>
+              </tr>
+              <tr>
+                <td>Dresses</td>
+                <td>Dress hanger</td>
+                <td>Helps prevent slipping and creases.</td>
+              </tr>
+              <tr>
+                <td>Pants / skirts</td>
+                <td>Clip hanger</td>
+                <td>Secure hold without folding.</td>
+              </tr>
+              <tr>
+                <td>Heavy outerwear</td>
+                <td>Heavy-duty / strut hanger</td>
+                <td>Higher strength reduces breakage.</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </section>
