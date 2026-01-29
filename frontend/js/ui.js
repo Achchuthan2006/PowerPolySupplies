@@ -1104,6 +1104,21 @@ function injectHelpWidget(){
       .replace(/>/g, "&gt;")
       .replace(/\"/g, "&quot;");
 
+  const normalizeText = (value) => {
+    const raw = String(value || "");
+    try{
+      return raw
+        .normalize("NFKD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9\u00C0-\u024F\u0400-\u04FF\u0900-\u097F\u0B80-\u0BFF\u1100-\u11FF\s]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }catch(_err){
+      return raw.toLowerCase().trim();
+    }
+  };
+
   function appendMessage({ role, text, html }){
     if(!chatLog) return;
     const bubble = document.createElement("div");
@@ -1124,77 +1139,174 @@ function injectHelpWidget(){
     {
       id: "shipping",
       title: "Shipping / delivery",
-      match: (q)=> /ship|shipping|deliver|delivery|gta|outside|charge|charges|cost/i.test(q),
+      keywords: ["ship","shipping","deliver","delivery","gta","outside","charge","charges","cost"],
+      followups: [
+        { id:"shipping_fees", label:"Do you charge outside GTA?" },
+        { id:"shipping_time", label:"How fast is delivery?" }
+      ],
+      match: (q)=> /ship|shipping|deliver|delivery|gta|outside|charge|charges|cost|pickup|courier/i.test(q),
       answer: () => `Standard GTA delivery is free. Express and non‑GTA delivery charges are confirmed by our team after we review the order and address.<br><a href="./legal-shipping.html">Read Shipping & Returns</a>`
     },
     {
       id: "sizes",
       title: "Garment bag sizes",
-      match: (q)=> /size|sizing|garment bag|cover bag|length|width|measure/i.test(q),
+      keywords: ["size","sizing","garment bag","cover bag","length","width","measure","measurement","gusset","coat","dress","tailles","mesure","medida","talla","사이즈","측정","माप","आकार","लंबाई","चौड़ाई","அளவு","நீளம்","அகலம்"],
+      followups: [
+        { id:"sizes_shirts", label:"What size for shirts?" },
+        { id:"sizes_coats", label:"What size for coats?" }
+      ],
+      match: (q)=> /size|sizing|garment bag|cover bag|length|width|measure|gusset|coat|dress/i.test(q),
       answer: () => `Use garment width + 4–6" and garment length + 4–8" as a quick rule. For bulky coats, consider a wider/gusseted bag.<br><a href="./resources.html#guide-garment-bag-sizes">Read the sizing guide</a>`
     },
     {
       id: "thickness",
       title: "Heavy vs Extra Heavy",
-      match: (q)=> /heavy|extra heavy|thick|thickness|mil|gauge|tear|puncture/i.test(q),
+      keywords: ["heavy","extra heavy","thick","thickness","mil","gauge","tear","puncture","sharp","corner","epais","epaisseur","grueso","grosor","두께","मोटाई","தடிமன்","தடிமை"],
+      followups: [
+        { id:"thickness_mil", label:"What does mil mean?" },
+        { id:"thickness_choice", label:"Which one should I buy?" }
+      ],
+      match: (q)=> /heavy|extra heavy|thick|thickness|mil|gauge|tear|puncture|sharp|corner/i.test(q),
       answer: () => `Choose <b>Heavy</b> for everyday packaging. Choose <b>Extra Heavy</b> for sharp corners, heavy loads, delivery routes, or fewer tears/rewraps.<br><a href="./resources.html#heavy-vs-extra-heavy">Read the thickness guide</a>`
     },
     {
       id: "usage",
       title: "Monthly packaging usage",
-      match: (q)=> /month|monthly|how much|usage|estimate|planning|plan/i.test(q),
+      keywords: ["month","monthly","how much","usage","estimate","planning","plan","per day","buffer","waste","consommation","mensuel","uso","mensual","사용량","월간","मासिक","उपयोग","महीना","மாத","பயன்பாடு"],
+      followups: [
+        { id:"usage_buffer", label:"What buffer % should I use?" },
+        { id:"usage_quote", label:"Can you estimate for me?" }
+      ],
+      match: (q)=> /month|monthly|how much|usage|estimate|planning|plan|per day/i.test(q),
       answer: () => `A simple estimate: (garments/day) × (operating days/month), then add a 5–12% buffer for rewraps/tears/rush orders.<br><a href="./resources.html#dry-cleaner-packaging-usage">See the planner</a>`
     },
     {
       id: "pay",
       title: "Payment options",
-      match: (q)=> /pay|payment|square|card|invoice|pay later/i.test(q),
+      keywords: ["pay","payment","square","card","invoice","pay later","terms","facture","paiement","pagar","pago","결제","카드","भुगतान","इनवॉइस","पेमेन्ट","பணம்","செலுத்த"],
+      followups: [
+        { id:"pay_invoice", label:"Can I pay by invoice?" },
+        { id:"pay_square", label:"Is Square secure?" }
+      ],
+      match: (q)=> /pay|payment|square|card|invoice|pay later|terms/i.test(q),
       answer: () => `You can pay online with Square or place the order now and pay later after fulfillment is confirmed. Start checkout to see both options.<br><a href="./checkout.html">Go to checkout</a>`
     },
     {
       id: "addresses",
       title: "Saved delivery addresses",
-      match: (q)=> /address|addresses|multiple locations|warehouse|branch|default/i.test(q),
+      keywords: ["address","addresses","multiple locations","warehouse","branch","default","saved","adresse","direccion","direcciones","주소","지점","पता","முகவரி","களஞ்சியம்"],
+      followups: [
+        { id:"addresses_how", label:"How do I add an address?" },
+        { id:"addresses_default", label:"How do I set a default?" }
+      ],
+      match: (q)=> /address|addresses|multiple locations|warehouse|branch|default|saved/i.test(q),
       answer: () => `Business customers can save multiple delivery addresses (Main Store, Warehouse, Branch) and set a default for faster checkout.<br><a href="./account.html#addresses">Manage addresses</a>`
     }
   ];
 
-  function renderSuggestions(){
-    if(!chatSuggestions) return;
-    const items = [
+  let helpChipBound = false;
+
+  function getDefaultSuggestionItems(){
+    return [
       { id:"sizes", label:"Choosing garment bag sizes" },
       { id:"thickness", label:"Heavy vs Extra Heavy thickness" },
       { id:"usage", label:"How much packaging per month?" },
       { id:"shipping", label:"Shipping / delivery" },
       { id:"pay", label:"Payments / pay later" }
     ];
-    chatSuggestions.innerHTML = items
+  }
+
+  function setSuggestionItems(items){
+    if(!chatSuggestions) return;
+    const list = Array.isArray(items) && items.length ? items : getDefaultSuggestionItems();
+    chatSuggestions.innerHTML = list
       .map((it)=> `<button type="button" class="help-chip" data-help-chip="${esc(it.id)}">${esc(it.label)}</button>`)
       .join("");
+  }
+
+  function scoreFaq(faq, qNorm){
+    if(!faq || !qNorm) return 0;
+    let score = 0;
+    const keywords = Array.isArray(faq.keywords) ? faq.keywords : [];
+    for(const k of keywords){
+      const kn = normalizeText(k);
+      if(!kn) continue;
+      if(qNorm.includes(kn)) score += (kn.length >= 6 ? 3 : 2);
+    }
+    if(typeof faq.match === "function" && faq.match(qNorm)) score += 3;
+    return score;
+  }
+
+  function topFaqMatches(query, limit = 3){
+    const qNorm = normalizeText(query);
+    return FAQ
+      .map((f)=> ({ f, score: scoreFaq(f, qNorm) }))
+      .sort((a,b)=> b.score - a.score)
+      .filter((x)=> x.score > 0)
+      .slice(0, limit)
+      .map((x)=> x.f);
+  }
+
+  function appendTyping(){
+    if(!chatLog) return null;
+    const bubble = document.createElement("div");
+    bubble.className = "help-chat-msg bot";
+    const inner = document.createElement("div");
+    inner.className = "help-chat-bubble";
+    inner.textContent = "...";
+    bubble.appendChild(inner);
+    chatLog.appendChild(bubble);
+    chatLog.scrollTop = chatLog.scrollHeight;
+    return bubble;
+  }
+
+  function renderSuggestions(items){
+    setSuggestionItems(items);
+    if(helpChipBound || !chatSuggestions) return;
+    helpChipBound = true;
     chatSuggestions.addEventListener("click", (e)=>{
       const btn = e.target?.closest?.("[data-help-chip]");
       if(!btn) return;
-      const id = btn.getAttribute("data-help-chip");
-      const found = FAQ.find((x)=> x.id === id);
-      if(!found) return;
-      appendMessage({ role:"user", text: btn.textContent });
-      appendMessage({ role:"bot", html: found.answer() });
-    }, { once:true });
+      const label = String(btn.textContent || "").trim();
+      if(!label) return;
+      answerQuestion(label);
+      try{ chatInput?.focus?.(); }catch(_err){}
+    });
   }
 
   function answerQuestion(q){
     const raw = String(q || "").trim();
     if(!raw) return;
     appendMessage({ role:"user", text: raw });
-    const hit = FAQ.find((item)=> item.match(raw));
-    if(hit){
-      appendMessage({ role:"bot", html: hit.answer() });
-      return;
-    }
-    appendMessage({
-      role:"bot",
-      html: `I can help with shipping, bag sizes, thickness, and monthly usage. Try one of the quick buttons below, or visit <a href="./resources.html">Resources</a>.`
-    });
+
+    const typing = appendTyping();
+    const hits = topFaqMatches(raw, 3);
+    const best = hits[0] || null;
+
+    setTimeout(()=>{
+      try{ typing?.remove?.(); }catch(_err){}
+
+      if(best){
+        appendMessage({ role:"bot", html: best.answer() });
+        const followups = Array.isArray(best.followups) ? best.followups : [];
+        if(followups.length){
+          renderSuggestions(followups.map((x)=> ({ id: x.id, label: x.label })));
+        }else{
+          renderSuggestions();
+        }
+        return;
+      }
+
+      appendMessage({
+        role:"bot",
+        html: `I can help with shipping, bag sizes, thickness, payments, and monthly usage. Try a quick button below, or visit <a href="./resources.html">Resources</a>.`
+      });
+      if(hits.length){
+        renderSuggestions(hits.map((f)=> ({ id: f.id, label: f.title })));
+      }else{
+        renderSuggestions();
+      }
+    }, 250);
   }
 
   function initChat(){
@@ -1213,6 +1325,7 @@ function injectHelpWidget(){
       if(!value) return;
       if(chatInput) chatInput.value = "";
       answerQuestion(value);
+      try{ chatInput?.focus?.(); }catch(_err){}
     });
   }
 
