@@ -1046,11 +1046,14 @@ html[lang="fr"] .navlinks a{
   html[lang="fr"] .navbar .container{
     transform: translateX(-21%);
   }
+  html[lang="fr"] .navlinks a{
+    font-size: 1.01em;
+  }
   html[lang="es"] .navbar .container{
     transform: translateX(-17%);
   }
   html[lang="hi"] .navbar .container{
-    transform: translateX(12%);
+    transform: translateX(-6%) !important;
   }
   html[lang="ko"] .navbar .container{
     transform: translateX(-19%);

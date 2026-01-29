@@ -923,27 +923,27 @@ function injectHelpWidget(){
     <div class="help-panel" id="helpPanel" aria-hidden="true">
       <div class="help-panel-header">
         <div data-i18n="help.title">Live customer support</div>
-        <button class="help-close" type="button" id="helpClose" aria-label="Close">X</button>
+        <button class="help-close" type="button" id="helpClose" aria-label="Close" data-i18n-aria-label="help.close">X</button>
       </div>
       <div class="help-panel-body">
-        <div class="help-tabs" role="tablist" aria-label="Help options">
-          <button class="help-tab active" type="button" role="tab" aria-selected="true" data-help-tab="faq">Quick answers</button>
-          <button class="help-tab" type="button" role="tab" aria-selected="false" data-help-tab="message">Message us</button>
+        <div class="help-tabs" role="tablist" aria-label="Help options" data-i18n-aria-label="help.tabs_aria">
+          <button class="help-tab active" type="button" role="tab" aria-selected="true" data-help-tab="faq" data-i18n="help.tab.quick">Quick answers</button>
+          <button class="help-tab" type="button" role="tab" aria-selected="false" data-help-tab="message" data-i18n="help.tab.message">Message us</button>
         </div>
 
         <div class="help-tab-panels">
           <div class="help-tab-panel open" data-help-panel="faq" role="tabpanel">
             <div class="help-chat">
               <div class="help-chat-log" id="helpChatLog" aria-live="polite"></div>
-              <div class="help-suggestions" id="helpChatSuggestions" aria-label="Suggested questions"></div>
+              <div class="help-suggestions" id="helpChatSuggestions" aria-label="Suggested questions" data-i18n-aria-label="help.chat.suggestions_aria"></div>
               <form class="help-chat-input" id="helpChatForm">
-                <input class="input" id="helpChatInput" placeholder="Ask a question (shipping, sizes, thickness...)" autocomplete="off">
-                <button class="btn btn-primary" type="submit">Send</button>
+                <input class="input" id="helpChatInput" placeholder="Ask a question (shipping, sizes, thickness...)" data-i18n-placeholder="help.chat.placeholder" autocomplete="off">
+                <button class="btn btn-primary" type="submit" data-i18n="help.chat.send">Send</button>
               </form>
               <div class="help-chat-footer">
                 <a class="btn btn-outline btn-sm" href="https://chat.whatsapp.com/LVaouedAZVIEcgrD6nj2hC" target="_blank" rel="noopener">WhatsApp</a>
-                <a class="btn btn-outline btn-sm" href="./resources.html">Resources</a>
-                <a class="btn btn-outline btn-sm" href="./contact.html">Contact</a>
+                <a class="btn btn-outline btn-sm" href="./resources.html" data-i18n="help.link.resources">Resources</a>
+                <a class="btn btn-outline btn-sm" href="./contact.html" data-i18n="help.link.contact">Contact</a>
               </div>
             </div>
           </div>
@@ -1135,84 +1135,119 @@ function injectHelpWidget(){
     chatLog.scrollTop = chatLog.scrollHeight;
   }
 
+  const helpT = (key, fallback = "") => {
+    const value = window.PPS_I18N?.t?.(key);
+    return value || fallback || "";
+  };
+
+  const faqTitle = (faq) => helpT(faq?.titleKey, faq?.title || "");
+  const faqAnswer = (faq) => helpT(faq?.answerKey, typeof faq?.answer === "function" ? faq.answer() : "");
+
   const FAQ = [
     {
       id: "shipping",
+      titleKey: "help.chat.topic.shipping",
       title: "Shipping / delivery",
       keywords: ["ship","shipping","deliver","delivery","gta","outside","charge","charges","cost"],
       followups: [
-        { id:"shipping_fees", label:"Do you charge outside GTA?" },
-        { id:"shipping_time", label:"How fast is delivery?" }
+        { id:"shipping_fees", labelKey:"help.chat.followup.shipping_fees", label:"Do you charge outside GTA?" },
+        { id:"shipping_time", labelKey:"help.chat.followup.shipping_time", label:"How fast is delivery?" }
       ],
       match: (q)=> /ship|shipping|deliver|delivery|gta|outside|charge|charges|cost|pickup|courier/i.test(q),
+      answerKey: "help.chat.answer.shipping",
       answer: () => `Standard GTA delivery is free. Express and non‑GTA delivery charges are confirmed by our team after we review the order and address.<br><a href="./legal-shipping.html">Read Shipping & Returns</a>`
     },
     {
       id: "sizes",
+      titleKey: "help.chat.topic.sizes",
       title: "Garment bag sizes",
       keywords: ["size","sizing","garment bag","cover bag","length","width","measure","measurement","gusset","coat","dress","tailles","mesure","medida","talla","사이즈","측정","माप","आकार","लंबाई","चौड़ाई","அளவு","நீளம்","அகலம்"],
       followups: [
-        { id:"sizes_shirts", label:"What size for shirts?" },
-        { id:"sizes_coats", label:"What size for coats?" }
+        { id:"sizes_shirts", labelKey:"help.chat.followup.sizes_shirts", label:"What size for shirts?" },
+        { id:"sizes_coats", labelKey:"help.chat.followup.sizes_coats", label:"What size for coats?" }
       ],
       match: (q)=> /size|sizing|garment bag|cover bag|length|width|measure|gusset|coat|dress/i.test(q),
+      answerKey: "help.chat.answer.sizes",
       answer: () => `Use garment width + 4–6" and garment length + 4–8" as a quick rule. For bulky coats, consider a wider/gusseted bag.<br><a href="./resources.html#guide-garment-bag-sizes">Read the sizing guide</a>`
     },
     {
       id: "thickness",
+      titleKey: "help.chat.topic.thickness",
       title: "Heavy vs Extra Heavy",
       keywords: ["heavy","extra heavy","thick","thickness","mil","gauge","tear","puncture","sharp","corner","epais","epaisseur","grueso","grosor","두께","मोटाई","தடிமன்","தடிமை"],
       followups: [
-        { id:"thickness_mil", label:"What does mil mean?" },
-        { id:"thickness_choice", label:"Which one should I buy?" }
+        { id:"thickness_mil", labelKey:"help.chat.followup.thickness_mil", label:"What does mil mean?" },
+        { id:"thickness_choice", labelKey:"help.chat.followup.thickness_choice", label:"Which one should I buy?" }
       ],
       match: (q)=> /heavy|extra heavy|thick|thickness|mil|gauge|tear|puncture|sharp|corner/i.test(q),
+      answerKey: "help.chat.answer.thickness",
       answer: () => `Choose <b>Heavy</b> for everyday packaging. Choose <b>Extra Heavy</b> for sharp corners, heavy loads, delivery routes, or fewer tears/rewraps.<br><a href="./resources.html#heavy-vs-extra-heavy">Read the thickness guide</a>`
     },
     {
       id: "usage",
+      titleKey: "help.chat.topic.usage",
       title: "Monthly packaging usage",
       keywords: ["month","monthly","how much","usage","estimate","planning","plan","per day","buffer","waste","consommation","mensuel","uso","mensual","사용량","월간","मासिक","उपयोग","महीना","மாத","பயன்பாடு"],
       followups: [
-        { id:"usage_buffer", label:"What buffer % should I use?" },
-        { id:"usage_quote", label:"Can you estimate for me?" }
+        { id:"usage_buffer", labelKey:"help.chat.followup.usage_buffer", label:"What buffer % should I use?" },
+        { id:"usage_quote", labelKey:"help.chat.followup.usage_quote", label:"Can you estimate for me?" }
       ],
       match: (q)=> /month|monthly|how much|usage|estimate|planning|plan|per day/i.test(q),
+      answerKey: "help.chat.answer.usage",
       answer: () => `A simple estimate: (garments/day) × (operating days/month), then add a 5–12% buffer for rewraps/tears/rush orders.<br><a href="./resources.html#dry-cleaner-packaging-usage">See the planner</a>`
     },
     {
       id: "pay",
+      titleKey: "help.chat.topic.pay",
       title: "Payment options",
       keywords: ["pay","payment","square","card","invoice","pay later","terms","facture","paiement","pagar","pago","결제","카드","भुगतान","इनवॉइस","पेमेन्ट","பணம்","செலுத்த"],
       followups: [
-        { id:"pay_invoice", label:"Can I pay by invoice?" },
-        { id:"pay_square", label:"Is Square secure?" }
+        { id:"pay_invoice", labelKey:"help.chat.followup.pay_invoice", label:"Can I pay by invoice?" },
+        { id:"pay_square", labelKey:"help.chat.followup.pay_square", label:"Is Square secure?" }
       ],
       match: (q)=> /pay|payment|square|card|invoice|pay later|terms/i.test(q),
+      answerKey: "help.chat.answer.pay",
       answer: () => `You can pay online with Square or place the order now and pay later after fulfillment is confirmed. Start checkout to see both options.<br><a href="./checkout.html">Go to checkout</a>`
     },
     {
       id: "addresses",
+      titleKey: "help.chat.topic.addresses",
       title: "Saved delivery addresses",
       keywords: ["address","addresses","multiple locations","warehouse","branch","default","saved","adresse","direccion","direcciones","주소","지점","पता","முகவரி","களஞ்சியம்"],
       followups: [
-        { id:"addresses_how", label:"How do I add an address?" },
-        { id:"addresses_default", label:"How do I set a default?" }
+        { id:"addresses_how", labelKey:"help.chat.followup.addresses_how", label:"How do I add an address?" },
+        { id:"addresses_default", labelKey:"help.chat.followup.addresses_default", label:"How do I set a default?" }
       ],
       match: (q)=> /address|addresses|multiple locations|warehouse|branch|default|saved/i.test(q),
+      answerKey: "help.chat.answer.addresses",
       answer: () => `Business customers can save multiple delivery addresses (Main Store, Warehouse, Branch) and set a default for faster checkout.<br><a href="./account.html#addresses">Manage addresses</a>`
     }
   ];
+
+  const HELP_CHIP_ROUTE = {
+    shipping_fees: "shipping",
+    shipping_time: "shipping",
+    sizes_shirts: "sizes",
+    sizes_coats: "sizes",
+    thickness_mil: "thickness",
+    thickness_choice: "thickness",
+    usage_buffer: "usage",
+    usage_quote: "usage",
+    pay_invoice: "pay",
+    pay_square: "pay",
+    addresses_how: "addresses",
+    addresses_default: "addresses"
+  };
 
   let helpChipBound = false;
 
   function getDefaultSuggestionItems(){
     return [
-      { id:"sizes", label:"Choosing garment bag sizes" },
-      { id:"thickness", label:"Heavy vs Extra Heavy thickness" },
-      { id:"usage", label:"How much packaging per month?" },
-      { id:"shipping", label:"Shipping / delivery" },
-      { id:"pay", label:"Payments / pay later" }
+      { id:"sizes", label: helpT("help.chat.suggest.sizes", "Choosing garment bag sizes") },
+      { id:"thickness", label: helpT("help.chat.suggest.thickness", "Heavy vs Extra Heavy thickness") },
+      { id:"usage", label: helpT("help.chat.suggest.usage", "How much packaging per month?") },
+      { id:"shipping", label: helpT("help.chat.suggest.shipping", "Shipping / delivery") },
+      { id:"pay", label: helpT("help.chat.suggest.pay", "Payments / pay later") }
     ];
   }
 
@@ -1267,9 +1302,30 @@ function injectHelpWidget(){
     chatSuggestions.addEventListener("click", (e)=>{
       const btn = e.target?.closest?.("[data-help-chip]");
       if(!btn) return;
+      const chipId = String(btn.getAttribute("data-help-chip") || "").trim();
       const label = String(btn.textContent || "").trim();
-      if(!label) return;
-      answerQuestion(label);
+      if(!chipId) return;
+
+      const targetId = HELP_CHIP_ROUTE[chipId] || chipId;
+      const faq = FAQ.find((f)=> f.id === targetId) || null;
+      if(faq){
+        appendMessage({ role:"user", text: label || faqTitle(faq) || chipId });
+        const typing = appendTyping();
+        setTimeout(()=>{
+          try{ typing?.remove?.(); }catch(_err){}
+          appendMessage({ role:"bot", html: faqAnswer(faq) });
+          const followups = Array.isArray(faq.followups) ? faq.followups : [];
+          if(followups.length){
+            renderSuggestions(followups.map((x)=> ({ id: x.id, label: helpT(x.labelKey, x.label) })));
+          }else{
+            renderSuggestions();
+          }
+        }, 150);
+        try{ chatInput?.focus?.(); }catch(_err){}
+        return;
+      }
+
+      answerQuestion(label || chipId);
       try{ chatInput?.focus?.(); }catch(_err){}
     });
   }
@@ -1287,10 +1343,10 @@ function injectHelpWidget(){
       try{ typing?.remove?.(); }catch(_err){}
 
       if(best){
-        appendMessage({ role:"bot", html: best.answer() });
+        appendMessage({ role:"bot", html: faqAnswer(best) });
         const followups = Array.isArray(best.followups) ? best.followups : [];
         if(followups.length){
-          renderSuggestions(followups.map((x)=> ({ id: x.id, label: x.label })));
+          renderSuggestions(followups.map((x)=> ({ id: x.id, label: helpT(x.labelKey, x.label) })));
         }else{
           renderSuggestions();
         }
@@ -1299,10 +1355,13 @@ function injectHelpWidget(){
 
       appendMessage({
         role:"bot",
-        html: `I can help with shipping, bag sizes, thickness, payments, and monthly usage. Try a quick button below, or visit <a href="./resources.html">Resources</a>.`
+        html: helpT(
+          "help.chat.fallback_html",
+          `I can help with shipping, bag sizes, thickness, payments, and monthly usage. Try a quick button below, or visit <a href="./resources.html">Resources</a>.`
+        )
       });
       if(hits.length){
-        renderSuggestions(hits.map((f)=> ({ id: f.id, label: f.title })));
+        renderSuggestions(hits.map((f)=> ({ id: f.id, label: faqTitle(f) })));
       }else{
         renderSuggestions();
       }
@@ -1313,7 +1372,10 @@ function injectHelpWidget(){
     if(!chatLog || chatLog.childElementCount) return;
     appendMessage({
       role:"bot",
-      html: `Hi! Ask me about shipping, garment bag sizes, thickness, or monthly packaging planning.`
+      html: helpT(
+        "help.chat.greeting_html",
+        `Hi! Ask me about shipping, garment bag sizes, thickness, or monthly packaging planning.`
+      )
     });
     renderSuggestions();
   }

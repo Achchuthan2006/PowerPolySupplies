@@ -99,6 +99,65 @@ const PPS_TRANSLATIONS = {
     "resources.toc.thickness.desc": "When to go thicker (and when not to).",
     "resources.toc.planner.title": "Monthly packaging usage",
     "resources.toc.planner.desc": "A simple way to estimate how much you'll use.",
+    "resources.toc.polybags.title": "Polybags: materials & quality",
+    "resources.toc.polybags.desc": "Virgin vs recycled, clarity, odor, and why it matters.",
+    "resources.toc.hangers.title": "Choosing the right hangers",
+    "resources.toc.hangers.desc": "Match the hanger to garment weight and use-case.",
+
+    "resources.meta_desc": "Practical guides for dry cleaners, laundromats, and retailers: garment bag sizing, poly thickness, and monthly packaging planning.",
+    "resources.aria.badges": "Material and origin highlights",
+    "resources.aria.callouts": "Highlights",
+    "resources.aria.products_collage": "Popular products",
+    "resources.badge.korea": "100% Korean-made",
+    "resources.badge.virgin": "100% virgin material",
+    "resources.badge.inventory": "Bulk-ready inventory",
+    "resources.badge.perforation": "Clean perforation",
+    "resources.hero.callout.reorder": "Save time on reorders",
+    "resources.hero.callout.returns": "Avoid returns",
+    "resources.hero.callout.size": "Buy the right size",
+    "resources.hero.ask": "Ask a question",
+    "resources.label.note": "Note",
+    "resources.alt.strut": "Strut hangers",
+    "resources.alt.clear_poly": "Clear poly bags",
+    "resources.alt.suit_hanger": "Suit hangers",
+    "resources.alt.dress_hanger": "Dress hangers",
+    "resources.alt.welove_caped": "We Love Caped hangers",
+    "resources.alt.cape_hanger": "Cape hangers",
+    "resources.alt.shirt_hanger": "Shirt hangers",
+
+    "resources.polybags.title": "Polybags: materials, clarity & quality",
+    "resources.polybags.meta": "Why “virgin material” and country of origin matter for consistency.",
+    "resources.polybags.cta": "Shop poly bags",
+    "resources.polybags.badges_aria": "Polybags highlights",
+    "resources.polybags.virgin.title": "What “100% virgin material” usually means",
+    "resources.polybags.virgin.list": "<li><b>Cleaner clarity</b> and more consistent thickness.</li><li><b>Less odor</b> and fewer visible contaminants.</li><li><b>More predictable performance</b> when sealing, tearing, and handling.</li>",
+    "resources.polybags.note": "Material and origin can vary by item. Check each product page for the specific details.",
+    "resources.polybags.korea.title": "Made in Korea",
+    "resources.polybags.korea.body": "Our poly bags are manufactured in Korea for consistent film quality and clean perforation.",
+    "resources.polybags.checklist.title": "Quick buying checklist",
+    "resources.polybags.checklist.list": "<li><b>Use-case</b>: daily store use vs delivery routes vs bulk packing.</li><li><b>Thickness</b>: “Heavy” for everyday, “Extra Heavy” for sharp edges / heavy loads.</li><li><b>Clarity</b>: clear presentation helps reduce mix-ups and improves customer experience.</li><li><b>Finish</b>: look for clean seals, low odor, and consistent tear lines.</li>",
+
+    "resources.hangers.title": "Choosing the right hangers (quick guide)",
+    "resources.hangers.meta": "Pick the right hanger once—reduce returns, rehang time, and damage.",
+    "resources.hangers.cta": "Shop hangers",
+    "resources.hangers.strength.title": "Match hanger strength to garment weight",
+    "resources.hangers.strength.body": "Use heavier hangers for suits/coats and lighter hangers for shirts. Stronger hangers reduce shoulder dents and breakage.",
+    "resources.hangers.grid_aria": "Hanger types",
+    "resources.hangers.card.strut.title": "Strut hangers",
+    "resources.hangers.card.strut.desc": "Great all-purpose strength for daily dry-cleaning use.",
+    "resources.hangers.card.suit.title": "Suit hangers",
+    "resources.hangers.card.suit.desc": "Wider shoulder support helps keep shape for jackets and suits.",
+    "resources.hangers.card.dress.title": "Dress hangers",
+    "resources.hangers.card.dress.desc": "Smooth curves + notches help reduce slips and creases.",
+    "resources.hangers.card.welove_caped.title": "We Love Caped hangers",
+    "resources.hangers.card.welove_caped.desc": "Premium cape hanger style for gowns and long garments that need stability.",
+    "resources.hangers.card.cape.title": "Cape hangers",
+    "resources.hangers.card.cape.desc": "Good for capes/gowns and long garments that need stability.",
+    "resources.hangers.card.shirt.title": "Shirt hangers",
+    "resources.hangers.card.shirt.desc": "Lightweight, high-volume option for shirts and tops.",
+    "resources.hangers.table.title": "Quick decision table",
+    "resources.hangers.table.head": "<tr><th>Garment</th><th>Recommended hanger</th><th>Why</th></tr>",
+    "resources.hangers.table.body": "<tr><td>Shirts / tops</td><td>Shirt hanger</td><td>Fast, lightweight for daily volume.</td></tr><tr><td>Suits / jackets</td><td>Suit hanger</td><td>Better shape retention and shoulder support.</td></tr><tr><td>Dresses</td><td>Dress hanger</td><td>Helps prevent slipping and creases.</td></tr><tr><td>Pants / skirts</td><td>Clip hanger</td><td>Secure hold without folding.</td></tr><tr><td>Heavy outerwear</td><td>Heavy-duty / strut hanger</td><td>Higher strength reduces breakage.</td></tr>",
 
     "resources.garment.title": "Guide to choosing garment bag sizes",
     "resources.garment.meta": "Best for: dry cleaners, alteration shops, uniform services, retailers.",
@@ -155,6 +214,46 @@ const PPS_TRANSLATIONS = {
     "help.sent": "Thanks! We'll be in touch.",
     "help.sending": "Sending...",
     "help.error": "Unable to send right now. Please try again.",
+    "help.close": "Close",
+    "help.tabs_aria": "Help options",
+    "help.tab.quick": "Quick answers",
+    "help.tab.message": "Message us",
+    "help.chat.suggestions_aria": "Suggested questions",
+    "help.chat.placeholder": "Ask a question (shipping, sizes, thickness...)",
+    "help.chat.send": "Send",
+    "help.link.resources": "Resources",
+    "help.link.contact": "Contact",
+    "help.chat.greeting_html": "Hi! Ask me about shipping, garment bag sizes, thickness, or monthly packaging planning.",
+    "help.chat.fallback_html": "I can help with shipping, bag sizes, thickness, payments, and monthly usage. Try a quick button below, or visit <a href=\"./resources.html\">Resources</a>.",
+    "help.chat.suggest.sizes": "Choosing garment bag sizes",
+    "help.chat.suggest.thickness": "Heavy vs Extra Heavy thickness",
+    "help.chat.suggest.usage": "How much packaging per month?",
+    "help.chat.suggest.shipping": "Shipping / delivery",
+    "help.chat.suggest.pay": "Payments / pay later",
+    "help.chat.topic.shipping": "Shipping / delivery",
+    "help.chat.topic.sizes": "Garment bag sizes",
+    "help.chat.topic.thickness": "Heavy vs Extra Heavy",
+    "help.chat.topic.usage": "Monthly packaging usage",
+    "help.chat.topic.pay": "Payment options",
+    "help.chat.topic.addresses": "Saved delivery addresses",
+    "help.chat.followup.shipping_fees": "Do you charge outside GTA?",
+    "help.chat.followup.shipping_time": "How fast is delivery?",
+    "help.chat.followup.sizes_shirts": "What size for shirts?",
+    "help.chat.followup.sizes_coats": "What size for coats?",
+    "help.chat.followup.thickness_mil": "What does mil mean?",
+    "help.chat.followup.thickness_choice": "Which one should I buy?",
+    "help.chat.followup.usage_buffer": "What buffer % should I use?",
+    "help.chat.followup.usage_quote": "Can you estimate for me?",
+    "help.chat.followup.pay_invoice": "Can I pay by invoice?",
+    "help.chat.followup.pay_square": "Is Square secure?",
+    "help.chat.followup.addresses_how": "How do I add an address?",
+    "help.chat.followup.addresses_default": "How do I set a default?",
+    "help.chat.answer.shipping": "Standard GTA delivery is free. Express and non‑GTA delivery charges are confirmed by our team after we review the order and address.<br><a href=\"./legal-shipping.html\">Read Shipping & Returns</a>",
+    "help.chat.answer.sizes": "Use garment width + 4–6&quot; and garment length + 4–8&quot; as a quick rule. For bulky coats, consider a wider/gusseted bag.<br><a href=\"./resources.html#guide-garment-bag-sizes\">Read the sizing guide</a>",
+    "help.chat.answer.thickness": "Choose <b>Heavy</b> for everyday packaging. Choose <b>Extra Heavy</b> for sharp corners, heavy loads, delivery routes, or fewer tears/rewraps.<br><a href=\"./resources.html#heavy-vs-extra-heavy\">Read the thickness guide</a>",
+    "help.chat.answer.usage": "A simple estimate: (garments/day) × (operating days/month), then add a 5–12% buffer for rewraps/tears/rush orders.<br><a href=\"./resources.html#dry-cleaner-packaging-usage\">See the planner</a>",
+    "help.chat.answer.pay": "You can pay online with Square or place the order now and pay later after fulfillment is confirmed. Start checkout to see both options.<br><a href=\"./checkout.html\">Go to checkout</a>",
+    "help.chat.answer.addresses": "Business customers can save multiple delivery addresses (Main Store, Warehouse, Branch) and set a default for faster checkout.<br><a href=\"./account.html#addresses\">Manage addresses</a>",
     "legal.kicker": "Legal"
     ,
     "contact.kicker": "Contact",
@@ -731,6 +830,65 @@ const PPS_TRANSLATIONS = {
     "resources.toc.thickness.desc": "Quand choisir plus épais (et quand ce n'est pas nécessaire).",
     "resources.toc.planner.title": "Utilisation mensuelle d'emballages",
     "resources.toc.planner.desc": "Une méthode simple pour estimer votre consommation.",
+    "resources.toc.polybags.title": "Polybags : matériaux & qualité",
+    "resources.toc.polybags.desc": "Vierge vs recyclé, clarté, odeur, et pourquoi c'est important.",
+    "resources.toc.hangers.title": "Choisir les bons cintres",
+    "resources.toc.hangers.desc": "Associez le cintre au poids du vêtement et à l'usage.",
+
+    "resources.meta_desc": "Guides pratiques pour pressings, blanchisseries et détaillants : tailles de housses, épaisseur du film poly et planification mensuelle des emballages.",
+    "resources.aria.badges": "Points forts sur les matériaux et l'origine",
+    "resources.aria.callouts": "Points forts",
+    "resources.aria.products_collage": "Produits populaires",
+    "resources.badge.korea": "100% fabriqué en Corée",
+    "resources.badge.virgin": "100% matière vierge",
+    "resources.badge.inventory": "Stock prêt pour le volume",
+    "resources.badge.perforation": "Perforation nette",
+    "resources.hero.callout.reorder": "Gagnez du temps sur les réassorts",
+    "resources.hero.callout.returns": "Réduisez les retours",
+    "resources.hero.callout.size": "Choisissez la bonne taille",
+    "resources.hero.ask": "Poser une question",
+    "resources.label.note": "Note",
+    "resources.alt.strut": "Cintres strut",
+    "resources.alt.clear_poly": "Sacs en poly transparents",
+    "resources.alt.suit_hanger": "Cintres costume",
+    "resources.alt.dress_hanger": "Cintres robe",
+    "resources.alt.welove_caped": "Cintres cape We Love",
+    "resources.alt.cape_hanger": "Cintres cape",
+    "resources.alt.shirt_hanger": "Cintres chemise",
+
+    "resources.polybags.title": "Polybags : matériaux, clarté & qualité",
+    "resources.polybags.meta": "Pourquoi la « matière vierge » et le pays d'origine comptent pour la constance.",
+    "resources.polybags.cta": "Acheter des polybags",
+    "resources.polybags.badges_aria": "Points forts des polybags",
+    "resources.polybags.virgin.title": "Ce que signifie généralement « 100% matière vierge »",
+    "resources.polybags.virgin.list": "<li><b>Clarté plus nette</b> et épaisseur plus constante.</li><li><b>Moins d'odeur</b> et moins d'impuretés visibles.</li><li><b>Performance plus prévisible</b> lors de la fermeture, de la déchirure et de la manipulation.</li>",
+    "resources.polybags.note": "La matière et l'origine peuvent varier selon l'article. Vérifiez chaque fiche produit pour les détails spécifiques.",
+    "resources.polybags.korea.title": "Fabriqué en Corée",
+    "resources.polybags.korea.body": "Nos polybags sont fabriqués en Corée pour une qualité de film constante et une perforation nette.",
+    "resources.polybags.checklist.title": "Checklist d'achat rapide",
+    "resources.polybags.checklist.list": "<li><b>Usage</b> : magasin au quotidien vs tournées de livraison vs emballage en vrac.</li><li><b>Épaisseur</b> : « Heavy » au quotidien, « Extra Heavy » pour arêtes vives / charges lourdes.</li><li><b>Clarté</b> : une présentation nette réduit les erreurs et améliore l'expérience client.</li><li><b>Finition</b> : cherchez des soudures propres, une faible odeur et des lignes de déchirure régulières.</li>",
+
+    "resources.hangers.title": "Choisir les bons cintres (guide rapide)",
+    "resources.hangers.meta": "Choisissez le bon cintre une fois : moins de retours, moins de re-cintrage et moins de dommages.",
+    "resources.hangers.cta": "Acheter des cintres",
+    "resources.hangers.strength.title": "Adapter la solidité du cintre au poids du vêtement",
+    "resources.hangers.strength.body": "Utilisez des cintres plus robustes pour costumes/manteaux et plus légers pour chemises. Un cintre plus solide réduit les marques d'épaule et la casse.",
+    "resources.hangers.grid_aria": "Types de cintres",
+    "resources.hangers.card.strut.title": "Cintres strut",
+    "resources.hangers.card.strut.desc": "Une bonne résistance polyvalente pour l'usage quotidien.",
+    "resources.hangers.card.suit.title": "Cintres costume",
+    "resources.hangers.card.suit.desc": "Épaules plus larges pour mieux garder la forme des vestes et costumes.",
+    "resources.hangers.card.dress.title": "Cintres robe",
+    "resources.hangers.card.dress.desc": "Courbes douces + encoches pour réduire glissements et plis.",
+    "resources.hangers.card.welove_caped.title": "Cintres cape We Love",
+    "resources.hangers.card.welove_caped.desc": "Style premium pour robes longues et vêtements qui demandent de la stabilité.",
+    "resources.hangers.card.cape.title": "Cintres cape",
+    "resources.hangers.card.cape.desc": "Idéal pour capes/robes et vêtements longs nécessitant de la stabilité.",
+    "resources.hangers.card.shirt.title": "Cintres chemise",
+    "resources.hangers.card.shirt.desc": "Option légère, volume élevé pour chemises et hauts.",
+    "resources.hangers.table.title": "Tableau de décision rapide",
+    "resources.hangers.table.head": "<tr><th>Vêtement</th><th>Cintre recommandé</th><th>Pourquoi</th></tr>",
+    "resources.hangers.table.body": "<tr><td>Chemises / hauts</td><td>Cintre chemise</td><td>Rapide et léger pour le volume quotidien.</td></tr><tr><td>Costumes / vestes</td><td>Cintre costume</td><td>Meilleure tenue de forme et support d'épaule.</td></tr><tr><td>Robes</td><td>Cintre robe</td><td>Aide à éviter glissements et plis.</td></tr><tr><td>Pantalons / jupes</td><td>Cintre à pinces</td><td>Maintien sûr sans pliage.</td></tr><tr><td>Manteaux lourds</td><td>Cintre robuste / strut</td><td>Plus de solidité, moins de casse.</td></tr>",
 
     "resources.garment.title": "Guide pour choisir la taille des housses à vêtements",
     "resources.garment.meta": "Idéal pour : pressings, retouches, services d'uniformes, détaillants.",
@@ -787,6 +945,46 @@ const PPS_TRANSLATIONS = {
     "help.sent": "Merci! Nous vous contacterons.",
     "help.sending": "Envoi en cours...",
     "help.error": "Envoi impossible pour le moment. Veuillez réessayer.",
+    "help.close": "Fermer",
+    "help.tabs_aria": "Options d'aide",
+    "help.tab.quick": "Réponses rapides",
+    "help.tab.message": "Nous écrire",
+    "help.chat.suggestions_aria": "Questions suggérées",
+    "help.chat.placeholder": "Posez une question (livraison, tailles, épaisseur...)",
+    "help.chat.send": "Envoyer",
+    "help.link.resources": "Ressources",
+    "help.link.contact": "Contact",
+    "help.chat.greeting_html": "Bonjour ! Demandez-moi la livraison, les tailles de housses, l'épaisseur ou la planification mensuelle des emballages.",
+    "help.chat.fallback_html": "Je peux aider sur la livraison, les tailles, l'épaisseur, les paiements et la consommation mensuelle. Essayez un bouton ci-dessous, ou consultez <a href=\"./resources.html\">Ressources</a>.",
+    "help.chat.suggest.sizes": "Choisir la taille des housses",
+    "help.chat.suggest.thickness": "Épaisseur Heavy vs Extra Heavy",
+    "help.chat.suggest.usage": "Combien d'emballages par mois ?",
+    "help.chat.suggest.shipping": "Livraison",
+    "help.chat.suggest.pay": "Paiement / payer plus tard",
+    "help.chat.topic.shipping": "Livraison",
+    "help.chat.topic.sizes": "Tailles de housses",
+    "help.chat.topic.thickness": "Heavy vs Extra Heavy",
+    "help.chat.topic.usage": "Consommation mensuelle",
+    "help.chat.topic.pay": "Options de paiement",
+    "help.chat.topic.addresses": "Adresses de livraison enregistrées",
+    "help.chat.followup.shipping_fees": "Frais hors GTA ?",
+    "help.chat.followup.shipping_time": "Délais de livraison ?",
+    "help.chat.followup.sizes_shirts": "Quelle taille pour chemises ?",
+    "help.chat.followup.sizes_coats": "Quelle taille pour manteaux ?",
+    "help.chat.followup.thickness_mil": "Que signifie « mil » ?",
+    "help.chat.followup.thickness_choice": "Lequel acheter ?",
+    "help.chat.followup.usage_buffer": "Quelle marge (%) utiliser ?",
+    "help.chat.followup.usage_quote": "Pouvez-vous estimer pour moi ?",
+    "help.chat.followup.pay_invoice": "Puis-je payer sur facture ?",
+    "help.chat.followup.pay_square": "Square est-il sécurisé ?",
+    "help.chat.followup.addresses_how": "Comment ajouter une adresse ?",
+    "help.chat.followup.addresses_default": "Comment définir une adresse par défaut ?",
+    "help.chat.answer.shipping": "La livraison standard dans le GTA est gratuite. Les frais express et hors GTA sont confirmés par notre équipe après examen de la commande et de l'adresse.<br><a href=\"./legal-shipping.html\">Voir Shipping & Returns</a>",
+    "help.chat.answer.sizes": "Règle rapide : largeur du vêtement + 4–6&quot; et longueur + 4–8&quot;. Pour les manteaux volumineux, envisagez une housse plus large/à soufflet.<br><a href=\"./resources.html#guide-garment-bag-sizes\">Lire le guide des tailles</a>",
+    "help.chat.answer.thickness": "Choisissez <b>Heavy</b> pour l'usage quotidien. Choisissez <b>Extra Heavy</b> pour coins vifs, charges lourdes, tournées de livraison ou moins de déchirures/rewraps.<br><a href=\"./resources.html#heavy-vs-extra-heavy\">Lire le guide d'épaisseur</a>",
+    "help.chat.answer.usage": "Estimation simple : (vêtements/jour) × (jours d'ouverture/mois), puis ajoutez une marge de 5–12% pour rewraps/déchirures/urgences.<br><a href=\"./resources.html#dry-cleaner-packaging-usage\">Voir le planificateur</a>",
+    "help.chat.answer.pay": "Vous pouvez payer en ligne avec Square ou passer la commande maintenant et payer plus tard après confirmation de l'exécution. Lancez le checkout pour voir les deux options.<br><a href=\"./checkout.html\">Aller au checkout</a>",
+    "help.chat.answer.addresses": "Les clients professionnels peuvent enregistrer plusieurs adresses de livraison (Magasin, Entrepôt, Succursale) et définir une adresse par défaut pour un checkout plus rapide.<br><a href=\"./account.html#addresses\">Gérer les adresses</a>",
     "legal.kicker": "Mentions légales"
     ,
     "contact.kicker": "Contact",
@@ -1302,6 +1500,65 @@ const PPS_TRANSLATIONS = {
     "resources.toc.thickness.desc": "Cuándo usar más grosor (y cuándo no).",
     "resources.toc.planner.title": "Uso mensual de empaques",
     "resources.toc.planner.desc": "Una forma simple de estimar cuánto usarás.",
+    "resources.toc.polybags.title": "Polybags: materiales y calidad",
+    "resources.toc.polybags.desc": "Virgen vs reciclado, claridad, olor y por qué importa.",
+    "resources.toc.hangers.title": "Elegir los ganchos adecuados",
+    "resources.toc.hangers.desc": "Relaciona el gancho con el peso de la prenda y el uso.",
+
+    "resources.meta_desc": "Guías prácticas para tintorerías, lavanderías y comercios: tamaños de fundas, grosor del film y planificación mensual de empaques.",
+    "resources.aria.badges": "Destacados de material y origen",
+    "resources.aria.callouts": "Destacados",
+    "resources.aria.products_collage": "Productos populares",
+    "resources.badge.korea": "100% hecho en Corea",
+    "resources.badge.virgin": "100% material virgen",
+    "resources.badge.inventory": "Inventario listo para volumen",
+    "resources.badge.perforation": "Perforación limpia",
+    "resources.hero.callout.reorder": "Ahorra tiempo en reordenes",
+    "resources.hero.callout.returns": "Evita devoluciones",
+    "resources.hero.callout.size": "Compra el tamaño correcto",
+    "resources.hero.ask": "Hacer una pregunta",
+    "resources.label.note": "Nota",
+    "resources.alt.strut": "Ganchos strut",
+    "resources.alt.clear_poly": "Bolsas de polietileno transparentes",
+    "resources.alt.suit_hanger": "Ganchos para traje",
+    "resources.alt.dress_hanger": "Ganchos para vestido",
+    "resources.alt.welove_caped": "Ganchos cape We Love",
+    "resources.alt.cape_hanger": "Ganchos cape",
+    "resources.alt.shirt_hanger": "Ganchos para camisa",
+
+    "resources.polybags.title": "Polybags: materiales, claridad y calidad",
+    "resources.polybags.meta": "Por qué el “material virgen” y el país de origen importan para la consistencia.",
+    "resources.polybags.cta": "Comprar polybags",
+    "resources.polybags.badges_aria": "Destacados de polybags",
+    "resources.polybags.virgin.title": "Qué significa normalmente “100% material virgen”",
+    "resources.polybags.virgin.list": "<li><b>Mejor claridad</b> y grosor más constante.</li><li><b>Menos olor</b> y menos contaminantes visibles.</li><li><b>Rendimiento más predecible</b> al sellar, rasgar y manipular.</li>",
+    "resources.polybags.note": "El material y el origen pueden variar según el artículo. Revisa cada página de producto para los detalles específicos.",
+    "resources.polybags.korea.title": "Hecho en Corea",
+    "resources.polybags.korea.body": "Nuestras bolsas se fabrican en Corea para una calidad de film consistente y una perforación limpia.",
+    "resources.polybags.checklist.title": "Checklist de compra rápida",
+    "resources.polybags.checklist.list": "<li><b>Uso</b>: tienda diaria vs rutas de entrega vs empaque a granel.</li><li><b>Grosor</b>: “Heavy” para diario, “Extra Heavy” para bordes afilados / cargas pesadas.</li><li><b>Claridad</b>: una presentación clara reduce errores y mejora la experiencia del cliente.</li><li><b>Acabado</b>: busca sellos limpios, poco olor y líneas de rasgado consistentes.</li>",
+
+    "resources.hangers.title": "Elegir los ganchos correctos (guía rápida)",
+    "resources.hangers.meta": "Elige el gancho correcto una vez: menos devoluciones, menos re-colgado y menos daños.",
+    "resources.hangers.cta": "Comprar ganchos",
+    "resources.hangers.strength.title": "Relaciona la resistencia del gancho con el peso de la prenda",
+    "resources.hangers.strength.body": "Usa ganchos más fuertes para trajes/abrigos y más ligeros para camisas. Los ganchos más fuertes reducen marcas en los hombros y roturas.",
+    "resources.hangers.grid_aria": "Tipos de ganchos",
+    "resources.hangers.card.strut.title": "Ganchos strut",
+    "resources.hangers.card.strut.desc": "Resistencia versátil para uso diario.",
+    "resources.hangers.card.suit.title": "Ganchos para traje",
+    "resources.hangers.card.suit.desc": "Soporte de hombros más ancho para mantener la forma de chaquetas y trajes.",
+    "resources.hangers.card.dress.title": "Ganchos para vestido",
+    "resources.hangers.card.dress.desc": "Curvas suaves + muescas para reducir deslizamientos y arrugas.",
+    "resources.hangers.card.welove_caped.title": "Ganchos cape We Love",
+    "resources.hangers.card.welove_caped.desc": "Estilo premium para vestidos largos y prendas que requieren estabilidad.",
+    "resources.hangers.card.cape.title": "Ganchos cape",
+    "resources.hangers.card.cape.desc": "Ideales para capas/vestidos y prendas largas que necesitan estabilidad.",
+    "resources.hangers.card.shirt.title": "Ganchos para camisa",
+    "resources.hangers.card.shirt.desc": "Opción ligera y de alto volumen para camisas y tops.",
+    "resources.hangers.table.title": "Tabla de decisión rápida",
+    "resources.hangers.table.head": "<tr><th>Prenda</th><th>Gancho recomendado</th><th>Por qué</th></tr>",
+    "resources.hangers.table.body": "<tr><td>Camisas / tops</td><td>Gancho para camisa</td><td>Rápido y ligero para el volumen diario.</td></tr><tr><td>Trajes / chaquetas</td><td>Gancho para traje</td><td>Mejor retención de forma y soporte de hombros.</td></tr><tr><td>Vestidos</td><td>Gancho para vestido</td><td>Ayuda a evitar deslizamientos y arrugas.</td></tr><tr><td>Pantalones / faldas</td><td>Gancho con pinzas</td><td>Sujeción segura sin doblar.</td></tr><tr><td>Abrigos pesados</td><td>Gancho resistente / strut</td><td>Mayor resistencia reduce roturas.</td></tr>",
 
     "resources.garment.title": "Guía para elegir tamaños de fundas para prendas",
     "resources.garment.meta": "Ideal para: tintorerías, arreglos, servicios de uniformes y comercios.",
@@ -1491,8 +1748,56 @@ const PPS_TRANSLATIONS = {
     "billing.features.statements": "Estados de cuenta mensuales para clientes comerciales",
     "billing.features.account_billing": "Facturacion a cuenta para clientes habituales",
     "checkout.tax": "Impuesto",
+    "help.fab": "Ayuda",
+    "help.title": "Soporte al cliente en vivo",
+    "help.subtitle": "Ahora mismo estamos desconectados. Deja un mensaje y te responderemos.",
+    "help.name": "Nombre",
+    "help.email": "Correo",
+    "help.message": "Mensaje",
+    "help.send": "Enviar mensaje",
+    "help.sent": "¡Gracias! Nos pondremos en contacto.",
     "help.sending": "Enviando...",
     "help.error": "No se puede enviar ahora. Inténtalo de nuevo.",
+    "help.close": "Cerrar",
+    "help.tabs_aria": "Opciones de ayuda",
+    "help.tab.quick": "Respuestas rápidas",
+    "help.tab.message": "Escríbenos",
+    "help.chat.suggestions_aria": "Preguntas sugeridas",
+    "help.chat.placeholder": "Haz una pregunta (envíos, tamaños, grosor...)",
+    "help.chat.send": "Enviar",
+    "help.link.resources": "Recursos",
+    "help.link.contact": "Contacto",
+    "help.chat.greeting_html": "¡Hola! Pregúntame sobre envíos, tamaños de fundas, grosor o planificación mensual de empaques.",
+    "help.chat.fallback_html": "Puedo ayudar con envíos, tamaños, grosor, pagos y uso mensual. Prueba un botón abajo o visita <a href=\"./resources.html\">Recursos</a>.",
+    "help.chat.suggest.sizes": "Elegir tamaños de fundas",
+    "help.chat.suggest.thickness": "Grosor Heavy vs Extra Heavy",
+    "help.chat.suggest.usage": "¿Cuánto empaque por mes?",
+    "help.chat.suggest.shipping": "Envío / entrega",
+    "help.chat.suggest.pay": "Pagos / pagar después",
+    "help.chat.topic.shipping": "Envío / entrega",
+    "help.chat.topic.sizes": "Tamaños de fundas",
+    "help.chat.topic.thickness": "Heavy vs Extra Heavy",
+    "help.chat.topic.usage": "Uso mensual de empaques",
+    "help.chat.topic.pay": "Opciones de pago",
+    "help.chat.topic.addresses": "Direcciones guardadas",
+    "help.chat.followup.shipping_fees": "¿Cobran fuera de GTA?",
+    "help.chat.followup.shipping_time": "¿Qué tan rápido es la entrega?",
+    "help.chat.followup.sizes_shirts": "¿Qué tamaño para camisas?",
+    "help.chat.followup.sizes_coats": "¿Qué tamaño para abrigos?",
+    "help.chat.followup.thickness_mil": "¿Qué significa mil?",
+    "help.chat.followup.thickness_choice": "¿Cuál debería comprar?",
+    "help.chat.followup.usage_buffer": "¿Qué % de margen debo usar?",
+    "help.chat.followup.usage_quote": "¿Puedes estimarlo por mí?",
+    "help.chat.followup.pay_invoice": "¿Puedo pagar por factura?",
+    "help.chat.followup.pay_square": "¿Square es seguro?",
+    "help.chat.followup.addresses_how": "¿Cómo agrego una dirección?",
+    "help.chat.followup.addresses_default": "¿Cómo pongo una por defecto?",
+    "help.chat.answer.shipping": "La entrega estándar en GTA es gratis. Los cargos exprés y fuera de GTA los confirma nuestro equipo después de revisar el pedido y la dirección.<br><a href=\"./legal-shipping.html\">Ver Shipping & Returns</a>",
+    "help.chat.answer.sizes": "Regla rápida: ancho de la prenda + 4–6&quot; y largo + 4–8&quot;. Para abrigos voluminosos, considera una bolsa más ancha o con fuelle.<br><a href=\"./resources.html#guide-garment-bag-sizes\">Leer la guía de tamaños</a>",
+    "help.chat.answer.thickness": "Elige <b>Heavy</b> para uso diario. Elige <b>Extra Heavy</b> para esquinas afiladas, cargas pesadas, rutas de entrega o menos roturas/rewraps.<br><a href=\"./resources.html#heavy-vs-extra-heavy\">Leer la guía de grosor</a>",
+    "help.chat.answer.usage": "Estimación simple: (prendas/día) × (días operativos/mes), luego agrega un margen de 5–12% por rewraps/roturas/urgencias.<br><a href=\"./resources.html#dry-cleaner-packaging-usage\">Ver el planificador</a>",
+    "help.chat.answer.pay": "Puedes pagar en línea con Square o hacer el pedido ahora y pagar después cuando se confirme el cumplimiento. Inicia el checkout para ver ambas opciones.<br><a href=\"./checkout.html\">Ir al checkout</a>",
+    "help.chat.answer.addresses": "Los clientes comerciales pueden guardar varias direcciones (Tienda, Almacén, Sucursal) y definir una por defecto para un checkout más rápido.<br><a href=\"./account.html#addresses\">Administrar direcciones</a>",
     "product.share": "Compartir",
     "product.share.sent": "Enlace compartido.",
     "product.share.copied": "Enlace copiado al portapapeles.",
@@ -1589,6 +1894,65 @@ const PPS_TRANSLATIONS = {
     "resources.toc.thickness.desc": "더 두껍게 선택해야 하는 경우(그리고 아닌 경우).",
     "resources.toc.planner.title": "월간 포장 자재 사용량",
     "resources.toc.planner.desc": "월 사용량을 간단히 추정하는 방법.",
+    "resources.toc.polybags.title": "폴리백: 소재 & 품질",
+    "resources.toc.polybags.desc": "버진 vs 재활용, 투명도, 냄새, 그리고 중요한 이유.",
+    "resources.toc.hangers.title": "옷걸이 선택 가이드",
+    "resources.toc.hangers.desc": "의류 무게와 용도에 맞게 옷걸이를 선택하세요.",
+
+    "resources.meta_desc": "드라이클리너, 세탁소, 리테일러를 위한 실용 가이드: 커버백 사이즈, 필름 두께, 월간 포장 자재 계획.",
+    "resources.aria.badges": "소재 및 원산지 하이라이트",
+    "resources.aria.callouts": "하이라이트",
+    "resources.aria.products_collage": "인기 제품",
+    "resources.badge.korea": "100% 한국 제조",
+    "resources.badge.virgin": "100% 버진 원료",
+    "resources.badge.inventory": "대량 재고 준비",
+    "resources.badge.perforation": "깔끔한 퍼포레이션",
+    "resources.hero.callout.reorder": "재주문 시간 절약",
+    "resources.hero.callout.returns": "반품 줄이기",
+    "resources.hero.callout.size": "알맞은 사이즈 선택",
+    "resources.hero.ask": "문의하기",
+    "resources.label.note": "참고",
+    "resources.alt.strut": "스트럿 옷걸이",
+    "resources.alt.clear_poly": "투명 폴리백",
+    "resources.alt.suit_hanger": "수트 옷걸이",
+    "resources.alt.dress_hanger": "드레스 옷걸이",
+    "resources.alt.welove_caped": "We Love 케이프 옷걸이",
+    "resources.alt.cape_hanger": "케이프 옷걸이",
+    "resources.alt.shirt_hanger": "셔츠 옷걸이",
+
+    "resources.polybags.title": "폴리백: 소재, 투명도 & 품질",
+    "resources.polybags.meta": "“버진 원료”와 원산지가 품질 일관성에 중요한 이유.",
+    "resources.polybags.cta": "폴리백 쇼핑",
+    "resources.polybags.badges_aria": "폴리백 하이라이트",
+    "resources.polybags.virgin.title": "“100% 버진 원료”는 보통 이런 뜻입니다",
+    "resources.polybags.virgin.list": "<li><b>더 깨끗한 투명도</b>와 더 일정한 두께.</li><li><b>냄새 감소</b> 및 눈에 보이는 불순물 감소.</li><li><b>예측 가능한 성능</b> (실링/찢김/취급 시).</li>",
+    "resources.polybags.note": "소재와 원산지는 상품에 따라 달라질 수 있습니다. 각 상품 페이지에서 상세 정보를 확인하세요.",
+    "resources.polybags.korea.title": "한국 제조",
+    "resources.polybags.korea.body": "폴리백은 한국에서 제조되어 필름 품질이 일정하고 퍼포레이션이 깔끔합니다.",
+    "resources.polybags.checklist.title": "빠른 구매 체크리스트",
+    "resources.polybags.checklist.list": "<li><b>용도</b>: 매장 일상용 vs 배송 경로 vs 대량 포장.</li><li><b>두께</b>: 일상은 “Heavy”, 날카로운 모서리/무거운 하중은 “Extra Heavy”.</li><li><b>투명도</b>: 제품 구분 오류를 줄이고 고객 경험을 개선합니다.</li><li><b>마감</b>: 깔끔한 실링, 낮은 냄새, 일정한 절취선을 확인하세요.</li>",
+
+    "resources.hangers.title": "옷걸이 선택 가이드(빠른 안내)",
+    "resources.hangers.meta": "한 번 제대로 선택하면 반품·재걸이·파손이 줄어듭니다.",
+    "resources.hangers.cta": "옷걸이 쇼핑",
+    "resources.hangers.strength.title": "의류 무게에 맞춰 옷걸이 강도를 선택하세요",
+    "resources.hangers.strength.body": "수트/코트에는 더 튼튼한 옷걸이를, 셔츠에는 더 가벼운 옷걸이를 사용하세요. 튼튼한 옷걸이는 어깨 눌림과 파손을 줄입니다.",
+    "resources.hangers.grid_aria": "옷걸이 유형",
+    "resources.hangers.card.strut.title": "스트럿 옷걸이",
+    "resources.hangers.card.strut.desc": "일상 사용에 좋은 범용 강도.",
+    "resources.hangers.card.suit.title": "수트 옷걸이",
+    "resources.hangers.card.suit.desc": "넓은 어깨 지지로 자켓/수트 형태를 유지합니다.",
+    "resources.hangers.card.dress.title": "드레스 옷걸이",
+    "resources.hangers.card.dress.desc": "부드러운 곡선 + 노치로 미끄러짐과 구김을 줄입니다.",
+    "resources.hangers.card.welove_caped.title": "We Love 케이프 옷걸이",
+    "resources.hangers.card.welove_caped.desc": "긴 드레스/가운에 안정적인 프리미엄 케이프 스타일.",
+    "resources.hangers.card.cape.title": "케이프 옷걸이",
+    "resources.hangers.card.cape.desc": "케이프/가운 등 긴 의류에 적합한 안정형 옷걸이.",
+    "resources.hangers.card.shirt.title": "셔츠 옷걸이",
+    "resources.hangers.card.shirt.desc": "가볍고 대량 처리에 적합한 셔츠/탑용 옵션.",
+    "resources.hangers.table.title": "빠른 선택 표",
+    "resources.hangers.table.head": "<tr><th>의류</th><th>추천 옷걸이</th><th>이유</th></tr>",
+    "resources.hangers.table.body": "<tr><td>셔츠 / 탑</td><td>셔츠 옷걸이</td><td>빠르고 가벼워 일상 물량에 적합.</td></tr><tr><td>수트 / 자켓</td><td>수트 옷걸이</td><td>형태 유지와 어깨 지지 향상.</td></tr><tr><td>드레스</td><td>드레스 옷걸이</td><td>미끄러짐과 구김을 줄입니다.</td></tr><tr><td>바지 / 스커트</td><td>클립 옷걸이</td><td>접지 않고 안전하게 고정.</td></tr><tr><td>무거운 아우터</td><td>헤비듀티 / 스트럿 옷걸이</td><td>강도가 높아 파손을 줄입니다.</td></tr>",
 
     "resources.garment.title": "의류 커버백 사이즈 선택 가이드",
     "resources.garment.meta": "추천 대상: 드라이클리닝, 수선점, 유니폼 서비스, 리테일러.",
@@ -1966,8 +2330,56 @@ const PPS_TRANSLATIONS = {
     "billing.features.tax_invoice": "GST/HST 세금계산서 포함",
     "billing.features.statements": "사업자 고객용 월간 명세서",
     "billing.features.account_billing": "정기 고객 계정 청구 지원",
+    "help.fab": "도움",
+    "help.title": "실시간 고객 지원",
+    "help.subtitle": "지금은 오프라인입니다. 메시지를 남기시면 곧 연락드리겠습니다.",
+    "help.name": "이름",
+    "help.email": "이메일",
+    "help.message": "메시지",
+    "help.send": "메시지 보내기",
+    "help.sent": "감사합니다! 곧 연락드리겠습니다.",
     "help.sending": "전송 중...",
     "help.error": "지금은 전송할 수 없습니다. 잠시 후 다시 시도해 주세요.",
+    "help.close": "닫기",
+    "help.tabs_aria": "도움 옵션",
+    "help.tab.quick": "빠른 답변",
+    "help.tab.message": "문의하기",
+    "help.chat.suggestions_aria": "추천 질문",
+    "help.chat.placeholder": "질문을 입력하세요(배송, 사이즈, 두께...)",
+    "help.chat.send": "전송",
+    "help.link.resources": "리소스",
+    "help.link.contact": "연락처",
+    "help.chat.greeting_html": "안녕하세요! 배송, 커버백 사이즈, 두께, 월간 사용량 계획에 대해 물어보세요.",
+    "help.chat.fallback_html": "배송, 사이즈, 두께, 결제, 월간 사용량에 대해 도와드릴 수 있어요. 아래 버튼을 눌러보거나 <a href=\"./resources.html\">리소스</a>를 확인하세요.",
+    "help.chat.suggest.sizes": "커버백 사이즈 선택",
+    "help.chat.suggest.thickness": "Heavy vs Extra Heavy 두께",
+    "help.chat.suggest.usage": "한 달 사용량은?",
+    "help.chat.suggest.shipping": "배송",
+    "help.chat.suggest.pay": "결제 / 나중에 결제",
+    "help.chat.topic.shipping": "배송",
+    "help.chat.topic.sizes": "커버백 사이즈",
+    "help.chat.topic.thickness": "Heavy vs Extra Heavy",
+    "help.chat.topic.usage": "월간 사용량",
+    "help.chat.topic.pay": "결제 옵션",
+    "help.chat.topic.addresses": "배송지 저장",
+    "help.chat.followup.shipping_fees": "GTA 외 요금이 있나요?",
+    "help.chat.followup.shipping_time": "배송은 얼마나 걸리나요?",
+    "help.chat.followup.sizes_shirts": "셔츠는 어떤 사이즈가 좋아요?",
+    "help.chat.followup.sizes_coats": "코트는 어떤 사이즈가 좋아요?",
+    "help.chat.followup.thickness_mil": "mil이 무엇인가요?",
+    "help.chat.followup.thickness_choice": "어떤 두께를 사야 하나요?",
+    "help.chat.followup.usage_buffer": "버퍼(%)는 얼마나 잡나요?",
+    "help.chat.followup.usage_quote": "대략 계산해 줄 수 있나요?",
+    "help.chat.followup.pay_invoice": "인보이스로 결제할 수 있나요?",
+    "help.chat.followup.pay_square": "Square는 안전한가요?",
+    "help.chat.followup.addresses_how": "배송지는 어떻게 추가하나요?",
+    "help.chat.followup.addresses_default": "기본 배송지는 어떻게 설정하나요?",
+    "help.chat.answer.shipping": "GTA 표준 배송은 무료입니다. 빠른 배송 및 GTA 외 배송 요금은 주문과 주소 확인 후 담당자가 안내합니다.<br><a href=\"./legal-shipping.html\">Shipping & Returns 보기</a>",
+    "help.chat.answer.sizes": "간단 규칙: 옷 폭 + 4–6&quot;, 옷 길이 + 4–8&quot;. 두꺼운 코트는 더 넓거나 거싯(폭 확장) 백을 고려하세요.<br><a href=\"./resources.html#guide-garment-bag-sizes\">사이즈 가이드 보기</a>",
+    "help.chat.answer.thickness": "일상 포장은 <b>Heavy</b>를 권장합니다. 날카로운 모서리/무거운 하중/배송 경로/찢김 감소가 필요하면 <b>Extra Heavy</b>를 선택하세요.<br><a href=\"./resources.html#heavy-vs-extra-heavy\">두께 가이드 보기</a>",
+    "help.chat.answer.usage": "간단 계산: (하루 의류 수) × (월 운영 일수), 그리고 재포장/찢김/긴급 주문 대비 5–12% 버퍼를 추가하세요.<br><a href=\"./resources.html#dry-cleaner-packaging-usage\">플래너 보기</a>",
+    "help.chat.answer.pay": "Square로 온라인 결제가 가능하며, 주문을 먼저 넣고 확인 후 나중에 결제하는 옵션도 있습니다. 결제 페이지에서 두 옵션을 확인하세요.<br><a href=\"./checkout.html\">결제로 이동</a>",
+    "help.chat.answer.addresses": "사업자 고객은 여러 배송지(매장, 창고, 지점)를 저장하고 기본 배송지를 설정해 더 빠르게 결제할 수 있습니다.<br><a href=\"./account.html#addresses\">배송지 관리</a>",
     "product.share": "공유",
     "product.share.sent": "링크를 공유했습니다.",
     "product.share.copied": "클립보드에 복사했습니다.",
@@ -2215,6 +2627,65 @@ const PPS_TRANSLATIONS = {
     "resources.toc.thickness.desc": "कब मोटा चुनें (और कब नहीं)।",
     "resources.toc.planner.title": "मासिक पैकेजिंग उपयोग",
     "resources.toc.planner.desc": "आप कितना उपयोग करेंगे इसका आसान अनुमान।",
+    "resources.toc.polybags.title": "पॉलीबैग: सामग्री और गुणवत्ता",
+    "resources.toc.polybags.desc": "वर्जिन बनाम रीसायकल्ड, क्लैरिटी, गंध, और क्यों जरूरी है।",
+    "resources.toc.hangers.title": "सही हैंगर चुनना",
+    "resources.toc.hangers.desc": "गारमेंट के वजन और उपयोग के अनुसार हैंगर चुनें।",
+
+    "resources.meta_desc": "ड्राई क्लीनर्स, लॉन्ड्रोमैट्स और रिटेलर्स के लिए व्यावहारिक गाइड: गारमेंट बैग साइज़, फिल्म मोटाई और मासिक पैकेजिंग प्लानिंग।",
+    "resources.aria.badges": "सामग्री और मूल देश के हाइलाइट्स",
+    "resources.aria.callouts": "हाइलाइट्स",
+    "resources.aria.products_collage": "लोकप्रिय उत्पाद",
+    "resources.badge.korea": "100% कोरिया में निर्मित",
+    "resources.badge.virgin": "100% वर्जिन सामग्री",
+    "resources.badge.inventory": "बल्क-रेडी इन्वेंटरी",
+    "resources.badge.perforation": "क्लीन पर्फोरेशन",
+    "resources.hero.callout.reorder": "रीऑर्डर में समय बचाएँ",
+    "resources.hero.callout.returns": "रिटर्न कम करें",
+    "resources.hero.callout.size": "सही साइज़ चुनें",
+    "resources.hero.ask": "सवाल पूछें",
+    "resources.label.note": "नोट",
+    "resources.alt.strut": "स्ट्रट हैंगर",
+    "resources.alt.clear_poly": "क्लियर पॉली बैग",
+    "resources.alt.suit_hanger": "सूट हैंगर",
+    "resources.alt.dress_hanger": "ड्रेस हैंगर",
+    "resources.alt.welove_caped": "We Love केप्ड हैंगर",
+    "resources.alt.cape_hanger": "केप हैंगर",
+    "resources.alt.shirt_hanger": "शर्ट हैंगर",
+
+    "resources.polybags.title": "पॉलीबैग: सामग्री, क्लैरिटी और गुणवत्ता",
+    "resources.polybags.meta": "क्यों “वर्जिन सामग्री” और मूल देश, कंसिस्टेंसी के लिए जरूरी हैं।",
+    "resources.polybags.cta": "पॉली बैग खरीदें",
+    "resources.polybags.badges_aria": "पॉलीबैग हाइलाइट्स",
+    "resources.polybags.virgin.title": "“100% वर्जिन सामग्री” का सामान्य मतलब",
+    "resources.polybags.virgin.list": "<li><b>ज्यादा साफ क्लैरिटी</b> और अधिक समान मोटाई।</li><li><b>कम गंध</b> और कम दृश्य अशुद्धियाँ।</li><li><b>अधिक प्रिडिक्टेबल परफॉर्मेंस</b> (सीलिंग, टियरिंग और हैंडलिंग में)।</li>",
+    "resources.polybags.note": "सामग्री और मूल देश आइटम के अनुसार बदल सकते हैं। सही डिटेल्स के लिए हर प्रोडक्ट पेज देखें।",
+    "resources.polybags.korea.title": "कोरिया में निर्मित",
+    "resources.polybags.korea.body": "हमारे पॉली बैग कोरिया में बनाए जाते हैं ताकि फिल्म क्वालिटी कंसिस्टेंट रहे और पर्फोरेशन साफ हो।",
+    "resources.polybags.checklist.title": "क्विक खरीद चेकलिस्ट",
+    "resources.polybags.checklist.list": "<li><b>उपयोग</b>: डेली स्टोर यूज़ vs डिलीवरी रूट्स vs बल्क पैकिंग।</li><li><b>मोटाई</b>: रोज़ के लिए “Heavy”, तेज किनारों/भारी लोड के लिए “Extra Heavy”。</li><li><b>क्लैरिटी</b>: साफ प्रस्तुति से मिक्स-अप कम होते हैं और अनुभव बेहतर होता है।</li><li><b>फिनिश</b>: क्लीन सील, कम गंध और कंसिस्टेंट टियर लाइन्स देखें।</li>",
+
+    "resources.hangers.title": "सही हैंगर चुनना (क्विक गाइड)",
+    "resources.hangers.meta": "एक बार सही हैंगर चुनें—रिटर्न, रीहैंग समय और डैमेज कम करें।",
+    "resources.hangers.cta": "हैंगर खरीदें",
+    "resources.hangers.strength.title": "गारमेंट के वजन के अनुसार हैंगर की मजबूती चुनें",
+    "resources.hangers.strength.body": "सूट/कोट के लिए भारी हैंगर और शर्ट के लिए हल्के हैंगर इस्तेमाल करें। मजबूत हैंगर से शोल्डर डेंट और टूट-फूट कम होती है।",
+    "resources.hangers.grid_aria": "हैंगर प्रकार",
+    "resources.hangers.card.strut.title": "स्ट्रट हैंगर",
+    "resources.hangers.card.strut.desc": "डेली ड्राई-क्लीनिंग के लिए ऑल‑पर्पस मजबूती।",
+    "resources.hangers.card.suit.title": "सूट हैंगर",
+    "resources.hangers.card.suit.desc": "चौड़ा शोल्डर सपोर्ट जैकेट/सूट की शेप बनाए रखता है।",
+    "resources.hangers.card.dress.title": "ड्रेस हैंगर",
+    "resources.hangers.card.dress.desc": "स्मूद कर्व्स + नॉचेज़ से स्लिप्स और क्रीज़ कम होते हैं।",
+    "resources.hangers.card.welove_caped.title": "We Love केप्ड हैंगर",
+    "resources.hangers.card.welove_caped.desc": "गाउन और लंबे गारमेंट्स के लिए प्रीमियम केप स्टाइल, बेहतर स्टेबिलिटी।",
+    "resources.hangers.card.cape.title": "केप हैंगर",
+    "resources.hangers.card.cape.desc": "केप/गाउन और लंबे गारमेंट्स के लिए अच्छा विकल्प।",
+    "resources.hangers.card.shirt.title": "शर्ट हैंगर",
+    "resources.hangers.card.shirt.desc": "शर्ट्स और टॉप्स के लिए हल्का, हाई‑वॉल्यूम विकल्प।",
+    "resources.hangers.table.title": "क्विक निर्णय टेबल",
+    "resources.hangers.table.head": "<tr><th>गारमेंट</th><th>सुझाया हैंगर</th><th>क्यों</th></tr>",
+    "resources.hangers.table.body": "<tr><td>शर्ट / टॉप्स</td><td>शर्ट हैंगर</td><td>डेली वॉल्यूम के लिए तेज़ और हल्का।</td></tr><tr><td>सूट / जैकेट</td><td>सूट हैंगर</td><td>बेहतर शेप रिटेंशन और शोल्डर सपोर्ट।</td></tr><tr><td>ड्रेसेस</td><td>ड्रेस हैंगर</td><td>स्लिपिंग और क्रीज़ कम करने में मदद।</td></tr><tr><td>पैंट / स्कर्ट</td><td>क्लिप हैंगर</td><td>बिना फोल्ड किए सुरक्षित पकड़।</td></tr><tr><td>भारी आउटरवियर</td><td>हेवी‑ड्यूटी / स्ट्रट हैंगर</td><td>ज्यादा मजबूती से टूट-फूट कम।</td></tr>",
 
     "resources.garment.title": "गारमेंट बैग साइज़ चुनने की गाइड",
     "resources.garment.meta": "उपयुक्त: ड्राई क्लीनर्स, अल्टरेशन शॉप्स, यूनिफ़ॉर्म सेवाएँ, रिटेलर्स।",
@@ -2592,8 +3063,56 @@ const PPS_TRANSLATIONS = {
     "billing.features.tax_invoice": "GST/HST इनवॉइस शामिल",
     "billing.features.statements": "बिज़नेस क्लाइंट्स के लिए मासिक स्टेटमेंट",
     "billing.features.account_billing": "नियमित क्लाइंट्स के लिए अकाउंट बिलिंग",
+    "help.fab": "मदद",
+    "help.title": "लाइव कस्टमर सपोर्ट",
+    "help.subtitle": "हम अभी ऑफलाइन हैं। एक संदेश छोड़ें और हम जल्द ही जवाब देंगे।",
+    "help.name": "नाम",
+    "help.email": "ईमेल",
+    "help.message": "संदेश",
+    "help.send": "संदेश भेजें",
+    "help.sent": "धन्यवाद! हम संपर्क में रहेंगे।",
     "help.sending": "भेजा जा रहा है...",
     "help.error": "अभी भेजा नहीं जा सकता। कृपया फिर से कोशिश करें।",
+    "help.close": "बंद करें",
+    "help.tabs_aria": "मदद विकल्प",
+    "help.tab.quick": "त्वरित जवाब",
+    "help.tab.message": "संदेश भेजें",
+    "help.chat.suggestions_aria": "सुझाए गए सवाल",
+    "help.chat.placeholder": "सवाल पूछें (शिपिंग, साइज़, मोटाई...)",
+    "help.chat.send": "भेजें",
+    "help.link.resources": "संसाधन",
+    "help.link.contact": "संपर्क",
+    "help.chat.greeting_html": "नमस्ते! शिपिंग, गारमेंट बैग साइज़, मोटाई या मासिक पैकेजिंग प्लानिंग के बारे में पूछें।",
+    "help.chat.fallback_html": "मैं शिपिंग, साइज़, मोटाई, पेमेंट और मासिक उपयोग में मदद कर सकता/सकती हूँ। नीचे बटन ट्राय करें या <a href=\"./resources.html\">संसाधन</a> देखें।",
+    "help.chat.suggest.sizes": "गारमेंट बैग साइज़ चुनना",
+    "help.chat.suggest.thickness": "Heavy बनाम Extra Heavy मोटाई",
+    "help.chat.suggest.usage": "महीने में कितना पैकेजिंग?",
+    "help.chat.suggest.shipping": "शिपिंग / डिलीवरी",
+    "help.chat.suggest.pay": "पेमेंट / बाद में भुगतान",
+    "help.chat.topic.shipping": "शिपिंग / डिलीवरी",
+    "help.chat.topic.sizes": "गारमेंट बैग साइज़",
+    "help.chat.topic.thickness": "Heavy बनाम Extra Heavy",
+    "help.chat.topic.usage": "मासिक उपयोग",
+    "help.chat.topic.pay": "पेमेंट विकल्प",
+    "help.chat.topic.addresses": "सेव्ड डिलीवरी पते",
+    "help.chat.followup.shipping_fees": "क्या GTA के बाहर चार्ज है?",
+    "help.chat.followup.shipping_time": "डिलीवरी कितनी तेज़ है?",
+    "help.chat.followup.sizes_shirts": "शर्ट के लिए कौन सा साइज़?",
+    "help.chat.followup.sizes_coats": "कोट के लिए कौन सा साइज़?",
+    "help.chat.followup.thickness_mil": "mil का मतलब क्या है?",
+    "help.chat.followup.thickness_choice": "कौन सा खरीदना चाहिए?",
+    "help.chat.followup.usage_buffer": "कितना buffer % रखें?",
+    "help.chat.followup.usage_quote": "क्या आप मेरे लिए अनुमान लगा सकते हैं?",
+    "help.chat.followup.pay_invoice": "क्या मैं इनवॉइस से पे कर सकता/सकती हूँ?",
+    "help.chat.followup.pay_square": "क्या Square सुरक्षित है?",
+    "help.chat.followup.addresses_how": "मैं पता कैसे जोड़ूँ?",
+    "help.chat.followup.addresses_default": "डिफ़ॉल्ट पता कैसे सेट करूँ?",
+    "help.chat.answer.shipping": "GTA में मानक डिलीवरी मुफ्त है। एक्सप्रेस और GTA के बाहर की डिलीवरी शुल्क हमारी टीम ऑर्डर और पता देखने के बाद पुष्टि करेगी।<br><a href=\"./legal-shipping.html\">Shipping & Returns पढ़ें</a>",
+    "help.chat.answer.sizes": "क्विक नियम: कपड़े की चौड़ाई + 4–6&quot; और लंबाई + 4–8&quot;। भारी कोट के लिए चौड़ा/गसेटेड बैग देखें।<br><a href=\"./resources.html#guide-garment-bag-sizes\">साइज़िंग गाइड पढ़ें</a>",
+    "help.chat.answer.thickness": "दैनिक पैकेजिंग के लिए <b>Heavy</b> लें। तेज़ कोने, भारी लोड, डिलीवरी रूट या कम फटने/रीरैप के लिए <b>Extra Heavy</b> लें।<br><a href=\"./resources.html#heavy-vs-extra-heavy\">थिकनेस गाइड पढ़ें</a>",
+    "help.chat.answer.usage": "सरल अनुमान: (गारमेंट्स/दिन) × (ऑपरेटिंग दिन/माह), फिर rewraps/tears/rush के लिए 5–12% buffer जोड़ें।<br><a href=\"./resources.html#dry-cleaner-packaging-usage\">प्लानर देखें</a>",
+    "help.chat.answer.pay": "आप Square से ऑनलाइन पे कर सकते हैं या अभी ऑर्डर करके fulfillment कन्फर्म होने के बाद बाद में पे कर सकते हैं। दोनों विकल्प checkout में दिखेंगे।<br><a href=\"./checkout.html\">चेकआउट पर जाएं</a>",
+    "help.chat.answer.addresses": "बिज़नेस ग्राहक कई डिलीवरी पते (Main Store, Warehouse, Branch) सेव कर सकते हैं और तेज़ चेकआउट के लिए डिफ़ॉल्ट सेट कर सकते हैं।<br><a href=\"./account.html#addresses\">पते मैनेज करें</a>",
     "product.share": "शेयर",
     "product.share.sent": "लिंक साझा किया गया।",
     "product.share.copied": "लिंक क्लिपबोर्ड पर कॉपी हो गया।",
@@ -2838,6 +3357,65 @@ const PPS_TRANSLATIONS = {
     "resources.toc.thickness.desc": "எப்போது தடிமனாக தேர்வு செய்வது (மற்றும் வேண்டாத போது).",
     "resources.toc.planner.title": "மாதாந்திர பேக்கேஜிங் பயன்பாடு",
     "resources.toc.planner.desc": "நீங்கள் எவ்வளவு பயன்படுத்துவீர்கள் என்பதை எளிதாக கணக்கிடும் முறை.",
+    "resources.toc.polybags.title": "பாலி பேக்கள்: பொருள் & தரம்",
+    "resources.toc.polybags.desc": "விர்ஜின் vs ரிசைக்கிள்ட், தெளிவு, வாசனை, ஏன் முக்கியம்.",
+    "resources.toc.hangers.title": "சரியான ஹேங்கர்கள் தேர்வு",
+    "resources.toc.hangers.desc": "உடை எடை மற்றும் பயன்பாட்டிற்கு பொருந்த ஹேங்கரை தேர்வு செய்யுங்கள்.",
+
+    "resources.meta_desc": "ட்ரை கிளீனர், லாண்ட்ரோமாட் மற்றும் ரிடெய்லர்களுக்கான பயனுள்ள வழிகாட்டிகள்: கார்மென்ட் பேக் அளவு, ஃபிலிம் தடிமன், மாதாந்திர பேக்கேஜிங் திட்டமிடல்.",
+    "resources.aria.badges": "பொருள் மற்றும் தோற்ற நாட்டின் ஹைலைட்ஸ்",
+    "resources.aria.callouts": "ஹைலைட்ஸ்",
+    "resources.aria.products_collage": "பிரபலமான பொருட்கள்",
+    "resources.badge.korea": "100% கொரியாவில் தயாரிப்பு",
+    "resources.badge.virgin": "100% விர்ஜின் மெட்டீரியல்",
+    "resources.badge.inventory": "மொத்த-ரெடி ஸ்டாக்",
+    "resources.badge.perforation": "சுத்தமான பெர்ஃபரேஷன்",
+    "resources.hero.callout.reorder": "மீண்டும் ஆர்டர் நேரம் சேமிக்க",
+    "resources.hero.callout.returns": "ரிட்டர்னை குறைக்க",
+    "resources.hero.callout.size": "சரியான அளவு வாங்க",
+    "resources.hero.ask": "கேள்வி கேளுங்கள்",
+    "resources.label.note": "குறிப்பு",
+    "resources.alt.strut": "ஸ்ட்ரட் ஹேங்கர்கள்",
+    "resources.alt.clear_poly": "கிளியர் பாலி பேக்கள்",
+    "resources.alt.suit_hanger": "சூட் ஹேங்கர்கள்",
+    "resources.alt.dress_hanger": "டிரஸ் ஹேங்கர்கள்",
+    "resources.alt.welove_caped": "We Love கேப்டு ஹேங்கர்கள்",
+    "resources.alt.cape_hanger": "கேப் ஹேங்கர்கள்",
+    "resources.alt.shirt_hanger": "ஷர்ட் ஹேங்கர்கள்",
+
+    "resources.polybags.title": "பாலி பேக்கள்: பொருள், தெளிவு & தரம்",
+    "resources.polybags.meta": "“விர்ஜின் மெட்டீரியல்” மற்றும் தயாரிப்பு நாடு ஏன் தர நிலைத்தன்மைக்கு முக்கியம்.",
+    "resources.polybags.cta": "பாலி பேக்கள் வாங்க",
+    "resources.polybags.badges_aria": "பாலி பேக் ஹைலைட்ஸ்",
+    "resources.polybags.virgin.title": "“100% விர்ஜின் மெட்டீரியல்” பொதுவாக அர்த்தம்",
+    "resources.polybags.virgin.list": "<li><b>சுத்தமான தெளிவு</b> மற்றும் சீரான தடிமன்.</li><li><b>குறைந்த வாசனை</b> மற்றும் குறைந்த தென்படும் கலப்புகள்.</li><li><b>நிலையான செயல்திறன்</b> (சீலிங், கிழித்தல், கையாளுதல் போது).</li>",
+    "resources.polybags.note": "பொருள் மற்றும் தயாரிப்பு நாடு பொருளின் படி மாறலாம். குறிப்பிட்ட விவரங்களுக்கு ஒவ்வொரு தயாரிப்பு பக்கத்தையும் பார்க்கவும்.",
+    "resources.polybags.korea.title": "கொரியாவில் தயாரிப்பு",
+    "resources.polybags.korea.body": "சீரான ஃபிலிம் தரம் மற்றும் சுத்தமான பெர்ஃபரேஷனுக்காக எங்கள் பாலி பேக்கள் கொரியாவில் தயாரிக்கப்படுகின்றன.",
+    "resources.polybags.checklist.title": "விரைவு வாங்கும் பட்டியல்",
+    "resources.polybags.checklist.list": "<li><b>பயன்பாடு</b>: தினசரி கடை பயன்பாடு vs டெலிவரி ரூட்ஸ் vs மொத்த பேக்கிங்.</li><li><b>தடிமன்</b>: தினசரிக்கு “Heavy”, கூர்மையான விளிம்புகள்/கனமான சுமைக்கு “Extra Heavy”.</li><li><b>தெளிவு</b>: தவறான கலப்பை குறைத்து வாடிக்கையாளர் அனுபவத்தை மேம்படுத்தும்.</li><li><b>ஃபினிஷ்</b>: சுத்தமான சீல், குறைந்த வாசனை, சீரான கிழிப்பு கோடு.</li>",
+
+    "resources.hangers.title": "சரியான ஹேங்கர்கள் தேர்வு (விரைவு வழிகாட்டு)",
+    "resources.hangers.meta": "ஒருமுறை சரியான ஹேங்கரை தேர்வு செய்யுங்கள்—ரிட்டர்ன், மீண்டும் ஹேங்க் செய்யும் நேரம், சேதம் குறையும்.",
+    "resources.hangers.cta": "ஹேங்கர்கள் வாங்க",
+    "resources.hangers.strength.title": "உடை எடைக்கு பொருந்த ஹேங்கர் வலிமை தேர்வு செய்யுங்கள்",
+    "resources.hangers.strength.body": "சூட்/கோட் க்காக கனமான ஹேங்கர்கள், ஷர்ட் க்காக இலகு ஹேங்கர்கள் பயன்படுத்துங்கள். வலுவான ஹேங்கர்கள் தோள் அடைவு மற்றும் உடைப்பு குறைக்கும்.",
+    "resources.hangers.grid_aria": "ஹேங்கர் வகைகள்",
+    "resources.hangers.card.strut.title": "ஸ்ட்ரட் ஹேங்கர்கள்",
+    "resources.hangers.card.strut.desc": "தினசரி ட்ரை‑க்ளீனிங்கிற்கு நல்ல all‑purpose வலிமை.",
+    "resources.hangers.card.suit.title": "சூட் ஹேங்கர்கள்",
+    "resources.hangers.card.suit.desc": "ஜாக்கெட்/சூட் வடிவத்தை காக்க அகலமான தோள் ஆதரவு.",
+    "resources.hangers.card.dress.title": "டிரஸ் ஹேங்கர்கள்",
+    "resources.hangers.card.dress.desc": "மென்மையான வளைவுகள் + நாச்சுகள் ஸ்லிப் மற்றும் மடிப்பு குறைக்கும்.",
+    "resources.hangers.card.welove_caped.title": "We Love கேப்டு ஹேங்கர்கள்",
+    "resources.hangers.card.welove_caped.desc": "கௌன் மற்றும் நீளமான உடைகளுக்கு ஸ்டேபிலிட்டி தரும் பிரீமியம் கேப் ஸ்டைல்.",
+    "resources.hangers.card.cape.title": "கேப் ஹேங்கர்கள்",
+    "resources.hangers.card.cape.desc": "கேப்/கௌன் மற்றும் நீளமான உடைகளுக்கு நல்ல ஸ்டேபிலிட்டி.",
+    "resources.hangers.card.shirt.title": "ஷர்ட் ஹேங்கர்கள்",
+    "resources.hangers.card.shirt.desc": "ஷர்ட் மற்றும் டாப்ஸுக்கு இலகு, அதிக அளவு பயன்பாட்டுக்கான தேர்வு.",
+    "resources.hangers.table.title": "விரைவு முடிவு அட்டவணை",
+    "resources.hangers.table.head": "<tr><th>உடை</th><th>பரிந்துரைக்கப்பட்ட ஹேங்கர்</th><th>ஏன்</th></tr>",
+    "resources.hangers.table.body": "<tr><td>ஷர்ட் / டாப்ஸ்</td><td>ஷர்ட் ஹேங்கர்</td><td>தினசரி அளவுக்கு வேகமும் இலகுவும்.</td></tr><tr><td>சூட் / ஜாக்கெட்</td><td>சூட் ஹேங்கர்</td><td>வடிவத்தை நன்றாக காக்க மற்றும் தோள் ஆதரவு.</td></tr><tr><td>டிரஸ்</td><td>டிரஸ் ஹேங்கர்</td><td>ஸ்லிப் மற்றும் மடிப்பு குறைக்க உதவும்.</td></tr><tr><td>பேன்ட் / ஸ்கர்ட்</td><td>கிளிப் ஹேங்கர்</td><td>மடிக்காமல் பாதுகாப்பாக பிடிக்கும்.</td></tr><tr><td>கனமான அவுடர்வேர்</td><td>ஹெவி‑ட்யூட்டி / ஸ்ட்ரட் ஹேங்கர்</td><td>அதிக வலிமை உடைப்பு குறைக்கும்.</td></tr>",
 
     "resources.garment.title": "கார்மென்ட் பேக் அளவு தேர்வு வழிகாட்டு",
     "resources.garment.meta": "உகந்தது: ட்ரை கிளீனர், அல்டரேஷன் கடைகள், யூனிஃபார்ம் சேவைகள், ரிடெய்லர்கள்.",
@@ -3215,8 +3793,56 @@ const PPS_TRANSLATIONS = {
     "billing.features.tax_invoice": "GST/HST இன்வாய்ஸ் சேர்க்கப்படும்",
     "billing.features.statements": "வணிக வாடிக்கையாளர்களுக்கான மாதாந்திர ஸ்டேட்ட்மெண்ட்கள்",
     "billing.features.account_billing": "நியம வாடிக்கையாளர்களுக்கான கணக்கு பில்லிங்",
+    "help.fab": "உதவி",
+    "help.title": "லைவ் கஸ்டமர் சப்போர்ட்",
+    "help.subtitle": "நாங்கள் இப்போது ஆஃப்லைன். ஒரு செய்தி விடுங்கள்; விரைவில் தொடர்பு கொள்வோம்.",
+    "help.name": "பெயர்",
+    "help.email": "மின்னஞ்சல்",
+    "help.message": "செய்தி",
+    "help.send": "செய்தி அனுப்பு",
+    "help.sent": "நன்றி! விரைவில் தொடர்பு கொள்வோம்.",
     "help.sending": "அனுப்பப்படுகிறது...",
     "help.error": "இப்போது அனுப்ப முடியவில்லை. மீண்டும் முயற்சிக்கவும்.",
+    "help.close": "மூடு",
+    "help.tabs_aria": "உதவி விருப்பங்கள்",
+    "help.tab.quick": "விரைவு பதில்கள்",
+    "help.tab.message": "செய்தி அனுப்பு",
+    "help.chat.suggestions_aria": "பரிந்துரைக்கப்பட்ட கேள்விகள்",
+    "help.chat.placeholder": "ஒரு கேள்வி கேளுங்கள் (ஷிப்பிங், அளவு, தடிமன்...)",
+    "help.chat.send": "அனுப்பு",
+    "help.link.resources": "வளங்கள்",
+    "help.link.contact": "தொடர்பு",
+    "help.chat.greeting_html": "வணக்கம்! ஷிப்பிங், கார்மென்ட் பேக் அளவு, தடிமன் அல்லது மாதாந்திர பேக்கேஜிங் திட்டமிடல் பற்றி கேளுங்கள்.",
+    "help.chat.fallback_html": "ஷிப்பிங், அளவுகள், தடிமன், கட்டணம் மற்றும் மாதாந்திர பயன்பாடு பற்றி உதவ முடியும். கீழே உள்ள பட்டன்களை முயற்சிக்கவும் அல்லது <a href=\"./resources.html\">வளங்கள்</a> பார்க்கவும்.",
+    "help.chat.suggest.sizes": "கார்மென்ட் பேக் அளவு தேர்வு",
+    "help.chat.suggest.thickness": "Heavy vs Extra Heavy தடிமன்",
+    "help.chat.suggest.usage": "மாதத்திற்கு எவ்வளவு பேக்கேஜிங்?",
+    "help.chat.suggest.shipping": "ஷிப்பிங் / டெலிவரி",
+    "help.chat.suggest.pay": "கட்டணம் / பின்னர் செலுத்த",
+    "help.chat.topic.shipping": "ஷிப்பிங் / டெலிவரி",
+    "help.chat.topic.sizes": "கார்மென்ட் பேக் அளவுகள்",
+    "help.chat.topic.thickness": "Heavy vs Extra Heavy",
+    "help.chat.topic.usage": "மாதாந்திர பயன்பாடு",
+    "help.chat.topic.pay": "கட்டண விருப்பங்கள்",
+    "help.chat.topic.addresses": "சேமித்த டெலிவரி முகவரிகள்",
+    "help.chat.followup.shipping_fees": "GTA வெளியே கட்டணம் உள்ளதா?",
+    "help.chat.followup.shipping_time": "டெலிவரி எவ்வளவு சீக்கிரம்?",
+    "help.chat.followup.sizes_shirts": "ஷர்ட்களுக்கு எந்த அளவு?",
+    "help.chat.followup.sizes_coats": "கோட்டுக்கு எந்த அளவு?",
+    "help.chat.followup.thickness_mil": "mil என்றால் என்ன?",
+    "help.chat.followup.thickness_choice": "எதை வாங்குவது?",
+    "help.chat.followup.usage_buffer": "எவ்வளவு buffer % வைத்துக்கொள்ளலாம்?",
+    "help.chat.followup.usage_quote": "எனக்காக கணக்கிட முடியுமா?",
+    "help.chat.followup.pay_invoice": "இன்வாய்ஸ் மூலம் செலுத்தலாமா?",
+    "help.chat.followup.pay_square": "Square பாதுகாப்பானதா?",
+    "help.chat.followup.addresses_how": "முகவரியை எப்படி சேர்ப்பது?",
+    "help.chat.followup.addresses_default": "டிஃபால்ட் முகவரியை எப்படி அமைப்பது?",
+    "help.chat.answer.shipping": "GTA நிலையான டெலிவரி இலவசம். விரைவு மற்றும் GTA வெளியே டெலிவரி கட்டணத்தை எங்கள் குழு ஆர்டர்/முகவரி பார்த்த பின் உறுதிப்படுத்தும்.<br><a href=\"./legal-shipping.html\">Shipping & Returns பார்க்க</a>",
+    "help.chat.answer.sizes": "விரைவு விதி: உடை அகலம் + 4–6&quot; மற்றும் உடை நீளம் + 4–8&quot;. கனமான கோட்டுக்கு அகலமான/கசெட் பேக் பரிந்துரை.<br><a href=\"./resources.html#guide-garment-bag-sizes\">அளவு வழிகாட்டு பார்க்க</a>",
+    "help.chat.answer.thickness": "தினசரி பயன்பாட்டிற்கு <b>Heavy</b> தேர்வு. கூர்மையான மூலை, கனமான சுமை, டெலிவரி ரூட்ஸ் அல்லது குறைந்த கிழிவு/rewraps தேவைக்கு <b>Extra Heavy</b> தேர்வு.<br><a href=\"./resources.html#heavy-vs-extra-heavy\">தடிமன் வழிகாட்டு பார்க்க</a>",
+    "help.chat.answer.usage": "எளிய கணக்கு: (ஒரு நாள் உடைகள்) × (ஒரு மாத செயல்பாட்டு நாட்கள்), பின்னர் rewraps/tears/rush க்காக 5–12% buffer சேர்க்கவும்.<br><a href=\"./resources.html#dry-cleaner-packaging-usage\">ப்ளானர் பார்க்க</a>",
+    "help.chat.answer.pay": "Square மூலம் ஆன்லைனில் செலுத்தலாம் அல்லது இப்போது ஆர்டர் செய்து fulfillment உறுதி ஆன பின் பின்னர் செலுத்தலாம். checkout இல் இரு விருப்பங்களும் இருக்கும்.<br><a href=\"./checkout.html\">செக்அவுட் செல்ல</a>",
+    "help.chat.answer.addresses": "வணிக வாடிக்கையாளர்கள் பல டெலிவரி முகவரிகளை (Main Store, Warehouse, Branch) சேமித்து, விரைவு செக்அவுட் க்காக டிஃபால்ட் அமைக்கலாம்.<br><a href=\"./account.html#addresses\">முகவரிகள் நிர்வகிக்க</a>",
     "product.share": "பகிர்",
     "product.share.sent": "இணைப்பு பகிரப்பட்டது.",
     "product.share.copied": "இணைப்பு கிளிப்ப்போர்டில் நகலெடுக்கப்பட்டது.",
@@ -3431,6 +4057,51 @@ const PPS_I18N = (() => {
     }
   }
 
+  const MOJIBAKE_DETECT_RE = /(Ã|Â|â€|â€™|â€œ|â€|â€”|â†|â‰|�)/;
+  const MOJIBAKE_COUNT_RE = /(Ã|Â|â|�)/g;
+  function decodeLatin1AsUtf8(input){
+    try{
+      const bytes = Uint8Array.from(String(input), (ch)=> ch.charCodeAt(0));
+      return new TextDecoder("utf-8", { fatal: false }).decode(bytes);
+    }catch(_err){
+      return String(input);
+    }
+  }
+
+  function hasExpectedScript(text, langKey){
+    if(!text) return false;
+    if(langKey === "ta") return /[\u0B80-\u0BFF]/.test(text);
+    if(langKey === "hi") return /[\u0900-\u097F]/.test(text);
+    if(langKey === "ko") return /[\uAC00-\uD7AF]/.test(text);
+    return false;
+  }
+
+  function maybeFixMojibake(text, langKey){
+    const raw = String(text || "");
+    if(!raw) return raw;
+    if(!MOJIBAKE_DETECT_RE.test(raw)) return raw;
+
+    const decoded = decodeLatin1AsUtf8(raw);
+    if(!decoded || decoded === raw) return raw;
+
+    const rawMarkers = (raw.match(MOJIBAKE_COUNT_RE) || []).length;
+    const decodedMarkers = (decoded.match(MOJIBAKE_COUNT_RE) || []).length;
+
+    if(["ta", "hi", "ko"].includes(langKey)){
+      const decodedHasScript = hasExpectedScript(decoded, langKey);
+      const rawHasScript = hasExpectedScript(raw, langKey);
+      if(decodedHasScript && !rawHasScript) return decoded;
+    }
+
+    if(decodedMarkers < rawMarkers) return decoded;
+    if(decodedMarkers === rawMarkers){
+      // Prefer the decoded output when it meaningfully changes common mojibake sequences.
+      if(/â€™|â€œ|â€|â€”|â†’|â‰ˆ/.test(raw) && /’|“|”|—|→|≈/.test(decoded)) return decoded;
+    }
+
+    return raw;
+  }
+
   function autoTranslateEs(text){
     if(!text) return text;
     let out = String(text);
@@ -3555,13 +4226,34 @@ const PPS_I18N = (() => {
       const i = Number(index);
       return Number.isInteger(i) && placeholders[i] ? placeholders[i] : "";
     });
-    return out;
+    return maybeFixMojibake(out, "es");
   }
 
   function autoTranslate(text, lang){
     const langKey = normalizeLang(lang || getLang());
-    if(langKey === "es") return autoTranslateEs(text);
-    return text;
+    if(!text) return text;
+    if(langKey === "en") return text;
+
+    // Spanish has a special word/phrase map. Use it first, then fall back to dictionary phrases too.
+    let out = langKey === "es" ? autoTranslateEs(text) : String(text);
+
+    const placeholders = [];
+    out = out.replace(/\{\{[^}]+\}\}/g, (match)=>{
+      placeholders.push(match);
+      return `__PPS_PLACEHOLDER_${placeholders.length - 1}__`;
+    });
+
+    const map = getAutoPhraseMap(langKey);
+    map.forEach(([from, to])=>{
+      if(from && to && out.includes(from)) out = out.split(from).join(to);
+    });
+
+    out = out.replace(/__PPS_PLACEHOLDER_(\d+)__/g, (_, index)=>{
+      const i = Number(index);
+      return Number.isInteger(i) && placeholders[i] ? placeholders[i] : "";
+    });
+
+    return maybeFixMojibake(out, langKey);
   }
 
   function t(key, lang){
@@ -3573,18 +4265,44 @@ const PPS_I18N = (() => {
       value = autoTranslateEs(PPS_TRANSLATIONS.en[key]);
     }
     if(langKey === "ta" && value){
+      value = maybeFixMojibake(value, langKey);
       const hasTamil = /[\u0B80-\u0BFF]/.test(value);
       const hasReplacement = /\uFFFD/.test(value);
       if((!hasTamil || hasReplacement) && PPS_TRANSLATIONS.en?.[key]){
-        value = PPS_TRANSLATIONS.en[key];
+        value = maybeFixMojibake(PPS_TRANSLATIONS.en[key], "en");
       }
     }
-    return value;
+    return maybeFixMojibake(value, langKey);
   }
 
   function interpolate(text){
     const year = new Date().getFullYear();
     return text.replace(/\{\{year\}\}/g, String(year));
+  }
+
+  const autoPhraseMapCache = new Map();
+  function getAutoPhraseMap(langKey){
+    const key = normalizeLang(langKey);
+    if(autoPhraseMapCache.has(key)) return autoPhraseMapCache.get(key);
+
+    const out = [];
+    const enSet = PPS_TRANSLATIONS.en || {};
+    const otherSet = PPS_TRANSLATIONS[key] || {};
+
+    Object.keys(enSet).forEach((k)=>{
+      const from = maybeFixMojibake(enSet[k], "en");
+      const rawTo = otherSet[k];
+      if(!rawTo) return;
+      const to = maybeFixMojibake(rawTo, key);
+      if(!from || !to) return;
+      if(from === to) return;
+      if(String(from).length < 4) return;
+      out.push([String(from), String(to)]);
+    });
+
+    out.sort((a, b)=> b[0].length - a[0].length);
+    autoPhraseMapCache.set(key, out);
+    return out;
   }
 
   function applyTranslations(lang){
@@ -3634,7 +4352,28 @@ const PPS_I18N = (() => {
       if(value) el.setAttribute("title", value);
     });
 
-    if(current === "es"){
+    const alts = document.querySelectorAll("[data-i18n-alt]");
+    alts.forEach(el => {
+      const key = el.getAttribute("data-i18n-alt");
+      const value = t(key, current);
+      if(value) el.setAttribute("alt", value);
+    });
+
+    const ariaLabels = document.querySelectorAll("[data-i18n-aria-label]");
+    ariaLabels.forEach(el => {
+      const key = el.getAttribute("data-i18n-aria-label");
+      const value = t(key, current);
+      if(value) el.setAttribute("aria-label", value);
+    });
+
+    const contents = document.querySelectorAll("[data-i18n-content]");
+    contents.forEach(el => {
+      const key = el.getAttribute("data-i18n-content");
+      const value = t(key, current);
+      if(value) el.setAttribute("content", value);
+    });
+
+    if(current !== "en"){
       autoTranslateDom();
     }
   }
@@ -3643,7 +4382,7 @@ const PPS_I18N = (() => {
     if(!node || !node.parentElement) return true;
     const parent = node.parentElement;
     if(parent.closest("script,style,code,pre,textarea,input,select,option")) return true;
-    if(parent.closest("[data-i18n],[data-i18n-html],[data-i18n-placeholder],[data-i18n-title],[data-no-translate],.no-translate")) return true;
+    if(parent.closest("[data-i18n],[data-i18n-html],[data-i18n-placeholder],[data-i18n-title],[data-i18n-alt],[data-i18n-aria-label],[data-i18n-content],[data-no-translate],.no-translate")) return true;
     return false;
   }
 
@@ -3662,7 +4401,7 @@ const PPS_I18N = (() => {
     const original = originalAutoText.get(node) ?? node.nodeValue;
     if(originalAutoText.has(node) === false) originalAutoText.set(node, original);
     if(isSkippableText(original)) return;
-    const translated = autoTranslateEs(original);
+    const translated = autoTranslate(original, getLang());
     if(translated && translated !== node.nodeValue) node.nodeValue = translated;
   }
 
@@ -3679,7 +4418,7 @@ const PPS_I18N = (() => {
   function ensureAutoTranslateObserver(){
     if(autoTranslateObserver) return;
     autoTranslateObserver = new MutationObserver((mutations)=>{
-      if(getLang() !== "es") return;
+      if(getLang() === "en") return;
       mutations.forEach((m)=>{
         m.addedNodes.forEach((node)=>{
           if(node.nodeType === Node.TEXT_NODE){
