@@ -3984,18 +3984,18 @@ select.input option:hover{
     background: rgba(255,255,255,.92);
     border-color: rgba(255,122,26,.22);
     box-shadow: 0 10px 22px rgba(17,24,39,.12);
-    padding: 7px 8px;
-    border-radius:16px;
+    padding: 4px 6px;
+    border-radius:14px;
   }
   .navlinks .search-bar input{
-    font-size:14px;
-    padding:8px 8px;
+    font-size:13px;
+    padding:6px 6px;
     min-width:0;
   }
   .navlinks .search-bar button{
     font-size:12px;
-    padding:8px 12px;
-    border-radius:12px;
+    padding:6px 10px;
+    border-radius:10px;
   }
   .menu-btn{ display:inline-flex; }
 
