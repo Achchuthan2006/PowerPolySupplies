@@ -181,52 +181,89 @@
     <section class="card fade-in testimonials" style="padding:18px; margin-top:16px;">
       <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
         <div>
-          <h2 style="margin:0;">What customers say</h2>
-          <div style="color:var(--muted); font-size:13px; margin-top:4px;">Real conversations, fast replies, and supply that stays consistent.</div>
+          <h2 style="margin:0;" data-i18n="index.testimonials.title">What customers say</h2>
+          <div style="color:var(--muted); font-size:13px; margin-top:4px;" data-i18n="index.testimonials.subtitle">Real conversations, fast replies, and supply that stays consistent.</div>
         </div>
-        <a class="btn btn-outline btn-sm" href="./feedback.html">Leave feedback</a>
+        <a class="btn btn-outline btn-sm" href="./feedback.html" data-i18n="index.testimonials.cta">Leave feedback</a>
       </div>
 
-      <div class="testimonials-grid" style="margin-top:14px;">
-        <figure class="testimonial">
-          <div class="testimonial-stars" aria-label="5 out of 5 stars" title="5 out of 5">
-            <span aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+      <section class="testimonial-marquee" aria-label="Testimonials" style="margin-top:14px;" data-i18n-aria-label="index.testimonials.aria">
+        <div class="testimonial-track" id="homeTestimonialGrid">
+          <div class="testimonial-card live en-only">
+            <div class="quote-mark">&ldquo;</div>
+            <div class="testimonial-rating" aria-label="Rating 5 out of 5">★★★★★</div>
+            <p class="testimonial-text">I have always loved dealing with Andrew from PowerPolySupplies. This is a fantastic company!</p>
+            <div class="testimonial-meta">Tony Stephen · Finchdale Cleaners</div>
           </div>
-          <blockquote class="testimonial-quote">
-            &ldquo;I have always loved dealing with Andrew from PowerPolySupplies. This is a fantastic company!&rdquo;
-          </blockquote>
-          <figcaption class="testimonial-meta">
-            <span class="testimonial-name">Tony Stephen</span>
-            <span class="testimonial-org">Finchdale Cleaners</span>
-          </figcaption>
-        </figure>
+          <div class="testimonial-card en-only">
+            <div class="quote-mark">&ldquo;</div>
+            <div class="testimonial-rating" aria-label="Rating 5 out of 5">★★★★★</div>
+            <p class="testimonial-text">Angel helped us pick the right garment bag sizes in minutes. Orders are always smooth and on time.</p>
+            <div class="testimonial-meta">Sonia Patel · Downtown Cleaners</div>
+          </div>
+          <div class="testimonial-card en-only">
+            <div class="quote-mark">&ldquo;</div>
+            <div class="testimonial-rating" aria-label="Rating 5 out of 5">★★★★★</div>
+            <p class="testimonial-text">Achchu always answers fast and makes sure we get the hanger style we need. Great service.</p>
+            <div class="testimonial-meta">Marco R. · Northside Laundry</div>
+          </div>
+          <div class="testimonial-card en-only">
+            <div class="quote-mark">&ldquo;</div>
+            <div class="testimonial-rating" aria-label="Rating 5 out of 5">★★★★★</div>
+            <p class="testimonial-text">Andrew keeps our weekly supplies consistent — clear garment covers and dependable hangers every time.</p>
+            <div class="testimonial-meta">Harrison Ramsey · Calgary Rocky Mountain Resorts</div>
+          </div>
+          <div class="testimonial-card en-only">
+            <div class="quote-mark">&ldquo;</div>
+            <div class="testimonial-rating" aria-label="Rating 5 out of 5">★★★★★</div>
+            <p class="testimonial-text">Angel’s product guidance is the best — quick answers, honest recommendations, and no wasted time.</p>
+            <div class="testimonial-meta">Lina Chen · Midtown Alterations</div>
+          </div>
+          <div class="testimonial-card en-only">
+            <div class="quote-mark">&ldquo;</div>
+            <div class="testimonial-rating" aria-label="Rating 5 out of 5">★★★★★</div>
+            <p class="testimonial-text">Achchu helped us standardize our hanger types across two locations. PowerPolySupplies is now our go-to.</p>
+            <div class="testimonial-meta">Daniel K. · West End Cleaners</div>
+          </div>
 
-        <figure class="testimonial">
-          <div class="testimonial-stars" aria-label="5 out of 5 stars" title="5 out of 5">
-            <span aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+          <div class="testimonial-card">
+            <div class="quote-mark">&ldquo;</div>
+            <div class="testimonial-rating" aria-label="Rating 5 out of 5">★★★★★</div>
+            <p class="testimonial-text"><span data-i18n="feedback.quote.one">Fast shipping, consistent quality, and responsive support. We keep coming back for garment covers and hangers.</span></p>
+            <div class="testimonial-meta"><span data-i18n="feedback.quote.one.meta">Operations Manager - Toronto, ON</span></div>
           </div>
-          <blockquote class="testimonial-quote">
-            &ldquo;Angel helped us pick the right garment bag sizes in minutes. Orders are always smooth and on time.&rdquo;
-          </blockquote>
-          <figcaption class="testimonial-meta">
-            <span class="testimonial-name">Sonia Patel</span>
-            <span class="testimonial-org">Downtown Cleaners</span>
-          </figcaption>
-        </figure>
-
-        <figure class="testimonial">
-          <div class="testimonial-stars" aria-label="5 out of 5 stars" title="5 out of 5">
-            <span aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+          <div class="testimonial-card">
+            <div class="quote-mark">&ldquo;</div>
+            <div class="testimonial-rating" aria-label="Rating 5 out of 5">★★★★★</div>
+            <p class="testimonial-text"><span data-i18n="feedback.quote.two">Reliable stock and clear pricing. The team helped us choose the right sizes for bulk polybags.</span></p>
+            <div class="testimonial-meta"><span data-i18n="feedback.quote.two.meta">Retail Owner - Vancouver, BC</span></div>
           </div>
-          <blockquote class="testimonial-quote">
-            &ldquo;Achchu always answers fast and makes sure we get the hanger style we need. Great service.&rdquo;
-          </blockquote>
-          <figcaption class="testimonial-meta">
-            <span class="testimonial-name">Marco R.</span>
-            <span class="testimonial-org">Northside Laundry</span>
-          </figcaption>
-        </figure>
-      </div>
+          <div class="testimonial-card">
+            <div class="quote-mark">&ldquo;</div>
+            <div class="testimonial-rating" aria-label="Rating 5 out of 5">★★★★★</div>
+            <p class="testimonial-text"><span data-i18n="feedback.quote.three">Square checkout was smooth and our order arrived on schedule. Great experience overall.</span></p>
+            <div class="testimonial-meta"><span data-i18n="feedback.quote.three.meta">Laundry Service - Calgary, AB</span></div>
+          </div>
+          <div class="testimonial-card">
+            <div class="quote-mark">&ldquo;</div>
+            <div class="testimonial-rating" aria-label="Rating 5 out of 5">★★★★★</div>
+            <p class="testimonial-text"><span data-i18n="feedback.quote.four">Support replies quickly and they always have the hangers we need. Highly recommend.</span></p>
+            <div class="testimonial-meta"><span data-i18n="feedback.quote.four.meta">Dry Cleaner - Halifax, NS</span></div>
+          </div>
+          <div class="testimonial-card">
+            <div class="quote-mark">&ldquo;</div>
+            <div class="testimonial-rating" aria-label="Rating 5 out of 5">★★★★★</div>
+            <p class="testimonial-text"><span data-i18n="feedback.quote.five">Great quality polybags and quick fulfillment. The team helped us restock on short notice.</span></p>
+            <div class="testimonial-meta"><span data-i18n="feedback.quote.five.meta">Retail Owner - Scarborough, ON</span></div>
+          </div>
+          <div class="testimonial-card">
+            <div class="quote-mark">&ldquo;</div>
+            <div class="testimonial-rating" aria-label="Rating 5 out of 5">★★★★★</div>
+            <p class="testimonial-text"><span data-i18n="feedback.quote.six">Bulk pricing is transparent and delivery is always on time. Easy to reorder.</span></p>
+            <div class="testimonial-meta"><span data-i18n="feedback.quote.six.meta">Dry Cleaner - Mississauga, ON</span></div>
+          </div>
+        </div>
+      </section>
 
       <div class="team-strip" style="margin-top:16px;">
         <div class="team-strip-head">
@@ -303,6 +340,28 @@
   <script>
     document.getElementById("y").textContent = new Date().getFullYear();
     PPS.updateCartBadge();
+
+    function setupHomeTestimonials(){
+      const track = document.getElementById("homeTestimonialGrid");
+      if(!track || track.dataset.cloned === "true") return;
+
+      const lang = window.PPS_I18N?.getLang?.() || "en";
+      if(lang !== "en"){
+        track.querySelectorAll(".testimonial-card.en-only").forEach(el => el.remove());
+      }
+
+      const cards = Array.from(track.children);
+      if(!cards.length) return;
+      cards.forEach((card)=> track.appendChild(card.cloneNode(true)));
+      track.dataset.cloned = "true";
+      requestAnimationFrame(()=>{
+        const total = track.scrollWidth / 2;
+        const duration = Math.max(24, total / 70);
+        track.style.setProperty("--marquee-duration", `${duration}s`);
+      });
+    }
+
+    window.addEventListener("DOMContentLoaded", setupHomeTestimonials);
     (async ()=>{
       try{
         const products = await PPS.loadProducts();
