@@ -3975,6 +3975,7 @@ select.input option:hover{
   .nav-search{
     width:100%;
     margin-left:0;
+    flex: 0 0 auto;
   }
   .nav-search input{
     flex:1;
@@ -4034,6 +4035,7 @@ select.input option:hover{
   .navlinks > form.nav-search{
     order: 900;
     margin-top: 10px;
+    flex: 0 0 auto;
   }
 
   .navlinks .lang-switcher,
