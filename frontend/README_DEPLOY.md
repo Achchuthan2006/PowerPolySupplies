@@ -10,6 +10,9 @@
        - `SQUARE_ACCESS_TOKEN_PROD`, `SQUARE_LOCATION_ID_PROD`
      - `SQUARE_ENV` (`sandbox` | `production`)
      - `SITE_URL` (your public frontend URL, used for Square redirect to `thank-you.html`)
+     - Recommended security:
+       - `CORS_ORIGINS` (comma-separated, do not use `*`)
+       - `SQUARE_WEBHOOK_SIGNATURE_KEY`, `SQUARE_WEBHOOK_URL` (Square webhooks + signature verification)
      - Email (optional, for verification codes + receipts + contact/help/feedback):
        - `EMAIL_USER`, `EMAIL_PASS`
        - `ORDER_TO` (admin inbox for contact/help/feedback + new orders)
