@@ -3104,6 +3104,19 @@ select.input option:hover{
   display:block;
   filter: drop-shadow(0 18px 26px rgba(17,24,39,.14));
 }
+.cart-van-bg{
+  opacity:.95;
+}
+.cart-van-bg-track{
+  transform-origin:center;
+  transform-box: fill-box;
+  animation: ppsVanBgScroll 3.6s linear infinite;
+}
+.cart-van-road-track{
+  transform-origin:center;
+  transform-box: fill-box;
+  animation: ppsVanRoadScroll 1.6s linear infinite;
+}
 .pps-van-sticker image{
   opacity:.98;
 }
@@ -3146,6 +3159,14 @@ select.input option:hover{
 @keyframes ppsVanLines{
   0%,100%{ opacity:.35; transform: translateX(0); }
   50%{ opacity:.85; transform: translateX(-4px); }
+}
+@keyframes ppsVanBgScroll{
+  from{ transform: translateX(0); }
+  to{ transform: translateX(-240px); }
+}
+@keyframes ppsVanRoadScroll{
+  from{ transform: translateX(0); }
+  to{ transform: translateX(-240px); }
 }
 @keyframes ppsVanLoadBox{
   0%{ opacity:0; transform: translate3d(-10px, 8px, 0) scale(.92); }
@@ -3749,6 +3770,8 @@ select.input option:hover{
   .hero::after,
   .cart-hero::before,
   .cart-hero-illustration::after,
+  .cart-van-bg-track,
+  .cart-van-road-track,
   .cart-van-float,
   .cart-van-wheel-spin,
   .cart-van-lines,
