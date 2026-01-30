@@ -54,28 +54,54 @@
   </header>
 
   <div class="container page">
-    <h2 style="margin:10px 0 18px;" data-i18n="cart.title">Your Cart</h2>
-
-    <div id="cartList" class="grid" style="gap:12px;"></div>
-
-    <div class="card" style="padding:16px; margin-top:14px;">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <div style="font-weight:800;" data-i18n="cart.total">Total</div>
-        <div id="total" style="font-weight:900; font-size:18px;"></div>
+    <section class="cart-hero fade-in">
+      <div class="cart-hero-inner">
+        <div class="cart-hero-brand" aria-hidden="true">
+          <img src="./assets/poly%20logo%20without%20background.png" alt="" width="74" height="74" decoding="async">
+        </div>
+        <div class="cart-hero-text">
+          <p class="cart-kicker" data-i18n="brand.tagline">Power your packaging</p>
+          <h1 class="cart-title" data-i18n="cart.title">Your Cart</h1>
+          <p class="cart-subtitle" data-i18n="cart.subtitle">Review items, adjust quantities, and checkout when you're ready.</p>
+          <div class="cart-steps" aria-label="Checkout steps">
+            <div class="cart-step active"><span class="cart-step-dot"></span><span data-i18n="cart.step.cart">Cart</span></div>
+            <div class="cart-step"><span class="cart-step-dot"></span><span data-i18n="cart.step.checkout">Checkout</span></div>
+            <div class="cart-step"><span class="cart-step-dot"></span><span data-i18n="cart.step.confirm">Confirm</span></div>
+          </div>
+        </div>
       </div>
-      <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
-        <a class="btn" href="./products.html" data-i18n="cart.continue">Continue shopping</a>
-        <a class="btn btn-primary" href="./checkout.html" id="goCheckout" data-i18n="cart.checkout">Go to checkout</a>
-      </div>
-    </div>
+    </section>
 
-    <div class="card" style="padding:16px; margin-top:14px; text-align:center;">
-      <div style="font-weight:800; margin-bottom:6px;" data-i18n="cart.account.title">Have an account?</div>
-      <div style="color:var(--muted); font-size:13px;" data-i18n="cart.account.desc">Log in to check out faster and track orders.</div>
-      <div style="margin-top:12px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
-        <a class="btn btn-outline" href="./login.html"><span class="nav-icon user-icon" aria-hidden="true"></span><span data-i18n="cart.account.login">Log in</span></a>
-        <a class="btn" href="./login.html" data-i18n="cart.account.create">Create account</a>
+    <div class="cart-shell">
+      <div class="cart-left">
+        <div id="cartList" class="cart-list"></div>
       </div>
+
+      <aside class="cart-right">
+        <div class="card cart-summary">
+          <div class="cart-summary-row">
+            <div class="cart-summary-label" data-i18n="cart.total">Total</div>
+            <div id="total" class="cart-summary-total"></div>
+          </div>
+          <div class="cart-summary-actions">
+            <a class="btn" href="./products.html" data-i18n="cart.continue">Continue shopping</a>
+            <a class="btn btn-primary" href="./checkout.html" id="goCheckout" data-i18n="cart.checkout">Go to checkout</a>
+          </div>
+          <div class="cart-trust" aria-label="Checkout reassurance">
+            <span class="cart-trust-pill"><span class="lock-icon" aria-hidden="true"></span><span data-i18n="footer.secure">Secure payments via Square</span></span>
+            <span class="cart-trust-pill"><span class="ship-icon" aria-hidden="true"></span><span data-i18n="promo.right">Bulk-ready stock | Fast response | Canada-wide supply</span></span>
+          </div>
+        </div>
+
+        <div class="card cart-account">
+          <div class="cart-account-title" data-i18n="cart.account.title">Have an account?</div>
+          <div class="cart-account-desc" data-i18n="cart.account.desc">Log in to check out faster and track orders.</div>
+          <div class="cart-account-actions">
+            <a class="btn btn-outline" href="./login.html"><span class="nav-icon user-icon" aria-hidden="true"></span><span data-i18n="cart.account.login">Log in</span></a>
+            <a class="btn" href="./login.html" data-i18n="cart.account.create">Create account</a>
+          </div>
+        </div>
+      </aside>
     </div>
 
     <div class="footer">&copy; <span id="y"></span> <span data-i18n="footer.short">Power Poly Supplies. Power your packaging.</span></div>

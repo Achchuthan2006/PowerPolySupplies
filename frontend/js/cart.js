@@ -43,7 +43,25 @@ function render(){
 
   if(cart.length === 0){
     const emptyMsg = window.PPS_I18N?.t("cart.empty") || "Your cart is empty.";
-    list.innerHTML = `<div class="card" style="padding:16px;">${emptyMsg}</div>`;
+    const emptyTitle = window.PPS_I18N?.t("cart.empty.title") || emptyMsg;
+    const emptyBody = window.PPS_I18N?.t("cart.empty.body") || "Browse products and build your next bulk order in minutes.";
+    const emptyCta = window.PPS_I18N?.t("cart.empty.cta") || "Browse products";
+
+    list.innerHTML = `
+      <div class="card cart-empty fade-in">
+        <div class="cart-empty-visual" aria-hidden="true">
+          <img src="./assets/order-checkout.svg" alt="" loading="lazy" decoding="async">
+        </div>
+        <div class="cart-empty-body">
+          <div class="cart-empty-title">${emptyTitle}</div>
+          <div class="cart-empty-desc">${emptyBody}</div>
+          <div class="cart-empty-actions">
+            <a class="btn btn-primary" href="./products.html">${emptyCta}</a>
+            <a class="btn btn-outline" href="./resources.html">${window.PPS_I18N?.t("nav.resources") || "Resources"}</a>
+          </div>
+        </div>
+      </div>
+    `;
     totalEl.textContent = PPS.money(0);
     return;
   }
@@ -65,24 +83,43 @@ function render(){
       : i.name;
     const desc = getItemDescription(i);
     const product = productMap?.get(i.id);
+    const image = product?.image || i.image || "./assets/poly%20logo%20without%20background.png";
     const unitCents = product ? PPS.getTieredPriceCents(product, i.qty) : (i.priceCentsBase ?? i.priceCents);
     const baseCurrency = product?.currency || i.currencyBase || i.currency || "CAD";
+    const lineCents = unitCents * i.qty;
+    const lineTotal = PPS.money(PPS.convertCents(lineCents, baseCurrency, targetCurrency), targetCurrency, targetCurrency);
     const descHtml = desc
       ? `<div style="color:var(--muted); font-size:13px; margin-top:4px;">${desc}</div>`
       : "";
+    const saveLabel = window.PPS_I18N?.t("cart.save") || "Save for later";
+    const removeLabel = window.PPS_I18N?.t("cart.remove") || "Remove";
     return `
-    <div class="card fade-in" style="padding:14px; display:flex; justify-content:space-between; align-items:center; gap:10px;">
-      <div>
-        <div style="font-weight:800;">${displayName}</div>
-        <div style="color:var(--muted); font-size:13px;">${PPS.money(unitCents, baseCurrency)}</div>
-        ${descHtml}
+    <div class="card cart-item fade-in">
+      <div class="cart-item-main">
+        <div class="cart-item-thumb" aria-hidden="true">
+          <img src="${image}" alt="" loading="lazy" decoding="async">
+        </div>
+        <div class="cart-item-info">
+          <div class="cart-item-title">${displayName || ""}</div>
+          <div class="cart-item-prices">
+            <span class="cart-item-unit">${PPS.money(unitCents, baseCurrency)}</span>
+            <span class="cart-item-sep">·</span>
+            <span class="cart-item-line">${lineTotal}</span>
+          </div>
+          ${descHtml}
+        </div>
       </div>
-      <div style="display:flex; align-items:center; gap:8px;">
-        <button class="btn" onclick="dec('${i.id}')">-</button>
-        <div style="min-width:30px; text-align:center; font-weight:800;">${i.qty}</div>
-        <button class="btn" onclick="inc('${i.id}')">+</button>
-        <button class="btn btn-outline" onclick="saveForLater('${i.id}')">Save for later</button>
-        <button class="btn btn-outline" onclick="removeItem('${i.id}')">${window.PPS_I18N?.t("cart.remove") || "Remove"}</button>
+
+      <div class="cart-item-actions">
+        <div class="cart-qty" role="group" aria-label="Quantity">
+          <button class="btn btn-sm cart-qty-btn" type="button" onclick="dec('${i.id}')" aria-label="Decrease quantity">−</button>
+          <div class="cart-qty-value" aria-label="Quantity">${i.qty}</div>
+          <button class="btn btn-sm cart-qty-btn" type="button" onclick="inc('${i.id}')" aria-label="Increase quantity">+</button>
+        </div>
+        <div class="cart-item-links">
+          <button class="btn btn-outline btn-sm" type="button" onclick="saveForLater('${i.id}')">${saveLabel}</button>
+          <button class="btn btn-outline btn-sm" type="button" onclick="removeItem('${i.id}')">${removeLabel}</button>
+        </div>
       </div>
     </div>
   `}).join("");
