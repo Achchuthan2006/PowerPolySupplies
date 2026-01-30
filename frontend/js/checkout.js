@@ -852,7 +852,17 @@ document.getElementById("payOnline").addEventListener("click", async ()=>{
       const fallback = endpointMissing
         ? `Payment service not found. Check \`frontend/config.js\` API_BASE_URL points to your backend. Tried: ${usedUrl || ""}`
         : (window.PPS_I18N?.t("checkout.status.square") || "Square not configured.");
-      setStatus(msg, data?.message || fallback, "error");
+      const serverMessage = String(data?.message || "").trim();
+      const authFailure = res.status === 401 || res.status === 403;
+      const serverFailure = res.status >= 500;
+      if(!endpointMissing && (authFailure || serverFailure)){
+        console.error("Square create-payment failed", { status: res.status, url: usedUrl, data });
+        const generic = window.PPS_I18N?.t("checkout.status.payment_unavailable")
+          || "Online payment is temporarily unavailable. Please try again later or use Pay later.";
+        setStatus(msg, generic, "error");
+      }else{
+        setStatus(msg, serverMessage || fallback, "error");
+      }
     }
   }catch(err){
     const message = err?.name === "AbortError"

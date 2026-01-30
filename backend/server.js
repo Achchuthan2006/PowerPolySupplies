@@ -84,40 +84,79 @@ function getSquareEnvironment(){
   return SquareEnvironment.Production;
 }
 
-const squareAccessTokenMeta = readEnvFirstMeta("SQUARE_ACCESS_TOKEN", "SQUARE_TOKEN", "SQUARE_ACCESS");
-const squareLocationIdMeta = readEnvFirstMeta("SQUARE_LOCATION_ID", "SQUARE_LOCATIONID", "SQUARE_LOCATION", "SQUARE_LOC_ID");
+const squareAccessTokenSandboxMeta = readEnvFirstMeta(
+  "SQUARE_ACCESS_TOKEN_SANDBOX",
+  "SQUARE_SANDBOX_ACCESS_TOKEN",
+  "SQUARE_ACCESS_TOKEN_SB",
+  "SQUARE_ACCESS_TOKEN",
+  "SQUARE_TOKEN",
+  "SQUARE_ACCESS"
+);
+const squareAccessTokenProductionMeta = readEnvFirstMeta(
+  "SQUARE_ACCESS_TOKEN_PRODUCTION",
+  "SQUARE_ACCESS_TOKEN_PROD",
+  "SQUARE_PRODUCTION_ACCESS_TOKEN",
+  "SQUARE_ACCESS_TOKEN",
+  "SQUARE_TOKEN",
+  "SQUARE_ACCESS"
+);
+const squareLocationIdSandboxMeta = readEnvFirstMeta(
+  "SQUARE_LOCATION_ID_SANDBOX",
+  "SQUARE_SANDBOX_LOCATION_ID",
+  "SQUARE_LOCATION_ID_SB",
+  "SQUARE_LOCATION_ID",
+  "SQUARE_LOCATIONID",
+  "SQUARE_LOCATION",
+  "SQUARE_LOC_ID"
+);
+const squareLocationIdProductionMeta = readEnvFirstMeta(
+  "SQUARE_LOCATION_ID_PRODUCTION",
+  "SQUARE_LOCATION_ID_PROD",
+  "SQUARE_PRODUCTION_LOCATION_ID",
+  "SQUARE_LOCATION_ID",
+  "SQUARE_LOCATIONID",
+  "SQUARE_LOCATION",
+  "SQUARE_LOC_ID"
+);
 const siteUrlMeta = readEnvFirstMeta("SITE_URL", "FRONTEND_URL", "PUBLIC_SITE_URL");
 const recaptchaSecretMeta = readEnvFirstMeta("RECAPTCHA_SECRET_KEY", "RECAPTCHA_SECRET", "GOOGLE_RECAPTCHA_SECRET");
-const squareAccessToken = squareAccessTokenMeta.value;
-const squareLocationId = squareLocationIdMeta.value;
+const squareAccessTokenSandbox = squareAccessTokenSandboxMeta.value;
+const squareAccessTokenProduction = squareAccessTokenProductionMeta.value;
+const squareLocationIdSandbox = squareLocationIdSandboxMeta.value;
+const squareLocationIdProduction = squareLocationIdProductionMeta.value;
 const siteUrl = siteUrlMeta.value;
 const recaptchaSecretKey = recaptchaSecretMeta.value;
 const squareEnvRaw = String(process.env.SQUARE_ENV || "").trim().toLowerCase();
 const squareEnvMode = squareEnvRaw === "sandbox" ? "sandbox" : (squareEnvRaw === "production" ? "production" : "auto");
-const squareClientSandbox = squareAccessToken
-  ? new SquareClient({ accessToken: squareAccessToken, environment: SquareEnvironment.Sandbox })
+const squareClientSandbox = squareAccessTokenSandbox
+  ? new SquareClient({ accessToken: squareAccessTokenSandbox, environment: SquareEnvironment.Sandbox })
   : null;
-const squareClientProduction = squareAccessToken
-  ? new SquareClient({ accessToken: squareAccessToken, environment: SquareEnvironment.Production })
+const squareClientProduction = squareAccessTokenProduction
+  ? new SquareClient({ accessToken: squareAccessTokenProduction, environment: SquareEnvironment.Production })
   : null;
 
-function getSquareClientCandidates(){
+function getSquareClientCandidates({ requireLocationId = false } = {}){
   // Prefer the configured env first, but fall back to the other env on auth errors.
   // This helps recover from common misconfigurations (token/location belong to sandbox but SQUARE_ENV=production, or vice-versa).
   const out = [];
+  const pushCandidate = (envLabel, client, locationId)=> {
+    if(!client) return;
+    if(requireLocationId && !locationId) return;
+    out.push({ envLabel, client, locationId });
+  };
   if(squareEnvMode === "production"){
-    if(squareClientProduction) out.push(squareClientProduction);
-    if(squareClientSandbox) out.push(squareClientSandbox);
+    pushCandidate("production", squareClientProduction, squareLocationIdProduction);
+    pushCandidate("sandbox", squareClientSandbox, squareLocationIdSandbox);
     return out;
   }
   if(squareEnvMode === "sandbox"){
-    if(squareClientSandbox) out.push(squareClientSandbox);
-    if(squareClientProduction) out.push(squareClientProduction);
+    pushCandidate("sandbox", squareClientSandbox, squareLocationIdSandbox);
+    pushCandidate("production", squareClientProduction, squareLocationIdProduction);
     return out;
   }
   // auto: try sandbox first, then production
-  if(squareClientSandbox) out.push(squareClientSandbox);
-  if(squareClientProduction) out.push(squareClientProduction);
+  pushCandidate("sandbox", squareClientSandbox, squareLocationIdSandbox);
+  pushCandidate("production", squareClientProduction, squareLocationIdProduction);
   return out;
 }
 
@@ -137,8 +176,8 @@ function isSquareAuthError(err){
   });
 }
 
-async function withSquareClient(fn){
-  const candidates = getSquareClientCandidates();
+async function withSquareClient(fn, opts = {}){
+  const candidates = getSquareClientCandidates(opts);
   if(!candidates.length){
     const error = new Error("Square client not configured.");
     error.statusCode = 400;
@@ -146,9 +185,9 @@ async function withSquareClient(fn){
   }
   let lastErr = null;
   for(let i = 0; i < candidates.length; i++){
-    const client = candidates[i];
+    const candidate = candidates[i];
     try{
-      return await fn(client);
+      return await fn(candidate);
     }catch(err){
       lastErr = err;
       if(!isSquareAuthError(err) || i === candidates.length - 1) throw err;
@@ -1276,21 +1315,35 @@ app.get("/api/health",(req,res)=>{
   const emailSmtpVerified = !!emailVerifyCache.ok;
   const emailSendgridConfigured = !!emailSummary?.sendgrid?.configured;
   const emailReady = emailSmtpVerified || emailSendgridConfigured;
+  const squareCheckoutCandidates = getSquareClientCandidates({ requireLocationId: true });
   res.json({
     ok:true,
     status:"up",
     square: {
-      configured: !!((squareClientSandbox || squareClientProduction) && squareLocationId && siteUrl),
+      configured: !!(squareCheckoutCandidates.length && siteUrl),
       env: squareEnvMode,
-      accessTokenSet: !!squareAccessToken,
-      accessTokenHint: maskSecret(squareAccessToken),
-      accessTokenVar: squareAccessTokenMeta.name,
-      accessTokenLength: String(squareAccessToken || "").length,
-      locationIdSet: !!squareLocationId,
-      locationIdHint: maskSecret(squareLocationId),
-      locationIdVar: squareLocationIdMeta.name,
-      locationIdLength: String(squareLocationId || "").length,
-      siteUrlSet: !!siteUrl
+      siteUrlSet: !!siteUrl,
+      checkoutCandidates: squareCheckoutCandidates.map((c)=> c.envLabel),
+      sandbox: {
+        accessTokenSet: !!squareAccessTokenSandbox,
+        accessTokenHint: maskSecret(squareAccessTokenSandbox),
+        accessTokenVar: squareAccessTokenSandboxMeta.name,
+        accessTokenLength: String(squareAccessTokenSandbox || "").length,
+        locationIdSet: !!squareLocationIdSandbox,
+        locationIdHint: maskSecret(squareLocationIdSandbox),
+        locationIdVar: squareLocationIdSandboxMeta.name,
+        locationIdLength: String(squareLocationIdSandbox || "").length
+      },
+      production: {
+        accessTokenSet: !!squareAccessTokenProduction,
+        accessTokenHint: maskSecret(squareAccessTokenProduction),
+        accessTokenVar: squareAccessTokenProductionMeta.name,
+        accessTokenLength: String(squareAccessTokenProduction || "").length,
+        locationIdSet: !!squareLocationIdProduction,
+        locationIdHint: maskSecret(squareLocationIdProduction),
+        locationIdVar: squareLocationIdProductionMeta.name,
+        locationIdLength: String(squareLocationIdProduction || "").length
+      }
     },
     email: {
       ready: emailReady,
@@ -1379,25 +1432,35 @@ app.get("/api/email/diagnose", async (req,res)=>{
 });
 
 app.get("/api/square/diagnose", async (req,res)=>{
-  if(!requireSquareConfigured(res)) return;
+  if(!requireSquareClientConfigured(res)) return;
   try{
     const prod = await squareTest(squareClientProduction, "production");
     const sandbox = await squareTest(squareClientSandbox, "sandbox");
     res.json({
       ok: !!(prod.ok || sandbox.ok),
       envMode: squareEnvMode,
-      accessTokenHint: maskSecret(squareAccessToken),
-      accessTokenVar: squareAccessTokenMeta.name,
-      accessTokenLength: String(squareAccessToken || "").length,
-      locationIdHint: maskSecret(squareLocationId),
-      locationIdVar: squareLocationIdMeta.name,
-      locationIdLength: String(squareLocationId || "").length,
+      sandbox: {
+        accessTokenHint: maskSecret(squareAccessTokenSandbox),
+        accessTokenVar: squareAccessTokenSandboxMeta.name,
+        accessTokenLength: String(squareAccessTokenSandbox || "").length,
+        locationIdHint: maskSecret(squareLocationIdSandbox),
+        locationIdVar: squareLocationIdSandboxMeta.name,
+        locationIdLength: String(squareLocationIdSandbox || "").length
+      },
+      production: {
+        accessTokenHint: maskSecret(squareAccessTokenProduction),
+        accessTokenVar: squareAccessTokenProductionMeta.name,
+        accessTokenLength: String(squareAccessTokenProduction || "").length,
+        locationIdHint: maskSecret(squareLocationIdProduction),
+        locationIdVar: squareLocationIdProductionMeta.name,
+        locationIdLength: String(squareLocationIdProduction || "").length
+      },
       expectedBaseUrls: {
         production: SquareEnvironment.Production,
         sandbox: SquareEnvironment.Sandbox
       },
-      production: prod,
-      sandbox
+      productionTest: prod,
+      sandboxTest: sandbox
     });
   }catch(err){
     const summary = summarizeSquareError(err);
@@ -2625,7 +2688,7 @@ async function getOrCreateSquareCustomerId(email){
   if(squareCustomerByEmail.has(lower)) return squareCustomerByEmail.get(lower) || "";
 
   try{
-    const customerId = await withSquareClient(async (client)=>{
+    const customerId = await withSquareClient(async ({ client })=>{
       const customersApi = client.customersApi;
       const { result: search } = await customersApi.searchCustomers({
         limit: BigInt(1),
@@ -2673,10 +2736,9 @@ async function addPaymentMethod(email, sourceId){
   if(!lower) throw new Error("Missing email.");
   if(!sourceId) throw new Error("Missing card token.");
 
-  if(!(squareClientSandbox || squareClientProduction) || !squareLocationId){
+  if(!(squareClientSandbox || squareClientProduction)){
     const missing = [];
-    if(!squareAccessToken) missing.push("SQUARE_ACCESS_TOKEN");
-    if(!squareLocationId) missing.push("SQUARE_LOCATION_ID");
+    if(!squareAccessTokenSandbox && !squareAccessTokenProduction) missing.push("SQUARE_ACCESS_TOKEN");
     const error = new Error(`Square not configured (missing ${missing.join(" + ") || "keys"}).`);
     error.statusCode = 400;
     throw error;
@@ -2689,7 +2751,7 @@ async function addPaymentMethod(email, sourceId){
     throw error;
   }
 
-  const out = await withSquareClient(async (client)=>{
+  const out = await withSquareClient(async ({ client })=>{
     const cardsApi = client.cardsApi;
     const body = {
       idempotencyKey: crypto.randomUUID(),
@@ -2745,7 +2807,7 @@ async function removePaymentMethod(email, id){
   // Disable card at Square when possible (safe even if already disabled).
   if((squareClientSandbox || squareClientProduction)){
     try{
-      await withSquareClient((client)=> client.cardsApi.disableCard(cardId));
+      await withSquareClient(({ client })=> client.cardsApi.disableCard(cardId));
     }catch(err){
       // ignore; still remove from local records
     }
@@ -2868,17 +2930,21 @@ async function createSquarePaymentAndOrder(body){
     basePriceMoney: { amount: BigInt(i.priceCents), currency: i.currency }
   }));
 
-  const result = await withSquareClient((client)=> client.checkout.paymentLinks.create({
-    idempotencyKey,
-    order: {
-      locationId: squareLocationId,
-      referenceId: orderId,
-      lineItems
-    },
-    checkoutOptions: {
-      redirectUrl
-    }
-  }));
+  let squareEnvUsed = "";
+  const result = await withSquareClient(({ client, locationId, envLabel })=>{
+    squareEnvUsed = envLabel || "";
+    return client.checkout.paymentLinks.create({
+      idempotencyKey,
+      order: {
+        locationId,
+        referenceId: orderId,
+        lineItems
+      },
+      checkoutOptions: {
+        redirectUrl
+      }
+    });
+  }, { requireLocationId: true });
 
   const paymentUrl = result?.paymentLink?.url;
   if(!paymentUrl){
@@ -2913,19 +2979,36 @@ async function createSquarePaymentAndOrder(body){
   const { error: orderError } = await supabase.from("orders").insert(orderRow);
   if(orderError) console.error("Supabase square order insert failed", orderError);
 
-  return { ok:true, url: paymentUrl, orderId, squarePaymentLinkId, squareOrderId };
+  return { ok:true, url: paymentUrl, orderId, squarePaymentLinkId, squareOrderId, squareEnvUsed };
 }
 
 function requireSquareConfigured(res){
-  if(!(squareClientSandbox || squareClientProduction) || !squareLocationId){
+  const checkoutCandidates = getSquareClientCandidates({ requireLocationId: true });
+  if(!checkoutCandidates.length){
     const missing = [];
-    if(!squareAccessToken) missing.push("SQUARE_ACCESS_TOKEN");
-    if(!squareLocationId) missing.push("SQUARE_LOCATION_ID");
+    if(squareEnvMode === "production"){
+      if(!squareAccessTokenProduction) missing.push("SQUARE_ACCESS_TOKEN_PROD (or SQUARE_ACCESS_TOKEN)");
+      if(!squareLocationIdProduction) missing.push("SQUARE_LOCATION_ID_PROD (or SQUARE_LOCATION_ID)");
+    }else if(squareEnvMode === "sandbox"){
+      if(!squareAccessTokenSandbox) missing.push("SQUARE_ACCESS_TOKEN_SANDBOX (or SQUARE_ACCESS_TOKEN)");
+      if(!squareLocationIdSandbox) missing.push("SQUARE_LOCATION_ID_SANDBOX (or SQUARE_LOCATION_ID)");
+    }else{
+      if(!squareAccessTokenSandbox && !squareAccessTokenProduction) missing.push("SQUARE_ACCESS_TOKEN");
+      if(!squareLocationIdSandbox && !squareLocationIdProduction) missing.push("SQUARE_LOCATION_ID");
+    }
     res.status(400).json({ ok:false, message:`Square not configured (missing ${missing.join(" + ") || "keys"}).` });
     return false;
   }
   if(!siteUrl){
     res.status(400).json({ ok:false, message:"SITE_URL not configured (set SITE_URL to your public frontend URL)." });
+    return false;
+  }
+  return true;
+}
+
+function requireSquareClientConfigured(res){
+  if(!(squareClientSandbox || squareClientProduction)){
+    res.status(400).json({ ok:false, message:"Square not configured (missing SQUARE_ACCESS_TOKEN)." });
     return false;
   }
   return true;
@@ -3007,7 +3090,7 @@ async function handlePaymentStatus(req,res){
       return res.json({ ok:true, orderId, status: orderRow.status || "pending" });
     }
 
-    const result = await withSquareClient((client)=> client.orders.get({ orderId: squareOrderId }));
+    const result = await withSquareClient(({ client })=> client.orders.get({ orderId: squareOrderId }));
     const state = String(result?.order?.state || "").toUpperCase();
 
     let status = orderRow.status || "pending";

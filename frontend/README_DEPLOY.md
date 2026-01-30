@@ -5,6 +5,9 @@
    - Configure env vars (never commit secrets):
      - `SQUARE_ACCESS_TOKEN`
      - `SQUARE_LOCATION_ID`
+     - Optional (recommended if you switch envs often):
+       - `SQUARE_ACCESS_TOKEN_SANDBOX`, `SQUARE_LOCATION_ID_SANDBOX`
+       - `SQUARE_ACCESS_TOKEN_PROD`, `SQUARE_LOCATION_ID_PROD`
      - `SQUARE_ENV` (`sandbox` | `production`)
      - `SITE_URL` (your public frontend URL, used for Square redirect to `thank-you.html`)
      - Email (optional, for verification codes + receipts + contact/help/feedback):
