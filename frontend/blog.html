@@ -60,6 +60,22 @@
       <p data-i18n="blog.subtitle">Short, practical updates for dry cleaners, laundromats, and retailers: what’s new, what’s changing, and how to buy smarter.</p>
     </section>
 
+    <section class="card fade-in blog-featured" id="blogFeatured" aria-label="Featured post" style="padding:16px; margin-top:16px;"></section>
+
+    <section class="card fade-in blog-subscribe" style="padding:16px; margin-top:16px;">
+      <div class="blog-subscribe-inner">
+        <div>
+          <h2 style="margin:0;" data-i18n="blog.subscribe.title">Get blog updates</h2>
+          <div class="resources-quick-desc" style="margin-top:6px;" data-i18n="blog.subscribe.desc">Monthly packaging tips and product launches. No spam.</div>
+        </div>
+        <form id="blogSubscribeForm" class="blog-subscribe-form">
+          <input class="input" type="email" name="email" placeholder="Email address" data-i18n-placeholder="blog.subscribe.placeholder" aria-label="Email address" required>
+          <button class="btn btn-primary" type="submit" data-i18n="blog.subscribe.button">Subscribe</button>
+        </form>
+      </div>
+      <div id="blogSubscribeStatus" class="blog-subscribe-status" role="status" aria-live="polite"></div>
+    </section>
+
     <section class="card fade-in" style="padding:16px; margin-top:16px;">
       <div class="resources-quick-head" style="align-items:center;">
         <div>
@@ -78,6 +94,8 @@
       <div style="margin-top:12px;">
         <input class="input" id="blogSearch" type="search" placeholder="Search blog posts..." data-i18n-placeholder="blog.search_placeholder" aria-label="Search blog posts">
       </div>
+
+      <div class="blog-results" id="blogResults" role="status" aria-live="polite"></div>
 
       <div class="resource-toc blog-card-grid" style="margin-top:12px;" id="blogCardGrid">
         <a class="card card-link resource-card resource-card--news blog-card" data-cat="news" href="#post-route-readiness">
@@ -104,11 +122,41 @@
           <div class="resource-title">Heavy vs Extra Heavy: a quick pick for daily use</div>
           <div class="resource-desc">Use-case based guidance you can share with your team in 60 seconds.</div>
         </a>
+        <a class="card card-link resource-card resource-card--tips blog-card" data-cat="tips" href="#post-sizing-cheatsheet">
+          <div class="resource-card-icon resource-icon-bulb" aria-hidden="true"></div>
+          <div class="resource-kicker" data-i18n="blog.filter.tips">Packaging tips</div>
+          <div class="resource-title">Garment bag sizing: a 60-second cheat sheet</div>
+          <div class="resource-desc">The fastest way to choose widths/lengths that reduce “too short” returns and rewraps.</div>
+        </a>
+        <a class="card card-link resource-card resource-card--case blog-card" data-cat="case" href="#post-uniform-standard">
+          <div class="resource-card-icon resource-icon-briefcase" aria-hidden="true"></div>
+          <div class="resource-kicker" data-i18n="blog.filter.case">Case studies</div>
+          <div class="resource-title">A uniform program that stayed consistent across 3 locations</div>
+          <div class="resource-desc">How simple packaging standards reduced mix-ups and made reorders predictable.</div>
+        </a>
+        <a class="card card-link resource-card resource-card--launch blog-card" data-cat="launch" href="#post-clear-film">
+          <div class="resource-card-icon resource-icon-rocket" aria-hidden="true"></div>
+          <div class="resource-kicker" data-i18n="blog.filter.launch">Product launches</div>
+          <div class="resource-title">Clear film matters: what “clean clarity” really looks like</div>
+          <div class="resource-desc">How to evaluate presentation, odor, and consistency before you place a bulk reorder.</div>
+        </a>
+        <a class="card card-link resource-card resource-card--tips blog-card" data-cat="tips" href="#post-order-buffer">
+          <div class="resource-card-icon resource-icon-bulb" aria-hidden="true"></div>
+          <div class="resource-kicker" data-i18n="blog.filter.tips">Packaging tips</div>
+          <div class="resource-title">Ordering buffers: why 8–12% is the “safe zone”</div>
+          <div class="resource-desc">A simple rule that prevents stockouts without overbuying month after month.</div>
+        </a>
+        <a class="card card-link resource-card resource-card--tips blog-card" data-cat="tips" href="#post-route-damage">
+          <div class="resource-card-icon resource-icon-bulb" aria-hidden="true"></div>
+          <div class="resource-kicker" data-i18n="blog.filter.tips">Packaging tips</div>
+          <div class="resource-title">Stop route damage: 5 fixes that reduce tears and rewraps</div>
+          <div class="resource-desc">Thickness, bundling, and handling tweaks that keep deliveries looking professional.</div>
+        </a>
       </div>
     </section>
 
     <section class="blog-posts">
-      <article id="post-route-readiness" class="card fade-in blog-post">
+      <article id="post-route-readiness" class="card fade-in blog-post" data-cat="news">
         <div class="blog-post-head">
           <div class="count-badge count-badge-muted">Industry news</div>
           <div class="blog-post-meta">Jan 2026 • 3 min read</div>
@@ -127,7 +175,7 @@
         </div>
       </article>
 
-      <article id="post-welove-caped" class="card fade-in blog-post">
+      <article id="post-welove-caped" class="card fade-in blog-post" data-cat="launch">
         <div class="blog-post-head">
           <div class="count-badge count-badge-muted">Product launch</div>
           <div class="blog-post-meta">Jan 2026 • 2 min read</div>
@@ -148,7 +196,7 @@
         </div>
       </article>
 
-      <article id="post-reorder-time" class="card fade-in blog-post">
+      <article id="post-reorder-time" class="card fade-in blog-post" data-cat="case">
         <div class="blog-post-head">
           <div class="count-badge count-badge-muted">Case study</div>
           <div class="blog-post-meta">Jan 2026 • 4 min read</div>
@@ -171,7 +219,7 @@
         </div>
       </article>
 
-      <article id="post-thickness-quickpick" class="card fade-in blog-post">
+      <article id="post-thickness-quickpick" class="card fade-in blog-post" data-cat="tips">
         <div class="blog-post-head">
           <div class="count-badge count-badge-muted">Packaging tip</div>
           <div class="blog-post-meta">Jan 2026 • 2 min read</div>
@@ -190,6 +238,114 @@
         </div>
         <a class="btn btn-outline btn-sm" style="margin-top:10px;" href="./resources.html#heavy-vs-extra-heavy">See the full thickness guide</a>
       </article>
+
+      <article id="post-sizing-cheatsheet" class="card fade-in blog-post" data-cat="tips">
+        <div class="blog-post-head">
+          <div class="count-badge count-badge-muted">Packaging tip</div>
+          <div class="blog-post-meta">Jan 2026 • 3 min read</div>
+        </div>
+        <h2 style="margin:10px 0 0;">Garment bag sizing: a 60-second cheat sheet</h2>
+        <p class="blog-post-sub">Sizing doesn’t need to be complicated. Choose a safe width for shoulders, then pick length based on your longest common garments.</p>
+        <div class="blog-media-row">
+          <img class="resource-media" src="./assets/polybag%20clear.webp" alt="Clear poly bag packaging" loading="lazy" decoding="async">
+          <div>
+            <h3 style="margin-top:0;">Quick sizing rules</h3>
+            <ul class="blog-bullets">
+              <li><b>Width first:</b> pick a width that covers your widest shoulders + a little slack.</li>
+              <li><b>Length second:</b> match to shirts/tops, then add a longer size for coats/dresses.</li>
+              <li><b>Standardize:</b> 2–3 sizes cover most shops and cut “wrong bag” rewraps.</li>
+            </ul>
+            <a class="btn btn-outline btn-sm" href="./resources.html#choosing-garment-bag-sizes">See the full sizing guide</a>
+          </div>
+        </div>
+      </article>
+
+      <article id="post-uniform-standard" class="card fade-in blog-post" data-cat="case">
+        <div class="blog-post-head">
+          <div class="count-badge count-badge-muted">Case study</div>
+          <div class="blog-post-meta">Jan 2026 • 4 min read</div>
+        </div>
+        <h2 style="margin:10px 0 0;">A uniform program that stayed consistent across 3 locations</h2>
+        <p class="blog-post-sub">A multi-location customer reduced mix-ups by standardizing a small set of sizes, thickness, and hanger types—then documenting the default pack.</p>
+        <div class="blog-split">
+          <div>
+            <h3 style="margin-top:0;">What they standardized</h3>
+            <ul class="blog-bullets">
+              <li><b>2 thickness options</b> (daily handling vs route stress).</li>
+              <li><b>3 hanger types</b> (shirt, suit, heavy garments).</li>
+              <li><b>Staging labels</b> by department or unit.</li>
+            </ul>
+          </div>
+          <div class="resource-callout">
+            <div style="font-weight:1000;">Outcome</div>
+            <div style="margin-top:6px;">Fewer wrong-department handoffs, faster training, and reorders that matched month to month.</div>
+            <div style="margin-top:10px;">
+              <a class="btn btn-primary btn-sm" href="./industries.html">See industry playbooks</a>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article id="post-clear-film" class="card fade-in blog-post" data-cat="launch">
+        <div class="blog-post-head">
+          <div class="count-badge count-badge-muted">Product insight</div>
+          <div class="blog-post-meta">Jan 2026 • 3 min read</div>
+        </div>
+        <h2 style="margin:10px 0 0;">Clear film matters: what “clean clarity” really looks like</h2>
+        <p class="blog-post-sub">Customers notice packaging quality immediately. Clear, low-odor film and consistent sizing helps presentation feel premium without extra effort.</p>
+        <div class="blog-media-row">
+          <img class="resource-media" src="./assets/polybag%20clear.webp" alt="Clear poly bags" loading="lazy" decoding="async">
+          <div>
+            <h3 style="margin-top:0;">What to check before a bulk reorder</h3>
+            <ul class="blog-bullets">
+              <li><b>Clarity:</b> film should look clean, not cloudy or inconsistent.</li>
+              <li><b>Odor:</b> low-odor material matters for customer pickup.</li>
+              <li><b>Consistency:</b> stable sizing makes packing fast and repeatable.</li>
+            </ul>
+            <a class="btn btn-primary btn-sm" href="./products.html?cat=Polybags">Browse polybags</a>
+          </div>
+        </div>
+      </article>
+
+      <article id="post-order-buffer" class="card fade-in blog-post" data-cat="tips">
+        <div class="blog-post-head">
+          <div class="count-badge count-badge-muted">Packaging tip</div>
+          <div class="blog-post-meta">Jan 2026 • 3 min read</div>
+        </div>
+        <h2 style="margin:10px 0 0;">Ordering buffers: why 8–12% is the “safe zone”</h2>
+        <p class="blog-post-sub">Most businesses under-order because they only plan for perfect usage. A small buffer covers rewraps, damage, and rush days without overbuying.</p>
+        <div class="blog-split">
+          <div class="resource-callout">
+            <div style="font-weight:1000;">Use 8% when</div>
+            <div style="margin-top:6px;">Mostly in-store pickup, low route stress, stable weekly volume.</div>
+          </div>
+          <div class="resource-callout">
+            <div style="font-weight:1000;">Use 12% when</div>
+            <div style="margin-top:6px;">Delivery routes, sharp edges, heavier garments, or frequent rush orders.</div>
+          </div>
+        </div>
+        <a class="btn btn-outline btn-sm" style="margin-top:10px;" href="./resources.html#dry-cleaner-packaging-usage">Try the monthly usage planner</a>
+      </article>
+
+      <article id="post-route-damage" class="card fade-in blog-post" data-cat="tips">
+        <div class="blog-post-head">
+          <div class="count-badge count-badge-muted">Packaging tip</div>
+          <div class="blog-post-meta">Jan 2026 • 4 min read</div>
+        </div>
+        <h2 style="margin:10px 0 0;">Stop route damage: 5 fixes that reduce tears and rewraps</h2>
+        <p class="blog-post-sub">Route damage usually isn’t “bad bags”—it’s a mismatch between thickness, bundling, and handling. These fixes reduce rewraps and keep deliveries looking clean.</p>
+        <ul class="blog-bullets">
+          <li><b>Match thickness to stress:</b> upgrade only where you see repeated tears.</li>
+          <li><b>Bundle smart:</b> wraps keep grouped orders cleaner and easier to carry.</li>
+          <li><b>Avoid sharp stress points:</b> hangers and corners can cut film during stacking.</li>
+          <li><b>Standardize sizes:</b> consistent sizes stack better and reduce crushing.</li>
+          <li><b>Document a default pack:</b> reduces variation across shifts.</li>
+        </ul>
+        <div class="industry-actions" style="margin-top:12px;">
+          <a class="btn btn-primary btn-sm" href="./products.html?cat=Wraps">Shop wraps</a>
+          <a class="btn btn-outline btn-sm" href="./resources.html#heavy-vs-extra-heavy">Thickness guidance</a>
+        </div>
+      </article>
     </section>
 
     <div class="footer">&copy; <span id="y"></span> <span data-i18n="footer.short">Power Poly Supplies. Power your packaging.</span></div>
@@ -200,54 +356,10 @@
   <script src="./js/notifications.js"></script>
   <script src="./js/i18n.js"></script>
   <script src="./js/ui.js"></script>
+  <script src="./js/blog.js"></script>
   <script>
     document.getElementById("y").textContent = new Date().getFullYear();
     PPS.updateCartBadge();
-
-    function setActiveFilter(filter){
-      document.querySelectorAll(".blog-filter").forEach((b)=>{
-        b.classList.toggle("active", b.dataset.filter === filter);
-      });
-      document.querySelectorAll(".blog-card").forEach((card)=>{
-        const cat = String(card.dataset.cat || "");
-        card.style.display = (filter === "all" || cat === filter) ? "" : "none";
-      });
-    }
-
-    function applySearch(query){
-      const q = String(query || "").trim().toLowerCase();
-      document.querySelectorAll(".blog-card").forEach((card)=>{
-        const filter = document.querySelector(".blog-filter.active")?.dataset?.filter || "all";
-        const cat = String(card.dataset.cat || "");
-        const visibleByFilter = (filter === "all" || cat === filter);
-        if(!q){
-          card.style.display = visibleByFilter ? "" : "none";
-          return;
-        }
-        const text = card.textContent.toLowerCase();
-        const match = text.includes(q);
-        card.style.display = (visibleByFilter && match) ? "" : "none";
-      });
-    }
-
-    const params = new URLSearchParams(window.location.search);
-    const initialFilter = String(params.get("cat") || "").trim();
-    if(["news","launch","case","tips"].includes(initialFilter)){
-      setActiveFilter(initialFilter);
-    }else{
-      setActiveFilter("all");
-    }
-
-    document.querySelectorAll(".blog-filter").forEach((btn)=>{
-      btn.addEventListener("click", ()=>{
-        setActiveFilter(btn.dataset.filter || "all");
-        applySearch(document.getElementById("blogSearch")?.value || "");
-      });
-    });
-    const search = document.getElementById("blogSearch");
-    if(search){
-      search.addEventListener("input", ()=> applySearch(search.value));
-    }
   </script>
 </body>
 </html>

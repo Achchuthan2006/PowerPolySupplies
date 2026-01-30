@@ -330,23 +330,34 @@ function injectResourcesNavLink(){
   try{ window.PPS_I18N?.applyTranslations?.(); }catch{}
 }
 
-function injectBlogNavLink(){
+function injectIndustryDropdown(){
   const navLinks = document.getElementById("navLinks");
   if(!navLinks) return;
-  if(navLinks.querySelector('a[href="./blog.html"]')) return;
+  if(navLinks.querySelector(".dropdown.industry-dropdown")) return;
 
-  const link = document.createElement("a");
-  link.href = "./blog.html";
-  link.setAttribute("data-i18n", "nav.blog");
-  link.textContent = "Blog";
+  // Remove older standalone links if present (keeps the top nav clean).
+  navLinks.querySelector('a[href="./industries.html"]')?.remove?.();
+  navLinks.querySelector('a[href="./blog.html"]')?.remove?.();
+
+  const wrap = document.createElement("div");
+  wrap.className = "dropdown industry-dropdown";
+  wrap.innerHTML = `
+    <button class="dropbtn" type="button"><span data-i18n="nav.industry">Industry</span> <span class="caret" aria-hidden="true"></span></button>
+    <div class="dropdown-menu">
+      <a href="./industries.html" data-i18n="nav.industry.overview">Industries</a>
+      <a href="./industry-commercial-laundry.html" data-i18n="nav.industry.laundry">Commercial laundry</a>
+      <a href="./industry-healthcare.html" data-i18n="nav.industry.healthcare">Healthcare</a>
+      <a href="./blog.html" data-i18n="nav.industry.blog">Blog</a>
+    </div>
+  `;
 
   const after = navLinks.querySelector('a[href="./resources.html"]') || navLinks.querySelector('a[href="./specials.html"]');
   if(after && after.parentElement === navLinks){
-    after.insertAdjacentElement("afterend", link);
-    try{ window.PPS_I18N?.applyTranslations?.(); }catch{}
-    return;
+    after.insertAdjacentElement("afterend", wrap);
+  }else{
+    navLinks.appendChild(wrap);
   }
-  navLinks.appendChild(link);
+
   try{ window.PPS_I18N?.applyTranslations?.(); }catch{}
 }
 
@@ -367,7 +378,6 @@ function injectAboutDropdown(){
       <a href="./about.html#why" data-i18n="nav.about_why">Why Power Poly</a>
       <a href="./about.html#sectors" data-i18n="nav.about_sectors">Sectors we serve</a>
       <a href="./about.html#quality" data-i18n="nav.about_quality">Quality promise</a>
-      <a href="./about.html#contacts" data-i18n="nav.about_contacts">Contacts</a>
     </div>
   `;
 
@@ -2020,7 +2030,7 @@ window.addEventListener("DOMContentLoaded", ()=>{
   syncAccountLink();
   setupAuthModalTriggers();
   injectResourcesNavLink();
-  injectBlogNavLink();
+  injectIndustryDropdown();
   injectAboutDropdown();
   injectLangSwitcher();
   injectCurrencySwitcher();
