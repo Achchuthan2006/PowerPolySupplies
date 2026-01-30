@@ -1484,14 +1484,92 @@ function showAuthModal(options = {}){
                </linearGradient>
              </defs>
 
+             <g class="cart-van-bg" aria-hidden="true">
+               <g class="cart-van-bg-track">
+                 <g opacity=".9">
+                   <rect x="10" y="28" width="32" height="46" rx="8" fill="rgba(17,24,39,.06)" stroke="rgba(17,24,39,.08)" stroke-width="2"/>
+                   <rect x="52" y="18" width="44" height="56" rx="10" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.07)" stroke-width="2"/>
+                   <rect x="104" y="34" width="30" height="40" rx="8" fill="rgba(17,24,39,.06)" stroke="rgba(17,24,39,.08)" stroke-width="2"/>
+                   <rect x="142" y="22" width="54" height="52" rx="12" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.07)" stroke-width="2"/>
+                   <rect x="206" y="30" width="26" height="44" rx="8" fill="rgba(17,24,39,.06)" stroke="rgba(17,24,39,.08)" stroke-width="2"/>
+                   <g fill="rgba(240,127,41,.14)">
+                     <rect x="20" y="40" width="8" height="8" rx="2"/>
+                     <rect x="32" y="40" width="8" height="8" rx="2"/>
+                     <rect x="64" y="34" width="9" height="9" rx="2"/>
+                     <rect x="78" y="34" width="9" height="9" rx="2"/>
+                     <rect x="64" y="48" width="9" height="9" rx="2"/>
+                     <rect x="78" y="48" width="9" height="9" rx="2"/>
+                     <rect x="114" y="46" width="8" height="8" rx="2"/>
+                     <rect x="124" y="46" width="8" height="8" rx="2"/>
+                     <rect x="158" y="36" width="10" height="10" rx="2"/>
+                     <rect x="172" y="36" width="10" height="10" rx="2"/>
+                     <rect x="158" y="50" width="10" height="10" rx="2"/>
+                     <rect x="172" y="50" width="10" height="10" rx="2"/>
+                     <rect x="214" y="44" width="8" height="8" rx="2"/>
+                   </g>
+                   <g class="cart-van-cn" transform="translate(186 8)" opacity=".95">
+                     <path d="M10 0v10" stroke="rgba(17,24,39,.18)" stroke-width="2" stroke-linecap="round"/>
+                     <rect x="8" y="10" width="4" height="58" rx="2" fill="rgba(17,24,39,.08)" stroke="rgba(17,24,39,.10)" stroke-width="2"/>
+                     <rect x="0" y="24" width="20" height="10" rx="5" fill="rgba(255,255,255,.70)" stroke="rgba(240,127,41,.22)" stroke-width="2"/>
+                     <rect x="6" y="36" width="8" height="6" rx="3" fill="rgba(17,24,39,.06)"/>
+                   </g>
+                 </g>
+                 <g opacity=".9" transform="translate(240 0)">
+                   <rect x="10" y="28" width="32" height="46" rx="8" fill="rgba(17,24,39,.06)" stroke="rgba(17,24,39,.08)" stroke-width="2"/>
+                   <rect x="52" y="18" width="44" height="56" rx="10" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.07)" stroke-width="2"/>
+                   <rect x="104" y="34" width="30" height="40" rx="8" fill="rgba(17,24,39,.06)" stroke="rgba(17,24,39,.08)" stroke-width="2"/>
+                   <rect x="142" y="22" width="54" height="52" rx="12" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.07)" stroke-width="2"/>
+                   <rect x="206" y="30" width="26" height="44" rx="8" fill="rgba(17,24,39,.06)" stroke="rgba(17,24,39,.08)" stroke-width="2"/>
+                   <g fill="rgba(240,127,41,.14)">
+                     <rect x="20" y="40" width="8" height="8" rx="2"/>
+                     <rect x="32" y="40" width="8" height="8" rx="2"/>
+                     <rect x="64" y="34" width="9" height="9" rx="2"/>
+                     <rect x="78" y="34" width="9" height="9" rx="2"/>
+                     <rect x="64" y="48" width="9" height="9" rx="2"/>
+                     <rect x="78" y="48" width="9" height="9" rx="2"/>
+                     <rect x="114" y="46" width="8" height="8" rx="2"/>
+                     <rect x="124" y="46" width="8" height="8" rx="2"/>
+                     <rect x="158" y="36" width="10" height="10" rx="2"/>
+                     <rect x="172" y="36" width="10" height="10" rx="2"/>
+                     <rect x="158" y="50" width="10" height="10" rx="2"/>
+                     <rect x="172" y="50" width="10" height="10" rx="2"/>
+                     <rect x="214" y="44" width="8" height="8" rx="2"/>
+                   </g>
+                   <g class="cart-van-cn" transform="translate(186 8)" opacity=".95">
+                     <path d="M10 0v10" stroke="rgba(17,24,39,.18)" stroke-width="2" stroke-linecap="round"/>
+                     <rect x="8" y="10" width="4" height="58" rx="2" fill="rgba(17,24,39,.08)" stroke="rgba(17,24,39,.10)" stroke-width="2"/>
+                     <rect x="0" y="24" width="20" height="10" rx="5" fill="rgba(255,255,255,.70)" stroke="rgba(240,127,41,.22)" stroke-width="2"/>
+                     <rect x="6" y="36" width="8" height="6" rx="3" fill="rgba(17,24,39,.06)"/>
+                   </g>
+                 </g>
+               </g>
+               <path d="M0 126H240" stroke="rgba(17,24,39,.10)" stroke-width="10" stroke-linecap="round" opacity=".55"/>
+               <ellipse cx="80" cy="126" rx="22" ry="7" fill="rgba(17,24,39,.06)"/>
+               <ellipse cx="170" cy="126" rx="22" ry="7" fill="rgba(17,24,39,.06)"/>
+               <g class="cart-van-road" aria-hidden="true">
+                 <g class="cart-van-road-track">
+                   <path d="M10 126h42" stroke="rgba(255,255,255,.65)" stroke-width="4" stroke-linecap="round"/>
+                   <path d="M66 126h42" stroke="rgba(255,255,255,.65)" stroke-width="4" stroke-linecap="round"/>
+                   <path d="M122 126h42" stroke="rgba(255,255,255,.65)" stroke-width="4" stroke-linecap="round"/>
+                   <path d="M178 126h42" stroke="rgba(255,255,255,.65)" stroke-width="4" stroke-linecap="round"/>
+                   <g transform="translate(240 0)">
+                     <path d="M10 126h42" stroke="rgba(255,255,255,.65)" stroke-width="4" stroke-linecap="round"/>
+                     <path d="M66 126h42" stroke="rgba(255,255,255,.65)" stroke-width="4" stroke-linecap="round"/>
+                     <path d="M122 126h42" stroke="rgba(255,255,255,.65)" stroke-width="4" stroke-linecap="round"/>
+                     <path d="M178 126h42" stroke="rgba(255,255,255,.65)" stroke-width="4" stroke-linecap="round"/>
+                   </g>
+                 </g>
+               </g>
+             </g>
+
              <g class="cart-van-float">
                <path class="cart-van-shadow" d="M32 122c22 8 154 8 176 0" fill="none" stroke="rgba(17,24,39,.10)" stroke-width="10" stroke-linecap="round"/>
-
-               <g class="cart-van-lines" fill="none" stroke-linecap="round">
-                 <path d="M18 76h22" stroke="rgba(17,24,39,.18)" stroke-width="4"/>
-                 <path d="M10 92h30" stroke="rgba(17,24,39,.12)" stroke-width="4"/>
-                 <path d="M22 108h18" stroke="rgba(17,24,39,.10)" stroke-width="4"/>
-               </g>
+ 
+                <g class="cart-van-lines" fill="none" stroke-linecap="round">
+                  <path d="M18 76h22" stroke="rgba(17,24,39,.18)" stroke-width="4"/>
+                  <path d="M10 92h30" stroke="rgba(17,24,39,.12)" stroke-width="4"/>
+                  <path d="M22 108h18" stroke="rgba(17,24,39,.10)" stroke-width="4"/>
+                </g>
 
                <path d="M58 44h90c12 0 24 10 30 22l10 20c4 8 2 18-6 24-8 6-18 10-28 10H70c-16 0-28-12-28-28V72c0-16 0-28 16-28Z"
                  fill="url(#ppsAuthVanBody)" stroke="rgba(17,24,39,.14)" stroke-width="2.5" />
