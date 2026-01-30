@@ -1499,13 +1499,27 @@ function showAuthModal(options = {}){
                <path d="M150 44h18c10 0 22 8 26 18l8 18h-52V44Z"
                  fill="url(#ppsAuthVanBody)" stroke="rgba(17,24,39,.14)" stroke-width="2.5" />
 
-               <path d="M166 54h20c5 0 11 4 13 9l5 11h-38V54Z"
-                 fill="rgba(37,99,235,.10)" stroke="rgba(37,99,235,.20)" stroke-width="2" />
+                <path d="M166 54h20c5 0 11 4 13 9l5 11h-38V54Z"
+                  fill="rgba(37,99,235,.10)" stroke="rgba(37,99,235,.20)" stroke-width="2" />
 
-               <path d="M58 86h156" stroke="url(#ppsAuthVanAccent)" stroke-width="8" stroke-linecap="round" opacity=".9"/>
-               <circle cx="86" cy="86" r="4" fill="#ff7a1a" opacity=".75"/>
-               <circle cx="106" cy="86" r="4" fill="#ff7a1a" opacity=".55"/>
-               <circle cx="126" cy="86" r="4" fill="#ff7a1a" opacity=".35"/>
+                <path d="M68 56h70" stroke="rgba(255,255,255,.92)" stroke-width="4" stroke-linecap="round" opacity=".22"/>
+                <path d="M156 56h26" stroke="rgba(255,255,255,.92)" stroke-width="4" stroke-linecap="round" opacity=".18"/>
+
+                <path d="M124 56v46" stroke="rgba(17,24,39,.10)" stroke-width="2" stroke-linecap="round"/>
+                <path d="M132 74h10" stroke="rgba(17,24,39,.18)" stroke-width="2" stroke-linecap="round"/>
+
+                <g class="pps-van-sticker" transform="translate(100 58)" style="filter: drop-shadow(0 10px 16px rgba(17,24,39,.14));">
+                  <rect x="0" y="0" width="30" height="30" rx="9" fill="rgba(255,255,255,.92)" stroke="rgba(240,127,41,.45)" stroke-width="1.8"/>
+                  <image href="./assets/poly%20logo%20without%20background.png" x="5" y="5" width="20" height="20" preserveAspectRatio="xMidYMid meet"/>
+                </g>
+
+                <circle cx="200" cy="92" r="9" fill="rgba(255,214,120,.20)"/>
+                <circle cx="200" cy="92" r="3.4" fill="rgba(255,214,120,.96)" stroke="rgba(240,127,41,.35)" stroke-width="1"/>
+ 
+                <path d="M58 86h156" stroke="url(#ppsAuthVanAccent)" stroke-width="8" stroke-linecap="round" opacity=".9"/>
+                <circle cx="86" cy="86" r="4" fill="#ff7a1a" opacity=".75"/>
+                <circle cx="106" cy="86" r="4" fill="#ff7a1a" opacity=".55"/>
+                <circle cx="126" cy="86" r="4" fill="#ff7a1a" opacity=".35"/>
 
                <g class="cart-van-wheel cart-van-wheel-left" transform="translate(80 112)">
                  <g class="cart-van-wheel-spin">
