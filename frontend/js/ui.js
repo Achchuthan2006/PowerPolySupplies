@@ -1469,14 +1469,67 @@ function showAuthModal(options = {}){
             <img src="./assets/poly%20logo%20without%20background.png" alt="Power Poly Supplies" decoding="async">
             <div>PowerPolySupplies.com</div>
           </div>
-          <div class="pps-auth-kicker">Canada-wide B2B sourcing</div>
-          <h3 class="pps-auth-headline">Order protection and great savings.</h3>
-          <div class="pps-auth-subline">Sign in to reorder faster, save multiple delivery addresses, and manage invoices.</div>
-          <img class="pps-auth-illustration" src="./assets/auth-illustration.svg" alt="" loading="lazy" decoding="async">
-        </div>
+           <div class="pps-auth-kicker">Canada-wide B2B sourcing</div>
+           <h3 class="pps-auth-headline">Order protection and great savings.</h3>
+           <div class="pps-auth-subline">Sign in to reorder faster, save multiple delivery addresses, and manage invoices.</div>
+           <svg class="pps-auth-illustration pps-van" viewBox="0 0 240 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+             <defs>
+               <linearGradient id="ppsAuthVanBody" x1="0" y1="0" x2="1" y2="1">
+                 <stop offset="0" stop-color="#fff7ed"/>
+                 <stop offset="1" stop-color="#ffffff"/>
+               </linearGradient>
+               <linearGradient id="ppsAuthVanAccent" x1="0" y1="0" x2="1" y2="0">
+                 <stop offset="0" stop-color="#ff7a1a"/>
+                 <stop offset="1" stop-color="#d94a1f"/>
+               </linearGradient>
+             </defs>
 
-        <div class="pps-auth-right">
-          <h2 id="ppsAuthTitle">Sign in or create account</h2>
+             <g class="cart-van-float">
+               <path class="cart-van-shadow" d="M32 122c22 8 154 8 176 0" fill="none" stroke="rgba(17,24,39,.10)" stroke-width="10" stroke-linecap="round"/>
+
+               <g class="cart-van-lines" fill="none" stroke-linecap="round">
+                 <path d="M18 76h22" stroke="rgba(17,24,39,.18)" stroke-width="4"/>
+                 <path d="M10 92h30" stroke="rgba(17,24,39,.12)" stroke-width="4"/>
+                 <path d="M22 108h18" stroke="rgba(17,24,39,.10)" stroke-width="4"/>
+               </g>
+
+               <path d="M58 44h90c12 0 24 10 30 22l10 20c4 8 2 18-6 24-8 6-18 10-28 10H70c-16 0-28-12-28-28V72c0-16 0-28 16-28Z"
+                 fill="url(#ppsAuthVanBody)" stroke="rgba(17,24,39,.14)" stroke-width="2.5" />
+
+               <path d="M150 44h18c10 0 22 8 26 18l8 18h-52V44Z"
+                 fill="url(#ppsAuthVanBody)" stroke="rgba(17,24,39,.14)" stroke-width="2.5" />
+
+               <path d="M166 54h20c5 0 11 4 13 9l5 11h-38V54Z"
+                 fill="rgba(37,99,235,.10)" stroke="rgba(37,99,235,.20)" stroke-width="2" />
+
+               <path d="M58 86h156" stroke="url(#ppsAuthVanAccent)" stroke-width="8" stroke-linecap="round" opacity=".9"/>
+               <circle cx="86" cy="86" r="4" fill="#ff7a1a" opacity=".75"/>
+               <circle cx="106" cy="86" r="4" fill="#ff7a1a" opacity=".55"/>
+               <circle cx="126" cy="86" r="4" fill="#ff7a1a" opacity=".35"/>
+
+               <g class="cart-van-wheel cart-van-wheel-left" transform="translate(80 112)">
+                 <g class="cart-van-wheel-spin">
+                   <circle r="14" fill="#111827" opacity=".86"/>
+                   <circle r="7" fill="rgba(255,255,255,.92)"/>
+                   <path d="M0-10V10M-10 0H10M-7-7l14 14M-7 7l14-14" stroke="rgba(17,24,39,.35)" stroke-width="2" stroke-linecap="round"/>
+                 </g>
+               </g>
+               <g class="cart-van-wheel cart-van-wheel-right" transform="translate(170 112)">
+                 <g class="cart-van-wheel-spin">
+                   <circle r="14" fill="#111827" opacity=".86"/>
+                   <circle r="7" fill="rgba(255,255,255,.92)"/>
+                   <path d="M0-10V10M-10 0H10M-7-7l14 14M-7 7l14-14" stroke="rgba(17,24,39,.35)" stroke-width="2" stroke-linecap="round"/>
+                 </g>
+               </g>
+
+               <path d="M116 64l18-8 18 8v18l-18 8-18-8V64Z" fill="rgba(255,122,26,.14)" stroke="rgba(255,122,26,.32)" stroke-width="2" />
+               <path d="M134 56v34" stroke="rgba(255,122,26,.34)" stroke-width="2" />
+             </g>
+           </svg>
+         </div>
+ 
+         <div class="pps-auth-right">
+           <h2 id="ppsAuthTitle">Sign in or create account</h2>
 
           <button class="pps-auth-provider" type="button" data-auth-provider="google" disabled>
             <span class="pps-auth-icon google-icon" aria-hidden="true"></span>

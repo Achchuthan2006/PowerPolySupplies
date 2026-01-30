@@ -4033,6 +4033,11 @@ select.input option:hover{
   height: auto;
   opacity: 0.92;
   pointer-events: none;
+  display:block;
+}
+.pps-auth-illustration.pps-van{
+  opacity: .98;
+  filter: drop-shadow(0 26px 44px rgba(0,0,0,.28));
 }
 .pps-auth-right{
   padding: 22px 22px 18px;
