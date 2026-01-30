@@ -1486,60 +1486,76 @@ function showAuthModal(options = {}){
 
              <g class="cart-van-bg" aria-hidden="true">
                <g class="cart-van-bg-track">
-                 <g opacity=".9">
-                   <rect x="10" y="28" width="32" height="46" rx="8" fill="rgba(17,24,39,.06)" stroke="rgba(17,24,39,.08)" stroke-width="2"/>
-                   <rect x="52" y="18" width="44" height="56" rx="10" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.07)" stroke-width="2"/>
-                   <rect x="104" y="34" width="30" height="40" rx="8" fill="rgba(17,24,39,.06)" stroke="rgba(17,24,39,.08)" stroke-width="2"/>
-                   <rect x="142" y="22" width="54" height="52" rx="12" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.07)" stroke-width="2"/>
-                   <rect x="206" y="30" width="26" height="44" rx="8" fill="rgba(17,24,39,.06)" stroke="rgba(17,24,39,.08)" stroke-width="2"/>
-                   <g fill="rgba(240,127,41,.14)">
-                     <rect x="20" y="40" width="8" height="8" rx="2"/>
-                     <rect x="32" y="40" width="8" height="8" rx="2"/>
-                     <rect x="64" y="34" width="9" height="9" rx="2"/>
-                     <rect x="78" y="34" width="9" height="9" rx="2"/>
-                     <rect x="64" y="48" width="9" height="9" rx="2"/>
-                     <rect x="78" y="48" width="9" height="9" rx="2"/>
-                     <rect x="114" y="46" width="8" height="8" rx="2"/>
-                     <rect x="124" y="46" width="8" height="8" rx="2"/>
-                     <rect x="158" y="36" width="10" height="10" rx="2"/>
-                     <rect x="172" y="36" width="10" height="10" rx="2"/>
-                     <rect x="158" y="50" width="10" height="10" rx="2"/>
-                     <rect x="172" y="50" width="10" height="10" rx="2"/>
-                     <rect x="214" y="44" width="8" height="8" rx="2"/>
+                 <g opacity=".92">
+                   <g opacity=".55">
+                     <path d="M6 76V46h22v30H6Z" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.06)" stroke-width="2"/>
+                     <path d="M36 76V34h34v42H36Z" fill="rgba(17,24,39,.04)" stroke="rgba(17,24,39,.06)" stroke-width="2"/>
+                     <path d="M78 76V42h26v34H78Z" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.06)" stroke-width="2"/>
+                     <path d="M112 76V28h30v48h-30Z" fill="rgba(17,24,39,.04)" stroke="rgba(17,24,39,.06)" stroke-width="2"/>
+                     <path d="M150 76V40h28v36h-28Z" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.06)" stroke-width="2"/>
                    </g>
-                   <g class="cart-van-cn" transform="translate(186 8)" opacity=".95">
-                     <path d="M10 0v10" stroke="rgba(17,24,39,.18)" stroke-width="2" stroke-linecap="round"/>
-                     <rect x="8" y="10" width="4" height="58" rx="2" fill="rgba(17,24,39,.08)" stroke="rgba(17,24,39,.10)" stroke-width="2"/>
-                     <rect x="0" y="24" width="20" height="10" rx="5" fill="rgba(255,255,255,.70)" stroke="rgba(240,127,41,.22)" stroke-width="2"/>
-                     <rect x="6" y="36" width="8" height="6" rx="3" fill="rgba(17,24,39,.06)"/>
+                   <g opacity=".95">
+                     <path d="M18 76V44c0-5 4-9 9-9h12c5 0 9 4 9 9v32H18Z" fill="rgba(17,24,39,.06)" stroke="rgba(17,24,39,.09)" stroke-width="2"/>
+                     <path d="M62 76V30c0-6 5-11 11-11h18c6 0 11 5 11 11v46H62Z" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.08)" stroke-width="2"/>
+                     <path d="M118 76V36c0-6 5-11 11-11h12c6 0 11 5 11 11v40h-34Z" fill="rgba(17,24,39,.06)" stroke="rgba(17,24,39,.09)" stroke-width="2"/>
+                     <path d="M156 76V26c0-6 5-11 11-11h22c6 0 11 5 11 11v50h-44Z" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.08)" stroke-width="2"/>
+                     <g fill="rgba(240,127,41,.13)">
+                       <rect x="26" y="44" width="8" height="8" rx="2"/>
+                       <rect x="38" y="44" width="8" height="8" rx="2"/>
+                       <rect x="74" y="36" width="9" height="9" rx="2"/>
+                       <rect x="88" y="36" width="9" height="9" rx="2"/>
+                       <rect x="74" y="50" width="9" height="9" rx="2"/>
+                       <rect x="88" y="50" width="9" height="9" rx="2"/>
+                       <rect x="128" y="42" width="8" height="8" rx="2"/>
+                       <rect x="138" y="42" width="8" height="8" rx="2"/>
+                       <rect x="170" y="34" width="10" height="10" rx="2"/>
+                       <rect x="184" y="34" width="10" height="10" rx="2"/>
+                       <rect x="170" y="48" width="10" height="10" rx="2"/>
+                       <rect x="184" y="48" width="10" height="10" rx="2"/>
+                     </g>
+                   </g>
+                   <g class="cart-van-cn" transform="translate(196 8)" opacity=".98">
+                     <path d="M8 0v8" stroke="rgba(17,24,39,.18)" stroke-width="2" stroke-linecap="round"/>
+                     <path d="M8 8V64" stroke="rgba(17,24,39,.12)" stroke-width="6" stroke-linecap="round"/>
+                     <ellipse cx="8" cy="26" rx="13" ry="6.5" fill="rgba(255,255,255,.70)" stroke="rgba(240,127,41,.22)" stroke-width="2"/>
+                     <ellipse cx="8" cy="26" rx="4.5" ry="3.5" fill="rgba(17,24,39,.06)"/>
+                     <path d="M8 64l-6 8h12l-6-8Z" fill="rgba(17,24,39,.06)" stroke="rgba(17,24,39,.08)" stroke-width="2"/>
                    </g>
                  </g>
-                 <g opacity=".9" transform="translate(240 0)">
-                   <rect x="10" y="28" width="32" height="46" rx="8" fill="rgba(17,24,39,.06)" stroke="rgba(17,24,39,.08)" stroke-width="2"/>
-                   <rect x="52" y="18" width="44" height="56" rx="10" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.07)" stroke-width="2"/>
-                   <rect x="104" y="34" width="30" height="40" rx="8" fill="rgba(17,24,39,.06)" stroke="rgba(17,24,39,.08)" stroke-width="2"/>
-                   <rect x="142" y="22" width="54" height="52" rx="12" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.07)" stroke-width="2"/>
-                   <rect x="206" y="30" width="26" height="44" rx="8" fill="rgba(17,24,39,.06)" stroke="rgba(17,24,39,.08)" stroke-width="2"/>
-                   <g fill="rgba(240,127,41,.14)">
-                     <rect x="20" y="40" width="8" height="8" rx="2"/>
-                     <rect x="32" y="40" width="8" height="8" rx="2"/>
-                     <rect x="64" y="34" width="9" height="9" rx="2"/>
-                     <rect x="78" y="34" width="9" height="9" rx="2"/>
-                     <rect x="64" y="48" width="9" height="9" rx="2"/>
-                     <rect x="78" y="48" width="9" height="9" rx="2"/>
-                     <rect x="114" y="46" width="8" height="8" rx="2"/>
-                     <rect x="124" y="46" width="8" height="8" rx="2"/>
-                     <rect x="158" y="36" width="10" height="10" rx="2"/>
-                     <rect x="172" y="36" width="10" height="10" rx="2"/>
-                     <rect x="158" y="50" width="10" height="10" rx="2"/>
-                     <rect x="172" y="50" width="10" height="10" rx="2"/>
-                     <rect x="214" y="44" width="8" height="8" rx="2"/>
+                 <g opacity=".92" transform="translate(240 0)">
+                   <g opacity=".55">
+                     <path d="M6 76V46h22v30H6Z" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.06)" stroke-width="2"/>
+                     <path d="M36 76V34h34v42H36Z" fill="rgba(17,24,39,.04)" stroke="rgba(17,24,39,.06)" stroke-width="2"/>
+                     <path d="M78 76V42h26v34H78Z" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.06)" stroke-width="2"/>
+                     <path d="M112 76V28h30v48h-30Z" fill="rgba(17,24,39,.04)" stroke="rgba(17,24,39,.06)" stroke-width="2"/>
+                     <path d="M150 76V40h28v36h-28Z" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.06)" stroke-width="2"/>
                    </g>
-                   <g class="cart-van-cn" transform="translate(186 8)" opacity=".95">
-                     <path d="M10 0v10" stroke="rgba(17,24,39,.18)" stroke-width="2" stroke-linecap="round"/>
-                     <rect x="8" y="10" width="4" height="58" rx="2" fill="rgba(17,24,39,.08)" stroke="rgba(17,24,39,.10)" stroke-width="2"/>
-                     <rect x="0" y="24" width="20" height="10" rx="5" fill="rgba(255,255,255,.70)" stroke="rgba(240,127,41,.22)" stroke-width="2"/>
-                     <rect x="6" y="36" width="8" height="6" rx="3" fill="rgba(17,24,39,.06)"/>
+                   <g opacity=".95">
+                     <path d="M18 76V44c0-5 4-9 9-9h12c5 0 9 4 9 9v32H18Z" fill="rgba(17,24,39,.06)" stroke="rgba(17,24,39,.09)" stroke-width="2"/>
+                     <path d="M62 76V30c0-6 5-11 11-11h18c6 0 11 5 11 11v46H62Z" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.08)" stroke-width="2"/>
+                     <path d="M118 76V36c0-6 5-11 11-11h12c6 0 11 5 11 11v40h-34Z" fill="rgba(17,24,39,.06)" stroke="rgba(17,24,39,.09)" stroke-width="2"/>
+                     <path d="M156 76V26c0-6 5-11 11-11h22c6 0 11 5 11 11v50h-44Z" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.08)" stroke-width="2"/>
+                     <g fill="rgba(240,127,41,.13)">
+                       <rect x="26" y="44" width="8" height="8" rx="2"/>
+                       <rect x="38" y="44" width="8" height="8" rx="2"/>
+                       <rect x="74" y="36" width="9" height="9" rx="2"/>
+                       <rect x="88" y="36" width="9" height="9" rx="2"/>
+                       <rect x="74" y="50" width="9" height="9" rx="2"/>
+                       <rect x="88" y="50" width="9" height="9" rx="2"/>
+                       <rect x="128" y="42" width="8" height="8" rx="2"/>
+                       <rect x="138" y="42" width="8" height="8" rx="2"/>
+                       <rect x="170" y="34" width="10" height="10" rx="2"/>
+                       <rect x="184" y="34" width="10" height="10" rx="2"/>
+                       <rect x="170" y="48" width="10" height="10" rx="2"/>
+                       <rect x="184" y="48" width="10" height="10" rx="2"/>
+                     </g>
+                   </g>
+                   <g class="cart-van-cn" transform="translate(196 8)" opacity=".98">
+                     <path d="M8 0v8" stroke="rgba(17,24,39,.18)" stroke-width="2" stroke-linecap="round"/>
+                     <path d="M8 8V64" stroke="rgba(17,24,39,.12)" stroke-width="6" stroke-linecap="round"/>
+                     <ellipse cx="8" cy="26" rx="13" ry="6.5" fill="rgba(255,255,255,.70)" stroke="rgba(240,127,41,.22)" stroke-width="2"/>
+                     <ellipse cx="8" cy="26" rx="4.5" ry="3.5" fill="rgba(17,24,39,.06)"/>
+                     <path d="M8 64l-6 8h12l-6-8Z" fill="rgba(17,24,39,.06)" stroke="rgba(17,24,39,.08)" stroke-width="2"/>
                    </g>
                  </g>
                </g>
@@ -1571,13 +1587,13 @@ function showAuthModal(options = {}){
                   <path d="M22 108h18" stroke="rgba(17,24,39,.10)" stroke-width="4"/>
                 </g>
 
-               <path d="M58 44h90c12 0 24 10 30 22l10 20c4 8 2 18-6 24-8 6-18 10-28 10H70c-16 0-28-12-28-28V72c0-16 0-28 16-28Z"
+               <path d="M58 48h92c12 0 22 8 28 18l14 26c4 8 2 18-6 24-8 6-18 10-30 10H70c-16 0-28-12-28-28V74c0-14 2-26 16-26Z"
                  fill="url(#ppsAuthVanBody)" stroke="rgba(17,24,39,.14)" stroke-width="2.5" />
 
-               <path d="M150 44h18c10 0 22 8 26 18l8 18h-52V44Z"
+               <path d="M150 48h22c10 0 20 7 25 16l10 20c4 8 2 18-6 24-7 5-16 8-26 8h-30V60c0-6 4-12 5-12Z"
                  fill="url(#ppsAuthVanBody)" stroke="rgba(17,24,39,.14)" stroke-width="2.5" />
 
-                <path d="M166 54h20c5 0 11 4 13 9l5 11h-38V54Z"
+                <path d="M168 58h22c6 0 12 4 14 10l4 10c1 3-1 6-4 6h-40V58Z"
                   fill="rgba(37,99,235,.10)" stroke="rgba(37,99,235,.20)" stroke-width="2" />
 
                 <path d="M68 56h70" stroke="rgba(255,255,255,.92)" stroke-width="4" stroke-linecap="round" opacity=".22"/>
