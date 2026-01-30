@@ -1517,9 +1517,6 @@ function showAuthModal(options = {}){
                 <circle cx="200" cy="92" r="3.4" fill="rgba(255,214,120,.96)" stroke="rgba(240,127,41,.35)" stroke-width="1"/>
  
                 <path d="M58 86h156" stroke="url(#ppsAuthVanAccent)" stroke-width="8" stroke-linecap="round" opacity=".9"/>
-                <circle cx="86" cy="86" r="4" fill="#ff7a1a" opacity=".75"/>
-                <circle cx="106" cy="86" r="4" fill="#ff7a1a" opacity=".55"/>
-                <circle cx="126" cy="86" r="4" fill="#ff7a1a" opacity=".35"/>
 
                <g class="cart-van-wheel cart-van-wheel-left" transform="translate(80 112)">
                  <g class="cart-van-wheel-spin">
@@ -1536,11 +1533,9 @@ function showAuthModal(options = {}){
                  </g>
                </g>
 
-               <path d="M116 64l18-8 18 8v18l-18 8-18-8V64Z" fill="rgba(255,122,26,.14)" stroke="rgba(255,122,26,.32)" stroke-width="2" />
-               <path d="M134 56v34" stroke="rgba(255,122,26,.34)" stroke-width="2" />
-             </g>
-           </svg>
-         </div>
+              </g>
+            </svg>
+          </div>
  
          <div class="pps-auth-right">
            <h2 id="ppsAuthTitle">Sign in or create account</h2>
