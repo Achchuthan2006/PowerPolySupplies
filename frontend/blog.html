@@ -1,0 +1,253 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title data-i18n="blog.page_title">Blog | Power Poly Supplies</title>
+  <meta name="description" data-i18n-content="blog.meta_desc" content="Industry news, product launches, case studies, and practical packaging tips for dry cleaners, laundromats, and retailers."/>
+  <link rel="stylesheet" href="./css/styles.css?v=20260126"/>
+  <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
+</head>
+<body>
+  <header class="site-header">
+    <div class="promo-strip">
+      <div class="container promo-inner">
+        <div><strong data-i18n="brand.name">Power Poly Supplies</strong> | <span data-i18n="brand.tagline">Power your packaging</span></div>
+        <div style="font-weight:700;" data-i18n="promo.right">Bulk-ready stock | Fast response | Canada-wide supply</div>
+      </div>
+    </div>
+    <div class="navbar">
+      <div class="container navbar-inner">
+        <a class="brand" href="./index.html">
+          <img src="./assets/poly%20logo%20without%20background.png" alt="Power Poly Supplies" width="62" height="62" decoding="async">
+          <div class="brand-text">
+            <span class="brand-title" data-i18n="brand.name">Power Poly Supplies</span>
+            <span class="brand-tagline" data-i18n="brand.tagline">Power your packaging</span>
+          </div>
+        </a>
+        <button class="menu-btn" id="menuBtn" aria-label="Open menu" data-i18n="nav.menu">Menu</button>
+        <nav class="navlinks" id="navLinks">
+          <a href="./index.html" data-i18n="nav.home">Home</a>
+          <a href="./specials.html" data-i18n="nav.specials">Special Offers</a>
+          <div class="dropdown">
+            <button class="dropbtn" type="button"><span data-i18n="nav.shop">Shop by Category</span> <span class="caret" aria-hidden="true"></span></button>
+            <div class="dropdown-menu">
+              <a href="./products.html?cat=Garment%20Bags" data-i18n="nav.garment">Garment Cover Bags</a>
+              <a href="./products.html?cat=Polybags" data-i18n="nav.polybags">Polybags</a>
+              <a href="./products.html?cat=Hangers" data-i18n="nav.hangers">Hangers</a>
+              <a href="./products.html?cat=Wraps" data-i18n="nav.wraps">Wraps</a>
+              <a href="./products.html?cat=Racks" data-i18n="nav.racks">Racks</a>
+            </div>
+          </div>
+          <a href="./about.html" data-i18n="nav.about">About Us</a>
+          <a href="./contact.html"><span class="nav-icon phone-icon" aria-hidden="true"></span><span data-i18n="nav.contact">Contact</span></a>
+          <a href="./feedback.html"><span class="nav-icon pen-icon" aria-hidden="true"></span><span data-i18n="nav.feedback">Feedback</span></a>
+          <a href="./login.html"><span class="nav-icon user-icon" aria-hidden="true"></span><span data-i18n="nav.account">Account</span></a>
+          <a href="./cart.html"><span class="nav-icon cart-icon" aria-hidden="true"></span><span data-i18n="nav.cart">Cart</span> <span class="badge" data-cart-badge>0</span></a>
+          <form class="search-bar nav-search" action="./products.html" method="get" role="search">
+            <input type="search" name="q" placeholder="Search" aria-label="Search products" data-i18n-placeholder="nav.search_placeholder">
+            <button type="submit" data-i18n="nav.search_button">Search</button>
+          </form>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <div class="container page">
+    <section class="hero fade-in">
+      <p style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);" data-i18n="blog.kicker">Blog</p>
+      <h1 data-i18n="blog.title">News, launches & packaging tips</h1>
+      <p data-i18n="blog.subtitle">Short, practical updates for dry cleaners, laundromats, and retailers: what’s new, what’s changing, and how to buy smarter.</p>
+    </section>
+
+    <section class="card fade-in" style="padding:16px; margin-top:16px;">
+      <div class="resources-quick-head" style="align-items:center;">
+        <div>
+          <h2 class="resources-quick-title" style="margin:0;" data-i18n="blog.latest.title">Latest posts</h2>
+          <div class="resources-quick-desc" data-i18n="blog.latest.desc">Filter by category or search by keyword.</div>
+        </div>
+        <div class="blog-filters">
+          <button class="btn btn-outline btn-sm blog-filter active" type="button" data-filter="all" data-i18n="blog.filter.all">All</button>
+          <button class="btn btn-outline btn-sm blog-filter" type="button" data-filter="news" data-i18n="blog.filter.news">Industry news</button>
+          <button class="btn btn-outline btn-sm blog-filter" type="button" data-filter="launch" data-i18n="blog.filter.launch">Product launches</button>
+          <button class="btn btn-outline btn-sm blog-filter" type="button" data-filter="case" data-i18n="blog.filter.case">Case studies</button>
+          <button class="btn btn-outline btn-sm blog-filter" type="button" data-filter="tips" data-i18n="blog.filter.tips">Packaging tips</button>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;">
+        <input class="input" id="blogSearch" type="search" placeholder="Search blog posts..." data-i18n-placeholder="blog.search_placeholder" aria-label="Search blog posts">
+      </div>
+
+      <div class="resource-toc blog-card-grid" style="margin-top:12px;" id="blogCardGrid">
+        <a class="card card-link resource-card resource-card--news blog-card" data-cat="news" href="#post-route-readiness">
+          <div class="resource-card-icon resource-icon-news" aria-hidden="true"></div>
+          <div class="resource-kicker" data-i18n="blog.filter.news">Industry news</div>
+          <div class="resource-title">Route-ready packaging in 2026: what buyers are asking for</div>
+          <div class="resource-desc">Cleaner film, consistent sizing, and fewer returns are the top drivers for B2B reorders.</div>
+        </a>
+        <a class="card card-link resource-card resource-card--launch blog-card" data-cat="launch" href="#post-welove-caped">
+          <div class="resource-card-icon resource-icon-rocket" aria-hidden="true"></div>
+          <div class="resource-kicker" data-i18n="blog.filter.launch">Product launches</div>
+          <div class="resource-title">New: We Love Caped hangers for stable drape</div>
+          <div class="resource-desc">A clean shoulder profile that helps reduce slipping and shape loss during transport.</div>
+        </a>
+        <a class="card card-link resource-card resource-card--case blog-card" data-cat="case" href="#post-reorder-time">
+          <div class="resource-card-icon resource-icon-briefcase" aria-hidden="true"></div>
+          <div class="resource-kicker" data-i18n="blog.filter.case">Case studies</div>
+          <div class="resource-title">How one shop cut rehang time with a simple hanger standard</div>
+          <div class="resource-desc">A repeatable “good / better / best” set made training faster and inventory simpler.</div>
+        </a>
+        <a class="card card-link resource-card resource-card--tips blog-card" data-cat="tips" href="#post-thickness-quickpick">
+          <div class="resource-card-icon resource-icon-bulb" aria-hidden="true"></div>
+          <div class="resource-kicker" data-i18n="blog.filter.tips">Packaging tips</div>
+          <div class="resource-title">Heavy vs Extra Heavy: a quick pick for daily use</div>
+          <div class="resource-desc">Use-case based guidance you can share with your team in 60 seconds.</div>
+        </a>
+      </div>
+    </section>
+
+    <section class="blog-posts">
+      <article id="post-route-readiness" class="card fade-in blog-post">
+        <div class="blog-post-head">
+          <div class="count-badge count-badge-muted">Industry news</div>
+          <div class="blog-post-meta">Jan 2026 • 3 min read</div>
+        </div>
+        <h2 style="margin:10px 0 0;">Route-ready packaging in 2026: what buyers are asking for</h2>
+        <p class="blog-post-sub">The most common feedback we hear from B2B customers is simple: “Make it consistent.” Consistent packaging reduces returns, rework, and customer complaints.</p>
+        <ul class="blog-bullets">
+          <li><b>Clarity + low odor</b> for front-of-house presentation.</li>
+          <li><b>Stable sizing</b> so staff can grab-and-go without measuring.</li>
+          <li><b>Clean perforation</b> to keep lines moving during peak hours.</li>
+          <li><b>Reliable inventory</b> so reorders don’t become last-minute emergencies.</li>
+        </ul>
+        <div class="resource-callout" style="margin-top:12px;">
+          <div style="font-weight:1000;">Quick tip</div>
+          <div style="margin-top:6px;">Create a “standard pack list” for your team (top 3 bag sizes + 2 hanger types). It speeds ordering and reduces wrong picks.</div>
+        </div>
+      </article>
+
+      <article id="post-welove-caped" class="card fade-in blog-post">
+        <div class="blog-post-head">
+          <div class="count-badge count-badge-muted">Product launch</div>
+          <div class="blog-post-meta">Jan 2026 • 2 min read</div>
+        </div>
+        <h2 style="margin:10px 0 0;">New: We Love Caped hangers for stable drape</h2>
+        <p class="blog-post-sub">Caped profiles help garments sit cleanly and reduce slipping in transport—especially capes, gowns, and long garments that need stability.</p>
+        <div class="blog-media-row">
+          <img class="resource-media" src="./assets/welovecaped%20hanger.webp" alt="We Love Caped hangers" loading="lazy" decoding="async">
+          <div>
+            <h3 style="margin-top:0;">Where these shine</h3>
+            <ul class="blog-bullets">
+              <li>Formalwear, gowns, and long garments</li>
+              <li>Shops that do frequent delivery routes</li>
+              <li>Any workflow where fewer “slips” means fewer rehangs</li>
+            </ul>
+            <a class="btn btn-primary btn-sm" href="./products.html?cat=Hangers">Shop hangers</a>
+          </div>
+        </div>
+      </article>
+
+      <article id="post-reorder-time" class="card fade-in blog-post">
+        <div class="blog-post-head">
+          <div class="count-badge count-badge-muted">Case study</div>
+          <div class="blog-post-meta">Jan 2026 • 4 min read</div>
+        </div>
+        <h2 style="margin:10px 0 0;">How one shop cut rehang time with a simple hanger standard</h2>
+        <p class="blog-post-sub">A dry cleaning shop standardized to a small set of hanger types. The result was faster training, fewer mistakes, and smoother rework when garments came back for adjustments.</p>
+        <div class="blog-split">
+          <div>
+            <h3 style="margin-top:0;">What they changed</h3>
+            <ul class="blog-bullets">
+              <li>Defined <b>3 default hangers</b>: shirts, suits, and heavy garments.</li>
+              <li>Kept <b>1 specialty option</b> for edge cases (dresses / gowns).</li>
+              <li>Matched each to a <b>bag size</b> so packing became predictable.</li>
+            </ul>
+          </div>
+          <div class="resource-callout">
+            <div style="font-weight:1000;">Outcome</div>
+            <div style="margin-top:6px;">Less rehang time, fewer “wrong hanger” returns, and a cleaner back-of-house workflow during peak days.</div>
+          </div>
+        </div>
+      </article>
+
+      <article id="post-thickness-quickpick" class="card fade-in blog-post">
+        <div class="blog-post-head">
+          <div class="count-badge count-badge-muted">Packaging tip</div>
+          <div class="blog-post-meta">Jan 2026 • 2 min read</div>
+        </div>
+        <h2 style="margin:10px 0 0;">Heavy vs Extra Heavy: a quick pick for daily use</h2>
+        <p class="blog-post-sub">If you only remember one thing: pick thickness based on <b>handling</b> (sharp edges, weight, and transit), not just “everyday vs premium.”</p>
+        <div class="blog-split">
+          <div class="resource-callout">
+            <div style="font-weight:1000;">Choose Heavy when</div>
+            <div style="margin-top:6px;">Daily store use, light garments, quick in-and-out handling.</div>
+          </div>
+          <div class="resource-callout">
+            <div style="font-weight:1000;">Choose Extra Heavy when</div>
+            <div style="margin-top:6px;">Delivery routes, heavier garments, sharp edges, or anything that stresses seams.</div>
+          </div>
+        </div>
+        <a class="btn btn-outline btn-sm" style="margin-top:10px;" href="./resources.html#heavy-vs-extra-heavy">See the full thickness guide</a>
+      </article>
+    </section>
+
+    <div class="footer">&copy; <span id="y"></span> <span data-i18n="footer.short">Power Poly Supplies. Power your packaging.</span></div>
+  </div>
+
+  <script src="./config.js"></script>
+  <script src="./js/store.js"></script>
+  <script src="./js/notifications.js"></script>
+  <script src="./js/i18n.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    document.getElementById("y").textContent = new Date().getFullYear();
+    PPS.updateCartBadge();
+
+    function setActiveFilter(filter){
+      document.querySelectorAll(".blog-filter").forEach((b)=>{
+        b.classList.toggle("active", b.dataset.filter === filter);
+      });
+      document.querySelectorAll(".blog-card").forEach((card)=>{
+        const cat = String(card.dataset.cat || "");
+        card.style.display = (filter === "all" || cat === filter) ? "" : "none";
+      });
+    }
+
+    function applySearch(query){
+      const q = String(query || "").trim().toLowerCase();
+      document.querySelectorAll(".blog-card").forEach((card)=>{
+        const filter = document.querySelector(".blog-filter.active")?.dataset?.filter || "all";
+        const cat = String(card.dataset.cat || "");
+        const visibleByFilter = (filter === "all" || cat === filter);
+        if(!q){
+          card.style.display = visibleByFilter ? "" : "none";
+          return;
+        }
+        const text = card.textContent.toLowerCase();
+        const match = text.includes(q);
+        card.style.display = (visibleByFilter && match) ? "" : "none";
+      });
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const initialFilter = String(params.get("cat") || "").trim();
+    if(["news","launch","case","tips"].includes(initialFilter)){
+      setActiveFilter(initialFilter);
+    }else{
+      setActiveFilter("all");
+    }
+
+    document.querySelectorAll(".blog-filter").forEach((btn)=>{
+      btn.addEventListener("click", ()=>{
+        setActiveFilter(btn.dataset.filter || "all");
+        applySearch(document.getElementById("blogSearch")?.value || "");
+      });
+    });
+    const search = document.getElementById("blogSearch");
+    if(search){
+      search.addEventListener("input", ()=> applySearch(search.value));
+    }
+  </script>
+</body>
+</html>

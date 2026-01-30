@@ -2,6 +2,29 @@ document.getElementById("y").textContent = new Date().getFullYear();
 PPS.updateCartBadge();
 
 let productMap = null;
+
+const goCheckout = document.getElementById("goCheckout");
+const GO_CHECKOUT_DEFAULT = goCheckout ? {
+  href: goCheckout.getAttribute("href") || "./checkout.html",
+  i18n: goCheckout.getAttribute("data-i18n") || "cart.checkout",
+  text: (goCheckout.textContent || "").trim()
+} : null;
+
+function setCheckoutCtaState(isEmpty){
+  if(!goCheckout) return;
+  if(isEmpty){
+    goCheckout.dataset.checkoutEmpty = "1";
+    goCheckout.dataset.i18n = "cart.empty.checkout_cta";
+    goCheckout.setAttribute("href", "./products.html");
+    goCheckout.textContent = window.PPS_I18N?.t("cart.empty.checkout_cta") || "Browse products";
+    return;
+  }
+  delete goCheckout.dataset.checkoutEmpty;
+  goCheckout.dataset.i18n = GO_CHECKOUT_DEFAULT?.i18n || "cart.checkout";
+  goCheckout.setAttribute("href", GO_CHECKOUT_DEFAULT?.href || "./checkout.html");
+  goCheckout.textContent = window.PPS_I18N?.t(GO_CHECKOUT_DEFAULT?.i18n || "cart.checkout") || GO_CHECKOUT_DEFAULT?.text || "Go to checkout";
+}
+
 const productsPromise = PPS.loadProducts().then((products)=>{
   productMap = new Map(products.map(p=>[p.id, p]));
 });
@@ -42,6 +65,7 @@ function render(){
   const totalEl = document.getElementById("total");
 
   if(cart.length === 0){
+    setCheckoutCtaState(true);
     const emptyMsg = window.PPS_I18N?.t("cart.empty") || "Your cart is empty.";
     const emptyTitle = window.PPS_I18N?.t("cart.empty.title") || emptyMsg;
     const emptyBody = window.PPS_I18N?.t("cart.empty.body") || "Browse products and build your next bulk order in minutes.";
@@ -66,6 +90,7 @@ function render(){
     return;
   }
 
+  setCheckoutCtaState(false);
   const targetCurrency = PPS.getCurrency();
   const total = cart.reduce((sum,i)=>{
     const product = productMap?.get(i.id);
@@ -168,12 +193,17 @@ window.saveForLater = (id)=>{
 render();
 productsPromise.then(()=> render());
 
-const goCheckout = document.getElementById("goCheckout");
 if(goCheckout){
   goCheckout.addEventListener("click", (event)=>{
     try{
       const cart = PPS.getCart();
-      if(!Array.isArray(cart) || cart.length === 0) return;
+      if(!Array.isArray(cart) || cart.length === 0){
+        event.preventDefault();
+        const msg = window.PPS_I18N?.t("cart.empty.checkout_notice") || "Your cart is empty. Add products before checking out.";
+        try{ window.alert(msg); }catch(_err){}
+        window.location.href = "./products.html";
+        return;
+      }
       const minimal = cart
         .filter(item => item && item.id && Number(item.qty) > 0)
         .map(item => [String(item.id), Math.max(1, Number(item.qty) || 1)]);

@@ -32,10 +32,27 @@ function setupNavbar(){
   dropdowns.forEach((dropdown)=>{
     const dropBtn = dropdown.querySelector(".dropbtn");
     if(!dropBtn) return;
-    dropBtn.addEventListener("click", ()=>{
+    dropBtn.addEventListener("click", (event)=>{
+      // If the dropdown trigger is a link (ex: About Us), let clicking the label navigate.
+      // Only toggle when clicking the caret.
+      const isLink = String(dropBtn?.tagName || "").toUpperCase() === "A" && !!dropBtn.getAttribute("href");
+      const caretClicked = !!event.target?.closest?.(".caret-toggle");
+      if(isLink && !caretClicked) return;
+      event.preventDefault();
       dropdown.classList.toggle("open");
     });
   });
+}
+
+function decoratePromoTagline(){
+  const el = document.querySelector(".promo-strip [data-i18n='brand.tagline']");
+  if(!el) return;
+  if(el.parentElement?.querySelector?.(".promo-bolt")) return;
+  const bolt = document.createElement("span");
+  bolt.className = "promo-bolt";
+  bolt.setAttribute("aria-hidden", "true");
+  bolt.textContent = " ⚡";
+  el.insertAdjacentElement("afterend", bolt);
 }
 
 function setupFadeIn(){
@@ -313,6 +330,26 @@ function injectResourcesNavLink(){
   try{ window.PPS_I18N?.applyTranslations?.(); }catch{}
 }
 
+function injectBlogNavLink(){
+  const navLinks = document.getElementById("navLinks");
+  if(!navLinks) return;
+  if(navLinks.querySelector('a[href="./blog.html"]')) return;
+
+  const link = document.createElement("a");
+  link.href = "./blog.html";
+  link.setAttribute("data-i18n", "nav.blog");
+  link.textContent = "Blog";
+
+  const after = navLinks.querySelector('a[href="./resources.html"]') || navLinks.querySelector('a[href="./specials.html"]');
+  if(after && after.parentElement === navLinks){
+    after.insertAdjacentElement("afterend", link);
+    try{ window.PPS_I18N?.applyTranslations?.(); }catch{}
+    return;
+  }
+  navLinks.appendChild(link);
+  try{ window.PPS_I18N?.applyTranslations?.(); }catch{}
+}
+
 function injectAboutDropdown(){
   const navLinks = document.getElementById("navLinks");
   if(!navLinks) return;
@@ -324,7 +361,7 @@ function injectAboutDropdown(){
   const wrap = document.createElement("div");
   wrap.className = "dropdown about-dropdown";
   wrap.innerHTML = `
-    <button class="dropbtn" type="button"><span data-i18n="nav.about">About Us</span> <span class="caret" aria-hidden="true"></span></button>
+    <a class="dropbtn" href="./about.html"><span data-i18n="nav.about">About Us</span> <span class="caret caret-toggle" aria-hidden="true"></span></a>
     <div class="dropdown-menu">
       <a href="./about.html" data-i18n="nav.about_overview">About Power Poly Supplies</a>
       <a href="./about.html#why" data-i18n="nav.about_why">Why Power Poly</a>
@@ -357,6 +394,9 @@ function getNotifUnreadCount(){
     return 0;
   }
 }
+
+// Run immediately on load when possible (ui.js is usually loaded at the end of <body>).
+try{ decoratePromoTagline(); }catch{ /* ignore */ }
 
 function updateNotifBadges(){
   const count = getNotifUnreadCount();
@@ -1973,12 +2013,14 @@ window.addEventListener("DOMContentLoaded", ()=>{
   }catch{
     // ignore
   }
+  decoratePromoTagline();
   setupNavbar();
   setupFadeIn();
   setupStickyHeader();
   syncAccountLink();
   setupAuthModalTriggers();
   injectResourcesNavLink();
+  injectBlogNavLink();
   injectAboutDropdown();
   injectLangSwitcher();
   injectCurrencySwitcher();
