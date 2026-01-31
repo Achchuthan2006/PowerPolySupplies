@@ -9,32 +9,6 @@
     }
   };
 
-  // ---- Video embeds (lazy) ----
-  function setupLazyVideos() {
-    document.querySelectorAll("details[data-video-details]").forEach((details) => {
-      const iframe = details.querySelector("iframe[data-video-src]");
-      const fallback = details.querySelector("[data-video-fallback]");
-      if (!iframe) return;
-
-      const src = String(iframe.getAttribute("data-video-src") || "").trim();
-      if (!src) {
-        if (fallback) fallback.style.display = "";
-        return;
-      }
-      if (fallback) fallback.style.display = "none";
-
-      const load = () => {
-        if (iframe.src) return;
-        iframe.src = src;
-      };
-
-      if (details.open) load();
-      details.addEventListener("toggle", () => {
-        if (details.open) load();
-      });
-    });
-  }
-
   // ---- Calculator ----
   function setupUsageCalculator() {
     const form = document.getElementById("ppsUsageCalc");
@@ -214,9 +188,7 @@
   }
 
   window.addEventListener("DOMContentLoaded", () => {
-    setupLazyVideos();
     setupUsageCalculator();
     setupPdfDownloads();
   });
 })();
-

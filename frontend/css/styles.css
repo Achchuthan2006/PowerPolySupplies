@@ -5875,47 +5875,6 @@ select.input option:hover{
   justify-content:flex-end;
 }
 
-.resource-video{
-  margin-top: 12px;
-  border-radius: 14px;
-  border: 1px solid rgba(241,223,204,.9);
-  background: rgba(255,255,255,.62);
-  overflow:hidden;
-}
-.resource-video summary{
-  cursor:pointer;
-  list-style:none;
-  padding: 12px 12px;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  font-weight:1000;
-}
-.resource-video summary::-webkit-details-marker{ display:none; }
-.resource-video-body{
-  padding: 0 12px 12px;
-}
-.resource-video-fallback{
-  margin-top:10px;
-  color:var(--muted);
-  font-weight:900;
-  font-size:13px;
-}
-
-.pps-video{
-  width:100%;
-  border-radius:16px;
-  overflow:hidden;
-  border:1px solid var(--border);
-  background:#fff;
-}
-.pps-video iframe{
-  display:block;
-  width:100%;
-  aspect-ratio: 16 / 9;
-  border:0;
-}
-
 .resource-calc{
   display:grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
