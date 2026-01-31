@@ -141,6 +141,145 @@
     return { compareCents, memberCents, savingsCents, pct: clamp(pct, 0, 90) };
   }
 
+  function addBusinessDays(date, days) {
+    const d = new Date(date);
+    let remaining = Math.max(0, Math.floor(Number(days) || 0));
+    while (remaining > 0) {
+      d.setDate(d.getDate() + 1);
+      const day = d.getDay(); // 0=Sun, 6=Sat
+      if (day === 0 || day === 6) continue;
+      remaining--;
+    }
+    return d;
+  }
+
+  function formatShortDate(d) {
+    try {
+      return new Date(d).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    } catch {
+      return "";
+    }
+  }
+
+  function getBulkTierPriceCents(product, qty) {
+    try {
+      return window.PPS?.getTieredPriceCents?.(product, qty) ?? Math.round(Number(product?.priceCents) || 0);
+    } catch {
+      return Math.round(Number(product?.priceCents) || 0);
+    }
+  }
+
+  function clampQty(product, val) {
+    const n = Math.max(1, Math.floor(Number(val) || 1));
+    if (Number.isFinite(product?.stock) && product.stock > 0) {
+      return Math.min(n, product.stock);
+    }
+    return n;
+  }
+
+  function renderTierButton(product, tierQty) {
+    const qty = Number(tierQty) || 0;
+    const disabled = product?.stock <= 0 || (Number.isFinite(product?.stock) && product.stock > 0 && product.stock < qty);
+    const unit = getBulkTierPriceCents(product, qty);
+    const label =
+      qty >= 20 ? tt("specials.bulk.20", "20+ boxes") : qty >= 15 ? tt("specials.bulk.15", "15+ boxes") : tt("specials.bulk.10", "10+ boxes");
+    return `
+      <button class="pricing-tier" type="button" data-tier-qty="${qty}" ${disabled ? "disabled" : ""}>
+        <strong>${label}</strong>
+        ${window.PPS.money(unit, product.currency)}
+      </button>
+    `;
+  }
+
+  function setupSpotlightControls(product) {
+    const qtyInput = document.getElementById("spotQty");
+    const qtyMinus = document.getElementById("spotQtyMinus");
+    const qtyPlus = document.getElementById("spotQtyPlus");
+    const qtyTotal = document.getElementById("spotQtyTotal");
+    const qtyNote = document.getElementById("spotQtyNote");
+    const deliveryEl = document.getElementById("spotDeliveryEstimate");
+    const shareBtn = document.getElementById("spotShareBtn");
+    const shareMsg = document.getElementById("spotShareMsg");
+
+    function updateQtyPricing() {
+      if (!qtyInput || !qtyTotal || !qtyNote) return;
+      const qty = clampQty(product, qtyInput.value);
+      qtyInput.value = String(qty);
+      const unit = getBulkTierPriceCents(product, qty);
+      const total = unit * qty;
+      qtyTotal.textContent = `Total: ${window.PPS.money(total, product.currency)}`;
+      const tierMsg =
+        qty >= 20 ? "20+ pricing applied" : qty >= 15 ? "15+ pricing applied" : qty >= 10 ? "10+ pricing applied" : "Standard pricing";
+      qtyNote.textContent = `${window.PPS.money(unit, product.currency)} / box · ${tierMsg}`;
+    }
+
+    function setQty(val) {
+      if (!qtyInput) return;
+      qtyInput.value = String(clampQty(product, val));
+      updateQtyPricing();
+    }
+
+    if (qtyInput) {
+      qtyInput.addEventListener("input", updateQtyPricing);
+      qtyInput.addEventListener("blur", () => setQty(qtyInput.value));
+      updateQtyPricing();
+    }
+    if (qtyMinus) qtyMinus.addEventListener("click", () => setQty((Number(qtyInput?.value) || 1) - 1));
+    if (qtyPlus) qtyPlus.addEventListener("click", () => setQty((Number(qtyInput?.value) || 1) + 1));
+
+    document.querySelectorAll("[data-tier-qty]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const q = Number(btn.getAttribute("data-tier-qty") || 0) || 1;
+        setQty(q);
+      });
+    });
+
+    if (deliveryEl) {
+      const start = addBusinessDays(new Date(), 2);
+      const end = addBusinessDays(new Date(), 5);
+      deliveryEl.textContent = `Estimated delivery: ${formatShortDate(start)} – ${formatShortDate(end)} (business days)`;
+    }
+
+    function setShareMsg(text) {
+      if (!shareMsg) return;
+      shareMsg.textContent = text || "";
+    }
+
+    if (shareBtn) {
+      const url = new URL("./product.html", window.location.href);
+      url.searchParams.set("slug", String(product?.slug || ""));
+      const shareData = {
+        title: String(product?.name || ""),
+        text: `${String(product?.name || "")} - Power Poly Supplies`,
+        url: url.toString()
+      };
+
+      shareBtn.addEventListener("click", async () => {
+        if (navigator.share) {
+          try {
+            await navigator.share(shareData);
+            setShareMsg(window.PPS_I18N?.t("product.share.sent") || "Thanks for sharing.");
+            return;
+          } catch (err) {
+            if (err && err.name === "AbortError") return;
+            setShareMsg(window.PPS_I18N?.t("product.share.fail") || "Unable to share right now.");
+            return;
+          }
+        }
+        if (navigator.clipboard?.writeText) {
+          try {
+            await navigator.clipboard.writeText(shareData.url);
+            setShareMsg(window.PPS_I18N?.t("product.share.copied") || "Link copied to clipboard.");
+            return;
+          } catch {
+            // fall through
+          }
+        }
+        setShareMsg(window.PPS_I18N?.t("product.share.manual") || "Copy the URL from the address bar.");
+      });
+    }
+  }
+
   function renderSpotlight(container, p, deal) {
     if (!container) return;
     const endsAt = offerEndsAt(p);
@@ -151,6 +290,11 @@
     const endsOn = (tt("specials.ends_on", "Ends {{date}}") || "Ends {{date}}").replace("{{date}}", endsDate);
     const view = tt("specials.view", "View");
     const add = tt("specials.add", "Add");
+    const bulkQuote = tt("product.bulk_quote", "Bulk quote");
+    const showTiers =
+      getBulkTierPriceCents(p, 10) !== getBulkTierPriceCents(p, 1) ||
+      getBulkTierPriceCents(p, 15) !== getBulkTierPriceCents(p, 1) ||
+      getBulkTierPriceCents(p, 20) !== getBulkTierPriceCents(p, 1);
 
     container.style.display = "";
     container.innerHTML = `
@@ -170,31 +314,71 @@
         <a class="specials-spotlight-media" href="./product.html?slug=${encodeURIComponent(p.slug)}">
           <img src="${p.image}" alt="${p.name || ""}" loading="lazy" decoding="async" width="640" height="280">
         </a>
-        <div class="specials-spotlight-info">
-          <a class="specials-spotlight-title" href="./product.html?slug=${encodeURIComponent(p.slug)}">${p.name || ""}</a>
-          <div class="card-meta">${categoryLabel(p.category)}</div>
-          <div class="member-pricing">
-            <div>
-              <div class="market-label" data-i18n="market.price.label">Market price</div>
-              <span class="compare-price">${window.PPS.money(deal.compareCents, p.currency)}</span>
-            </div>
-            <div>
-              <div class="member-label" data-i18n="member.price.label">Power Poly Member Price</div>
-              <span class="price">${window.PPS.money(deal.memberCents, p.currency)}</span>
-            </div>
-          </div>
-          <div class="stock ${stockClass(p.stock)}" style="margin-top:10px;">
-            <span class="dot"></span>
-            ${stockLabel(p.stock)}
-          </div>
-          <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
-            <a class="btn btn-outline" href="./product.html?slug=${encodeURIComponent(p.slug)}">${view}</a>
-            <button class="btn btn-primary" ${p.stock <= 0 ? "disabled" : ""} data-add-id="${p.id}">${add}</button>
-            <a class="btn" href="./cart.html" data-i18n="specials.action.cart">${tt("specials.action.cart", "Go to cart")}</a>
-          </div>
-        </div>
-      </div>
-    `;
+         <div class="specials-spotlight-info">
+           <a class="specials-spotlight-title" href="./product.html?slug=${encodeURIComponent(p.slug)}">${p.name || ""}</a>
+           <div class="card-meta">${categoryLabel(p.category)}</div>
+           <div class="member-pricing">
+             <div>
+               <div class="market-label" data-i18n="market.price.label">Market price</div>
+               <span class="compare-price">${window.PPS.money(deal.compareCents, p.currency)}</span>
+             </div>
+             <div>
+               <div class="member-label" data-i18n="member.price.label">Power Poly Member Price</div>
+               <span class="price">${window.PPS.money(deal.memberCents, p.currency)}</span>
+             </div>
+           </div>
+           <div class="stock ${stockClass(p.stock)}" style="margin-top:10px;">
+             <span class="dot"></span>
+             ${stockLabel(p.stock)}
+           </div>
+
+           ${showTiers ? `
+             <div class="pricing-tiers">
+               <div class="pricing-tiers-header" data-i18n="product.bulk">${tt("product.bulk", "Bulk pricing")}</div>
+               <div class="pricing-tiers-grid">
+                 ${renderTierButton(p, 10)}
+                 ${renderTierButton(p, 15)}
+                 ${renderTierButton(p, 20)}
+               </div>
+             </div>
+           ` : ""}
+
+           <div class="qty-row" style="margin-top:16px;">
+             <div class="qty-stepper" aria-label="Quantity selector">
+               <button class="qty-btn" type="button" id="spotQtyMinus" aria-label="Decrease quantity">-</button>
+               <input class="qty-input" id="spotQty" inputmode="numeric" pattern="[0-9]*" value="1" aria-label="Quantity">
+               <button class="qty-btn" type="button" id="spotQtyPlus" aria-label="Increase quantity">+</button>
+             </div>
+             <div class="qty-meta">
+               <div class="qty-total" id="spotQtyTotal"></div>
+               <div class="qty-note" id="spotQtyNote"></div>
+             </div>
+           </div>
+
+           <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+             <a class="btn btn-outline" href="./product.html?slug=${encodeURIComponent(p.slug)}">${view}</a>
+             <button class="btn btn-primary" ${p.stock <= 0 ? "disabled" : ""} data-add-id="${p.id}" data-qty-input="spotQty">${add}</button>
+             <a class="btn" href="./cart.html" data-i18n="specials.action.cart">${tt("specials.action.cart", "Go to cart")}</a>
+             <a class="btn btn-outline" href="./contact.html?subject=${encodeURIComponent("Bulk quote")}&product=${encodeURIComponent(p.name || "")}">${bulkQuote}</a>
+           </div>
+
+           <div class="delivery-estimate" id="spotDeliveryEstimate" aria-live="polite"></div>
+           <div style="margin-top:10px;">
+             <button class="share-btn" type="button" id="spotShareBtn" aria-label="${window.PPS_I18N?.t("product.share") || "Share"}">
+               <span class="share-icon" aria-hidden="true">
+                 <svg viewBox="0 0 24 24" width="16" height="16" focusable="false" aria-hidden="true">
+                   <path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                   <path d="M12 4v12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                   <path d="M7.5 8.5 12 4l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                 </svg>
+               </span>
+               <span data-i18n="product.share">Share</span>
+             </button>
+             <div id="spotShareMsg" style="color:var(--muted); font-size:12px; margin-top:6px;"></div>
+           </div>
+         </div>
+       </div>
+     `;
   }
 
   function renderCard(p, deal, endsAt) {
@@ -299,9 +483,13 @@
         const id = addBtn.getAttribute("data-add-id");
         const p = specials.find((x) => x.id === id);
         if (!p || p.stock <= 0) return;
-        window.PPS.addToCart(p);
+        const qtyInputId = addBtn.getAttribute("data-qty-input");
+        const qtyEl = qtyInputId ? document.getElementById(qtyInputId) : null;
+        const qty = clampQty(p, qtyEl?.value || 1);
+        window.PPS.addToCart(p, qty);
         const prev = addBtn.textContent;
-        addBtn.textContent = tt("specials.added", "Added");
+        const addedLabel = tt("specials.added_qty", "Added {{qty}}") || "Added {{qty}}";
+        addBtn.textContent = qty > 1 ? addedLabel.replace("{{qty}}", String(qty)) : tt("specials.added", "Added");
         addBtn.disabled = true;
         setTimeout(() => {
           addBtn.textContent = prev;
@@ -357,6 +545,11 @@
         .sort((a, b) => (b.deal.pct - a.deal.pct) || (b.deal.savingsCents - a.deal.savingsCents))[0];
 
       renderSpotlight(document.getElementById("specialsSpotlight"), spotlight.p, spotlight.deal);
+      try {
+        setupSpotlightControls(spotlight.p);
+      } catch {
+        // ignore
+      }
 
       grid.innerHTML = withDeals
         .sort((a, b) => (b.deal.pct - a.deal.pct) || (a.endsAt - b.endsAt))
