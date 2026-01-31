@@ -310,40 +310,26 @@ function injectCurrencySwitcher(){
   }
 }
 
-function injectResourcesNavLink(){
+function injectResourcesDropdown(){
   const navLinks = document.getElementById("navLinks");
   if(!navLinks) return;
-  if(navLinks.querySelector('a[href="./resources.html"]')) return;
+  if(navLinks.querySelector(".dropdown.resources-dropdown")) return;
 
-  const link = document.createElement("a");
-  link.href = "./resources.html";
-  link.setAttribute("data-i18n", "nav.resources");
-  link.textContent = "Resources";
-
-  const anchorAfter = navLinks.querySelector('a[href="./specials.html"]');
-  if(anchorAfter && anchorAfter.parentElement === navLinks){
-    anchorAfter.insertAdjacentElement("afterend", link);
-    try{ window.PPS_I18N?.applyTranslations?.(); }catch{}
-    return;
-  }
-  navLinks.appendChild(link);
-  try{ window.PPS_I18N?.applyTranslations?.(); }catch{}
-}
-
-function injectIndustryDropdown(){
-  const navLinks = document.getElementById("navLinks");
-  if(!navLinks) return;
-  if(navLinks.querySelector(".dropdown.industry-dropdown")) return;
-
-  // Remove older standalone links if present (keeps the top nav clean).
+  // Remove older standalone links / dropdowns if present (keeps the top nav clean).
+  navLinks.querySelector(".dropdown.industry-dropdown")?.remove?.();
   navLinks.querySelector('a[href="./industries.html"]')?.remove?.();
+  navLinks.querySelector('a[href="./industry-commercial-laundry.html"]')?.remove?.();
+  navLinks.querySelector('a[href="./industry-healthcare.html"]')?.remove?.();
   navLinks.querySelector('a[href="./blog.html"]')?.remove?.();
 
+  const resourcesLink = navLinks.querySelector('a[href="./resources.html"]');
+
   const wrap = document.createElement("div");
-  wrap.className = "dropdown industry-dropdown";
+  wrap.className = "dropdown resources-dropdown";
   wrap.innerHTML = `
-    <button class="dropbtn" type="button"><span data-i18n="nav.industry">Industry</span> <span class="caret" aria-hidden="true"></span></button>
+    <a class="dropbtn" href="./resources.html"><span data-i18n="nav.resources">Resources</span> <span class="caret caret-toggle" aria-hidden="true"></span></a>
     <div class="dropdown-menu">
+      <a href="./resources.html" data-i18n="nav.resources.guides">Guides</a>
       <a href="./industries.html" data-i18n="nav.industry.overview">Industries</a>
       <a href="./industry-commercial-laundry.html" data-i18n="nav.industry.laundry">Commercial laundry</a>
       <a href="./industry-healthcare.html" data-i18n="nav.industry.healthcare">Healthcare</a>
@@ -351,11 +337,15 @@ function injectIndustryDropdown(){
     </div>
   `;
 
-  const after = navLinks.querySelector('a[href="./resources.html"]') || navLinks.querySelector('a[href="./specials.html"]');
-  if(after && after.parentElement === navLinks){
-    after.insertAdjacentElement("afterend", wrap);
+  if(resourcesLink && resourcesLink.parentElement === navLinks){
+    resourcesLink.replaceWith(wrap);
   }else{
-    navLinks.appendChild(wrap);
+    const anchorAfter = navLinks.querySelector('a[href="./specials.html"]');
+    if(anchorAfter && anchorAfter.parentElement === navLinks){
+      anchorAfter.insertAdjacentElement("afterend", wrap);
+    }else{
+      navLinks.appendChild(wrap);
+    }
   }
 
   try{ window.PPS_I18N?.applyTranslations?.(); }catch{}
@@ -2042,8 +2032,7 @@ window.addEventListener("DOMContentLoaded", ()=>{
   setupStickyHeader();
   syncAccountLink();
   setupAuthModalTriggers();
-  injectResourcesNavLink();
-  injectIndustryDropdown();
+  injectResourcesDropdown();
   injectAboutDropdown();
   injectLangSwitcher();
   injectCurrencySwitcher();
