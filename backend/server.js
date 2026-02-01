@@ -61,7 +61,9 @@ const corsAllowlist = buildCorsAllowlist();
 app.use(cors({
   origin(origin, cb){
     if(!origin) return cb(null, true); // server-to-server / curl
-    const ok = corsAllowlist.has(normalizeOrigin(origin));
+    const normalized = normalizeOrigin(origin);
+    const githubPagesOk = /^https:\/\/[a-z0-9-]+\.github\.io$/i.test(normalized);
+    const ok = corsAllowlist.has(normalized) || githubPagesOk;
     return cb(null, ok);
   },
   methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
@@ -3004,7 +3006,7 @@ app.delete("/api/account/payment-methods/:id", async (req,res)=>{
 });
 
 // ---- Square Checkout ----
-async function createSquarePaymentAndOrder(body){
+async function createSquarePaymentAndOrder(body, opts = {}){
   const { items, customer } = body || {};
   if(!Array.isArray(items) || items.length === 0){
     const error = new Error("No items to pay for.");
@@ -3100,7 +3102,7 @@ async function createSquarePaymentAndOrder(body){
   }
 
   const orderId = `SQR-${Date.now()}`;
-  const redirectBase = String(siteUrl).replace(/\/+$/,"");
+  const redirectBase = String(opts?.siteUrl || siteUrl).replace(/\/+$/,"");
   const redirectUrl = `${redirectBase}/thank-you.html?order_id=${encodeURIComponent(orderId)}`;
   const idempotencyKey = crypto.randomUUID();
 
@@ -3152,7 +3154,7 @@ async function createSquarePaymentAndOrder(body){
     currency,
     square_payment_link_id: squarePaymentLinkId,
     square_order_id: squareOrderId,
-    language: ["en","fr","ko","hi","ta","es"].includes(String(customer?.language || "").toLowerCase())
+    language: ["en","fr","ko","hi","ta","es","zh"].includes(String(customer?.language || "").toLowerCase())
       ? String(customer.language).toLowerCase()
       : "en",
     created_at: nowIso
@@ -3163,7 +3165,40 @@ async function createSquarePaymentAndOrder(body){
   return { ok:true, url: paymentUrl, orderId, squarePaymentLinkId, squareOrderId, squareEnvUsed };
 }
 
-function requireSquareConfigured(res){
+function normalizePublicSiteUrl(raw){
+  const text = String(raw || "").trim();
+  if(!text) return "";
+  if(text === "null") return "";
+  try{
+    const url = new URL(text);
+    if(url.protocol !== "https:" && url.protocol !== "http:") return "";
+    return url.origin;
+  }catch{
+    return "";
+  }
+}
+
+function resolveSiteUrlForRequest(req){
+  const configured = normalizePublicSiteUrl(siteUrl);
+  if(configured) return configured;
+
+  const originHeader = normalizePublicSiteUrl(req?.headers?.origin);
+  if(originHeader) return originHeader;
+
+  const referer = String(req?.headers?.referer || "").trim();
+  if(referer){
+    try{
+      const url = new URL(referer);
+      if(url.origin && url.origin !== "null") return url.origin;
+    }catch{
+      // ignore
+    }
+  }
+
+  return "";
+}
+
+function requireSquareConfigured(req, res){
   const checkoutCandidates = getSquareClientCandidates({ requireLocationId: true });
   if(!checkoutCandidates.length){
     const missing = [];
@@ -3178,13 +3213,14 @@ function requireSquareConfigured(res){
       if(!squareLocationIdSandbox && !squareLocationIdProduction) missing.push("SQUARE_LOCATION_ID");
     }
     res.status(400).json({ ok:false, message:`Square not configured (missing ${missing.join(" + ") || "keys"}).` });
-    return false;
+    return "";
   }
-  if(!siteUrl){
-    res.status(400).json({ ok:false, message:"SITE_URL not configured (set SITE_URL to your public frontend URL)." });
-    return false;
+  const effectiveSiteUrl = resolveSiteUrlForRequest(req);
+  if(!effectiveSiteUrl){
+    res.status(400).json({ ok:false, message:"SITE_URL not configured (set SITE_URL to your public frontend URL), and no Origin/Referer was provided to infer it." });
+    return "";
   }
-  return true;
+  return effectiveSiteUrl;
 }
 
 function requireSquareClientConfigured(res){
@@ -3231,10 +3267,11 @@ function summarizeSquareError(err){
 }
 
 async function handleCreatePayment(req,res){
-  if(!requireSquareConfigured(res)) return;
+  const effectiveSiteUrl = requireSquareConfigured(req, res);
+  if(!effectiveSiteUrl) return;
   if(!requireSupabase(res)) return;
   try{
-    const out = await createSquarePaymentAndOrder(req.body || {});
+    const out = await createSquarePaymentAndOrder(req.body || {}, { siteUrl: effectiveSiteUrl });
     res.json(out);
   }catch(err){
     console.error("Square create-payment error", err);
@@ -3393,7 +3430,7 @@ async function maybeSendPaidReceipt({ orderRow, orderId, status, statusWas }){
 }
 
 async function handlePaymentStatus(req,res){
-  if(!requireSquareConfigured(res)) return;
+  if(!requireSquareClientConfigured(res)) return;
   if(!requireSupabase(res)) return;
   try{
     const orderId = String(req.query.orderId || req.query.order_id || "").trim();
@@ -3578,10 +3615,11 @@ app.get("/pi/payment-status", handlePaymentStatus);
 
 // Backward-compat endpoint used by older frontend code
 app.post("/api/square-checkout", async (req,res)=>{
-  if(!requireSquareConfigured(res)) return;
+  const effectiveSiteUrl = requireSquareConfigured(req, res);
+  if(!effectiveSiteUrl) return;
   if(!requireSupabase(res)) return;
   try{
-    const out = await createSquarePaymentAndOrder(req.body || {});
+    const out = await createSquarePaymentAndOrder(req.body || {}, { siteUrl: effectiveSiteUrl });
     // Keep the old shape (also include ok/orderId for newer clients).
     res.json({ ok:true, url: out.url, orderId: out.orderId });
   }catch(err){

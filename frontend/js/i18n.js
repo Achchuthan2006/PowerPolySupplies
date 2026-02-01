@@ -4390,6 +4390,31 @@
     "admin.orders.unreachable": "à®šà®°à¯à®µà®°à¯ à®•à®¿à®Ÿà¯ˆà®•à¯à®•à®µà®¿à®²à¯à®²à¯ˆ. à®¤à®¯à®µà¯à®šà¯†à®¯à¯à®¤à¯ à®®à¯€à®£à¯à®Ÿà¯à®®à¯ à®®à¯à®¯à®±à¯à®šà®¿à®•à¯à®•à®µà¯à®®à¯.",
     "admin.orders.fulfill_failed": "à®†à®°à¯à®Ÿà®°à¯ˆ à®¨à®¿à®±à¯ˆà®µà¯‡à®±à¯à®± à®®à¯à®Ÿà®¿à®¯à®µà®¿à®²à¯à®²à¯ˆ. backend à® à®šà®°à®¿à®ªà®¾à®°à¯à®•à¯à®•à®µà¯à®®à¯.",
     "admin.footer": "Power Poly Supplies à®¨à®¿à®°à¯à®µà®¾à®•à®®à¯"
+  },
+  zh: {
+    "lang.label": "语言",
+    "lang.prompt.title": "选择语言",
+    "lang.prompt.subtitle": "选择最适合你的语言。你可以随时在顶部菜单中更改。",
+    "lang.prompt.later": "稍后",
+    "lang.prompt.continue": "继续",
+    "lang.prompt.close": "关闭",
+    "lang.zh": "中文",
+    "nav.home": "主页",
+    "nav.specials": "特价优惠",
+    "nav.resources": "资源",
+    "nav.shop": "按类别选购",
+    "nav.about": "关于我们",
+    "nav.contact": "联系",
+    "nav.feedback": "反馈",
+    "nav.account": "账户",
+    "nav.cart": "购物车",
+    "nav.search": "搜索",
+    "cart.title": "你的购物车",
+    "cart.empty.title": "你的购物车是空的。",
+    "cart.empty.browse": "浏览产品",
+    "checkout.title": "结账",
+    "checkout.pay.square": "通过 Square 支付",
+    "checkout.pay.later": "稍后付款"
   }
 };
 
@@ -4398,7 +4423,7 @@ const PPS_I18N = (() => {
   const originalHtml = new WeakMap();
   const originalPlaceholder = new WeakMap();
   const originalAutoText = new WeakMap();
-  const defaultLangs = ["en", "fr", "es", "ko", "hi", "ta"];
+  const defaultLangs = ["en", "fr", "es", "ko", "hi", "ta", "zh"];
   const getAllowedLangs = () => {
     const raw = document.documentElement?.dataset?.langOptions;
     if(!raw) return defaultLangs;
@@ -4513,6 +4538,7 @@ const PPS_I18N = (() => {
     if(langKey === "ta") return /[\u0B80-\u0BFF]/.test(text);
     if(langKey === "hi") return /[\u0900-\u097F]/.test(text);
     if(langKey === "ko") return /[\uAC00-\uD7AF]/.test(text);
+    if(langKey === "zh") return /[\u4E00-\u9FFF]/.test(text);
     return false;
   }
 
@@ -4540,6 +4566,79 @@ const PPS_I18N = (() => {
     }
 
     return raw;
+  }
+
+  function autoTranslateZh(text){
+    if(!text) return text;
+    let out = String(text);
+    const placeholders = [];
+    out = out.replace(/\{\{[^}]+\}\}/g, (match)=>{
+      placeholders.push(match);
+      return `__PPS_PLACEHOLDER_${placeholders.length - 1}__`;
+    });
+
+    const phraseMap = [
+      ["Bulk-ready stock | Fast response | Canada-wide supply", "现货充足 | 快速响应 | 加拿大全境供货"],
+      ["Power your packaging", "为你的包装助力"],
+      ["Browse Products", "浏览产品"],
+      ["Browse products", "浏览产品"],
+      ["Shop by Category", "按类别选购"],
+      ["Special Offers", "特价优惠"],
+      ["Special offers", "特价优惠"],
+      ["View Special Offers", "查看特价优惠"],
+      ["Resources", "资源"],
+      ["Industry", "行业"],
+      ["Industries", "行业"],
+      ["Blog", "博客"],
+      ["Blog & news", "博客与资讯"],
+      ["About Us", "关于我们"],
+      ["Contact Us", "联系我们"],
+      ["Contact", "联系"],
+      ["Feedback", "反馈"],
+      ["Account", "账户"],
+      ["My Account", "我的账户"],
+      ["Create account", "创建账户"],
+      ["Log in", "登录"],
+      ["Sign in", "登录"],
+      ["Sign up", "注册"],
+      ["Cart", "购物车"],
+      ["Search", "搜索"],
+      ["Continue shopping", "继续购物"],
+      ["Go to cart", "前往购物车"],
+      ["Go to checkout", "去结账"],
+      ["Checkout", "结账"],
+      ["Add to cart", "加入购物车"],
+      ["Remove from cart", "从购物车移除"],
+      ["Add to favorites", "加入收藏"],
+      ["Remove from favorites", "取消收藏"],
+      ["Added", "已加入"],
+      ["Add", "加入"],
+      ["View", "查看"],
+      ["Remove", "移除"],
+      ["Refresh", "刷新"],
+      ["Messages", "消息"],
+      ["In stock", "有货"],
+      ["Out of stock", "缺货"],
+      ["Low stock", "库存紧张"],
+      ["Your cart is empty.", "你的购物车是空的。"],
+      ["Secure payments via Square", "通过 Square 安全支付"],
+      ["Secure Square checkout", "通过 Square 安全结账"],
+      ["Tax", "税费"],
+      ["Shipping", "运费"],
+      ["Total", "合计"],
+      ["Subtotal", "小计"],
+      ["Pay later", "稍后付款"],
+      ["Redirecting to Square...", "正在跳转到 Square…"],
+      ["Server unreachable. Please try again.", "服务器无法连接，请重试。"],
+      ["Order failed. Check backend is running.", "下单失败。请检查后端是否在运行。"]
+    ];
+    phraseMap.forEach(([from, to])=>{ out = out.split(from).join(to); });
+
+    out = out.replace(/__PPS_PLACEHOLDER_(\d+)__/g, (_, index)=>{
+      const i = Number(index);
+      return Number.isInteger(i) && placeholders[i] ? placeholders[i] : "";
+    });
+    return out;
   }
 
   function autoTranslateEs(text){
@@ -4703,6 +4802,9 @@ const PPS_I18N = (() => {
     let value = base || PPS_TRANSLATIONS.en?.[key] || "";
     if(langKey === "es" && !base && PPS_TRANSLATIONS.en?.[key]){
       value = autoTranslateEs(PPS_TRANSLATIONS.en[key]);
+    }
+    if(langKey === "zh" && !base && PPS_TRANSLATIONS.en?.[key]){
+      value = autoTranslateZh(PPS_TRANSLATIONS.en[key]);
     }
     if(langKey === "ta" && value){
       value = maybeFixMojibake(value, langKey);

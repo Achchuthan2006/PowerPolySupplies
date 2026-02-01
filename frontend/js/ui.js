@@ -139,7 +139,7 @@ function injectLangSwitcher(){
   if(navLinks.querySelector(".lang-switcher")) return;
 
   const tools = getNavTools(navLinks);
-  const langOptions = (document.documentElement?.dataset?.langOptions || "en,fr,es,ko,hi,ta")
+  const langOptions = (document.documentElement?.dataset?.langOptions || "en,fr,es,ko,hi,ta,zh")
     .split(",")
     .map(value => value.trim())
     .filter(Boolean);
@@ -149,7 +149,8 @@ function injectLangSwitcher(){
     es: "Spanish",
     ko: "Korean",
     hi: "Hindi",
-    ta: "Tamil"
+    ta: "Tamil",
+    zh: "中文"
   };
   const wrap = document.createElement("div");
   wrap.className = "lang-switcher";
@@ -213,6 +214,7 @@ function showLanguageModal(){
             <option value="ko">한국어</option>
             <option value="hi">हिन्दी</option>
             <option value="ta">தமிழ்</option>
+            <option value="zh">中文</option>
           </select>
         </div>
         <div class="pps-modal-actions">
@@ -248,7 +250,7 @@ function showLanguageModal(){
   laterBtn?.addEventListener("click", close);
   continueBtn?.addEventListener("click", ()=>{
     const raw = String(select?.value || "").trim().toLowerCase();
-    const allowed = new Set(["en", "fr", "es", "ko", "hi", "ta"]);
+    const allowed = new Set(["en", "fr", "es", "ko", "hi", "ta", "zh"]);
     const lang = allowed.has(raw) ? raw : "en";
     try{ localStorage.setItem("pps_lang_prompt_dismissed", "1"); }catch(err){}
     try{
