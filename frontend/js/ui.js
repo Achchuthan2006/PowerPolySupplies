@@ -150,7 +150,7 @@ function injectLangSwitcher(){
     ko: "Korean",
     hi: "Hindi",
     ta: "Tamil",
-    zh: "中文"
+    zh: "Chinese (Mandarin)"
   };
   const wrap = document.createElement("div");
   wrap.className = "lang-switcher";
@@ -209,12 +209,12 @@ function showLanguageModal(){
         <div class="pps-modal-row">
           <select class="input" id="ppsLangModalSelect" aria-label="${window.PPS_I18N?.t("lang.label") || "Language"}" style="flex:1; min-width:220px;">
             <option value="en">English</option>
-            <option value="fr">Français</option>
-            <option value="es">Español</option>
-            <option value="ko">한국어</option>
-            <option value="hi">हिन्दी</option>
-            <option value="ta">தமிழ்</option>
-            <option value="zh">中文</option>
+            <option value="fr">French</option>
+            <option value="es">Spanish</option>
+            <option value="ko">Korean</option>
+            <option value="hi">Hindi</option>
+            <option value="ta">Tamil</option>
+            <option value="zh">Chinese (Mandarin)</option>
           </select>
         </div>
         <div class="pps-modal-actions">
