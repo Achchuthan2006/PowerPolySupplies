@@ -186,7 +186,7 @@
     return `
       <button class="pricing-tier" type="button" data-tier-qty="${qty}" ${disabled ? "disabled" : ""}>
         <strong>${label}</strong>
-        ${window.PPS.money(unit, product.currency)}
+        <span>${window.PPS.money(unit, product.currency)}</span>
       </button>
     `;
   }
@@ -291,10 +291,6 @@
     const view = tt("specials.view", "View");
     const add = tt("specials.add", "Add");
     const bulkQuote = tt("product.bulk_quote", "Bulk quote");
-    const showTiers =
-      getBulkTierPriceCents(p, 10) !== getBulkTierPriceCents(p, 1) ||
-      getBulkTierPriceCents(p, 15) !== getBulkTierPriceCents(p, 1) ||
-      getBulkTierPriceCents(p, 20) !== getBulkTierPriceCents(p, 1);
 
     container.style.display = "";
     container.innerHTML = `
@@ -332,16 +328,14 @@
              ${stockLabel(p.stock)}
            </div>
 
-           ${showTiers ? `
-             <div class="pricing-tiers">
-               <div class="pricing-tiers-header" data-i18n="product.bulk">${tt("product.bulk", "Bulk pricing")}</div>
-               <div class="pricing-tiers-grid">
-                 ${renderTierButton(p, 10)}
-                 ${renderTierButton(p, 15)}
-                 ${renderTierButton(p, 20)}
-               </div>
+           <div class="pricing-tiers">
+             <div class="pricing-tiers-header" data-i18n="product.bulk">${tt("product.bulk", "Bulk pricing")}</div>
+             <div class="pricing-tiers-grid">
+               ${renderTierButton(p, 10)}
+               ${renderTierButton(p, 15)}
+               ${renderTierButton(p, 20)}
              </div>
-           ` : ""}
+           </div>
 
            <div class="qty-row" style="margin-top:16px;">
              <div class="qty-stepper" aria-label="Quantity selector">
