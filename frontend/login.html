@@ -193,7 +193,13 @@
           statusEl.textContent = normalized || (window.PPS_I18N?.t("login.status.failed") || "Login failed.");
         }
       }catch(err){
-        statusEl.textContent = window.PPS_I18N?.t("login.status.unreachable") || "Server unreachable. Is the backend running?";
+        const base = String(PPS?.API_BASE || "").trim();
+        const here = String(window.location.origin || "").trim();
+        const hint = base ? ` (API: ${base})` : "";
+        statusEl.textContent =
+          (window.PPS_I18N?.t("login.status.unreachable") || "Server unreachable. Is the backend running?") +
+          hint +
+          (here ? ` (Site: ${here})` : "");
       }finally{
         loginBtn.disabled = false;
       }
