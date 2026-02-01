@@ -4480,8 +4480,9 @@ const PPS_I18N = (() => {
   }
 
   // Detect common UTF-8 to Latin1/Windows-1252 mojibake artifacts (covers 1x and 2x encoded cases).
-  const MOJIBAKE_DETECT_RE = /[\u00C2\u00C3\u00E2\u00EF\uFFFD]/;
-  const MOJIBAKE_COUNT_RE = /[\u00C2\u00C3\u00E2\u00EF\uFFFD]/g;
+  // Include "à¤…" style (U+00E0 + U+00A4) mojibake used by many Indic scripts when UTF-8 bytes are misread as Latin-1.
+  const MOJIBAKE_DETECT_RE = /[\u00C2\u00C3\u00E0\u00E2\u00A4\u00EF\uFFFD]/;
+  const MOJIBAKE_COUNT_RE = /[\u00C2\u00C3\u00E0\u00E2\u00A4\u00EF\uFFFD]/g;
   const CP1252_UNICODE_TO_BYTE = {
     0x20AC: 0x80, // €
     0x201A: 0x82, // ‚
