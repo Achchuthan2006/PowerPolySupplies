@@ -11,6 +11,8 @@ const FAVORITES_KEY = "pps_favorites";
 const CART_KEY = "pps_cart";
 const CART_COOKIE = "pps_cart";
 const CAPED_WE_LOVE_IMAGE = "./assets/welovecaped%20hanger.webp";
+const CLEAR_POLYBAG_IMAGE = "./assets/polybag%20clear.webp";
+const GARMENT_BAGS_IMAGE = "./assets/powerpolyboxesinventory.webp";
 const PRODUCTS_CACHE_KEY = "pps_products_cache_v1";
 const PRODUCTS_FAST_MS = 400;
 const WISHLISTS_SUFFIX = "wishlists_v1";
@@ -27,6 +29,15 @@ function normalizeProductImage(product){
     if(!image || /welovefinal|caped%20we%20love\.png/i.test(image)){
       return { ...product, image: CAPED_WE_LOVE_IMAGE };
     }
+  }
+  const category = String(product.category || "").trim();
+  const name = String(product.name || "").trim();
+  const slug = String(product.slug || "").trim();
+  if(category === "Polybags" && /clear poly bags/i.test(name || slug)){
+    return { ...product, image: CLEAR_POLYBAG_IMAGE };
+  }
+  if(category === "Garment Bags" && (!image || /clear%20poly%20bags\.webp|clear poly bags\.webp/i.test(image))){
+    return { ...product, image: GARMENT_BAGS_IMAGE };
   }
   return { ...product, image };
 }
