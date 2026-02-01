@@ -2001,7 +2001,8 @@ function setupAuthModalTriggers(){
       const session = window.PPS?.getSession?.();
       if(session) return;
       event.preventDefault();
-      showAuthModal({ nextUrl: window.location.href });
+      // When a user clicks "Account" they expect the dashboard, not a return to the current page.
+      showAuthModal({ nextUrl: "./account.html" });
     });
   }
 
