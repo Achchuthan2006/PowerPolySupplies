@@ -940,6 +940,10 @@ body.auth-page .hero{
   .google-icon::after{
     animation:none !important;
   }
+  *{
+    scroll-behavior:auto !important;
+    transition:none !important;
+  }
 }
 
 @keyframes ppsPromoShine{
@@ -6089,6 +6093,16 @@ select.input option:hover{
 }
 
 @media (max-width: 860px){
+  /* Mobile performance: reduce expensive blur/paint effects */
+  body{
+    background: var(--bg);
+  }
+  .navbar{
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow:0 12px 28px rgba(17,24,39,.10);
+  }
+
   .promo-strip{
     height:auto !important;
     min-height:0 !important;
@@ -6160,6 +6174,18 @@ select.input option:hover{
     padding:6px 10px;
     border-radius:10px;
   }
+
+  /* Mobile: keep suggestions usable inside the slide-down menu (avoid clipping/overflow) */
+  .navlinks .search-suggestions{
+    position:static;
+    top:auto;
+    left:auto;
+    width:100%;
+    min-width:0;
+    margin-top:8px;
+    max-height:min(260px, 44vh);
+    box-shadow:0 14px 28px rgba(17,24,39,.14);
+  }
   .menu-btn{ display:inline-flex; }
 
   .navlinks{
@@ -6208,7 +6234,7 @@ select.input option:hover{
     border-radius:12px;
     background: rgba(255,255,255,.82);
     border:1px solid rgba(255,122,26,.24);
-    box-shadow: 0 10px 22px rgba(17,24,39,.10);
+    box-shadow: 0 8px 18px rgba(17,24,39,.08);
   }
 
   .navlinks .lang-select,
