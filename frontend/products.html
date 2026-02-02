@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="./css/styles.css?v=20260126"/>
   <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
 </head>
-<body>
+<body class="has-mobile-cart-bar">
   <header class="site-header">
     <div class="promo-strip">
       <div class="container promo-inner">
@@ -109,6 +109,14 @@
     <div class="footer">&copy; <span id="y"></span> <span data-i18n="footer.short">Power Poly Supplies. Power your packaging.</span></div>
   </div>
 
+  <div class="mobile-cart-bar" id="mobileCartBar" aria-label="Cart shortcut" role="region">
+    <a class="mobile-cart-bar-link" href="./cart.html">
+      <span class="mobile-cart-bar-title" data-i18n="nav.cart">Cart</span>
+      <span class="badge" id="mobileCartCount" aria-label="Cart item count">0</span>
+    </a>
+    <a class="btn btn-primary mobile-cart-bar-btn" href="./cart.html" data-i18n="products.action.cart">Go to cart</a>
+  </div>
+ 
   <script src="./config.js"></script>
 
   <script src="./js/store.js"></script>
@@ -118,6 +126,28 @@
   <script>
     document.getElementById("y").textContent = new Date().getFullYear();
     PPS.updateCartBadge();
+
+    const mobileCartBar = document.getElementById("mobileCartBar");
+    const mobileCartCount = document.getElementById("mobileCartCount");
+    function refreshMobileCartBar(){
+      if(!mobileCartBar || !mobileCartCount) return;
+      const cart = PPS.getCart();
+      const count = Array.isArray(cart) ? cart.reduce((sum, item)=> sum + (Number(item?.qty) || 0), 0) : 0;
+      mobileCartCount.textContent = String(count);
+      mobileCartBar.classList.toggle("has-items", count > 0);
+    }
+    function nudgeMobileCartBar(){
+      if(!mobileCartBar) return;
+      mobileCartBar.classList.remove("nudge");
+      void mobileCartBar.offsetWidth;
+      mobileCartBar.classList.add("nudge");
+      setTimeout(()=> mobileCartBar.classList.remove("nudge"), 520);
+    }
+    refreshMobileCartBar();
+    window.addEventListener("pps:cart", refreshMobileCartBar);
+    window.addEventListener("storage", (e)=>{
+      if(e && e.key === "pps_cart") refreshMobileCartBar();
+    });
 
     function qs(name){ return new URLSearchParams(location.search).get(name); }
 
@@ -225,6 +255,14 @@
 
     function qualityBadgesHtml(category){
       const cat = String(category || "");
+      if(cat === "Hangers"){
+        const pack = window.PPS_I18N?.t("pack.hangers_500") || "500 pcs / box";
+        return `
+          <div class="feature-badges" aria-label="${window.PPS_I18N?.t("pack.label") || "Pack"}">
+            <span class="feature-pill">${pack}</span>
+          </div>
+        `;
+      }
       if(cat !== "Garment Bags" && cat !== "Polybags") return "";
       return `
         <div class="feature-badges" aria-label="Product features">
@@ -506,7 +544,7 @@
             const bannerTemplate = window.PPS_I18N?.t("member.banner") || "Log in to save {{amount}} with Power Poly Member Pricing";
             const bannerText = bannerTemplate.replace("{{amount}}", PPS.money(savingsCents, p.currency));
             return `
-              <div class="card fade-in">
+              <div class="card fade-in product-card" data-product-id="${p.id}">
                 <a href="./product.html?slug=${encodeURIComponent(p.slug)}">
                   <img src="${p.image}" alt="${displayName}" loading="lazy" decoding="async" width="400" height="190">
                 </a>
@@ -530,10 +568,10 @@
                     <span class="dot"></span>
                     ${stockLabel(p.stock)}
                   </div>
-                  <div class="product-actions" style="margin-top:12px; display:flex; gap:10px;">
-                    <a class="btn" href="./product.html?slug=${encodeURIComponent(p.slug)}">${window.PPS_I18N?.t("products.action.view") || "View"}</a>
-                    <button class="btn btn-primary" ${p.stock<=0?'disabled':''} onclick='add(event,"${p.id}")'>${window.PPS_I18N?.t("products.action.add") || "Add"}</button>
-                    <a class="btn btn-outline" href="./cart.html" data-i18n="products.action.cart">${window.PPS_I18N?.t("products.action.cart") || "Go to cart"}</a>
+                  <div class="product-actions" style="margin-top:12px;">
+                    <button class="btn btn-primary product-add-btn" ${p.stock<=0?'disabled':''} onclick='add(event,"${p.id}")'>${window.PPS_I18N?.t("products.action.add") || "Add"}</button>
+                    <a class="btn btn-outline product-view-btn" href="./product.html?slug=${encodeURIComponent(p.slug)}">${window.PPS_I18N?.t("products.action.view") || "View"}</a>
+                    <a class="btn btn-outline product-cart-btn" href="./cart.html" data-i18n="products.action.cart">${window.PPS_I18N?.t("products.action.cart") || "Go to cart"}</a>
                   </div>
                   <div class="bulk-quick">
                     <button class="btn btn-outline" ${p.stock<=0?'disabled':''} onclick='addBulk(event,"${p.id}",10)'>${window.PPS_I18N?.t("products.bulk.10") || "10+ boxes"}</button>
@@ -601,6 +639,7 @@
         const p = currentFiltered.find(x=>x.id===id);
         if(!p || p.stock<=0) return;
         PPS.addToCart(p);
+        nudgeMobileCartBar();
         if(e && e.target){
           const btn = e.target;
           const prev = btn.textContent;
@@ -617,6 +656,7 @@
         const p = currentFiltered.find(x=>x.id===id);
         if(!p || p.stock<=0) return;
         PPS.addToCart(p, qty);
+        nudgeMobileCartBar();
         if(e && e.target){
           const btn = e.target;
           const prev = btn.textContent;

@@ -95,6 +95,7 @@
             <span>Continue with Facebook</span>
           </button>
         </div>
+        <div id="oauthStatus" class="status muted" style="margin-top:8px; display:none;"></div>
         <div class="divider"><span>OR</span></div>
         <form id="loginForm" class="auth-form">
           <label class="input-label" for="loginEmail">Email</label>
@@ -138,6 +139,7 @@
     const emailInput = document.getElementById("loginEmail");
     const passInput = document.getElementById("loginPassword");
     const statusEl = document.getElementById("loginStatus");
+    const oauthStatusEl = document.getElementById("oauthStatus");
     const loginBtn = document.getElementById("loginBtn");
     const toggleButtons = Array.from(document.querySelectorAll(".toggle-visibility"));
 
@@ -223,6 +225,22 @@
     async function refreshOauthButtons(){
       const googleBtn = document.querySelector('[data-oauth-provider="google"]');
       const facebookBtn = document.querySelector('[data-oauth-provider="facebook"]');
+      const setOauthStatus = (text, type = "muted")=>{
+        if(!oauthStatusEl) return;
+        const msg = String(text || "").trim();
+        if(!msg){
+          oauthStatusEl.style.display = "none";
+          oauthStatusEl.textContent = "";
+          oauthStatusEl.classList.remove("error","success","muted");
+          oauthStatusEl.classList.add("status","muted");
+          return;
+        }
+        oauthStatusEl.style.display = "";
+        oauthStatusEl.textContent = msg;
+        oauthStatusEl.classList.remove("error","success","muted");
+        oauthStatusEl.classList.add("status", type || "muted");
+      };
+
       if(googleBtn) googleBtn.disabled = true;
       if(facebookBtn) facebookBtn.disabled = true;
       try{
@@ -232,8 +250,18 @@
         const fbOk = !!data?.providers?.facebook?.configured;
         if(googleBtn) googleBtn.disabled = !googleOk;
         if(facebookBtn) facebookBtn.disabled = !fbOk;
+        if(!googleOk && !fbOk){
+          setOauthStatus("Google/Facebook sign-in is not set up yet. Please sign in with email + password.", "muted");
+        }else if(!googleOk){
+          setOauthStatus("Google sign-in is not available right now. Please use email + password.", "muted");
+        }else if(!fbOk){
+          setOauthStatus("Facebook sign-in is not available right now. Please use email + password.", "muted");
+        }else{
+          setOauthStatus("");
+        }
       }catch(err){
         // keep disabled on failure
+        setOauthStatus("Unable to check Google/Facebook sign-in right now. Please use email + password.", "muted");
       }
     }
 

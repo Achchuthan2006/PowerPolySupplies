@@ -74,7 +74,62 @@ function render(){
     list.innerHTML = `
       <div class="card cart-empty fade-in">
         <div class="cart-empty-visual" aria-hidden="true">
-          <img src="./assets/order-checkout.svg" alt="" loading="lazy" decoding="async">
+          <svg class="cart-empty-cart" viewBox="0 0 260 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="ppsCartEmptyStroke" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="rgba(17,24,39,.22)"/>
+                <stop offset="1" stop-color="rgba(17,24,39,.12)"/>
+              </linearGradient>
+              <linearGradient id="ppsCartEmptyAccent" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#ff7a1a"/>
+                <stop offset="1" stop-color="#d94a1f"/>
+              </linearGradient>
+            </defs>
+
+            <path d="M40 142c26 10 154 10 180 0" fill="none" stroke="rgba(17,24,39,.08)" stroke-width="12" stroke-linecap="round"/>
+            <g class="thank-road" opacity=".9">
+              <path d="M16 146H244" stroke="rgba(17,24,39,.10)" stroke-width="10" stroke-linecap="round"/>
+              <g class="thank-road-track">
+                <path d="M18 146h44" stroke="rgba(255,255,255,.70)" stroke-width="4" stroke-linecap="round"/>
+                <path d="M74 146h44" stroke="rgba(255,255,255,.70)" stroke-width="4" stroke-linecap="round"/>
+                <path d="M130 146h44" stroke="rgba(255,255,255,.70)" stroke-width="4" stroke-linecap="round"/>
+                <path d="M186 146h44" stroke="rgba(255,255,255,.70)" stroke-width="4" stroke-linecap="round"/>
+                <g transform="translate(260 0)">
+                  <path d="M18 146h44" stroke="rgba(255,255,255,.70)" stroke-width="4" stroke-linecap="round"/>
+                  <path d="M74 146h44" stroke="rgba(255,255,255,.70)" stroke-width="4" stroke-linecap="round"/>
+                  <path d="M130 146h44" stroke="rgba(255,255,255,.70)" stroke-width="4" stroke-linecap="round"/>
+                  <path d="M186 146h44" stroke="rgba(255,255,255,.70)" stroke-width="4" stroke-linecap="round"/>
+                </g>
+              </g>
+            </g>
+
+            <g class="thank-cart-float">
+              <path d="M46 40h26" stroke="rgba(17,24,39,.26)" stroke-width="10" stroke-linecap="round"/>
+              <path d="M62 40l10 60" stroke="rgba(17,24,39,.18)" stroke-width="8" stroke-linecap="round"/>
+
+              <path d="M78 58h118l-10 48H92L78 58Z" fill="rgba(255,255,255,.78)" stroke="url(#ppsCartEmptyStroke)" stroke-width="3" />
+              <path d="M86 64h100" stroke="rgba(17,24,39,.10)" stroke-width="3" stroke-linecap="round"/>
+              <path d="M94 76h82" stroke="rgba(17,24,39,.08)" stroke-width="3" stroke-linecap="round"/>
+              <path d="M102 90h64" stroke="rgba(17,24,39,.08)" stroke-width="3" stroke-linecap="round"/>
+
+              <path d="M86 106h94" stroke="url(#ppsCartEmptyAccent)" stroke-width="8" stroke-linecap="round" opacity=".92"/>
+
+              <g class="thank-wheel" transform="translate(106 132)">
+                <g class="thank-wheel-spin">
+                  <circle r="14" fill="#111827" opacity=".88"/>
+                  <circle r="7" fill="rgba(255,255,255,.92)"/>
+                  <path d="M0-10V10M-10 0H10M-7-7l14 14M-7 7l14-14" stroke="rgba(17,24,39,.35)" stroke-width="2" stroke-linecap="round"/>
+                </g>
+              </g>
+              <g class="thank-wheel" transform="translate(176 132)">
+                <g class="thank-wheel-spin">
+                  <circle r="14" fill="#111827" opacity=".88"/>
+                  <circle r="7" fill="rgba(255,255,255,.92)"/>
+                  <path d="M0-10V10M-10 0H10M-7-7l14 14M-7 7l14-14" stroke="rgba(17,24,39,.35)" stroke-width="2" stroke-linecap="round"/>
+                </g>
+              </g>
+            </g>
+          </svg>
         </div>
         <div class="cart-empty-body">
           <div class="cart-empty-title">${emptyTitle}</div>
@@ -119,7 +174,7 @@ function render(){
     const saveLabel = window.PPS_I18N?.t("cart.save") || "Save for later";
     const removeLabel = window.PPS_I18N?.t("cart.remove") || "Remove";
     return `
-    <div class="card cart-item fade-in">
+    <div class="card cart-item fade-in" data-cart-item-id="${String(i.id || "")}">
       <div class="cart-item-main">
         <div class="cart-item-thumb" aria-hidden="true">
           <img src="${image}" alt="" loading="lazy" decoding="async">
@@ -153,6 +208,34 @@ function render(){
   document.querySelectorAll(".fade-in").forEach(el => el.classList.add("show"));
 }
 
+function cssEscape(value){
+  try{
+    if(window.CSS && typeof window.CSS.escape === "function") return window.CSS.escape(String(value));
+  }catch(_err){}
+  return String(value).replace(/["\\]/g, "\\$&");
+}
+
+function pulseCartItem(id){
+  const safe = cssEscape(id);
+  const el = document.querySelector(`[data-cart-item-id="${safe}"]`);
+  if(!el) return;
+  el.classList.remove("cart-item-updated");
+  void el.offsetWidth; // restart animation
+  el.classList.add("cart-item-updated");
+  setTimeout(()=> el.classList.remove("cart-item-updated"), 520);
+}
+
+function removeCartItemWithAnim(id, commit){
+  const safe = cssEscape(id);
+  const el = document.querySelector(`[data-cart-item-id="${safe}"]`);
+  if(!el){
+    commit();
+    return;
+  }
+  el.classList.add("cart-item-removing");
+  setTimeout(commit, 200);
+}
+
 window.inc = (id)=>{
   const cart = PPS.getCart();
   const item = cart.find(x=>x.id===id);
@@ -160,22 +243,34 @@ window.inc = (id)=>{
   item.qty += 1;
   PPS.setCart(cart);
   render();
+  pulseCartItem(id);
 };
 
 window.dec = (id)=>{
   const cart = PPS.getCart();
   const item = cart.find(x=>x.id===id);
   if(!item) return;
-  item.qty -= 1;
-  const next = cart.filter(x=>x.qty>0);
-  PPS.setCart(next);
+  const nextQty = (Number(item.qty) || 1) - 1;
+  if(nextQty <= 0){
+    removeCartItemWithAnim(id, ()=>{
+      const next = cart.filter(x=>x.id!==id);
+      PPS.setCart(next);
+      render();
+    });
+    return;
+  }
+  item.qty = nextQty;
+  PPS.setCart(cart);
   render();
+  pulseCartItem(id);
 };
 
 window.removeItem = (id)=>{
-  const next = PPS.getCart().filter(x=>x.id!==id);
-  PPS.setCart(next);
-  render();
+  removeCartItemWithAnim(id, ()=>{
+    const next = PPS.getCart().filter(x=>x.id!==id);
+    PPS.setCart(next);
+    render();
+  });
 };
 
 window.saveForLater = (id)=>{

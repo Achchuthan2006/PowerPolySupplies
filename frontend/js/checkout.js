@@ -41,11 +41,6 @@ const shippingAmountEl = document.getElementById("shippingAmount");
 const totalEl = document.getElementById("total");
 const savingsRowEl = document.getElementById("savingsRow");
 const savingsAmountEl = document.getElementById("savingsAmount");
-const rewardCodeInput = document.getElementById("rewardCode");
-const applyRewardBtn = document.getElementById("applyReward");
-const rewardRowEl = document.getElementById("rewardRow");
-const rewardAmountEl = document.getElementById("rewardAmount");
-const rewardNoteEl = document.getElementById("rewardNote");
 const msg = document.getElementById("msg");
 const backendStatus = document.getElementById("backendStatus");
 const payBtn = document.getElementById("payOnline");
@@ -351,47 +346,6 @@ function initSavedAddressPicker(){
   });
 }
 
-function readRewardsLedger(email){
-  try{
-    const raw = localStorage.getItem(userKey(email, "rewards_ledger_v1"));
-    if(!raw) return { redemptions: [] };
-    const parsed = JSON.parse(raw);
-    return { redemptions: Array.isArray(parsed?.redemptions) ? parsed.redemptions : [] };
-  }catch(err){
-    return { redemptions: [] };
-  }
-}
-
-function getRewardByCode(email, code){
-  const clean = String(code || "").trim().toUpperCase();
-  if(!clean) return null;
-  const ledger = readRewardsLedger(email);
-  return (ledger.redemptions || []).find(r=> r && String(r.code || "").trim().toUpperCase() === clean) || null;
-}
-
-function getAppliedRewardCode(){
-  try{
-    const params = new URLSearchParams(window.location.search);
-    const fromQuery = params.get("reward");
-    if(fromQuery) return String(fromQuery).trim();
-  }catch(err){
-    // ignore
-  }
-  try{
-    return String(localStorage.getItem("pps_reward_applied_code_v1") || "").trim();
-  }catch(err){
-    return "";
-  }
-}
-
-function setAppliedRewardCode(code){
-  try{
-    localStorage.setItem("pps_reward_applied_code_v1", String(code || "").trim());
-  }catch(err){
-    // ignore
-  }
-}
-
 function drawSummary(){
   const cart = PPS.getCart();
   if(cart.length === 0){
@@ -403,7 +357,6 @@ function drawSummary(){
     if(shippingLabelEl) shippingLabelEl.textContent = "Shipping";
     if(shippingAmountEl) shippingAmountEl.textContent = PPS.money(0);
     totalEl.textContent = PPS.money(0);
-    if(rewardRowEl) rewardRowEl.style.display = "none";
     if(savingsRowEl) savingsRowEl.style.display = "none";
     setPending(payBtn, true);
     setPending(submitBtn, true);
@@ -426,17 +379,8 @@ function drawSummary(){
     return sum + PPS.convertCents(baseCents, baseCurrency, targetCurrency);
   }, 0);
 
-  // Rewards discount is stored in CAD and displayed in the active currency.
-  const email = getSessionEmail();
-  const appliedCode = getAppliedRewardCode();
-  const reward = email ? getRewardByCode(email, appliedCode) : null;
-  const rewardValueCad = reward && !reward.usedAt ? Math.max(0, Math.round(Number(reward.valueCents) || 0)) : 0;
-  const rewardValue = PPS.convertCents(rewardValueCad, "CAD", targetCurrency);
-  const rewardDiscount = Math.min(subtotal, Math.max(0, rewardValue));
-  const discountedSubtotal = Math.max(0, subtotal - rewardDiscount);
-
   const province = provinceSelect?.value || "";
-  const taxData = calculateTax(discountedSubtotal, province);
+  const taxData = calculateTax(subtotal, province);
   const shipping = getShippingForPostal(postalInput?.value);
   const shippingCents = PPS.convertCents(shipping.amountCents, "CAD", targetCurrency);
 
@@ -477,14 +421,6 @@ function drawSummary(){
   }).join("");
 
   subtotalEl.textContent = PPS.money(subtotal, targetCurrency, targetCurrency);
-  if(rewardRowEl && rewardAmountEl){
-    if(rewardDiscount > 0){
-      rewardAmountEl.textContent = `-${PPS.money(rewardDiscount, targetCurrency, targetCurrency)}`;
-      rewardRowEl.style.display = "flex";
-    }else{
-      rewardRowEl.style.display = "none";
-    }
-  }
   if(province === "QC"){
     taxLabelEl.textContent = `${taxData.taxLabel} - ${provinceName(province)}`;
     taxAmountEl.textContent = PPS.money(taxData.gstAmount, targetCurrency, targetCurrency);
@@ -556,36 +492,6 @@ productsPromise.then(()=>{
   }
 });
 
-if(rewardCodeInput){
-  const initial = getAppliedRewardCode();
-  if(initial && !rewardCodeInput.value) rewardCodeInput.value = initial;
-  if(initial) setTimeout(applyRewardFromInput, 0);
-}
-
-function applyRewardFromInput(){
-  const code = String(rewardCodeInput?.value || "").trim();
-  setAppliedRewardCode(code);
-  const email = getSessionEmail();
-  const reward = email ? getRewardByCode(email, code) : null;
-  if(rewardNoteEl){
-    if(!code){
-      rewardNoteEl.textContent = "";
-    }else if(!email){
-      rewardNoteEl.textContent = "Log in to use rewards.";
-    }else if(!reward){
-      rewardNoteEl.textContent = "Rewards code not found for this account.";
-    }else if(reward.usedAt){
-      rewardNoteEl.textContent = "This rewards code is already used.";
-    }else{
-      rewardNoteEl.textContent = `Applied: ${reward.title || "Reward"}.`;
-    }
-  }
-  drawSummary();
-}
-
-applyRewardBtn?.addEventListener("click", applyRewardFromInput);
-rewardCodeInput?.addEventListener("change", applyRewardFromInput);
-
 
 function setStatus(el, text, type="muted"){
   if(!el) return;
@@ -625,9 +531,6 @@ formEl.addEventListener("submit", async (e)=>{
   };
 
   const email = getSessionEmail();
-  const rewardCode = getAppliedRewardCode();
-  const reward = email ? getRewardByCode(email, rewardCode) : null;
-  const rewardValueCad = reward && !reward.usedAt ? Math.max(0, Math.round(Number(reward.valueCents) || 0)) : 0;
 
   const targetCurrency = PPS.getCurrency();
   const subtotal = cart.reduce((sum,i)=>{
@@ -636,9 +539,7 @@ formEl.addEventListener("submit", async (e)=>{
     const baseCurrency = getUnitCurrency(i);
     return sum + PPS.convertCents(baseCents, baseCurrency, targetCurrency);
   }, 0);
-  const rewardDiscount = Math.min(subtotal, Math.max(0, PPS.convertCents(rewardValueCad, "CAD", targetCurrency)));
-  const discountedSubtotal = Math.max(0, subtotal - rewardDiscount);
-  const taxData = calculateTax(discountedSubtotal, provinceSelect.value);
+  const taxData = calculateTax(subtotal, provinceSelect.value);
   const shipping = getShippingForPostal(postalInput?.value);
   const shippingCents = PPS.convertCents(shipping.amountCents, "CAD", targetCurrency);
   const totalCents = taxData.total + shippingCents;
@@ -676,7 +577,6 @@ formEl.addEventListener("submit", async (e)=>{
         totalCents,
         currency: targetCurrency,
         paymentMethod:"pay_later",
-        discount: rewardDiscount > 0 ? { source: "rewards", code: String(rewardCode || "").trim(), amountCents: rewardValueCad } : null,
         shipping: {
           zone: shipping.zone,
           label: shipping.label,
@@ -693,22 +593,6 @@ formEl.addEventListener("submit", async (e)=>{
     }
 
     localStorage.removeItem("pps_cart");
-    try{
-      if(email && reward && rewardDiscount > 0){
-        const ledgerKey = userKey(email, "rewards_ledger_v1");
-        const ledgerRaw = localStorage.getItem(ledgerKey);
-        const ledger = ledgerRaw ? JSON.parse(ledgerRaw) : { redemptions: [] };
-        const next = Array.isArray(ledger?.redemptions) ? ledger.redemptions.map((r)=>{
-          if(!r) return r;
-          if(String(r.code || "").trim().toUpperCase() !== String(rewardCode || "").trim().toUpperCase()) return r;
-          if(r.usedAt) return r;
-          return { ...r, usedAt: new Date().toISOString() };
-        }) : [];
-        localStorage.setItem(ledgerKey, JSON.stringify({ redemptions: next }));
-      }
-    }catch(_err){
-      // ignore
-    }
     try{
       if(email){
         window.PPS_ACTIVITY?.record?.("order_placed", {

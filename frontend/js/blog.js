@@ -26,7 +26,14 @@
     return tpl.replace("{{min}}", String(minutes));
   };
 
-  const splitBullet = (text) => String(text || "").split(/•|â€¢/).map((s) => s.trim()).filter(Boolean);
+  const META_SEP = " · ";
+  const MOJIBAKE_BULLET = "\u00E2\u20AC\u00A2"; // "â€¢" when UTF-8 "•" is mis-decoded as cp1252
+  const splitBullet = (text) =>
+    String(text || "")
+      .split(MOJIBAKE_BULLET).join("·")
+      .split(/[·\u2022]/g)
+      .map((s) => s.trim())
+      .filter(Boolean);
 
   const getArticlePermalink = (articleId) => {
     const url = new URL(window.location.href);
@@ -150,8 +157,8 @@
       const label = getReadTimeLabel(minutes);
 
       const existing = String(meta.textContent || "");
-      const datePart = existing.includes("•") ? existing.split("•")[0].trim() : existing.trim();
-      meta.textContent = datePart ? `${datePart} • ${label}` : label;
+      const datePart = splitBullet(existing)[0] || existing.trim();
+      meta.textContent = datePart ? `${datePart}${META_SEP}${label}` : label;
       post.el.dataset.readMin = String(minutes);
     });
 
@@ -269,7 +276,7 @@
         <div class="blog-featured-body">
           <div class="blog-featured-kicker">${kicker}</div>
           <div class="blog-featured-title">${featured.title || ""}</div>
-          <div class="blog-featured-meta">${[featured.dateLabel, getReadTimeLabel(featured.el?.dataset?.readMin || "1")].filter(Boolean).join(" • ")}</div>
+          <div class="blog-featured-meta">${[featured.dateLabel, getReadTimeLabel(featured.el?.dataset?.readMin || "1")].filter(Boolean).join(META_SEP)}</div>
           <div class="blog-featured-desc">${featured.excerpt || ""}</div>
           <div class="blog-featured-actions">
             <a class="btn btn-primary btn-sm" href="${url}">${cta}</a>
@@ -303,7 +310,7 @@
 
       // meta is (re)written by updateReadingTimes, but include date too.
       const min = post.el?.dataset?.readMin || "1";
-      const metaText = [post.dateLabel, getReadTimeLabel(min)].filter(Boolean).join(" • ");
+      const metaText = [post.dateLabel, getReadTimeLabel(min)].filter(Boolean).join(META_SEP);
       let meta = card.querySelector(".blog-card-meta");
       if (!meta) {
         meta = document.createElement("div");
@@ -622,8 +629,8 @@
     const input = form.querySelector('input[name="email"]');
 
     const sending = tt("blog.subscribe.sending", "Subscribing...");
-    const thanks = tt("blog.subscribe.thanks", "Thanks! You’re subscribed.");
-    const failed = tt("blog.subscribe.failed", "Couldn’t subscribe right now. Try again or email us.");
+    const thanks = tt("blog.subscribe.thanks", "Thanks! You're subscribed.");
+    const failed = tt("blog.subscribe.failed", "Couldn't subscribe right now. Try again or email us.");
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();

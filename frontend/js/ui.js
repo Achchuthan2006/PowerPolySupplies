@@ -150,7 +150,7 @@ function injectLangSwitcher(){
     ko: "Korean",
     hi: "Hindi",
     ta: "Tamil",
-    zh: "Chinese (Mandarin)"
+    zh: "Mandarin"
   };
   const wrap = document.createElement("div");
   wrap.className = "lang-switcher";
@@ -214,7 +214,7 @@ function showLanguageModal(){
             <option value="ko">Korean</option>
             <option value="hi">Hindi</option>
             <option value="ta">Tamil</option>
-            <option value="zh">Chinese (Mandarin)</option>
+            <option value="zh">Mandarin</option>
           </select>
         </div>
         <div class="pps-modal-actions">
@@ -1226,6 +1226,20 @@ function injectHelpWidget(){
       answer: () => `Choose <b>Heavy</b> for everyday packaging. Choose <b>Extra Heavy</b> for sharp corners, heavy loads, delivery routes, or fewer tears/rewraps.<br><a href="./resources.html#heavy-vs-extra-heavy">Read the thickness guide</a>`
     },
     {
+      id: "hangers",
+      titleKey: "help.chat.topic.hangers",
+      title: "Hanger types + box quantity",
+      keywords: ["hanger","hangers","shirt hanger","suit hanger","dress hanger","strut","capped","caped","cape","wire","strength","shoulder","box","case","case pack","pcs","pieces","500"],
+      followups: [
+        { id:"hangers_box", labelKey:"help.chat.followup.hangers_box", label:"How many hangers in a box?" },
+        { id:"hangers_choice", labelKey:"help.chat.followup.hangers_choice", label:"Which hanger for shirts vs suits?" },
+        { id:"hangers_caped", labelKey:"help.chat.followup.hangers_caped", label:"When should I use capped/cape hangers?" }
+      ],
+      match: (q)=> /hanger|hangers|shirt hanger|suit hanger|dress hanger|strut|capped|caped|cape|wire|500/i.test(q),
+      answerKey: "help.chat.answer.hangers",
+      answer: () => `Most of our hanger SKUs are packed <b>500 pieces per box</b> (case pack) â€” check the product page for the exact pack size.<br><br><b>Quick pick:</b> <b>Shirt</b> for tops, <b>Suit</b> for jackets, <b>Strut</b> for daily allâ€‘purpose strength, and <b>Capped/Cape</b> when you want extra shoulder stability and premium presentation.<br><a href="./products.html?cat=Hangers">Browse hangers</a>`
+    },
+    {
       id: "usage",
       titleKey: "help.chat.topic.usage",
       title: "Monthly packaging usage",
@@ -1273,6 +1287,9 @@ function injectHelpWidget(){
     sizes_coats: "sizes",
     thickness_mil: "thickness",
     thickness_choice: "thickness",
+    hangers_box: "hangers",
+    hangers_choice: "hangers",
+    hangers_caped: "hangers",
     usage_buffer: "usage",
     usage_quote: "usage",
     pay_invoice: "pay",
@@ -1287,6 +1304,7 @@ function injectHelpWidget(){
     return [
       { id:"sizes", label: helpT("help.chat.suggest.sizes", "Choosing garment bag sizes") },
       { id:"thickness", label: helpT("help.chat.suggest.thickness", "Heavy vs Extra Heavy thickness") },
+      { id:"hangers", label: helpT("help.chat.suggest.hangers", "Hangers: types + box quantity") },
       { id:"usage", label: helpT("help.chat.suggest.usage", "How much packaging per month?") },
       { id:"shipping", label: helpT("help.chat.suggest.shipping", "Shipping / delivery") },
       { id:"pay", label: helpT("help.chat.suggest.pay", "Payments / pay later") }

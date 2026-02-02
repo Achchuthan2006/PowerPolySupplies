@@ -259,6 +259,15 @@
 
       function qualityBadgesHtml(category){
         const cat = String(category || "");
+        if(cat === "Hangers"){
+          const pack = window.PPS_I18N?.t("pack.hangers_500") || "500 pcs / box";
+          const label = window.PPS_I18N?.t("pack.label") || "Pack";
+          return `
+            <div class="feature-badges" aria-label="${label}">
+              <span class="feature-pill">${pack}</span>
+            </div>
+          `;
+        }
         if(cat !== "Garment Bags" && cat !== "Polybags") return "";
         return `
           <div class="feature-badges" aria-label="Product features">
@@ -409,6 +418,12 @@
 
             ${(()=>{
               const specs = extractSpecsFromName(displayName);
+              if(String(p?.category || "") === "Hangers"){
+                specs.push({
+                  label: window.PPS_I18N?.t("spec.pack") || "Pack",
+                  value: window.PPS_I18N?.t("pack.hangers_500") || "500 pcs / box"
+                });
+              }
               if(!specs.length) return "";
               return `
                 <div class="specs">

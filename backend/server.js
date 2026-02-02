@@ -1330,6 +1330,13 @@ function getFrontendBase(req){
   return "";
 }
 
+function getBackendBase(req){
+  const proto = String(req.headers["x-forwarded-proto"] || req.protocol || "http").split(",")[0].trim();
+  const host = String(req.headers["x-forwarded-host"] || req.get("host") || "").split(",")[0].trim();
+  if(!host) return "";
+  return `${proto}://${host}`.replace(/\/+$/,"");
+}
+
 function sanitizeNextUrl(nextUrl, frontendBase){
   const next = String(nextUrl || "").trim();
   if(!next) return "";
@@ -2584,12 +2591,18 @@ app.get("/api/auth/oauth/status", (req,res)=>{
   const googleClientId = readEnvFirst("OAUTH_GOOGLE_CLIENT_ID", "GOOGLE_OAUTH_CLIENT_ID");
   const googleClientSecret = readEnvFirst("OAUTH_GOOGLE_CLIENT_SECRET", "GOOGLE_OAUTH_CLIENT_SECRET");
   const googleRedirectUri = readEnvFirst("OAUTH_GOOGLE_REDIRECT_URI", "GOOGLE_OAUTH_REDIRECT_URI")
-    || (siteUrl ? `${String(siteUrl).replace(/\/+$/,"")}/api/auth/oauth/google/callback` : "");
+    || (()=>{
+      const backendBase = getBackendBase(req);
+      return backendBase ? `${backendBase}/api/auth/oauth/google/callback` : "";
+    })();
 
   const facebookAppId = readEnvFirst("OAUTH_FACEBOOK_APP_ID", "FACEBOOK_APP_ID", "FACEBOOK_OAUTH_APP_ID");
   const facebookAppSecret = readEnvFirst("OAUTH_FACEBOOK_APP_SECRET", "FACEBOOK_APP_SECRET", "FACEBOOK_OAUTH_APP_SECRET");
   const facebookRedirectUri = readEnvFirst("OAUTH_FACEBOOK_REDIRECT_URI", "FACEBOOK_OAUTH_REDIRECT_URI")
-    || (siteUrl ? `${String(siteUrl).replace(/\/+$/,"")}/api/auth/oauth/facebook/callback` : "");
+    || (()=>{
+      const backendBase = getBackendBase(req);
+      return backendBase ? `${backendBase}/api/auth/oauth/facebook/callback` : "";
+    })();
 
   res.json({
     ok:true,
@@ -2605,7 +2618,10 @@ app.get("/api/auth/oauth/google/start", (req,res)=>{
   const clientId = readEnvFirst("OAUTH_GOOGLE_CLIENT_ID", "GOOGLE_OAUTH_CLIENT_ID");
   const clientSecret = readEnvFirst("OAUTH_GOOGLE_CLIENT_SECRET", "GOOGLE_OAUTH_CLIENT_SECRET");
   const redirectUri = readEnvFirst("OAUTH_GOOGLE_REDIRECT_URI", "GOOGLE_OAUTH_REDIRECT_URI")
-    || (siteUrl ? `${String(siteUrl).replace(/\/+$/,"")}/api/auth/oauth/google/callback` : "");
+    || (()=>{
+      const backendBase = getBackendBase(req);
+      return backendBase ? `${backendBase}/api/auth/oauth/google/callback` : "";
+    })();
 
   if(!clientId || !clientSecret || !redirectUri){
     return res.status(400).send("Google OAuth is not configured on the server.");
@@ -2631,7 +2647,10 @@ app.get("/api/auth/oauth/google/callback", async (req,res)=>{
   const clientId = readEnvFirst("OAUTH_GOOGLE_CLIENT_ID", "GOOGLE_OAUTH_CLIENT_ID");
   const clientSecret = readEnvFirst("OAUTH_GOOGLE_CLIENT_SECRET", "GOOGLE_OAUTH_CLIENT_SECRET");
   const redirectUri = readEnvFirst("OAUTH_GOOGLE_REDIRECT_URI", "GOOGLE_OAUTH_REDIRECT_URI")
-    || (siteUrl ? `${String(siteUrl).replace(/\/+$/,"")}/api/auth/oauth/google/callback` : "");
+    || (()=>{
+      const backendBase = getBackendBase(req);
+      return backendBase ? `${backendBase}/api/auth/oauth/google/callback` : "";
+    })();
 
   const frontendBase = getFrontendBase(req);
   const stateValue = String(req.query.state || "").trim();
@@ -2705,7 +2724,10 @@ app.get("/api/auth/oauth/facebook/start", (req,res)=>{
   const appId = readEnvFirst("OAUTH_FACEBOOK_APP_ID", "FACEBOOK_APP_ID", "FACEBOOK_OAUTH_APP_ID");
   const appSecret = readEnvFirst("OAUTH_FACEBOOK_APP_SECRET", "FACEBOOK_APP_SECRET", "FACEBOOK_OAUTH_APP_SECRET");
   const redirectUri = readEnvFirst("OAUTH_FACEBOOK_REDIRECT_URI", "FACEBOOK_OAUTH_REDIRECT_URI")
-    || (siteUrl ? `${String(siteUrl).replace(/\/+$/,"")}/api/auth/oauth/facebook/callback` : "");
+    || (()=>{
+      const backendBase = getBackendBase(req);
+      return backendBase ? `${backendBase}/api/auth/oauth/facebook/callback` : "";
+    })();
 
   if(!appId || !appSecret || !redirectUri){
     return res.status(400).send("Facebook OAuth is not configured on the server.");
@@ -2730,7 +2752,10 @@ app.get("/api/auth/oauth/facebook/callback", async (req,res)=>{
   const appId = readEnvFirst("OAUTH_FACEBOOK_APP_ID", "FACEBOOK_APP_ID", "FACEBOOK_OAUTH_APP_ID");
   const appSecret = readEnvFirst("OAUTH_FACEBOOK_APP_SECRET", "FACEBOOK_APP_SECRET", "FACEBOOK_OAUTH_APP_SECRET");
   const redirectUri = readEnvFirst("OAUTH_FACEBOOK_REDIRECT_URI", "FACEBOOK_OAUTH_REDIRECT_URI")
-    || (siteUrl ? `${String(siteUrl).replace(/\/+$/,"")}/api/auth/oauth/facebook/callback` : "");
+    || (()=>{
+      const backendBase = getBackendBase(req);
+      return backendBase ? `${backendBase}/api/auth/oauth/facebook/callback` : "";
+    })();
 
   const frontendBase = getFrontendBase(req);
   const stateValue = String(req.query.state || "").trim();

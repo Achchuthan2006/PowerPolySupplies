@@ -83,6 +83,18 @@
     return category || "";
   }
 
+  function packPillHtml(category){
+    const cat = String(category || "");
+    if(cat !== "Hangers") return "";
+    const label = tt("pack.label", "Pack");
+    const pack = tt("pack.hangers_500", "500 pcs / box");
+    return `
+      <div class="feature-badges" aria-label="${label}">
+        <span class="feature-pill">${pack}</span>
+      </div>
+    `;
+  }
+
   function stockClass(stock) {
     if (stock <= 0) return "out";
     if (stock <= 10) return "low";
@@ -410,6 +422,7 @@
             <div class="card-meta">${categoryLabel(p.category)}</div>
             <div class="specials-countdown" data-ends="${endsAt}"></div>
           </div>
+          ${packPillHtml(p.category)}
 
           <div class="member-pricing">
             <div>
