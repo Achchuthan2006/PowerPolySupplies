@@ -63,6 +63,41 @@ function render(){
   const cart = PPS.getCart();
   const list = document.getElementById("cartList");
   const totalEl = document.getElementById("total");
+  const heroIllustration = document.querySelector(".cart-hero-illustration");
+  const boxWrap = document.getElementById("cartLoadBoxes");
+
+  function setHeroState(state){
+    if(!heroIllustration) return;
+    heroIllustration.setAttribute("data-cart-state", state);
+    if(state === "empty" && boxWrap){
+      boxWrap.innerHTML = "";
+    }
+  }
+
+  function renderLoadBoxes(){
+    if(!heroIllustration || !boxWrap) return;
+    const totalQty = Array.isArray(cart)
+      ? cart.reduce((sum, item)=> sum + (Number(item?.qty) || 0), 0)
+      : 0;
+    if(totalQty <= 0){
+      setHeroState("empty");
+      return;
+    }
+    setHeroState("filled");
+
+    const count = Math.min(7, Math.max(2, Math.ceil(totalQty / 3)));
+    boxWrap.innerHTML = Array.from({ length: count }).map((_, i)=>{
+      const delay = (i * 0.32).toFixed(2);
+      const left = 10 + (i % 3) * 6;
+      const bottom = 22 + (i % 2) * 5;
+      const w = 15 + (i % 2) * 2;
+      const h = 11 + ((i + 1) % 2) * 2;
+      return `<span class="cart-load-box" style="--d:${delay}s; left:${left}px; bottom:${bottom}px; width:${w}px; height:${h}px;"></span>`;
+    }).join("");
+  }
+
+  // Always keep hero animation in sync with cart state.
+  renderLoadBoxes();
 
   if(cart.length === 0){
     setCheckoutCtaState(true);

@@ -592,6 +592,7 @@ function setupSearch(){
   });
 
   let cachedProducts = null;
+  let cachedIndex = null;
   const ensureProducts = async ()=>{
     if(cachedProducts && cachedProducts.length){
       return cachedProducts;
@@ -601,6 +602,20 @@ function setupSearch(){
       return cachedProducts;
     }
     return [];
+  };
+
+  const ensureIndex = async ()=>{
+    if(cachedIndex && cachedIndex.length){
+      return cachedIndex;
+    }
+    const products = await ensureProducts();
+    cachedIndex = (Array.isArray(products) ? products : []).map((p)=>{
+      const name = normalizeSearchText(p?.name);
+      const slug = normalizeSearchText(p?.slug);
+      const category = normalizeSearchText(p?.category);
+      return { p, name, slug, category };
+    });
+    return cachedIndex;
   };
 
   forms.forEach(form=>{
@@ -621,6 +636,30 @@ function setupSearch(){
     const hideBox = ()=>{
       box.hidden = true;
       box.innerHTML = "";
+    };
+
+    let activeIndex = -1;
+    const setActiveIndex = (next)=>{
+      const buttons = Array.from(box.querySelectorAll("button"));
+      if(!buttons.length){
+        activeIndex = -1;
+        return;
+      }
+      const max = buttons.length - 1;
+      const idx = Math.min(max, Math.max(0, Number(next) || 0));
+      activeIndex = idx;
+      buttons.forEach((b, i)=>{
+        b.classList.toggle("active", i === activeIndex);
+        b.setAttribute("aria-selected", i === activeIndex ? "true" : "false");
+      });
+      try{ buttons[activeIndex]?.scrollIntoView?.({ block:"nearest" }); }catch(_err){}
+    };
+
+    const getActiveButton = ()=>{
+      const buttons = Array.from(box.querySelectorAll("button"));
+      if(!buttons.length) return null;
+      if(activeIndex < 0 || activeIndex >= buttons.length) return null;
+      return buttons[activeIndex] || null;
     };
 
     const renderSuggestions = (items)=>{
@@ -648,42 +687,122 @@ function setupSearch(){
         </button>`;
       }).join("");
       box.hidden = false;
+      activeIndex = -1;
     };
 
-    input.addEventListener("input", async ()=>{
-      const query = normalizeSearchText(input.value);
-      if(!query){
-        hideBox();
-        return;
-      }
-      const products = await ensureProducts();
-      const matches = products.filter(p=>{
-        const name = normalizeSearchText(p.name);
-        const slug = normalizeSearchText(p.slug);
-        const cat = normalizeSearchText(p.category);
-        return name.includes(query) || slug.includes(query) || cat.includes(query);
+    const buildQueryTokens = (query)=>{
+      let text = normalizeSearchText(query);
+      const replacements = [
+        ["poly bag", "polybag"],
+        ["poly bags", "polybag"],
+        ["garment bag", "garment"],
+        ["garment bags", "garment"],
+        ["struct", "strut"],
+        ["struc", "strut"]
+      ];
+      replacements.forEach(([from, to])=>{
+        const rx = new RegExp(`\\b${from}\\b`, "g");
+        text = text.replace(rx, to);
       });
-      const productItems = matches.slice(0, 8).map(p=>({
-        type: "product",
-        value: p.slug,
-        label: p.name,
-        image: p.image,
-        category: p.category,
-        price: window.PPS?.money ? PPS.money(PPS.getTieredPriceCents?.(p, 1) ?? p.priceCents, p.currency) : "",
-        stockLabel: p.stock <= 0 ? (window.PPS_I18N?.t("products.stock.out") || "Out of stock") : p.stock <= 10 ? (window.PPS_I18N?.t("products.stock.low") || "Almost out") : (window.PPS_I18N?.t("products.stock.in") || "In stock")
-      }));
+      const tokens = text.split(" ").filter(t=>t.length >= 2);
+      const expanded = new Set(tokens);
+      tokens.forEach(t=>{
+        if(t.endsWith("s") && t.length > 3) expanded.add(t.slice(0, -1));
+      });
+      return Array.from(expanded);
+    };
 
-      const categories = Array.from(new Set(products.map(p=>p.category).filter(Boolean)));
-      const categoryItems = categories
-        .filter(cat=>normalizeSearchText(cat).includes(query))
-        .slice(0, 3)
-        .map(cat=>({
-          type: "category",
-          value: cat,
-          label: cat
+    let inputTimer = 0;
+    input.addEventListener("input", ()=>{
+      clearTimeout(inputTimer);
+      inputTimer = window.setTimeout(async ()=>{
+        const raw = String(input.value || "");
+        const query = normalizeSearchText(raw);
+        if(!query){
+          hideBox();
+          return;
+        }
+
+        const index = await ensureIndex();
+        const tokens = buildQueryTokens(raw);
+        const scoreMatch = (item)=>{
+          const name = item.name;
+          const slug = item.slug;
+          const cat = item.category;
+          if(!name && !slug && !cat) return 0;
+          let score = 0;
+          if(query && (query === name || query === slug)) score += 18;
+          if(query && (name.startsWith(query) || slug.startsWith(query))) score += 10;
+          if(query && (name.includes(query) || slug.includes(query))) score += 6;
+          if(query && cat.includes(query)) score += 4;
+          for(const t of tokens){
+            if(!t) continue;
+            if(name.includes(t) || slug.includes(t)) score += 2;
+            if(cat.includes(t)) score += 1;
+          }
+          return score;
+        };
+
+        const ranked = index
+          .map((x)=> ({ x, score: scoreMatch(x) }))
+          .filter(r=> r.score > 0)
+          .sort((a,b)=> b.score - a.score)
+          .slice(0, 8)
+          .map(r=> r.x.p);
+
+        const productItems = ranked.map(p=>({
+          type: "product",
+          value: p.slug,
+          label: p.name,
+          image: p.image,
+          category: p.category,
+          price: window.PPS?.money ? PPS.money(PPS.getTieredPriceCents?.(p, 1) ?? p.priceCents, p.currency) : "",
+          stockLabel: p.stock <= 0 ? (window.PPS_I18N?.t("products.stock.out") || "Out of stock") : p.stock <= 10 ? (window.PPS_I18N?.t("products.stock.low") || "Almost out") : (window.PPS_I18N?.t("products.stock.in") || "In stock")
         }));
 
-      renderSuggestions([...productItems, ...categoryItems]);
+        const products = await ensureProducts();
+        const categories = Array.from(new Set((Array.isArray(products) ? products : []).map(p=>p.category).filter(Boolean)));
+        const categoryItems = categories
+          .filter(cat=>normalizeSearchText(cat).includes(query))
+          .slice(0, 3)
+          .map(cat=>({
+            type: "category",
+            value: cat,
+            label: cat
+          }));
+
+        renderSuggestions([...productItems, ...categoryItems]);
+      }, 120);
+    });
+
+    input.addEventListener("keydown", (event)=>{
+      if(box.hidden) return;
+      const key = event.key;
+      if(key === "Escape"){
+        hideBox();
+        event.preventDefault();
+        return;
+      }
+      if(key === "ArrowDown"){
+        const buttons = box.querySelectorAll("button");
+        if(!buttons.length) return;
+        setActiveIndex(activeIndex < 0 ? 0 : activeIndex + 1);
+        event.preventDefault();
+        return;
+      }
+      if(key === "ArrowUp"){
+        const buttons = box.querySelectorAll("button");
+        if(!buttons.length) return;
+        setActiveIndex(activeIndex <= 0 ? 0 : activeIndex - 1);
+        event.preventDefault();
+        return;
+      }
+      if(key === "Enter"){
+        const btn = getActiveButton();
+        if(!btn) return;
+        event.preventDefault();
+        btn.click();
+      }
     });
 
     input.addEventListener("focus", ()=>{
@@ -698,13 +817,15 @@ function setupSearch(){
     box.addEventListener("mousedown", (event)=>{
       const target = event.target;
       if(!(target instanceof HTMLElement)) return;
-      if(target.matches("button[data-slug]")){
-        const slug = target.getAttribute("data-slug");
+      const btn = target.closest("button[data-slug], button[data-cat]");
+      if(!btn) return;
+      if(btn.matches("button[data-slug]")){
+        const slug = btn.getAttribute("data-slug");
         if(slug){
           window.location.href = `./product.html?slug=${encodeURIComponent(slug)}`;
         }
-      }else if(target.matches("button[data-cat]")){
-        const cat = target.getAttribute("data-cat");
+      }else if(btn.matches("button[data-cat]")){
+        const cat = btn.getAttribute("data-cat");
         if(cat){
           window.location.href = `./products.html?cat=${encodeURIComponent(cat)}`;
         }

@@ -56,7 +56,21 @@
   <div class="container page">
     <section class="cart-hero fade-in">
       <div class="cart-hero-inner">
-        <div class="cart-hero-illustration" aria-hidden="true">
+        <div class="cart-hero-illustration" aria-hidden="true" data-cart-state="empty">
+          <div class="cart-load-scene" id="cartLoadScene" aria-hidden="true">
+            <div class="cart-load-worker" aria-hidden="true">
+              <span class="cart-load-head"></span>
+              <span class="cart-load-torso"></span>
+              <span class="cart-load-arm"></span>
+            </div>
+            <div class="cart-load-dolly" aria-hidden="true">
+              <span class="cart-load-dolly-bed"></span>
+              <span class="cart-load-dolly-handle"></span>
+              <span class="cart-load-dolly-wheel left"></span>
+              <span class="cart-load-dolly-wheel right"></span>
+            </div>
+            <div class="cart-load-boxes" id="cartLoadBoxes" aria-hidden="true"></div>
+          </div>
           <svg class="cart-van" viewBox="0 0 240 140" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
             <defs>
               <linearGradient id="ppsVanBody" x1="0" y1="0" x2="1" y2="1">
