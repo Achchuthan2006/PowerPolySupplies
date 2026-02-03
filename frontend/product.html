@@ -68,37 +68,15 @@
     function qs(name){ return new URLSearchParams(location.search).get(name); }
 
     function categoryLabel(category){
-      const lang = window.PPS_I18N?.getLang?.() || "en";
-      if(lang === "fr"){
-        const map = {
-          "Garment Bags": "Housses de vetements",
-          "Hangers": "Cintres",
-          "Polybags": "Sacs en poly",
-          "Wraps": "Films",
-          "Racks": "Portants"
-        };
-        return map[category] || category || "";
-      }
-      if(lang === "ko"){
-        const map = {
-          "Garment Bags": "Garment Bags",
-          "Hangers": "Hangers",
-          "Polybags": "Polybags",
-          "Wraps": "Wraps",
-          "Racks": "Racks"
-        };
-        return map[category] || category || "";
-      }
-      if(lang === "es"){
-        const map = {
-          "Garment Bags": "Bolsas para prendas",
-          "Hangers": "Ganchos",
-          "Polybags": "Bolsas de polietileno",
-          "Wraps": "Film",
-          "Racks": "Percheros"
-        };
-        return map[category] || category || "";
-      }
+      const map = {
+        "Garment Bags": "nav.garment",
+        "Polybags": "nav.polybags",
+        "Hangers": "nav.hangers",
+        "Wraps": "nav.wraps",
+        "Racks": "nav.racks"
+      };
+      const key = map[String(category || "").trim()];
+      if(key && window.PPS_I18N?.t) return window.PPS_I18N.t(key);
       return category || "";
     }
 

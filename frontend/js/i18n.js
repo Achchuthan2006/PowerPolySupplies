@@ -4609,6 +4609,12 @@ const PPS_I18N = (() => {
       ["Fast shipping", "快速发货"],
       ["Responsive support", "快速支持"],
       ["Shop by Category", "按类别选购"],
+      ["Garment Cover Bags", "服装防尘袋"],
+      ["Garment Bags", "服装防尘袋"],
+      ["Polybags", "塑料袋"],
+      ["Hangers", "衣架"],
+      ["Wraps", "缠绕膜"],
+      ["Racks", "衣架推车"],
       ["Special Offers", "特价优惠"],
       ["Special offers", "特价优惠"],
       ["Resources", "资源"],
@@ -4765,6 +4771,169 @@ const PPS_I18N = (() => {
     return out;
   }
 
+  function autoTranslateKo(text){
+    if(!text) return text;
+    let out = String(text);
+    const placeholders = [];
+    out = out.replace(/\{\{[^}]+\}\}/g, (match)=>{
+      placeholders.push(match);
+      return `__PPS_PLACEHOLDER_${placeholders.length - 1}__`;
+    });
+
+    const phraseMap = [
+      ["Bulk-ready stock | Fast response | Canada-wide supply", "대량 재고 준비 | 빠른 응답 | 캐나다 전역 공급"],
+      ["Power your packaging", "포장에 힘을 실어주세요"],
+      ["Browse Products", "제품 둘러보기"],
+      ["Browse products", "제품 둘러보기"],
+      ["View Special Offers", "특가 보기"],
+      ["Shop by Category", "카테고리별 쇼핑"],
+      ["Special Offers", "특가"],
+      ["Special offers", "특가"],
+      ["Resources", "리소스"],
+      ["Industry", "산업"],
+      ["Industries", "산업"],
+      ["Blog", "블로그"],
+      ["Blog & news", "블로그 & 뉴스"],
+      ["About Us", "회사 소개"],
+      ["Contact Us", "문의하기"],
+      ["Contact", "연락처"],
+      ["Feedback", "피드백"],
+      ["Account", "계정"],
+      ["My Account", "내 계정"],
+      ["Create account", "계정 만들기"],
+      ["Log in", "로그인"],
+      ["Sign in", "로그인"],
+      ["Sign up", "회원가입"],
+      ["Cart", "장바구니"],
+      ["Search", "검색"],
+      ["Your cart is empty.", "장바구니가 비어 있습니다."],
+      ["Continue shopping", "쇼핑 계속하기"],
+      ["Go to cart", "장바구니로 이동"],
+      ["Go to checkout", "결제하기"],
+      ["Checkout", "결제"],
+      ["Add to cart", "장바구니에 담기"],
+      ["Remove from cart", "장바구니에서 제거"],
+      ["Add to favorites", "즐겨찾기에 추가"],
+      ["Remove from favorites", "즐겨찾기에서 제거"],
+      ["In stock", "재고 있음"],
+      ["Out of stock", "품절"],
+      ["Low stock", "재고 부족"],
+      ["Secure payments via Square", "Square를 통한 안전 결제"],
+      ["Secure Square checkout", "Square 안전 결제"],
+      ["Shipping & Returns", "배송 및 반품"],
+      ["Privacy Policy", "개인정보 처리방침"],
+      ["Terms & Conditions", "이용약관"],
+      ["Tax", "세금"],
+      ["Shipping", "배송"],
+      ["Total", "합계"],
+      ["Subtotal", "소계"],
+      ["Pay later", "나중에 결제"],
+      ["Redirecting to Square...", "Square로 이동 중..."],
+      ["Server unreachable. Please try again.", "서버에 연결할 수 없습니다. 다시 시도해주세요."],
+      ["Order failed. Check backend is running.", "주문에 실패했습니다. 백엔드가 실행 중인지 확인하세요."]
+    ];
+    phraseMap.forEach(([from, to])=>{ out = out.split(from).join(to); });
+
+    const wordMap = {
+      "home": "홈",
+      "menu": "메뉴",
+      "resources": "리소스",
+      "guides": "가이드",
+      "guide": "가이드",
+      "industry": "산업",
+      "industries": "산업",
+      "blog": "블로그",
+      "news": "뉴스",
+      "special": "특가",
+      "offers": "오퍼",
+      "offer": "오퍼",
+      "products": "제품",
+      "product": "제품",
+      "category": "카테고리",
+      "categories": "카테고리",
+      "shop": "쇼핑",
+      "browse": "둘러보기",
+      "search": "검색",
+      "account": "계정",
+      "cart": "장바구니",
+      "checkout": "결제",
+      "contact": "연락처",
+      "feedback": "피드백",
+      "about": "소개",
+      "help": "도움말",
+      "support": "지원",
+      "secure": "안전",
+      "payments": "결제",
+      "payment": "결제",
+      "tax": "세금",
+      "shipping": "배송",
+      "total": "합계",
+      "subtotal": "소계",
+      "price": "가격",
+      "member": "회원",
+      "market": "시장",
+      "save": "절약",
+      "limited-time": "기간 한정",
+      "ends": "종료",
+      "deal": "딜",
+      "day": "일",
+      "of": "의",
+      "add": "추가",
+      "added": "추가됨",
+      "remove": "제거",
+      "view": "보기",
+      "continue": "계속",
+      "order": "주문",
+      "orders": "주문",
+      "invoice": "인보이스",
+      "invoices": "인보이스",
+      "download": "다운로드",
+      "email": "이메일",
+      "phone": "전화",
+      "name": "이름",
+      "message": "메시지",
+      "send": "보내기",
+      "submit": "제출",
+      "required": "필수",
+      "optional": "선택",
+      "province": "주",
+      "postal": "우편번호",
+      "address": "주소",
+      "city": "도시",
+      "country": "국가",
+      "quantity": "수량",
+      "qty": "수량",
+      "in": "있음",
+      "out": "없음",
+      "stock": "재고",
+      "empty": "비어 있음",
+      "loading": "로딩 중",
+      "refresh": "새로고침",
+      "next": "다음",
+      "back": "뒤로",
+      "continue shopping": "쇼핑 계속하기",
+      "add to cart": "장바구니에 담기",
+      "go to cart": "장바구니로 이동",
+      "go to checkout": "결제하기"
+    };
+
+    const escapeRegExp = (value)=> String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    Object.entries(wordMap).forEach(([from, to])=>{
+      if(!from || !to) return;
+      const hasWordChars = /[A-Za-z0-9]/.test(from);
+      const pattern = hasWordChars && /^[A-Za-z0-9]+$/.test(from)
+        ? new RegExp(`\\b${escapeRegExp(from)}\\b`, "gi")
+        : new RegExp(escapeRegExp(from), "gi");
+      out = out.replace(pattern, to);
+    });
+
+    out = out.replace(/__PPS_PLACEHOLDER_(\d+)__/g, (_, index)=>{
+      const i = Number(index);
+      return Number.isInteger(i) && placeholders[i] ? placeholders[i] : "";
+    });
+    return out;
+  }
+
   function autoTranslateEs(text){
     if(!text) return text;
     let out = String(text);
@@ -4897,10 +5066,12 @@ const PPS_I18N = (() => {
     if(!text) return text;
     if(langKey === "en") return text;
 
-    // Spanish + Mandarin have special word/phrase maps. Use them first, then fall back to dictionary phrases too.
+    // Spanish + Mandarin + Korean have special word/phrase maps. Use them first, then fall back to dictionary phrases too.
     let out = langKey === "es"
       ? autoTranslateEs(text)
-      : (langKey === "zh" ? autoTranslateZh(text) : String(text));
+      : (langKey === "zh"
+        ? autoTranslateZh(text)
+        : (langKey === "ko" ? autoTranslateKo(text) : String(text)));
 
     const placeholders = [];
     out = out.replace(/\{\{[^}]+\}\}/g, (match)=>{
@@ -4928,6 +5099,9 @@ const PPS_I18N = (() => {
     let value = base || PPS_TRANSLATIONS.en?.[key] || "";
     if(langKey === "es" && !base && PPS_TRANSLATIONS.en?.[key]){
       value = autoTranslateEs(PPS_TRANSLATIONS.en[key]);
+    }
+    if(langKey === "ko" && !base && PPS_TRANSLATIONS.en?.[key]){
+      value = autoTranslate(PPS_TRANSLATIONS.en[key], "ko");
     }
     if(langKey === "zh" && !base && PPS_TRANSLATIONS.en?.[key]){
       value = autoTranslateZh(PPS_TRANSLATIONS.en[key]);
