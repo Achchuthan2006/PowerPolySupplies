@@ -3462,21 +3462,33 @@ html[lang="fr"] .navlinks a{
 .product-gallery-main:hover img{
   transform: scale(1.06);
 }
+body.pps-modal-open .product-gallery-main:hover img{
+  transform: none;
+}
 
 /* Zoom overlay */
 .pps-zoom-overlay{
   position:fixed;
   inset:0;
   z-index:3000;
-  display:none;
+  display:flex;
   align-items:center;
   justify-content:center;
   padding:18px;
   background: rgba(17,24,39,.55);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition: opacity .16s ease, visibility 0s linear .16s;
 }
-.pps-zoom-overlay.open{ display:flex; }
+.pps-zoom-overlay.open{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  transition: opacity .16s ease;
+}
 .pps-zoom-dialog{
   width:min(980px, 94vw);
   max-height: 90vh;
@@ -3487,6 +3499,13 @@ html[lang="fr"] .navlinks a{
   position:relative;
   overflow:hidden;
   padding:14px;
+  transform: translateY(14px) scale(.985);
+  opacity:0;
+  transition: transform .2s cubic-bezier(.2,.8,.2,1), opacity .16s ease;
+}
+.pps-zoom-overlay.open .pps-zoom-dialog{
+  transform: translateY(0) scale(1);
+  opacity:1;
 }
 .pps-zoom-stage{
   height:min(72vh, 620px);
@@ -3508,6 +3527,7 @@ html[lang="fr"] .navlinks a{
   transform-origin: 50% 50%;
   user-select:none;
   -webkit-user-drag:none;
+  transition: transform .12s ease;
 }
 .pps-zoom-controls{
   display:flex;

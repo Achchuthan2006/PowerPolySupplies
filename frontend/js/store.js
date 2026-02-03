@@ -12,8 +12,8 @@ const CART_KEY = "pps_cart";
 const CART_COOKIE = "pps_cart";
 const CAPED_WE_LOVE_IMAGE = "./assets/welovecaped%20hanger.webp";
 const CLEAR_POLYBAG_IMAGE = "./assets/polybag%20clear.webp";
-const GARMENT_BAGS_IMAGE = "./assets/powerpolyboxesinventory.webp";
-const PRODUCTS_CACHE_KEY = "pps_products_cache_v1";
+const GARMENT_BAGS_IMAGE = "./assets/polybag%20clear.webp";
+const PRODUCTS_CACHE_KEY = "pps_products_cache_v2";
 const PRODUCTS_FAST_MS = 400;
 const WISHLISTS_SUFFIX = "wishlists_v1";
 

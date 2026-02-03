@@ -398,12 +398,12 @@
                 </div>
                 <div class="pps-zoom-overlay" id="ppsZoomOverlay" aria-hidden="true">
                   <div class="pps-zoom-dialog" role="dialog" aria-modal="true" aria-label="Product image zoom">
-                    <button class="pps-modal-close" type="button" id="ppsZoomClose" aria-label="Close">×</button>
+                    <button class="pps-modal-close" type="button" id="ppsZoomClose" aria-label="Close">&times;</button>
                     <div class="pps-zoom-stage" id="ppsZoomStage" aria-hidden="true">
                       <img id="ppsZoomImg" src="${main}" alt="${displayName}" decoding="async">
                     </div>
                     <div class="pps-zoom-controls" role="group" aria-label="Zoom controls">
-                      <button class="btn btn-outline btn-sm" type="button" id="ppsZoomOut" aria-label="Zoom out">−</button>
+                      <button class="btn btn-outline btn-sm" type="button" id="ppsZoomOut" aria-label="Zoom out">&minus;</button>
                       <button class="btn btn-outline btn-sm" type="button" id="ppsZoomReset" aria-label="Reset zoom">Reset</button>
                       <button class="btn btn-primary btn-sm" type="button" id="ppsZoomIn" aria-label="Zoom in">+</button>
                     </div>
@@ -608,6 +608,10 @@
 
         if(!overlay || !stage || !img) return;
 
+        const CLOSE_DELAY_MS = 180;
+        let closeCleanupTimer = 0;
+        let ignoreOutsideClickUntil = 0;
+
         let scale = 1;
         let tx = 0;
         let ty = 0;
@@ -629,13 +633,30 @@
           apply();
         };
         const setOpen = (open)=>{
+          if(closeCleanupTimer){
+            clearTimeout(closeCleanupTimer);
+            closeCleanupTimer = 0;
+          }
           overlay.classList.toggle("open", !!open);
           overlay.setAttribute("aria-hidden", open ? "false" : "true");
           if(open){
             reset();
-            try{ document.documentElement.style.overflow = "hidden"; }catch(_err){}
+            try{
+              document.body.classList.add("pps-modal-open");
+              const scrollbar = Math.max(0, window.innerWidth - document.documentElement.clientWidth);
+              document.body.style.paddingRight = scrollbar ? `${scrollbar}px` : "";
+              document.documentElement.style.overflow = "hidden";
+            }catch(_err){}
           }else{
-            try{ document.documentElement.style.overflow = ""; }catch(_err){}
+            // Delay restoring scrollbars until the fade-out completes to avoid visible layout "twitch".
+            closeCleanupTimer = setTimeout(()=>{
+              closeCleanupTimer = 0;
+              try{
+                document.documentElement.style.overflow = "";
+                document.body.style.paddingRight = "";
+                document.body.classList.remove("pps-modal-open");
+              }catch(_err){}
+            }, CLOSE_DELAY_MS);
           }
         };
 
@@ -658,13 +679,19 @@
           apply();
         };
 
-        const open = ()=> setOpen(true);
+        const open = ()=>{
+          if(overlay.classList.contains("open")) return;
+          ignoreOutsideClickUntil = (window.performance?.now?.() || Date.now()) + 320;
+          setOpen(true);
+        };
         const close = ()=> setOpen(false);
 
         if(zoomBtn) zoomBtn.addEventListener("click", open);
         if(mainImg) mainImg.addEventListener("click", open);
         if(closeBtn) closeBtn.addEventListener("click", close);
         overlay.addEventListener("click", (e)=>{
+          const now = window.performance?.now?.() || Date.now();
+          if(now < ignoreOutsideClickUntil) return;
           if(e.target === overlay) close();
         });
         document.addEventListener("keydown", (e)=>{
@@ -696,6 +723,7 @@
           if(!overlay.classList.contains("open")) return;
           if(scale <= 1) return;
           dragging = true;
+          try{ img.style.transition = "none"; }catch(_err){}
           stage.setPointerCapture?.(e.pointerId);
           dragStartX = e.clientX;
           dragStartY = e.clientY;
@@ -715,10 +743,12 @@
           if(!dragging) return;
           dragging = false;
           stage.releasePointerCapture?.(e.pointerId);
+          try{ img.style.transition = ""; }catch(_err){}
           apply();
         });
         stage.addEventListener("pointercancel", ()=>{
           dragging = false;
+          try{ img.style.transition = ""; }catch(_err){}
           apply();
         });
 
