@@ -36,6 +36,12 @@ function buildCorsAllowlist(){
   const site = normalizeOrigin(process.env.SITE_URL);
   if(site) allow.add(site);
 
+  // Production domains (fallback in case env vars are not set correctly).
+  [
+    "https://powerpolysupplies.com",
+    "https://www.powerpolysupplies.com"
+  ].forEach(o=>allow.add(o));
+
   // Local dev convenience (safe because these are non-production origins).
   // Keep enabled even in hosted environments so you can test a deployed backend from a local frontend.
   [
