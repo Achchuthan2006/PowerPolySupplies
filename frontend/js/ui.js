@@ -2157,8 +2157,202 @@ function setupAuthModalTriggers(){
   }
 }
 
+function setupTopProgressBar(){
+  const existing = document.getElementById("ppsTopProgress");
+  if(existing) return existing;
+
+  const wrap = document.createElement("div");
+  wrap.className = "pps-top-progress";
+  wrap.id = "ppsTopProgress";
+  wrap.setAttribute("aria-hidden", "true");
+  wrap.innerHTML = `<div class="pps-top-progress__bar"></div>`;
+
+  // Prefer placing it before sticky header so it stays visually "on top".
+  document.body.insertAdjacentElement("afterbegin", wrap);
+  return wrap;
+}
+
+function createTopProgressController(){
+  const wrap = setupTopProgressBar();
+  const bar = wrap.querySelector(".pps-top-progress__bar");
+  if(!bar) return null;
+
+  let rafId = 0;
+  let current = 0;
+  let target = 0;
+  let hidingTimer = 0;
+
+  const clamp01 = (n)=> Math.max(0, Math.min(1, n));
+
+  const render = ()=>{
+    bar.style.transform = `scaleX(${current.toFixed(4)})`;
+  };
+
+  const stopRaf = ()=>{
+    if(rafId){
+      cancelAnimationFrame(rafId);
+      rafId = 0;
+    }
+  };
+
+  const tick = ()=>{
+    // Ease towards target with a small constant drift (feels like loading).
+    const delta = (target - current) * 0.16 + 0.0025;
+    current = clamp01(current + Math.max(0, delta));
+    render();
+
+    if(current + 0.002 < target){
+      rafId = requestAnimationFrame(tick);
+    }else{
+      stopRaf();
+    }
+  };
+
+  const show = ()=>{
+    clearTimeout(hidingTimer);
+    wrap.classList.add("active");
+  };
+
+  const hide = ()=>{
+    wrap.classList.remove("active");
+  };
+
+  const start = (initial = 0.08)=>{
+    show();
+    current = Math.max(current, clamp01(initial));
+    target = Math.max(target, 0.82);
+    render();
+    if(!rafId) rafId = requestAnimationFrame(tick);
+  };
+
+  const set = (value)=>{
+    show();
+    current = clamp01(value);
+    target = Math.max(target, current);
+    render();
+  };
+
+  const done = ()=>{
+    show();
+    stopRaf();
+    current = 1;
+    target = 1;
+    render();
+    clearTimeout(hidingTimer);
+    hidingTimer = setTimeout(()=>{
+      hide();
+      // Reset after fade so the next start doesn't jump.
+      setTimeout(()=>{
+        current = 0;
+        target = 0;
+        render();
+      }, 170);
+    }, 160);
+  };
+
+  return { start, set, done };
+}
+
+function setupPageTransitionProgress(){
+  const controller = createTopProgressController();
+  if(!controller) return;
+
+  const NAV_FLAG = "pps_nav_progress";
+
+  const markNextPage = ()=>{
+    try{ sessionStorage.setItem(NAV_FLAG, String(Date.now())); }catch(_err){}
+  };
+
+  const consumeNavFlag = ()=>{
+    try{
+      const raw = sessionStorage.getItem(NAV_FLAG);
+      if(!raw) return false;
+      sessionStorage.removeItem(NAV_FLAG);
+      const ts = Number(raw) || 0;
+      return ts > 0 && (Date.now() - ts) < 10000;
+    }catch(_err){
+      return false;
+    }
+  };
+
+  // If we arrived here from a click on a previous page, show immediately.
+  if(consumeNavFlag()){
+    controller.start(0.14);
+  }
+
+  // Start on internal link navigation (capture so we run before the browser leaves).
+  document.addEventListener("click", (event)=>{
+    if(event.defaultPrevented) return;
+    if(event.button !== 0) return;
+    if(event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+    const target = event.target;
+    if(!(target instanceof Node)) return;
+    const link = target.closest?.("a");
+    if(!link) return;
+    if(link.hasAttribute("download")) return;
+    const href = String(link.getAttribute("href") || "").trim();
+    if(!href) return;
+    if(href.startsWith("#")) return;
+    if(/^mailto:/i.test(href) || /^tel:/i.test(href) || /^javascript:/i.test(href)) return;
+
+    const targetAttr = String(link.getAttribute("target") || "").trim();
+    if(targetAttr && targetAttr !== "_self") return;
+
+    let url = null;
+    try{
+      url = new URL(href, window.location.href);
+    }catch(_err){
+      return;
+    }
+    if(!url || url.origin !== window.location.origin) return;
+
+    // Same-page hash jumps shouldn't show a loader.
+    const samePath = url.pathname === window.location.pathname && url.search === window.location.search;
+    if(samePath && url.hash) return;
+
+    controller.start(0.08);
+    markNextPage();
+  }, true);
+
+  // Start on form submissions that navigate away (ex: search).
+  document.addEventListener("submit", (event)=>{
+    if(event.defaultPrevented) return;
+    const form = event.target;
+    if(!(form instanceof HTMLFormElement)) return;
+
+    const action = String(form.getAttribute("action") || window.location.href).trim();
+    if(!action) return;
+    if(/^javascript:/i.test(action)) return;
+
+    let url = null;
+    try{
+      url = new URL(action, window.location.href);
+    }catch(_err){
+      return;
+    }
+    if(url.origin !== window.location.origin) return;
+
+    controller.start(0.08);
+    markNextPage();
+  }, true);
+
+  // Finish when the page finishes loading.
+  const finish = ()=> controller.done();
+  window.addEventListener("load", finish);
+  window.addEventListener("pageshow", (e)=>{
+    if(e && e.persisted) finish();
+  });
+  if(document.readyState === "complete"){
+    setTimeout(finish, 0);
+  }
+}
+
 // Run ASAP so login.html doesn't render before the redirect.
 handleOauthReturn();
+
+// Setup transition progress as soon as the UI script is loaded.
+setupPageTransitionProgress();
 
 window.addEventListener("DOMContentLoaded", ()=>{
   try{

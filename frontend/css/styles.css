@@ -18,6 +18,49 @@
   --glow:0 18px 45px rgba(255,122,26,.22);
 }
 
+/* Top page-transition progress bar */
+.pps-top-progress{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:3px;
+  z-index:9999;
+  opacity:0;
+  pointer-events:none;
+  transition: opacity 160ms ease;
+}
+.pps-top-progress.active{ opacity:1; }
+.pps-top-progress__bar{
+  height:100%;
+  width:100%;
+  transform:scaleX(0);
+  transform-origin:left;
+  background:
+    linear-gradient(90deg,
+      rgba(255,255,255,.18) 0%,
+      rgba(255,255,255,.35) 12%,
+      rgba(255,255,255,0) 26%,
+      rgba(255,255,255,0) 64%,
+      rgba(255,255,255,.45) 78%,
+      rgba(255,255,255,.18) 100%),
+    linear-gradient(90deg, var(--primary), var(--primary-strong));
+  background-size: 220% 100%, 100% 100%;
+  box-shadow: 0 0 0 1px rgba(255,122,26,.14), 0 10px 22px rgba(255,122,26,.25);
+  filter:saturate(1.05);
+  will-change: transform, background-position;
+}
+.pps-top-progress.active .pps-top-progress__bar{
+  animation: pps-progress-shine 1.05s linear infinite;
+}
+@keyframes pps-progress-shine{
+  0%{ background-position: 0% 0, 0 0; }
+  100%{ background-position: 100% 0, 0 0; }
+}
+@media (prefers-reduced-motion: reduce){
+  .pps-top-progress.active .pps-top-progress__bar{ animation:none; }
+}
+
 
 *{box-sizing:border-box}
 html{ scroll-behavior:smooth; }
@@ -3432,116 +3475,7 @@ html[lang="fr"] .navlinks a{
   height:420px;
   object-fit:contain;
   background:rgba(255,250,243,.9);
-  transform: scale(1);
-  transition: transform .35s ease;
 }
-.product-zoom-btn{
-  position:absolute;
-  right:12px;
-  bottom:12px;
-  width:42px;
-  height:42px;
-  border-radius:14px;
-  border:1px solid rgba(241,223,204,.95);
-  background: rgba(255,255,255,.82);
-  box-shadow:0 18px 40px rgba(17,24,39,.12);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
-}
-.product-zoom-btn:hover{ transform: translateY(-1px); box-shadow:0 20px 46px rgba(17,24,39,.14); }
-.product-zoom-btn:active{ transform: translateY(0); }
-.product-zoom-btn .zoom-plus{
-  font-weight:1000;
-  font-size:22px;
-  line-height:1;
-  color:#111827;
-}
-.product-gallery-main:hover img{
-  transform: scale(1.06);
-}
-body.pps-modal-open .product-gallery-main:hover img{
-  transform: none;
-}
-
-/* Zoom overlay */
-.pps-zoom-overlay{
-  position:fixed;
-  inset:0;
-  z-index:3000;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:18px;
-  background: rgba(17,24,39,.55);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  opacity:0;
-  visibility:hidden;
-  pointer-events:none;
-  transition: opacity .16s ease, visibility 0s linear .16s;
-}
-.pps-zoom-overlay.open{
-  opacity:1;
-  visibility:visible;
-  pointer-events:auto;
-  transition: opacity .16s ease;
-}
-.pps-zoom-dialog{
-  width:min(980px, 94vw);
-  max-height: 90vh;
-  background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,247,239,.92));
-  border:1px solid rgba(241,223,204,.9);
-  border-radius:22px;
-  box-shadow:0 40px 120px rgba(17,24,39,.35);
-  position:relative;
-  overflow:hidden;
-  padding:14px;
-  transform: translateY(14px) scale(.985);
-  opacity:0;
-  transition: transform .2s cubic-bezier(.2,.8,.2,1), opacity .16s ease;
-}
-.pps-zoom-overlay.open .pps-zoom-dialog{
-  transform: translateY(0) scale(1);
-  opacity:1;
-}
-.pps-zoom-stage{
-  height:min(72vh, 620px);
-  border-radius:18px;
-  border:1px solid rgba(241,223,204,.9);
-  background: #ffffff;
-  overflow:hidden;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  touch-action: none;
-}
-.pps-zoom-stage img{
-  width:100%;
-  height:100%;
-  object-fit:contain;
-  padding:16px;
-  transform: translate(0,0) scale(1);
-  transform-origin: 50% 50%;
-  user-select:none;
-  -webkit-user-drag:none;
-  transition: transform .12s ease;
-}
-.pps-zoom-controls{
-  display:flex;
-  gap:10px;
-  justify-content:center;
-  margin-top:12px;
-  flex-wrap:wrap;
-}
-.pps-zoom-hint{
-  margin-top:8px;
-  text-align:center;
-  font-size:12px;
-  font-weight:800;
-  color: var(--muted);
 }
 .product-gallery-thumbs{
   display:flex;
