@@ -6269,24 +6269,6 @@ select.input option:hover{
   100%{ transform: translateX(55%) rotate(10deg); opacity:0; }
 }
 
-.offer-code-row{
-  display:flex;
-  gap:10px;
-  align-items:center;
-  flex-wrap:wrap;
-}
-.offer-code{
-  flex: 1 1 auto;
-  min-width: 180px;
-  padding:10px 12px;
-  border-radius:12px;
-  border:1px dashed rgba(240,127,41,.6);
-  background:rgba(240,127,41,.08);
-  font-weight:1000;
-  letter-spacing:.8px;
-  text-align:center;
-}
-
 .input.error{
   border-color: rgba(198,40,40,.5);
   box-shadow: 0 0 0 3px rgba(198,40,40,.15);

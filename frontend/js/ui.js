@@ -902,84 +902,6 @@ function setupCountUp(){
   els.forEach(el=> io.observe(el));
 }
 
-function setupExitIntentOffer(){
-  const prefersReduce = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
-  const isMobile = window.matchMedia?.("(max-width: 860px)")?.matches;
-  if(isMobile) return;
-
-  const key = "pps_exit_offer_v1";
-  let dismissed = false;
-  try{
-    dismissed = localStorage.getItem(key) === "1";
-  }catch(_err){
-    dismissed = false;
-  }
-  if(dismissed) return;
-
-  const overlay = document.createElement("div");
-  overlay.className = "pps-modal-overlay";
-  overlay.id = "exitOffer";
-  overlay.innerHTML = `
-    <div class="pps-modal" role="dialog" aria-modal="true" aria-label="Special offer">
-      <div class="pps-modal-header">
-        <div>
-          <div class="pps-modal-title">Get 10% off your first order</div>
-          <div class="pps-modal-subtitle">Use this code at checkout or mention it in your bulk quote request.</div>
-        </div>
-        <button class="pps-modal-close" type="button" aria-label="Close" data-close>×</button>
-      </div>
-      <div class="pps-modal-body">
-        <div class="offer-code-row">
-          <div class="offer-code" id="offerCode">WELCOME10</div>
-          <button class="btn btn-primary btn-sm" type="button" id="copyOffer">Copy</button>
-        </div>
-        <div id="offerMsg" style="color:var(--muted); font-size:13px; margin-top:8px;"></div>
-        <div class="pps-modal-row" style="margin-top:14px;">
-          <a class="btn btn-primary" href="./products.html">Shop now</a>
-          <a class="btn btn-outline" href="./contact.html">Get a bulk quote</a>
-        </div>
-      </div>
-    </div>
-  `;
-
-  const close = ()=>{
-    overlay.remove();
-    try{ localStorage.setItem(key, "1"); }catch(_err){}
-  };
-
-  overlay.addEventListener("click", (e)=>{
-    const t = e.target;
-    if(!(t instanceof HTMLElement)) return;
-    if(t.hasAttribute("data-close")) close();
-    if(t === overlay) close();
-  });
-
-  const show = ()=>{
-    if(document.getElementById("exitOffer")) return;
-    document.body.appendChild(overlay);
-    overlay.classList.add("open");
-    const btn = document.getElementById("copyOffer");
-    const msg = document.getElementById("offerMsg");
-    btn?.addEventListener("click", async ()=>{
-      try{
-        await navigator.clipboard.writeText("WELCOME10");
-        if(msg) msg.textContent = "Copied to clipboard.";
-      }catch(_err){
-        if(msg) msg.textContent = "Copy manually: WELCOME10";
-      }
-    });
-    // Focus close for accessibility
-    overlay.querySelector(".pps-modal-close")?.focus?.();
-  };
-
-  const handler = (e)=>{
-    if(e.clientY > 0) return;
-    document.removeEventListener("mouseout", handler);
-    show();
-  };
-  document.addEventListener("mouseout", handler);
-}
-
 function injectBottomNav(){
   if(document.querySelector(".bottom-nav")) return;
   const isMobile = window.matchMedia?.("(max-width: 860px)")?.matches;
@@ -2375,7 +2297,6 @@ window.addEventListener("DOMContentLoaded", ()=>{
   injectNotificationsBell();
   setupSearch();
   setupCountUp();
-  setupExitIntentOffer();
   injectBottomNav();
   setupBottomNavSearch();
   injectFooter();
