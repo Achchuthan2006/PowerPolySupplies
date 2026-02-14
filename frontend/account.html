@@ -82,7 +82,9 @@
           <a href="#invoices"><span data-i18n="account.invoices.nav">Invoices</span> <span class="badge" id="invoicesCountBadge">0</span></a>
           <a href="#favorites">Favorites <span class="badge" id="favoritesCountBadge">0</span></a>
           <a href="#reorder">Quick Reorder</a>
+          <a href="#recommendations">Recommendations</a>
           <a href="#templates" data-i18n="account.templates.nav">Order templates</a>
+          <a href="#business">Business</a>
           <a href="#profile">Profile</a>
         </nav>
         <div class="account-sidebar-footer">
@@ -137,6 +139,7 @@
                 <option value="365">Last year</option>
               </select>
               <button class="btn btn-outline btn-sm" type="button" id="exportOrders">Export CSV</button>
+              <span class="order-live">Live updates <span id="ordersUpdatedAt">--</span></span>
             </div>
           </div>
 
@@ -192,7 +195,7 @@
             <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
               <div>
                 <h2 style="margin:0;">Wishlists</h2>
-                <div style="color:var(--muted); font-size:13px; margin-top:4px;">Create lists for future purchases, seasonal needs, or items you're considering.</div>
+                <div style="color:var(--muted); font-size:13px; margin-top:4px;">Create lists for future purchases, seasonal needs, or items you're considering. Enable price alerts per item.</div>
               </div>
               <a class="btn btn-outline btn-sm" href="./products.html">Browse products</a>
             </div>
@@ -449,6 +452,178 @@
             <div style="color:var(--muted); font-size:13px; margin-top:6px;">Quick reorder with your typical quantity and a predicted reorder window.</div>
             <div id="frequentMsg" style="font-size:13px; color:var(--muted); margin:10px 0 8px;"></div>
             <div id="frequentGrid" class="grid grid-3"></div>
+          </div>
+        </section>
+
+        <section id="recommendations" style="margin-top:16px;">
+          <div class="card fade-in" style="padding:18px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+              <h2 style="margin:0;">Recommended based on your orders</h2>
+              <a class="btn btn-outline btn-sm" href="./products.html">Browse all</a>
+            </div>
+            <div style="color:var(--muted); font-size:13px; margin-top:6px;">Items other customers add to similar orders.</div>
+            <div id="orderRecsMsg" style="font-size:13px; color:var(--muted); margin:10px 0 8px;"></div>
+            <div id="orderRecsGrid" class="grid grid-3"></div>
+          </div>
+        </section>
+
+        <section id="business" style="margin-top:16px;">
+          <div class="card fade-in" style="padding:18px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
+              <div>
+                <h2 style="margin:0;">Business account</h2>
+                <div style="color:var(--muted); font-size:13px; margin-top:4px;">Save business details for invoices and statements.</div>
+              </div>
+              <button class="btn btn-outline btn-sm" type="button" id="downloadStatement">Download monthly statement</button>
+            </div>
+            <form id="businessForm" class="grid" style="gap:10px; margin-top:12px;">
+              <input class="input" name="company" placeholder="Company name">
+              <input class="input" name="taxId" placeholder="GST/HST number (optional)">
+              <input class="input" type="email" name="billingEmail" placeholder="Billing email">
+              <label class="pref-item">
+                <input type="checkbox" name="invoiceByEmail">
+                <span>Email invoices automatically</span>
+              </label>
+              <div style="display:flex; gap:10px; justify-content:flex-end;">
+                <button class="btn btn-primary btn-sm" type="submit">Save business profile</button>
+              </div>
+              <div id="businessMsg" style="font-size:13px; color:var(--muted);"></div>
+            </form>
+
+            <div class="business-grid" style="margin-top:14px;">
+              <div class="business-card">
+                <div class="business-title">Account tiers & volume discounts</div>
+                <div class="business-desc">Choose a tier to unlock contract pricing.</div>
+                <form id="businessTierForm" class="business-form">
+                  <label>
+                    <span>Tier</span>
+                    <select class="input" name="tier">
+                      <option value="starter">Starter (0-99 cases)</option>
+                      <option value="growth">Growth (100-299 cases)</option>
+                      <option value="enterprise">Enterprise (300+ cases)</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Monthly volume (cases)</span>
+                    <input class="input" name="volume" type="number" min="0" step="1" value="120">
+                  </label>
+                  <label class="pref-item">
+                    <input type="checkbox" name="contractPricing">
+                    <span>Enable contract pricing</span>
+                  </label>
+                  <button class="btn btn-outline btn-sm" type="submit">Save tier</button>
+                </form>
+                <div class="business-output" id="businessTierOutput">Tier discounts will appear here.</div>
+              </div>
+
+              <div class="business-card">
+                <div class="business-title">Request for Quote (RFQ)</div>
+                <div class="business-desc">Submit a bulk quote request for larger quantities.</div>
+                <form id="rfqForm" class="business-form">
+                  <textarea class="input" name="items" placeholder="List items, sizes, quantities" rows="4"></textarea>
+                  <button class="btn btn-primary btn-sm" type="submit">Submit RFQ</button>
+                </form>
+                <div class="business-output" id="rfqOutput">No RFQ submitted yet.</div>
+              </div>
+
+              <div class="business-card">
+                <div class="business-title">Net payment terms</div>
+                <div class="business-desc">Request net terms for recurring orders.</div>
+                <form id="netTermsForm" class="business-form">
+                  <label>
+                    <span>Preferred terms</span>
+                    <select class="input" name="terms">
+                      <option value="net15">Net 15</option>
+                      <option value="net30">Net 30</option>
+                      <option value="net45">Net 45</option>
+                    </select>
+                  </label>
+                  <label class="pref-item">
+                    <input type="checkbox" name="requestTerms">
+                    <span>Request net terms review</span>
+                  </label>
+                  <button class="btn btn-outline btn-sm" type="submit">Save request</button>
+                </form>
+                <div class="business-output" id="netTermsOutput">Terms request status will show here.</div>
+              </div>
+
+              <div class="business-card">
+                <div class="business-title">Purchase order upload</div>
+                <div class="business-desc">Attach a PO for faster processing.</div>
+                <form id="poUploadForm" class="business-form">
+                  <input class="input" type="file" name="poFile" id="poFile" accept=".pdf,.png,.jpg,.jpeg">
+                  <button class="btn btn-outline btn-sm" type="submit">Upload PO</button>
+                </form>
+                <div class="business-output" id="poUploadOutput">No PO uploaded.</div>
+              </div>
+
+              <div class="business-card">
+                <div class="business-title">Team approvals</div>
+                <div class="business-desc">Add approvers for spend limits.</div>
+                <form id="approvalForm" class="business-form">
+                  <label>
+                    <span>Approver email</span>
+                    <input class="input" name="approverEmail" type="email" placeholder="team@company.com">
+                  </label>
+                  <label>
+                    <span>Spend limit</span>
+                    <input class="input" name="approverLimit" type="number" min="0" step="1" value="1000">
+                  </label>
+                  <button class="btn btn-outline btn-sm" type="submit">Add approver</button>
+                </form>
+                <div class="business-list" id="approvalList"></div>
+              </div>
+
+              <div class="business-card">
+                <div class="business-title">Bulk order templates</div>
+                <div class="business-desc">Save recurring bulk order lists.</div>
+                <form id="bulkTemplateForm" class="business-form">
+                  <input class="input" name="templateName" placeholder="Template name">
+                  <textarea class="input" name="templateItems" rows="3" placeholder="Item + quantity"></textarea>
+                  <button class="btn btn-outline btn-sm" type="submit">Save template</button>
+                </form>
+                <div class="business-list" id="bulkTemplateList"></div>
+              </div>
+
+              <div class="business-card">
+                <div class="business-title">CSV upload for large orders</div>
+                <div class="business-desc">Upload a CSV to populate an order.</div>
+                <form id="csvUploadForm" class="business-form">
+                  <input class="input" type="file" name="csvFile" id="csvFile" accept=".csv">
+                  <button class="btn btn-outline btn-sm" type="submit">Upload CSV</button>
+                </form>
+                <div class="business-output" id="csvUploadOutput">Upload a CSV to preview.</div>
+              </div>
+
+              <div class="business-card">
+                <div class="business-title">Account representative</div>
+                <div class="business-desc">Choose a dedicated rep for priority support.</div>
+                <form id="repAssignForm" class="business-form">
+                  <label>
+                    <span>Preferred rep</span>
+                    <select class="input" name="rep">
+                      <option value="angel">Angel (Sales)</option>
+                      <option value="andrew">Andrew (Product guidance)</option>
+                      <option value="achchu">Achchu (Orders)</option>
+                    </select>
+                  </label>
+                  <button class="btn btn-outline btn-sm" type="submit">Assign rep</button>
+                </form>
+                <div class="business-output" id="repAssignOutput">No rep assigned yet.</div>
+              </div>
+
+              <div class="business-card">
+                <div class="business-title">Credit application</div>
+                <div class="business-desc">Apply for credit and net terms.</div>
+                <form id="creditAppForm" class="business-form">
+                  <input class="input" name="legalName" placeholder="Legal business name">
+                  <input class="input" name="years" type="number" min="0" step="1" placeholder="Years in business">
+                  <input class="input" name="annualSpend" type="number" min="0" step="1" placeholder="Annual spend estimate">
+                  <button class="btn btn-primary btn-sm" type="submit">Submit application</button>
+                </form>
+                <div class="business-output" id="creditAppOutput">No application submitted.</div>
+              </div>
+            </div>
           </div>
         </section>
 

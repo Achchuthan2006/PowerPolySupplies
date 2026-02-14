@@ -56,39 +56,100 @@
   </header>
 
   <div class="container page">
-    <section class="hero hero-split hero-no-media fade-in">
-      <div class="hero-content">
-        <img class="hero-logo" src="./assets/poly%20logo%20without%20background.png" alt="Power Poly Supplies logo" width="110" height="110" decoding="async" fetchpriority="high">
-        <p style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);" data-i18n="index.hero.kicker">Power your packaging</p>
-        <h1 data-i18n="index.hero.title">Power Poly Supplies</h1>
-        <p>
-          <span data-i18n="index.hero.desc">Bulk garment cover bags, poly bags, wraps, racks, and professional-grade hangers. Built for dry cleaners, laundromats, and retailers that need reliable stock.</span>
-        </p>
-        <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
-          <a class="btn btn-primary" href="./products.html" data-i18n="index.hero.browse">Browse Products</a>
-          <a class="btn btn-primary btn-soft-pulse" href="./products.html" data-i18n="index.hero.shop_bulk">Shop Bulk Supplies →</a>
-          <a class="btn btn-outline" href="./specials.html" data-i18n="index.hero.specials">View Special Offers</a>
-        </div> 
-        <div style="margin-top:14px; display:flex; gap:12px; flex-wrap:wrap; color:var(--muted); font-size:13px;">
-          <span data-i18n="index.hero.tag.bulk">Bulk pricing ready</span>
-          <span>|</span>
-          <span data-i18n="index.hero.tag.fast">Fast shipping</span>
-          <span>|</span>
-          <span data-i18n="index.hero.tag.support">Responsive support</span>
-        </div>
-      <div class="hero-callouts">
-        <div class="callout-pill pulse">
-          <span class="callout-icon ship-icon" aria-hidden="true"></span>
-          <span data-i18n="index.hero.callout.ship">Fast shipping</span>
-        </div>
-          <div class="callout-pill pulse delay-1">
-            <span class="callout-icon lock-icon" aria-hidden="true"></span>
-            <span data-i18n="index.hero.callout.checkout">Secure Square checkout</span>
+        <section class="hero-carousel fade-in" id="heroCarousel" aria-label="Featured promotions">
+      <div class="hero-carousel-track" id="heroCarouselTrack">
+        <article class="hero hero-split hero-no-media hero-slide active" data-hero-slide>
+          <div class="hero-content">
+            <img class="hero-logo" src="./assets/poly%20logo%20without%20background.png" alt="Power Poly Supplies logo" width="110" height="110" decoding="async" fetchpriority="high">
+            <p style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);" data-i18n="index.hero.kicker">Power your packaging</p>
+            <h1 data-i18n="index.hero.title">Power Poly Supplies</h1>
+            <p>
+              <span data-i18n="index.hero.desc">Bulk garment cover bags, poly bags, wraps, racks, and professional-grade hangers. Built for dry cleaners, laundromats, and retailers that need reliable stock.</span>
+            </p>
+            <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
+              <a class="btn btn-primary" href="./products.html" data-i18n="index.hero.browse">Browse Products</a>
+              <a class="btn btn-primary btn-soft-pulse" href="./products.html" data-i18n="index.hero.shop_bulk">Shop Bulk Supplies -></a>
+              <a class="btn btn-outline" href="./specials.html" data-i18n="index.hero.specials">View Special Offers</a>
+            </div> 
+            <div style="margin-top:14px; display:flex; gap:12px; flex-wrap:wrap; color:var(--muted); font-size:13px;">
+              <span data-i18n="index.hero.tag.bulk">Bulk pricing ready</span>
+              <span>|</span>
+              <span data-i18n="index.hero.tag.fast">Fast shipping</span>
+              <span>|</span>
+              <span data-i18n="index.hero.tag.support">Responsive support</span>
+            </div>
+            <div class="hero-callouts">
+              <div class="callout-pill pulse">
+                <span class="callout-icon ship-icon" aria-hidden="true"></span>
+                <span data-i18n="index.hero.callout.ship">Fast shipping</span>
+              </div>
+              <div class="callout-pill pulse delay-1">
+                <span class="callout-icon lock-icon" aria-hidden="true"></span>
+                <span data-i18n="index.hero.callout.checkout">Secure Square checkout</span>
+              </div>
+              <div class="callout-pill pulse delay-2">
+                <span class="callout-icon leaf-icon" aria-hidden="true"></span>
+                <span data-i18n="index.hero.callout.canada">Canada-wide supply</span>
+              </div>
+            </div>
           </div>
-          <div class="callout-pill pulse delay-2">
-            <span class="callout-icon leaf-icon" aria-hidden="true"></span>
-            <span data-i18n="index.hero.callout.canada">Canada-wide supply</span>
+        </article>
+        <article class="hero hero-split hero-no-media hero-slide" data-hero-slide>
+          <div class="hero-content">
+            <div class="hero-eyebrow">Deals & bulk savings</div>
+            <h2>Deals of the day for route-ready packaging</h2>
+            <p>Lock in discounted bulk pricing for fast-moving sizes and shipment-ready film.</p>
+            <div class="hero-tags">
+              <span class="deal-pill">Extra Heavy in stock</span>
+              <span class="deal-pill">Bulk tiers unlocked</span>
+              <span class="deal-pill">Ready to ship</span>
+            </div>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="./specials.html">Shop deals</a>
+              <a class="btn btn-outline" href="./products.html">Browse all</a>
+            </div>
           </div>
+        </article>
+        <article class="hero hero-split hero-no-media hero-slide" data-hero-slide>
+          <div class="hero-content">
+            <div class="hero-eyebrow">New arrivals</div>
+            <h2>Recently launched packaging essentials</h2>
+            <p>Fresh stock of clear garment bags, premium hangers, and poly film for peak season demand.</p>
+            <div class="hero-tags">
+              <span class="deal-pill">New sizes</span>
+              <span class="deal-pill">Better clarity</span>
+              <span class="deal-pill">Route-tested</span>
+            </div>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="./products.html">See new launches</a>
+              <a class="btn btn-outline" href="./contact.html">Request samples</a>
+            </div>
+          </div>
+        </article>
+      </div>
+      <div class="hero-carousel-controls">
+        <button class="carousel-btn" type="button" data-hero-prev aria-label="Previous slide">&lsaquo;</button>
+        <div class="hero-carousel-dots" id="heroCarouselDots"></div>
+        <button class="carousel-btn" type="button" data-hero-next aria-label="Next slide">&rsaquo;</button>
+      </div>
+    </section>
+
+    <section class="trust-strip fade-in" aria-label="Trust badges">
+      <div class="trust-badges">
+        <span class="trust-badge">SSL secured</span>
+        <span class="trust-badge">BBB accredited</span>
+        <span class="trust-badge">PCI-compliant payments</span>
+        <span class="trust-badge">Square verified</span>
+        <span class="trust-badge">Money-back guarantee</span>
+      </div>
+      <div class="trust-logos">
+        <span>Trusted by 500+ businesses</span>
+        <div class="logo-row">
+          <span class="logo-pill">Dry Clean Pros</span>
+          <span class="logo-pill">Metro Laundry</span>
+          <span class="logo-pill">Retail One</span>
+          <span class="logo-pill">West End Cleaners</span>
+          <span class="logo-pill">Northside Laundry</span>
         </div>
       </div>
     </section>
@@ -105,6 +166,211 @@
       <div class="stat">
         <div class="stat-value"><span data-count-up="14">0</span></div>
         <div class="stat-label">Products in stock</div>
+      </div>
+    </section>
+
+    <section class="card fade-in" style="padding:18px; margin-top:16px;">
+      <div class="section-head">
+        <h2 style="margin:0;">Trending now</h2>
+        <p class="muted">Fast-moving packaging picks this week.</p>
+      </div>
+      <div class="grid grid-4" id="trendingNowGrid" style="margin-top:12px;"></div>
+    </section>
+
+    <section class="card fade-in" style="padding:18px; margin-top:16px;">
+      <div class="section-head">
+        <h2 style="margin:0;">Buying guides</h2>
+        <p class="muted">Make sizing and thickness decisions in minutes.</p>
+      </div>
+      <div class="guide-grid" style="margin-top:12px;">
+        <a class="guide-card" href="./resources.html#guide-garment-bag-sizes">
+          <div class="guide-title">Garment bag sizing guide</div>
+          <div class="guide-desc">Widths, lengths, and gussets for daily use.</div>
+        </a>
+        <a class="guide-card" href="./resources.html#heavy-vs-extra-heavy">
+          <div class="guide-title">Heavy vs Extra Heavy</div>
+          <div class="guide-desc">Pick thickness based on handling and routes.</div>
+        </a>
+        <a class="guide-card" href="./resources.html#dry-cleaner-packaging-usage">
+          <div class="guide-title">Monthly usage planner</div>
+          <div class="guide-desc">Estimate bags, hangers, and wraps fast.</div>
+        </a>
+      </div>
+    </section>
+
+    <section class="card fade-in" style="padding:18px; margin-top:16px;">
+      <div class="section-head">
+        <h2 style="margin:0;">Industry landing pages</h2>
+        <p class="muted">Curated kits and workflows by business type.</p>
+      </div>
+      <div class="industry-landing-grid" style="margin-top:12px;">
+        <a class="industry-landing-card" href="./industry-dry-cleaners.html">Dry cleaners</a>
+        <a class="industry-landing-card" href="./industry-laundromats.html">Laundromats</a>
+        <a class="industry-landing-card" href="./industry-retail.html">Retail fulfillment</a>
+        <a class="industry-landing-card" href="./industry-uniform.html">Uniform services</a>
+      </div>
+    </section>
+
+    <section class="card fade-in deals-day" style="padding:18px; margin-top:16px;">
+      <div class="deals-day-head">
+        <div>
+          <h2 style="margin:0;">Deals of the day</h2>
+          <div class="muted">Limited-time pricing on top sizes.</div>
+        </div>
+        <div class="deal-countdown">
+          Ends in <span id="dealCountdown">--:--:--</span>
+        </div>
+      </div>
+      <div class="grid grid-4" id="dealsDayGrid" style="margin-top:12px;"></div>
+    </section>
+
+    <section class="card fade-in" style="padding:18px; margin-top:16px;">
+      <div class="section-head">
+        <h2 style="margin:0;">Category showcase</h2>
+        <p class="muted">Jump into the biggest packaging categories.</p>
+      </div>
+      <div class="category-tiles" style="margin-top:12px;">
+        <a class="category-tile" href="./products.html?cat=Garment%20Bags">
+          <img src="./assets/powerpolyboxesinventory.webp" alt="Garment bags" loading="lazy" decoding="async">
+          <div class="category-tile-overlay">
+            <div class="category-tile-title">Garment bags</div>
+            <div class="category-tile-meta">Clear + tinted options</div>
+          </div>
+        </a>
+        <a class="category-tile" href="./products.html?cat=Polybags">
+          <img src="./assets/polybag%20clear.webp" alt="Polybags" loading="lazy" decoding="async">
+          <div class="category-tile-overlay">
+            <div class="category-tile-title">Polybags</div>
+            <div class="category-tile-meta">Daily shipping essentials</div>
+          </div>
+        </a>
+        <a class="category-tile" href="./products.html?cat=Hangers">
+          <img src="./assets/Strut%20Hangers.webp" alt="Hangers" loading="lazy" decoding="async">
+          <div class="category-tile-overlay">
+            <div class="category-tile-title">Hangers</div>
+            <div class="category-tile-meta">Strut, capped, suit</div>
+          </div>
+        </a>
+        <a class="category-tile" href="./products.html?cat=Wraps">
+          <img src="./assets/poly%20wrap%20roll.webp" alt="Wraps" loading="lazy" decoding="async">
+          <div class="category-tile-overlay">
+            <div class="category-tile-title">Wraps</div>
+            <div class="category-tile-meta">Route-ready film</div>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <section class="card fade-in" style="padding:18px; margin-top:16px;">
+      <div class="carousel-head">
+        <div>
+          <h2 style="margin:0;">Featured products</h2>
+          <div class="muted">Highlighted picks across your favorite categories.</div>
+        </div>
+        <div class="carousel-actions">
+          <button class="carousel-btn" type="button" data-carousel-prev="featured">‹</button>
+          <button class="carousel-btn" type="button" data-carousel-next="featured">›</button>
+        </div>
+      </div>
+      <div class="carousel-track" id="featuredCarouselTrack"></div>
+    </section>
+
+    <section class="card fade-in" style="padding:18px; margin-top:16px;">
+      <div class="section-head">
+        <h2 style="margin:0;">Industry-specific recommendations</h2>
+        <p class="muted">Curated kits for your workflows.</p>
+      </div>
+      <div class="industry-pills" id="industryPills">
+        <button class="industry-pill active" type="button" data-industry="dry">Dry cleaners</button>
+        <button class="industry-pill" type="button" data-industry="laundry">Laundromats</button>
+        <button class="industry-pill" type="button" data-industry="retail">Retailers</button>
+        <button class="industry-pill" type="button" data-industry="uniform">Uniform services</button>
+      </div>
+      <div class="grid grid-4" id="industryRecsGrid" style="margin-top:12px;"></div>
+    </section>
+
+    <section class="card fade-in seasonal-band" style="padding:18px; margin-top:16px;">
+      <div class="section-head">
+        <h2 style="margin:0;">Seasonal promotions</h2>
+        <p class="muted">Plan ahead for upcoming rush periods.</p>
+      </div>
+      <div class="seasonal-grid" style="margin-top:12px;">
+        <div class="seasonal-card">
+          <div class="seasonal-title">Spring refresh kits</div>
+          <div class="seasonal-desc">Lightweight bags and fresh hangers for peak intake.</div>
+          <a class="btn btn-outline btn-sm" href="./specials.html">View kits</a>
+        </div>
+        <div class="seasonal-card">
+          <div class="seasonal-title">Wedding season</div>
+          <div class="seasonal-desc">Longer garment bags and gusseted protection.</div>
+          <a class="btn btn-outline btn-sm" href="./products.html?cat=Garment%20Bags">Shop gowns</a>
+        </div>
+        <div class="seasonal-card">
+          <div class="seasonal-title">Holiday delivery surge</div>
+          <div class="seasonal-desc">Route-ready wraps and extra heavy film.</div>
+          <a class="btn btn-outline btn-sm" href="./products.html?cat=Wraps">Shop wraps</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="card fade-in" style="padding:18px; margin-top:16px;">
+      <div class="section-head">
+        <h2 style="margin:0;">Recently launched</h2>
+        <p class="muted">Fresh stock and new sizes just added.</p>
+      </div>
+      <div class="grid grid-4" id="recentlyLaunchedGrid" style="margin-top:12px;"></div>
+    </section>
+
+    <section class="card fade-in" style="padding:18px; margin-top:16px;">
+      <div class="section-head">
+        <h2 style="margin:0;">Best sellers by category</h2>
+        <p class="muted">Top-selling picks in each department.</p>
+      </div>
+      <div class="best-sellers-grid" id="bestByCategory" style="margin-top:12px;"></div>
+    </section>
+
+    <section class="card fade-in success-stories" style="padding:18px; margin-top:16px;">
+      <div class="section-head">
+        <h2 style="margin:0;">Customer success stories</h2>
+        <p class="muted">How teams cut rewraps and restock faster.</p>
+      </div>
+      <div class="success-grid" style="margin-top:12px;">
+        <div class="success-card">
+          <div class="success-metric">-24% rewraps</div>
+          <div class="success-title">Dry cleaner in Toronto</div>
+          <div class="success-desc">Standardized garment bag sizes and thickness across 3 locations.</div>
+        </div>
+        <div class="success-card">
+          <div class="success-metric">+2 hrs/week saved</div>
+          <div class="success-title">Laundry service in Calgary</div>
+          <div class="success-desc">Switched to bulk hangers with consistent pack sizes.</div>
+        </div>
+        <div class="success-card">
+          <div class="success-metric">-18% supply cost</div>
+          <div class="success-title">Retail fulfillment team</div>
+          <div class="success-desc">Moved to route-ready wraps and consolidated SKUs.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card fade-in" style="padding:18px; margin-top:16px;">
+      <div class="section-head">
+        <h2 style="margin:0;">UGC showcase</h2>
+        <p class="muted">Real packaging setups from customer teams.</p>
+      </div>
+      <div class="ugc-grid" style="margin-top:12px;">
+        <div class="ugc-card">
+          <img src="./assets/powerpolyboxesinventory.webp" alt="Customer storage" loading="lazy" decoding="async">
+          <div class="ugc-caption">“Clear labeling helped our team grab the right size.”</div>
+        </div>
+        <div class="ugc-card">
+          <img src="./assets/Strut%20Hangers.webp" alt="Hanger setup" loading="lazy" decoding="async">
+          <div class="ugc-caption">“Standard hanger SKUs made training easier.”</div>
+        </div>
+        <div class="ugc-card">
+          <img src="./assets/polybag%20clear.webp" alt="Polybags" loading="lazy" decoding="async">
+          <div class="ugc-caption">“Cleaner film reduced rewraps on routes.”</div>
+        </div>
       </div>
     </section>
 
@@ -148,6 +414,368 @@
           </div>
         </div>
       </a>
+    </section>
+
+    <section class="card fade-in" style="padding:18px; margin-top:16px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
+        <div>
+          <h2 style="margin:0;">Pick up where you left off</h2>
+          <div style="color:var(--muted); font-size:13px; margin-top:4px;">Continue shopping from your recent visits.</div>
+        </div>
+        <a class="btn btn-outline btn-sm" href="./products.html">Browse all</a>
+      </div>
+      <div class="grid grid-4" id="continueGrid" style="margin-top:12px;"></div>
+    </section>
+
+    <section class="card fade-in" style="padding:18px; margin-top:16px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
+        <div>
+          <h2 style="margin:0;">Business credentials</h2>
+          <div style="color:var(--muted); font-size:13px; margin-top:4px;">Certified packaging supplier with compliance documentation available on request.</div>
+        </div>
+      </div>
+      <div class="cred-grid" style="margin-top:12px;">
+        <div class="cred-card">
+          <div class="cred-title">Seller verified</div>
+          <div class="cred-desc">Registered Canadian business with verified contacts.</div>
+        </div>
+        <div class="cred-card">
+          <div class="cred-title">Material certifications</div>
+          <div class="cred-desc">REACH and RoHS statements available.</div>
+        </div>
+        <div class="cred-card">
+          <div class="cred-title">Secure payments</div>
+          <div class="cred-desc">PCI-compliant checkout via Square.</div>
+        </div>
+        <div class="cred-card">
+          <div class="cred-title">Guarantee</div>
+          <div class="cred-desc">Money-back guarantee on qualifying orders.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card fade-in" style="padding:18px; margin-top:16px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
+        <div>
+          <h2 style="margin:0;">Recommended for you</h2>
+          <div style="color:var(--muted); font-size:13px; margin-top:4px;">Based on your browsing history and cart activity.</div>
+        </div>
+        <a class="btn btn-outline btn-sm" href="./products.html">Shop catalog</a>
+      </div>
+      <div class="grid grid-4" id="recommendedGrid" style="margin-top:12px;"></div>
+    </section>
+
+    <section class="card fade-in" style="padding:18px; margin-top:16px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
+        <div>
+          <h2 style="margin:0;">Inspired by your shopping trends</h2>
+          <div style="color:var(--muted); font-size:13px; margin-top:4px;">Popular picks in the categories you explored.</div>
+        </div>
+        <a class="btn btn-outline btn-sm" href="./specials.html">View specials</a>
+      </div>
+      <div class="grid grid-4" id="trendsGrid" style="margin-top:12px;"></div>
+    </section>
+
+    <section class="card fade-in" style="padding:18px; margin-top:16px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
+        <div>
+          <h2 style="margin:0;">Customized deals</h2>
+          <div style="color:var(--muted); font-size:13px; margin-top:4px;">Deals matched to your usual order patterns.</div>
+        </div>
+        <a class="btn btn-outline btn-sm" href="./specials.html">All deals</a>
+      </div>
+      <div class="grid grid-4" id="dealsGrid" style="margin-top:12px;"></div>
+    </section>
+
+    <section class="card fade-in" style="padding:18px; margin-top:16px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
+        <div>
+          <h2 style="margin:0;">Personalized email picks</h2>
+          <div style="color:var(--muted); font-size:13px; margin-top:4px;">Get tailored restock reminders and recommendations.</div>
+        </div>
+      </div>
+      <form id="personalizedEmailForm" style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+        <input class="input" type="email" name="email" placeholder="Email address" aria-label="Email address" required>
+        <button class="btn btn-primary" type="submit">Get recommendations</button>
+      </form>
+      <div id="personalizedEmailNote" style="color:var(--muted); font-size:12px; margin-top:8px;">No spam. Unsubscribe anytime.</div>
+    </section>
+
+    <section class="card fade-in" style="padding:18px; margin-top:16px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
+        <div>
+          <h2 style="margin:0;">Mobile app roadmap</h2>
+          <div style="color:var(--muted); font-size:13px; margin-top:4px;">We are planning a mobile app for reorder alerts, barcode scanning, and one-tap checkout.</div>
+        </div>
+        <a class="btn btn-outline btn-sm" href="./contact.html">Join the waitlist</a>
+      </div>
+    </section>
+
+    <section class="card fade-in tool-hub" style="padding:18px; margin-top:16px;" id="interactive-tools">
+      <div class="tool-hub-head">
+        <div>
+          <h2 style="margin:0;">Interactive tools & engagement</h2>
+          <div class="tool-hub-sub">Instant calculators, configurators, and workflows to move from idea to order.</div>
+        </div>
+        <div class="tool-hub-actions">
+          <button class="btn btn-primary btn-sm" type="button" data-open-help>Open live chat</button>
+          <a class="btn btn-outline btn-sm" href="./resources.html#dry-cleaner-packaging-usage">Monthly usage planner</a>
+        </div>
+      </div>
+
+      <div class="tool-grid">
+        <article class="tool-card">
+          <div class="tool-header">
+            <div class="tool-title">Live chat widget</div>
+            <div class="tool-kicker">Real-time help</div>
+          </div>
+          <div class="tool-desc">Ask about sizes, thickness, or delivery and get instant guidance.</div>
+          <div class="tool-actions">
+            <button class="btn btn-primary btn-sm" type="button" data-open-help>Start a chat</button>
+            <a class="btn btn-outline btn-sm" href="./contact.html">Message team</a>
+          </div>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-header">
+            <div class="tool-title">Product configurator</div>
+            <div class="tool-kicker">Custom orders</div>
+          </div>
+          <div class="tool-desc">Build a custom order profile with size, thickness, and closure options.</div>
+          <form class="tool-form" id="configuratorForm">
+            <div class="tool-row">
+              <label>
+                <span>Category</span>
+                <select class="input" name="category">
+                  <option>Garment Bags</option>
+                  <option>Polybags</option>
+                  <option>Hangers</option>
+                  <option>Wraps</option>
+                </select>
+              </label>
+              <label>
+                <span>Thickness</span>
+                <select class="input" name="thickness">
+                  <option>Standard</option>
+                  <option>Heavy</option>
+                  <option>Extra Heavy</option>
+                </select>
+              </label>
+            </div>
+            <div class="tool-row">
+              <label>
+                <span>Width (in)</span>
+                <input class="input" name="width" type="number" min="6" step="0.5" value="24">
+              </label>
+              <label>
+                <span>Length (in)</span>
+                <input class="input" name="length" type="number" min="12" step="0.5" value="54">
+              </label>
+              <label>
+                <span>Closure</span>
+                <select class="input" name="closure">
+                  <option>Open bottom</option>
+                  <option>Zipper</option>
+                  <option>Sealed</option>
+                </select>
+              </label>
+            </div>
+            <div class="tool-output" id="configuratorOutput">Recommendation: 24" x 54" heavy garment bag with open bottom.</div>
+          </form>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-header">
+            <div class="tool-title">AR sizing preview</div>
+            <div class="tool-kicker">Mobile-ready</div>
+          </div>
+          <div class="tool-desc">Preview garment bag sizes in your space using mobile AR.</div>
+          <div class="tool-preview" id="arPreview">
+            <div class="tool-preview-title">AR preview ready</div>
+            <div class="tool-preview-desc">Open on mobile to overlay the bag footprint.</div>
+          </div>
+          <div class="tool-actions">
+            <button class="btn btn-primary btn-sm" type="button" id="arLaunchBtn">Launch AR sizing</button>
+            <a class="btn btn-outline btn-sm" href="./contact.html">Request demo</a>
+          </div>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-header">
+            <div class="tool-title">Size calculator</div>
+            <div class="tool-kicker">Instant sizing</div>
+          </div>
+          <div class="tool-desc">Enter garment measurements to get a recommended bag size.</div>
+          <form class="tool-form" id="sizeCalcForm">
+            <div class="tool-row">
+              <label>
+                <span>Garment width (in)</span>
+                <input class="input" name="garmentWidth" type="number" min="10" step="0.5" value="18">
+              </label>
+              <label>
+                <span>Garment length (in)</span>
+                <input class="input" name="garmentLength" type="number" min="24" step="0.5" value="40">
+              </label>
+            </div>
+            <div class="tool-output" id="sizeCalcOutput">Suggested bag size: 24" W x 48" L.</div>
+          </form>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-header">
+            <div class="tool-title">Monthly usage calculator</div>
+            <div class="tool-kicker">Planning</div>
+          </div>
+          <div class="tool-desc">Estimate monthly packaging and order quantity with a buffer.</div>
+          <form class="tool-form" id="usageCalcForm">
+            <div class="tool-row">
+              <label>
+                <span>Garments per day</span>
+                <input class="input" name="gpd" type="number" min="0" step="1" value="65">
+              </label>
+              <label>
+                <span>Operating days/month</span>
+                <input class="input" name="days" type="number" min="0" step="1" value="26">
+              </label>
+              <label>
+                <span>Buffer %</span>
+                <input class="input" name="buffer" type="number" min="0" step="1" value="8">
+              </label>
+            </div>
+            <div class="tool-output" id="usageCalcOutput">Estimated monthly usage: 1,690. Order qty with buffer: 1,825.</div>
+          </form>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-header">
+            <div class="tool-title">ROI calculator</div>
+            <div class="tool-kicker">Business savings</div>
+          </div>
+          <div class="tool-desc">Quantify savings from standardizing packaging.</div>
+          <form class="tool-form" id="roiCalcForm">
+            <div class="tool-row">
+              <label>
+                <span>Monthly volume</span>
+                <input class="input" name="volume" type="number" min="0" step="1" value="2000">
+              </label>
+              <label>
+                <span>Current cost / item</span>
+                <input class="input" name="currentCost" type="number" min="0" step="0.01" value="0.38">
+              </label>
+              <label>
+                <span>PowerPoly cost / item</span>
+                <input class="input" name="newCost" type="number" min="0" step="0.01" value="0.31">
+              </label>
+            </div>
+            <div class="tool-row">
+              <label>
+                <span>Minutes saved / order</span>
+                <input class="input" name="minutesSaved" type="number" min="0" step="0.5" value="0.6">
+              </label>
+              <label>
+                <span>Hourly labor cost</span>
+                <input class="input" name="hourlyRate" type="number" min="0" step="1" value="22">
+              </label>
+            </div>
+            <div class="tool-output" id="roiCalcOutput">Estimated monthly savings: $280 (materials) + $440 (labor).</div>
+          </form>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-header">
+            <div class="tool-title">Sample request workflow</div>
+            <div class="tool-kicker">Try before you buy</div>
+          </div>
+          <div class="tool-desc">Request samples and track the approval steps.</div>
+          <div class="tool-steps" id="sampleSteps">
+            <div class="tool-step active">1. Request received</div>
+            <div class="tool-step">2. Sample packed</div>
+            <div class="tool-step">3. Delivery scheduled</div>
+            <div class="tool-step">4. Feedback & quote</div>
+          </div>
+          <form class="tool-form" id="sampleRequestForm">
+            <div class="tool-row">
+              <label>
+                <span>Business name</span>
+                <input class="input" name="biz" required>
+              </label>
+              <label>
+                <span>Sample focus</span>
+                <select class="input" name="sampleType">
+                  <option>Garment bags</option>
+                  <option>Polybags</option>
+                  <option>Hangers</option>
+                  <option>Wraps</option>
+                </select>
+              </label>
+            </div>
+            <div class="tool-actions">
+              <button class="btn btn-primary btn-sm" type="submit">Request samples</button>
+              <span class="tool-muted" id="sampleRequestNote">Typical turnaround: 2 business days.</span>
+            </div>
+          </form>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-header">
+            <div class="tool-title">Quote comparison</div>
+            <div class="tool-kicker">Side-by-side</div>
+          </div>
+          <div class="tool-desc">Compare supplier quotes by cost and lead time.</div>
+          <form class="tool-form" id="quoteCompareForm">
+            <div class="tool-row tool-row-compare">
+              <label>
+                <span>Vendor A</span>
+                <input class="input" name="vendorA" value="Supplier A">
+              </label>
+              <label>
+                <span>Price / case</span>
+                <input class="input" name="priceA" type="number" min="0" step="0.01" value="68">
+              </label>
+              <label>
+                <span>Lead time (days)</span>
+                <input class="input" name="leadA" type="number" min="0" step="1" value="5">
+              </label>
+            </div>
+            <div class="tool-row tool-row-compare">
+              <label>
+                <span>Vendor B</span>
+                <input class="input" name="vendorB" value="Power Poly">
+              </label>
+              <label>
+                <span>Price / case</span>
+                <input class="input" name="priceB" type="number" min="0" step="0.01" value="64">
+              </label>
+              <label>
+                <span>Lead time (days)</span>
+                <input class="input" name="leadB" type="number" min="0" step="1" value="3">
+              </label>
+            </div>
+            <div class="tool-output" id="quoteCompareOutput">Best price: Power Poly. Fastest delivery: Power Poly.</div>
+          </form>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-header">
+            <div class="tool-title">Bulk order estimator</div>
+            <div class="tool-kicker">Instant pricing</div>
+          </div>
+          <div class="tool-desc">Estimate total price and bulk discounts instantly.</div>
+          <form class="tool-form" id="bulkEstimatorForm">
+            <div class="tool-row">
+              <label>
+                <span>Cases</span>
+                <input class="input" name="cases" type="number" min="1" step="1" value="60">
+              </label>
+              <label>
+                <span>Price / case</span>
+                <input class="input" name="casePrice" type="number" min="0" step="0.01" value="64">
+              </label>
+            </div>
+            <div class="tool-output" id="bulkEstimatorOutput">Bulk price: $3,648 with 5% discount.</div>
+          </form>
+        </article>
+      </div>
     </section>
 
     <section class="card fade-in" style="padding:18px; margin-top:16px;">
@@ -383,7 +1011,72 @@
       });
     }
 
-    window.addEventListener("DOMContentLoaded", setupHomeTestimonials);
+    function setupHeroCarousel(){
+      const track = document.getElementById("heroCarouselTrack");
+      const dotsWrap = document.getElementById("heroCarouselDots");
+      if(!track || !dotsWrap) return;
+      const slides = Array.from(track.querySelectorAll("[data-hero-slide]"));
+      if(!slides.length) return;
+      let index = 0;
+      dotsWrap.innerHTML = slides.map((_, idx)=>`<button type="button" aria-label="Go to slide ${idx + 1}" data-hero-dot="${idx}"></button>`).join("");
+      const dots = Array.from(dotsWrap.querySelectorAll("button"));
+      const setActive = (next)=>{
+        index = (next + slides.length) % slides.length;
+        track.style.transform = `translateX(-${index * 100}%)`;
+        dots.forEach((dot, idx)=> dot.classList.toggle("active", idx === index));
+      };
+      setActive(0);
+      const prevBtn = document.querySelector("[data-hero-prev]");
+      const nextBtn = document.querySelector("[data-hero-next]");
+      if(prevBtn) prevBtn.addEventListener("click", ()=> setActive(index - 1));
+      if(nextBtn) nextBtn.addEventListener("click", ()=> setActive(index + 1));
+      dotsWrap.addEventListener("click", (e)=>{
+        const btn = e.target.closest("button[data-hero-dot]");
+        if(!btn) return;
+        setActive(Number(btn.dataset.heroDot) || 0);
+      });
+      setInterval(()=> setActive(index + 1), 7000);
+    }
+
+    function setupDealsCountdown(){
+      const countdownEl = document.getElementById("dealCountdown");
+      if(!countdownEl) return;
+      const end = Date.now() + (6 * 60 * 60 * 1000);
+      const update = ()=>{
+        const diff = Math.max(0, end - Date.now());
+        const hrs = Math.floor(diff / 3600000);
+        const mins = Math.floor((diff % 3600000) / 60000);
+        const secs = Math.floor((diff % 60000) / 1000);
+        countdownEl.textContent = `${String(hrs).padStart(2,"0")}:${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
+        document.querySelectorAll("[data-deal-timer]").forEach(el=>{
+          el.textContent = countdownEl.textContent;
+        });
+      };
+      update();
+      setInterval(update, 1000);
+    }
+
+    function setupFeaturedCarousel(){
+      const track = document.getElementById("featuredCarouselTrack");
+      if(!track) return;
+      document.querySelectorAll("[data-carousel-prev=\"featured\"]").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          track.scrollBy({ left: -320, behavior: "smooth" });
+        });
+      });
+      document.querySelectorAll("[data-carousel-next=\"featured\"]").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          track.scrollBy({ left: 320, behavior: "smooth" });
+        });
+      });
+    }
+
+    window.addEventListener("DOMContentLoaded", ()=>{
+      setupHomeTestimonials();
+      setupHeroCarousel();
+      setupDealsCountdown();
+      setupFeaturedCarousel();
+    });
     (async ()=>{
       try{
         const products = await PPS.loadProducts();
@@ -396,10 +1089,248 @@
           const cat = el.getAttribute("data-cat-count") || "";
           el.textContent = String(counts[cat] || 0);
         });
+
+        function readRecentSlugs(){
+          try{
+            const raw = localStorage.getItem("pps_recently_viewed_v1");
+            const arr = JSON.parse(raw || "[]");
+            return Array.isArray(arr) ? arr.map(String).filter(Boolean) : [];
+          }catch(_err){
+            return [];
+          }
+        }
+
+        function getCartCategoryCounts(){
+          const cart = PPS.getCart?.() || [];
+          const byId = new Map(products.map(p=>[p.id, p]));
+          const counts = {};
+          cart.forEach(item=>{
+            const prod = byId.get(item.id);
+            const cat = String(prod?.category || "").trim();
+            if(!cat) return;
+            counts[cat] = (counts[cat] || 0) + (Number(item.qty) || 1);
+          });
+          return counts;
+        }
+
+        function renderMiniCardGrid(targetId, list, emptyText){
+          const grid = document.getElementById(targetId);
+          if(!grid) return;
+          if(!list.length){
+            grid.innerHTML = `<div style="color:var(--muted); font-size:13px;">${emptyText}</div>`;
+            return;
+          }
+          grid.innerHTML = list.map(item=>{
+            const compareCents = (Number(item.priceCents) || 0) + 1000;
+            const memberCents = Number(item.priceCents) || 0;
+            const s = item.stock<=0 ? "out" : item.stock<=10 ? "low" : "in";
+            const label = item.stock<=0
+              ? (window.PPS_I18N?.t("product.stock.out") || "Out of stock")
+              : item.stock<=10
+                ? (window.PPS_I18N?.t("product.stock.low") || "Almost out of stock")
+                : (window.PPS_I18N?.t("product.stock.in") || "In stock");
+            return `
+              <div class="card">
+                <a href="./product.html?slug=${encodeURIComponent(item.slug)}">
+                  <img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async" width="400" height="190">
+                </a>
+                <div class="card-body">
+                  <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(item.slug)}">${item.name}</a>
+                  <div class="member-pricing">
+                    <div>
+                      <div class="market-label" data-i18n="market.price.label">Market price</div>
+                      <span class="compare-price">${PPS.money(compareCents,item.currency)}</span>
+                    </div>
+                    <div>
+                      <div class="member-label" data-i18n="member.price.label">Power Poly Member Price</div>
+                      <span class="price">${PPS.money(memberCents,item.currency)}</span>
+                    </div>
+                  </div>
+                  <div class="stock ${s}"><span class="dot"></span>${label}</div>
+                </div>
+              </div>
+            `;
+          }).join("");
+          window.PPS_I18N?.applyTranslations?.();
+        }
+
+        function renderDealGrid(targetId, list, emptyText){
+          const grid = document.getElementById(targetId);
+          if(!grid) return;
+          if(!list.length){
+            grid.innerHTML = `<div style="color:var(--muted); font-size:13px;">${emptyText}</div>`;
+            return;
+          }
+          grid.innerHTML = list.map(item=>{
+            const compareCents = (Number(item.priceCents) || 0) + 1000;
+            const memberCents = Number(item.priceCents) || 0;
+            return `
+              <div class="card">
+                <a href="./product.html?slug=${encodeURIComponent(item.slug)}">
+                  <img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async" width="400" height="190">
+                </a>
+                <div class="card-body">
+                  <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(item.slug)}">${item.name}</a>
+                  <div class="member-pricing">
+                    <div>
+                      <div class="market-label" data-i18n="market.price.label">Market price</div>
+                      <span class="compare-price">${PPS.money(compareCents,item.currency)}</span>
+                    </div>
+                    <div>
+                      <div class="member-label" data-i18n="member.price.label">Power Poly Member Price</div>
+                      <span class="price">${PPS.money(memberCents,item.currency)}</span>
+                    </div>
+                  </div>
+                  <div class="deal-timer">Ends in <span data-deal-timer>--:--:--</span></div>
+                </div>
+              </div>
+            `;
+          }).join("");
+          window.PPS_I18N?.applyTranslations?.();
+        }
+
+        function renderCarouselGrid(targetId, list, emptyText){
+          const grid = document.getElementById(targetId);
+          if(!grid) return;
+          if(!list.length){
+            grid.innerHTML = `<div style="color:var(--muted); font-size:13px;">${emptyText}</div>`;
+            return;
+          }
+          grid.innerHTML = list.map(item=>{
+            const compareCents = (Number(item.priceCents) || 0) + 1000;
+            const memberCents = Number(item.priceCents) || 0;
+            const s = item.stock<=0 ? "out" : item.stock<=10 ? "low" : "in";
+            const label = item.stock<=0
+              ? (window.PPS_I18N?.t("product.stock.out") || "Out of stock")
+              : item.stock<=10
+                ? (window.PPS_I18N?.t("product.stock.low") || "Almost out of stock")
+                : (window.PPS_I18N?.t("product.stock.in") || "In stock");
+            return `
+              <div class="card">
+                <a href="./product.html?slug=${encodeURIComponent(item.slug)}">
+                  <img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async" width="400" height="190">
+                </a>
+                <div class="card-body">
+                  <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(item.slug)}">${item.name}</a>
+                  <div class="member-pricing">
+                    <div>
+                      <div class="market-label" data-i18n="market.price.label">Market price</div>
+                      <span class="compare-price">${PPS.money(compareCents,item.currency)}</span>
+                    </div>
+                    <div>
+                      <div class="member-label" data-i18n="member.price.label">Power Poly Member Price</div>
+                      <span class="price">${PPS.money(memberCents,item.currency)}</span>
+                    </div>
+                  </div>
+                  <div class="stock ${s}"><span class="dot"></span>${label}</div>
+                </div>
+              </div>
+            `;
+          }).join("");
+          window.PPS_I18N?.applyTranslations?.();
+        }
+
+        const recentSlugs = readRecentSlugs();
+        const recentProducts = recentSlugs
+          .map(slug => products.find(x=>String(x.slug) === slug))
+          .filter(Boolean);
+
+        const cartCatCounts = getCartCategoryCounts();
+        const topCats = Object.keys(cartCatCounts).sort((a,b)=> (cartCatCounts[b] || 0) - (cartCatCounts[a] || 0));
+        const recentCats = recentProducts.map(p=>p.category).filter(Boolean);
+        const favoredCats = Array.from(new Set([...topCats, ...recentCats])).slice(0, 3);
+
+        const continuePicks = recentProducts.slice(0, 4);
+        const recommended = products
+          .filter(p=> favoredCats.includes(p.category) && !recentProducts.some(r=>r.id===p.id))
+          .slice(0, 4);
+        const trends = products
+          .filter(p=> favoredCats.includes(p.category))
+          .slice(0, 4);
+        const deals = products
+          .filter(p=> p.special && (favoredCats.includes(p.category) || !favoredCats.length))
+          .slice(0, 4);
+        const trendingNow = products.slice(0, 8);
+        const dealsDay = deals.length ? deals : products.slice(0, 4);
+        const featured = products.slice(0, 10);
+        const recentlyLaunched = products.slice(-4);
+
+        renderMiniCardGrid("continueGrid", continuePicks, "No recent products yet. Start browsing to build your list.");
+        renderMiniCardGrid("recommendedGrid", recommended, "Browse products to unlock personalized recommendations.");
+        renderMiniCardGrid("trendsGrid", trends, "Explore the catalog to see trends tailored to you.");
+        renderMiniCardGrid("dealsGrid", deals, "Check back soon for deals tailored to your orders.");
+        renderMiniCardGrid("trendingNowGrid", trendingNow, "Check back soon for new trends.");
+        renderDealGrid("dealsDayGrid", dealsDay, "Deals refresh daily. Check back soon.");
+        renderCarouselGrid("featuredCarouselTrack", featured, "Featured products will appear here.");
+        renderMiniCardGrid("recentlyLaunchedGrid", recentlyLaunched, "New launches are coming soon.");
+
+        const industryMap = {
+          dry: ["Garment Bags", "Hangers", "Wraps"],
+          laundry: ["Garment Bags", "Wraps", "Polybags"],
+          retail: ["Polybags", "Wraps", "Hangers"],
+          uniform: ["Garment Bags", "Hangers", "Racks"]
+        };
+        const renderIndustry = (key)=>{
+          const cats = industryMap[key] || [];
+          const picks = products.filter(p=> cats.includes(p.category)).slice(0, 4);
+          renderMiniCardGrid("industryRecsGrid", picks, "No picks yet.");
+        };
+        renderIndustry("dry");
+        const industryPills = document.getElementById("industryPills");
+        if(industryPills){
+          industryPills.addEventListener("click", (e)=>{
+            const btn = e.target.closest(".industry-pill");
+            if(!btn) return;
+            industryPills.querySelectorAll(".industry-pill").forEach(p=> p.classList.remove("active"));
+            btn.classList.add("active");
+            renderIndustry(btn.dataset.industry || "dry");
+          });
+        }
+
+        const bestByCategory = document.getElementById("bestByCategory");
+        if(bestByCategory){
+          const grouped = products.reduce((acc,p)=>{
+            const key = String(p.category || "Other");
+            acc[key] = acc[key] || [];
+            acc[key].push(p);
+            return acc;
+          }, {});
+          const topCatsList = Object.keys(grouped).slice(0, 4);
+          bestByCategory.innerHTML = topCatsList.map(cat=>{
+            const items = grouped[cat].slice(0, 3);
+            return `
+              <div class="best-seller-card">
+                <div class="best-seller-title">${cat}</div>
+                <div class="best-seller-list">
+                  ${items.map(item=>`
+                    <div class="best-seller-item">
+                      <span>${item.name}</span>
+                      <a href="./product.html?slug=${encodeURIComponent(item.slug)}">View</a>
+                    </div>
+                  `).join("")}
+                </div>
+              </div>
+            `;
+          }).join("");
+        }
       }catch(_err){
         // ignore
       }
     })();
+
+    const personalizedForm = document.getElementById("personalizedEmailForm");
+    const personalizedNote = document.getElementById("personalizedEmailNote");
+    if(personalizedForm){
+      personalizedForm.addEventListener("submit", (e)=>{
+        e.preventDefault();
+        const email = String(personalizedForm.email?.value || "").trim();
+        if(!email) return;
+        try{ localStorage.setItem("pps_personalized_email", email); }catch(_err){}
+        if(personalizedNote) personalizedNote.textContent = "Thanks! We'll send tailored picks to your inbox.";
+        personalizedForm.reset();
+      });
+    }
   </script>
 </body>
 </html>
+

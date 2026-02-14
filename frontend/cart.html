@@ -276,9 +276,18 @@
             <div class="cart-summary-label" data-i18n="cart.total">Total</div>
             <div id="total" class="cart-summary-total"></div>
           </div>
+          <div class="cart-summary-row" id="bulkSavingsRow" style="display:none;">
+            <div class="cart-summary-label">Bulk savings</div>
+            <div id="bulkSavingsAmount"></div>
+          </div>
+          <div class="cart-summary-row">
+            <div class="cart-summary-label">Estimated delivery</div>
+            <div id="cartEstimate"></div>
+          </div>
           <div class="cart-summary-actions">
             <a class="btn" href="./products.html" data-i18n="cart.continue">Continue shopping</a>
             <a class="btn btn-primary" href="./checkout.html" id="goCheckout" data-i18n="cart.checkout">Go to checkout</a>
+            <button class="btn btn-outline" type="button" id="reorderBtn" style="display:none;">One-click reorder</button>
           </div>
           <div class="cart-trust" aria-label="Checkout reassurance">
             <span class="cart-trust-pill"><span class="lock-icon" aria-hidden="true"></span><span data-i18n="footer.secure">Secure payments via Square</span></span>
@@ -293,6 +302,12 @@
             <a class="btn btn-outline" href="./login.html"><span class="nav-icon user-icon" aria-hidden="true"></span><span data-i18n="cart.account.login">Log in</span></a>
             <a class="btn" href="./login.html" data-i18n="cart.account.create">Create account</a>
           </div>
+        </div>
+
+        <div class="card cart-cross-sell" style="margin-top:16px;">
+          <div class="cart-account-title">Complete your order with</div>
+          <div class="cart-account-desc">Top picks that pair with your cart.</div>
+          <div id="crossSellGrid" class="grid grid-2" style="margin-top:12px;"></div>
         </div>
       </aside>
     </div>

@@ -433,6 +433,130 @@ function injectNotificationsBell(){
   window.addEventListener("pps:notifs", updateNotifBadges);
 }
 
+function injectMiniCartPreview(){
+  const cartLink = document.querySelector('a[href="./cart.html"]');
+  if(!cartLink || cartLink.dataset.miniCartReady) return;
+  cartLink.dataset.miniCartReady = "1";
+  cartLink.classList.add("mini-cart-anchor");
+
+  const popover = document.createElement("div");
+  popover.className = "mini-cart-popover";
+  popover.innerHTML = `
+    <div class="mini-cart-head">
+      <strong>Cart preview</strong>
+      <a href="./cart.html">View cart</a>
+    </div>
+    <div class="mini-cart-body" id="miniCartBody"></div>
+  `;
+  cartLink.appendChild(popover);
+
+  let hideTimer = 0;
+  const show = ()=>{
+    clearTimeout(hideTimer);
+    popover.classList.add("open");
+    renderMiniCart();
+  };
+  const hide = ()=>{
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(()=> popover.classList.remove("open"), 140);
+  };
+
+  cartLink.addEventListener("mouseenter", show);
+  cartLink.addEventListener("mouseleave", hide);
+  popover.addEventListener("mouseenter", show);
+  popover.addEventListener("mouseleave", hide);
+
+  async function renderMiniCart(){
+    const body = document.getElementById("miniCartBody");
+    if(!body || !window.PPS?.loadProducts) return;
+    const cart = PPS.getCart?.() || [];
+    let products = [];
+    try{
+      products = await PPS.loadProducts();
+    }catch(_err){
+      products = [];
+    }
+    if(!cart.length){
+      body.innerHTML = `<div class="mini-cart-empty">Your cart is empty.</div>`;
+      return;
+    }
+    const items = cart.slice(0, 4).map(item=>{
+      const product = products.find(p=>p.id === item.id);
+      return {
+        name: product?.name || item.name || "Item",
+        image: product?.image || "./assets/poly%20logo%20without%20background.png",
+        qty: item.qty
+      };
+    });
+    body.innerHTML = `
+      <div class="mini-cart-items">
+        ${items.map(item=>`
+          <div class="mini-cart-item">
+            <img src="${item.image}" alt="">
+            <div>
+              <div class="mini-cart-name">${item.name}</div>
+              <div class="mini-cart-qty">Qty: ${item.qty}</div>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+      <div class="mini-cart-actions">
+        <a class="btn btn-primary btn-sm" href="./checkout.html">Checkout</a>
+        <a class="btn btn-outline btn-sm" href="./products.html">Continue shopping</a>
+      </div>
+    `;
+  }
+
+  window.addEventListener("pps:cart", renderMiniCart);
+}
+
+function injectCartSidebar(){
+  if(document.getElementById("cartSidebar")) return;
+  const sidebar = document.createElement("aside");
+  sidebar.className = "cart-sidebar";
+  sidebar.id = "cartSidebar";
+  sidebar.innerHTML = `
+    <div class="cart-sidebar-card">
+      <div class="cart-sidebar-title">Saved for later</div>
+      <div class="cart-sidebar-list" id="cartSidebarSaved"></div>
+      <a class="btn btn-outline btn-sm" href="./account.html#wishlists">Manage saved items</a>
+    </div>
+  `;
+  document.body.appendChild(sidebar);
+
+  async function renderSaved(){
+    const list = document.getElementById("cartSidebarSaved");
+    if(!list || !window.PPS?.loadProducts) return;
+    const session = PPS.getSession?.();
+    if(!session){
+      list.innerHTML = `<div class="cart-sidebar-empty">Sign in to see saved items.</div>`;
+      return;
+    }
+    let products = [];
+    try{
+      products = await PPS.loadProducts();
+    }catch(_err){
+      products = [];
+    }
+    const wishlists = PPS.getWishlists?.();
+    const ids = wishlists?.lists?.[0]?.items?.map(it=>it.productId) || [];
+    const picks = ids.map(id=> products.find(p=>p.id === id)).filter(Boolean).slice(0, 3);
+    if(!picks.length){
+      list.innerHTML = `<div class="cart-sidebar-empty">Save items to build your list.</div>`;
+      return;
+    }
+    list.innerHTML = picks.map(item=>`
+      <a class="cart-sidebar-item" href="./product.html?slug=${encodeURIComponent(item.slug)}">
+        <img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async">
+        <span>${item.name}</span>
+      </a>
+    `).join("");
+  }
+
+  renderSaved();
+  window.addEventListener("pps:wishlists", renderSaved);
+}
+
 function injectFooter(){
   const footer = document.querySelector(".footer");
   if(!footer) return;
@@ -445,14 +569,6 @@ function injectFooter(){
           <span data-i18n="brand.name">Power Poly Supplies</span>
           <span style="color:#ffb25c; font-size:12px;" data-i18n="brand.tagline">Power your packaging</span>
           <div class="footer-meta" data-i18n="footer.meta">Bulk-ready stock | Fast response | Canada-wide supply</div>
-          <div class="footer-newsletter">
-            <div class="footer-newsletter-title">Get updates & specials</div>
-            <form class="newsletter-form" id="newsletterForm">
-              <input class="input" type="email" name="email" placeholder="Email address" aria-label="Email address" required>
-              <button class="btn btn-primary btn-sm" type="submit">Subscribe</button>
-            </form>
-            <div class="newsletter-note" id="newsletterNote">No spam. 1–2 emails/month.</div>
-          </div>
         </div>
         <div>
           <h4 data-i18n="footer.shop">Shop</h4>
@@ -526,6 +642,10 @@ function injectFooter(){
             <li><a href="./legal-terms.html" data-i18n="footer.terms">Terms & Conditions</a></li>
           </ul>
         </div>
+        <div class="footer-recent">
+          <div class="footer-recent-title">Recently viewed</div>
+          <div class="footer-recent-grid" id="footerRecentGrid"></div>
+        </div>
         <div class="footer-bottom">
           <span data-i18n="footer.rights">(C) {{year}} Power Poly Supplies. All rights reserved.</span>
           <span class="footer-trust">
@@ -542,24 +662,7 @@ function injectFooter(){
   footer.remove();
   document.body.appendChild(newFooter);
   window.PPS_I18N?.applyTranslations?.();
-
-  const newsletterForm = document.getElementById("newsletterForm");
-  const newsletterNote = document.getElementById("newsletterNote");
-  if(newsletterForm && newsletterNote){
-    newsletterForm.addEventListener("submit", (e)=>{
-      e.preventDefault();
-      const email = String(newsletterForm.email?.value || "").trim();
-      if(!email) return;
-      try{
-        const key = "pps_newsletter_email_v1";
-        localStorage.setItem(key, email);
-      }catch(_err){
-        // ignore
-      }
-      newsletterNote.textContent = "Thanks! You're on the list.";
-      newsletterForm.reset();
-    });
-  }
+  renderFooterRecentProducts();
 
   // Reveal animation when footer comes into view
   const io = new IntersectionObserver(entries=>{
@@ -568,6 +671,40 @@ function injectFooter(){
     });
   }, { threshold: 0.2 });
   io.observe(newFooter);
+}
+
+async function renderFooterRecentProducts(){
+  const grid = document.getElementById("footerRecentGrid");
+  if(!grid || !window.PPS?.loadProducts) return;
+  let products = [];
+  try{
+    products = await window.PPS.loadProducts();
+  }catch(_err){
+    return;
+  }
+  let recent = [];
+  try{
+    const raw = localStorage.getItem("pps_recently_viewed_v1");
+    const arr = JSON.parse(raw || "[]");
+    recent = Array.isArray(arr) ? arr : [];
+  }catch(_err){
+    recent = [];
+  }
+  const picks = recent
+    .map(slug => products.find(p=>String(p.slug) === String(slug)))
+    .filter(Boolean)
+    .slice(0, 3);
+  if(!picks.length){
+    grid.innerHTML = `<div class="footer-recent-empty">Browse products to see your recently viewed items.</div>`;
+    return;
+  }
+  grid.innerHTML = picks.map(item=>`
+    <a class="footer-recent-card" href="./product.html?slug=${encodeURIComponent(item.slug)}">
+      <img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async">
+      <span>${item.name}</span>
+    </a>
+  `).join("");
+  try{ window.PPS_I18N?.applyTranslations?.(); }catch(_err){}
 }
 
 function normalizeSearchText(value){
@@ -995,6 +1132,271 @@ function setupBottomNavSearch(){
   });
 }
 
+function setupInteractiveTools(){
+  if(window.__ppsInteractiveToolsBound) return;
+  window.__ppsInteractiveToolsBound = true;
+
+  const toNum = (value, fallback = 0) => {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : fallback;
+  };
+  const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+  const fmtNumber = (n) => new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 }).format(n);
+  const fmtWhole = (n) => new Intl.NumberFormat(undefined).format(Math.round(n));
+  const fmtCurrency = (n) =>
+    new Intl.NumberFormat(undefined, { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(n);
+
+  document.addEventListener("click", (event)=>{
+    const btn = event.target?.closest?.("[data-open-help]");
+    if(!btn) return;
+    event.preventDefault();
+    const fab = document.getElementById("helpFab");
+    const panel = document.getElementById("helpPanel");
+    if(!fab || !panel) return;
+    const isOpen = fab.getAttribute("aria-expanded") === "true";
+    if(!isOpen){
+      fab.click();
+    }
+    setTimeout(()=>{
+      const input = document.getElementById("helpChatInput");
+      input?.focus?.();
+    }, 0);
+  });
+
+  const configuratorForm = document.getElementById("configuratorForm");
+  const configuratorOutput = document.getElementById("configuratorOutput");
+  if(configuratorForm && configuratorOutput){
+    const update = ()=>{
+      const category = configuratorForm.category?.value || "Garment Bags";
+      const thickness = configuratorForm.thickness?.value || "Standard";
+      const width = fmtNumber(clamp(toNum(configuratorForm.width?.value, 24), 6, 120));
+      const length = fmtNumber(clamp(toNum(configuratorForm.length?.value, 54), 12, 120));
+      const closure = configuratorForm.closure?.value || "Open bottom";
+      configuratorOutput.textContent = `Recommendation: ${width}" x ${length}" ${thickness.toLowerCase()} ${category.toLowerCase()} with ${closure.toLowerCase()}.`;
+    };
+    ["input", "change"].forEach((evt)=> configuratorForm.addEventListener(evt, update));
+    update();
+  }
+
+  const arBtn = document.getElementById("arLaunchBtn");
+  const arPreview = document.getElementById("arPreview");
+  if(arBtn && arPreview){
+    arBtn.addEventListener("click", ()=>{
+      arPreview.classList.add("active");
+      const title = arPreview.querySelector(".tool-preview-title");
+      const desc = arPreview.querySelector(".tool-preview-desc");
+      if(title) title.textContent = "AR session started";
+      if(desc){
+        desc.textContent = window.innerWidth < 768
+          ? "Move your phone around to place the bag outline."
+          : "AR works best on mobile. Open this page on your phone to view.";
+      }
+    });
+  }
+
+  const sizeCalcForm = document.getElementById("sizeCalcForm");
+  const sizeCalcOutput = document.getElementById("sizeCalcOutput");
+  if(sizeCalcForm && sizeCalcOutput){
+    const update = ()=>{
+      const width = clamp(toNum(sizeCalcForm.garmentWidth?.value, 18), 10, 80);
+      const length = clamp(toNum(sizeCalcForm.garmentLength?.value, 40), 24, 90);
+      const bagWidth = fmtNumber(width + 6);
+      const bagLength = fmtNumber(length + 8);
+      sizeCalcOutput.textContent = `Suggested bag size: ${bagWidth}" W x ${bagLength}" L.`;
+    };
+    ["input", "change"].forEach((evt)=> sizeCalcForm.addEventListener(evt, update));
+    update();
+  }
+
+  const usageCalcForm = document.getElementById("usageCalcForm");
+  const usageCalcOutput = document.getElementById("usageCalcOutput");
+  if(usageCalcForm && usageCalcOutput){
+    const update = ()=>{
+      const gpd = clamp(toNum(usageCalcForm.gpd?.value, 0), 0, 100000);
+      const days = clamp(toNum(usageCalcForm.days?.value, 0), 0, 31);
+      const buffer = clamp(toNum(usageCalcForm.buffer?.value, 0), 0, 50);
+      const monthly = gpd * days;
+      const orderQty = monthly * (1 + buffer / 100);
+      usageCalcOutput.textContent = `Estimated monthly usage: ${fmtWhole(monthly)}. Order qty with buffer: ${fmtWhole(orderQty)}.`;
+    };
+    ["input", "change"].forEach((evt)=> usageCalcForm.addEventListener(evt, update));
+    update();
+  }
+
+  const roiCalcForm = document.getElementById("roiCalcForm");
+  const roiCalcOutput = document.getElementById("roiCalcOutput");
+  if(roiCalcForm && roiCalcOutput){
+    const update = ()=>{
+      const volume = clamp(toNum(roiCalcForm.volume?.value, 0), 0, 1000000);
+      const currentCost = clamp(toNum(roiCalcForm.currentCost?.value, 0), 0, 100);
+      const newCost = clamp(toNum(roiCalcForm.newCost?.value, 0), 0, 100);
+      const minutesSaved = clamp(toNum(roiCalcForm.minutesSaved?.value, 0), 0, 30);
+      const hourlyRate = clamp(toNum(roiCalcForm.hourlyRate?.value, 0), 0, 200);
+      const materialSavings = Math.max(0, (currentCost - newCost) * volume);
+      const laborSavings = Math.max(0, (minutesSaved / 60) * hourlyRate * volume);
+      roiCalcOutput.textContent = `Estimated monthly savings: ${fmtCurrency(materialSavings)} (materials) + ${fmtCurrency(laborSavings)} (labor).`;
+    };
+    ["input", "change"].forEach((evt)=> roiCalcForm.addEventListener(evt, update));
+    update();
+  }
+
+  const sampleForm = document.getElementById("sampleRequestForm");
+  const sampleSteps = document.getElementById("sampleSteps");
+  const sampleNote = document.getElementById("sampleRequestNote");
+  if(sampleForm && sampleSteps){
+    sampleForm.addEventListener("submit", (event)=>{
+      event.preventDefault();
+      const steps = Array.from(sampleSteps.querySelectorAll(".tool-step"));
+      steps.forEach((step, idx)=>{
+        step.classList.toggle("done", idx === 0);
+        step.classList.toggle("active", idx === 1);
+      });
+      if(sampleNote){
+        sampleNote.textContent = "Request logged. Sample packed in 1 business day.";
+      }
+      sampleForm.reset();
+    });
+  }
+
+  const quoteForm = document.getElementById("quoteCompareForm");
+  const quoteOutput = document.getElementById("quoteCompareOutput");
+  if(quoteForm && quoteOutput){
+    const update = ()=>{
+      const vendorA = quoteForm.vendorA?.value || "Vendor A";
+      const vendorB = quoteForm.vendorB?.value || "Vendor B";
+      const priceA = clamp(toNum(quoteForm.priceA?.value, 0), 0, 100000);
+      const priceB = clamp(toNum(quoteForm.priceB?.value, 0), 0, 100000);
+      const leadA = clamp(toNum(quoteForm.leadA?.value, 0), 0, 365);
+      const leadB = clamp(toNum(quoteForm.leadB?.value, 0), 0, 365);
+      const bestPrice = priceA === priceB ? `${vendorA} + ${vendorB}` : (priceA < priceB ? vendorA : vendorB);
+      const fastest = leadA === leadB ? `${vendorA} + ${vendorB}` : (leadA < leadB ? vendorA : vendorB);
+      quoteOutput.textContent = `Best price: ${bestPrice}. Fastest delivery: ${fastest}.`;
+    };
+    ["input", "change"].forEach((evt)=> quoteForm.addEventListener(evt, update));
+    update();
+  }
+
+  const bulkForm = document.getElementById("bulkEstimatorForm");
+  const bulkOutput = document.getElementById("bulkEstimatorOutput");
+  if(bulkForm && bulkOutput){
+    const update = ()=>{
+      const cases = clamp(toNum(bulkForm.cases?.value, 1), 1, 100000);
+      const price = clamp(toNum(bulkForm.casePrice?.value, 0), 0, 100000);
+      let discountPct = 0;
+      if(cases >= 250) discountPct = 12;
+      else if(cases >= 100) discountPct = 8;
+      else if(cases >= 50) discountPct = 5;
+      const subtotal = cases * price;
+      const total = subtotal * (1 - discountPct / 100);
+      bulkOutput.textContent = `Bulk price: ${fmtCurrency(total)} with ${discountPct}% discount.`;
+    };
+    ["input", "change"].forEach((evt)=> bulkForm.addEventListener(evt, update));
+    update();
+  }
+}
+
+function setupAnalytics(){
+  if(window.PPS_ANALYTICS) return;
+  const queueKey = "pps_analytics_queue";
+  const sessionId = (()=> {
+    const key = "pps_analytics_session";
+    const existing = localStorage.getItem(key);
+    if(existing) return existing;
+    const id = `sess_${Date.now()}_${Math.random().toString(36).slice(2,8)}`;
+    localStorage.setItem(key, id);
+    return id;
+  })();
+
+  const readQueue = () => {
+    try{
+      const raw = localStorage.getItem(queueKey);
+      const list = JSON.parse(raw || "[]");
+      return Array.isArray(list) ? list : [];
+    }catch(_err){
+      return [];
+    }
+  };
+  const writeQueue = (list) => {
+    try{ localStorage.setItem(queueKey, JSON.stringify(list.slice(-500))); }catch(_err){}
+  };
+
+  const record = (event, data={}) => {
+    const payload = {
+      event,
+      data,
+      ts: Date.now(),
+      path: window.location.pathname,
+      sessionId
+    };
+    const list = readQueue();
+    list.push(payload);
+    writeQueue(list);
+    window.dispatchEvent(new CustomEvent("pps:analytics", { detail: payload }));
+  };
+
+  const assignVariant = (key, variants=["A","B"]) => {
+    const storeKey = `pps_ab_${key}`;
+    const existing = localStorage.getItem(storeKey);
+    if(existing) return existing;
+    const idx = Math.floor(Math.random() * variants.length);
+    const choice = variants[idx];
+    localStorage.setItem(storeKey, choice);
+    record("ab_assign", { key, variant: choice });
+    return choice;
+  };
+
+  window.PPS_ANALYTICS = {
+    record,
+    assignVariant,
+    getQueue: readQueue
+  };
+
+  // Page view + funnel step
+  record("page_view", { title: document.title });
+  if(/product\.html$/i.test(window.location.pathname)) record("funnel_view_product");
+  if(/cart\.html$/i.test(window.location.pathname)) record("funnel_view_cart");
+  if(/checkout\.html$/i.test(window.location.pathname)) record("funnel_view_checkout");
+
+  // Heatmap click capture
+  document.addEventListener("click", (e)=>{
+    const target = e.target;
+    const rect = document.documentElement.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / Math.max(1, rect.width);
+    const y = (e.clientY - rect.top) / Math.max(1, rect.height);
+    record("heatmap_click", { x, y, tag: target?.tagName, id: target?.id || "", cls: target?.className || "" });
+  }, { passive:true });
+
+  // Scroll depth
+  let maxScroll = 0;
+  window.addEventListener("scroll", ()=>{
+    const doc = document.documentElement;
+    const total = Math.max(1, doc.scrollHeight - doc.clientHeight);
+    const ratio = Math.min(1, Math.max(0, doc.scrollTop / total));
+    if(ratio > maxScroll + 0.05){
+      maxScroll = ratio;
+      record("scroll_depth", { depth: Math.round(maxScroll * 100) });
+    }
+  }, { passive:true });
+}
+
+function setupJourneyTracking(){
+  if(window.__ppsJourneyBound) return;
+  window.__ppsJourneyBound = true;
+  const key = "pps_journey_v1";
+  const recordStep = (step, meta={}) => {
+    try{
+      const raw = localStorage.getItem(key);
+      const list = Array.isArray(JSON.parse(raw || "[]")) ? JSON.parse(raw || "[]") : [];
+      list.push({ step, meta, ts: Date.now(), path: window.location.pathname });
+      localStorage.setItem(key, JSON.stringify(list.slice(-200)));
+    }catch(_err){}
+  };
+  window.addEventListener("pps:analytics", (e)=>{
+    const ev = e.detail;
+    recordStep(ev.event, ev.data || {});
+  });
+}
+
 function injectHelpWidget(){
   if(document.getElementById("helpWidget")) return;
   const wrap = document.createElement("div");
@@ -1149,6 +1551,52 @@ function injectHelpWidget(){
   const chatSuggestions = document.getElementById("helpChatSuggestions");
   const chatForm = document.getElementById("helpChatForm");
   const chatInput = document.getElementById("helpChatInput");
+  const aiState = {
+    messages: []
+  };
+
+  const aiEndpoint = (()=> {
+    if(window.PPS_AI_CHAT_ENDPOINT) return String(window.PPS_AI_CHAT_ENDPOINT);
+    const apiBase = window.PPS?.API_BASE || window.PPS_API_BASE || "";
+    return apiBase ? `${apiBase}/api/ai-chat` : "";
+  })();
+
+  function buildAiMessages(userText){
+    const system = {
+      role: "system",
+      content: "You are Power Poly Supplies' helpful support assistant. Answer concisely about product sizing, thickness, shipping, payments, bulk orders, and account features. If unsure, recommend contacting support."
+    };
+    const history = aiState.messages.slice(-6);
+    return [system, ...history, { role:"user", content: userText }];
+  }
+
+  async function askAi(userText){
+    if(!aiEndpoint) return null;
+    const typing = appendTyping();
+    try{
+      const res = await fetch(aiEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: buildAiMessages(userText),
+          meta: { path: window.location.pathname }
+        })
+      });
+      const data = await res.json().catch(()=> ({}));
+      if(!res.ok) throw new Error(data?.error || "AI request failed");
+      const reply = data.reply || data.message || data.output_text || data.text;
+      if(!reply) throw new Error("Missing reply");
+      aiState.messages.push({ role:"user", content: userText });
+      aiState.messages.push({ role:"assistant", content: reply });
+      try{ typing?.remove?.(); }catch(_err){}
+      appendMessage({ role:"bot", text: String(reply) });
+      renderSuggestions();
+      return reply;
+    }catch(_err){
+      try{ typing?.remove?.(); }catch(_err){}
+      return null;
+    }
+  }
 
   function setOpen(open){
     if(!fab || !panel) return;
@@ -1438,6 +1886,23 @@ function injectHelpWidget(){
     if(!raw) return;
     appendMessage({ role:"user", text: raw });
 
+    if(aiEndpoint){
+      askAi(raw).then((reply)=>{
+        if(reply) return;
+        const typing = appendTyping();
+        setTimeout(()=>{ try{ typing?.remove?.(); }catch(_err){} }, 200);
+        appendMessage({
+          role:"bot",
+          html: helpT(
+            "help.chat.fallback_html",
+            `I can help with shipping, bag sizes, thickness, payments, and monthly usage. Try a quick button below, or visit <a href="./resources.html">Resources</a>.`
+          )
+        });
+        renderSuggestions();
+      });
+      return;
+    }
+
     const typing = appendTyping();
     const hits = topFaqMatches(raw, 3);
     const best = hits[0] || null;
@@ -1543,6 +2008,68 @@ function injectHelpWidget(){
   }
 
   window.addEventListener("pps:lang", applyHelpCopy);
+}
+
+function setupRetentionSignals(){
+  const cartKey = "pps_cart_last_update";
+  window.addEventListener("pps:cart", (e)=>{
+    try{ localStorage.setItem(cartKey, String(Date.now())); }catch(_err){}
+  });
+
+  const cart = window.PPS?.getCart?.() || [];
+  const last = Number(localStorage.getItem(cartKey) || 0);
+  const hours = last ? (Date.now() - last) / 3600000 : 0;
+  if(cart.length && hours > 6){
+    if(!document.getElementById("abandonBanner")){
+      const banner = document.createElement("div");
+      banner.id = "abandonBanner";
+      banner.className = "marketing-banner";
+      banner.innerHTML = `
+        <div class="marketing-banner-inner">
+          <strong>Finish your order?</strong>
+          <span>We can email your cart and apply a small discount.</span>
+          <form id="abandonEmailForm">
+            <input class="input" type="email" name="email" placeholder="you@company.com" required>
+            <button class="btn btn-primary btn-sm" type="submit">Email my cart</button>
+          </form>
+          <button class="marketing-banner-close" type="button" aria-label="Close">x</button>
+        </div>
+      `;
+      document.body.appendChild(banner);
+      banner.querySelector(".marketing-banner-close")?.addEventListener("click", ()=> banner.remove());
+      const form = document.getElementById("abandonEmailForm");
+      if(form){
+        form.addEventListener("submit", (e)=>{
+          e.preventDefault();
+          const email = form.email?.value?.trim?.() || "";
+          if(!email) return;
+          try{ localStorage.setItem("pps_abandon_email", email); }catch(_err){}
+          banner.querySelector("span")?.remove?.();
+          form.innerHTML = `<span class="muted">Email queued. We will send a reminder.</span>`;
+        });
+      }
+    }
+  }
+
+  const lastVisitKey = "pps_last_visit";
+  const lastVisit = Number(localStorage.getItem(lastVisitKey) || 0);
+  const days = lastVisit ? (Date.now() - lastVisit) / (1000 * 60 * 60 * 24) : 0;
+  localStorage.setItem(lastVisitKey, String(Date.now()));
+  if(days > 30 && !localStorage.getItem("pps_winback_shown")){
+    localStorage.setItem("pps_winback_shown", "true");
+    const banner = document.createElement("div");
+    banner.className = "marketing-banner winback";
+    banner.innerHTML = `
+      <div class="marketing-banner-inner">
+        <strong>Welcome back!</strong>
+        <span>Enjoy a win-back discount on your next bulk order.</span>
+        <a class="btn btn-primary btn-sm" href="./specials.html">Claim offer</a>
+        <button class="marketing-banner-close" type="button" aria-label="Close">x</button>
+      </div>
+    `;
+    document.body.appendChild(banner);
+    banner.querySelector(".marketing-banner-close")?.addEventListener("click", ()=> banner.remove());
+  }
 }
 
 function showAuthModal(options = {}){
@@ -2284,10 +2811,28 @@ window.addEventListener("DOMContentLoaded", ()=>{
   }catch{
     // ignore
   }
+  try{
+    if(!document.querySelector('link[rel="manifest"]')){
+      const link = document.createElement("link");
+      link.rel = "manifest";
+      link.href = "./manifest.webmanifest";
+      document.head.appendChild(link);
+    }
+    if(!document.querySelector('meta[name="theme-color"]')){
+      const meta = document.createElement("meta");
+      meta.name = "theme-color";
+      meta.content = "#ff7a1a";
+      document.head.appendChild(meta);
+    }
+  }catch{
+    // ignore
+  }
   decoratePromoTagline();
   setupNavbar();
   setupFadeIn();
   setupStickyHeader();
+  setupAnalytics();
+  setupJourneyTracking();
   syncAccountLink();
   setupAuthModalTriggers();
   injectResourcesDropdown();
@@ -2295,12 +2840,16 @@ window.addEventListener("DOMContentLoaded", ()=>{
   injectLangSwitcher();
   injectCurrencySwitcher();
   injectNotificationsBell();
+  injectMiniCartPreview();
+  injectCartSidebar();
   setupSearch();
   setupCountUp();
   injectBottomNav();
   setupBottomNavSearch();
+  setupInteractiveTools();
   injectFooter();
   injectHelpWidget();
+  setupRetentionSignals();
   scheduleLanguagePrompt();
 });
 

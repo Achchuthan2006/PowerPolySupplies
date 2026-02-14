@@ -2,6 +2,7 @@ document.getElementById("y").textContent = new Date().getFullYear();
 PPS.updateCartBadge();
 
 let productMap = null;
+let productsList = [];
 
 const goCheckout = document.getElementById("goCheckout");
 const GO_CHECKOUT_DEFAULT = goCheckout ? {
@@ -26,8 +27,47 @@ function setCheckoutCtaState(isEmpty){
 }
 
 const productsPromise = PPS.loadProducts().then((products)=>{
-  productMap = new Map(products.map(p=>[p.id, p]));
+  productsList = Array.isArray(products) ? products : [];
+  productMap = new Map(productsList.map(p=>[p.id, p]));
 });
+
+function addBusinessDays(date, days){
+  const d = new Date(date.getTime());
+  let left = Math.max(0, Number(days) || 0);
+  while(left > 0){
+    d.setDate(d.getDate() + 1);
+    const day = d.getDay();
+    if(day !== 0 && day !== 6){
+      left -= 1;
+    }
+  }
+  return d;
+}
+
+function formatShortDate(d){
+  try{
+    return new Intl.DateTimeFormat(undefined, { month:"short", day:"numeric" }).format(d);
+  }catch(_err){
+    return d.toDateString();
+  }
+}
+
+function getLastOrderKey(){
+  const session = PPS.getSession?.();
+  const email = String(session?.email || "").trim().toLowerCase();
+  return email ? `pps_last_order_${email}` : "pps_last_order_guest";
+}
+
+function readLastOrder(){
+  try{
+    const raw = localStorage.getItem(getLastOrderKey());
+    const parsed = JSON.parse(raw || "null");
+    if(!parsed || !Array.isArray(parsed.items)) return null;
+    return parsed;
+  }catch(_err){
+    return null;
+  }
+}
 
 function getItemDescription(item){
   const lang = window.PPS_I18N?.getLang?.() || "en";
@@ -63,6 +103,11 @@ function render(){
   const cart = PPS.getCart();
   const list = document.getElementById("cartList");
   const totalEl = document.getElementById("total");
+  const estimateEl = document.getElementById("cartEstimate");
+  const bulkSavingsRow = document.getElementById("bulkSavingsRow");
+  const bulkSavingsAmount = document.getElementById("bulkSavingsAmount");
+  const reorderBtn = document.getElementById("reorderBtn");
+  const crossSellGrid = document.getElementById("crossSellGrid");
   const heroIllustration = document.querySelector(".cart-hero-illustration");
   const boxWrap = document.getElementById("cartLoadBoxes");
 
@@ -177,19 +222,41 @@ function render(){
       </div>
     `;
     totalEl.textContent = PPS.money(0);
+    if(estimateEl) estimateEl.textContent = "--";
+    if(bulkSavingsRow) bulkSavingsRow.style.display = "none";
+    if(reorderBtn) reorderBtn.style.display = "none";
+    if(crossSellGrid) crossSellGrid.innerHTML = "";
     return;
   }
 
   setCheckoutCtaState(false);
   const targetCurrency = PPS.getCurrency();
+  let bulkSavingsCents = 0;
   const total = cart.reduce((sum,i)=>{
     const product = productMap?.get(i.id);
-    const unitCents = product ? PPS.getTieredPriceCents(product, i.qty) : (i.priceCentsBase ?? i.priceCents);
+    const baseUnitCents = product ? Number(product.priceCents || 0) : (i.priceCentsBase ?? i.priceCents);
+    const unitCents = product ? PPS.getTieredPriceCents(product, i.qty) : baseUnitCents;
+    if(product && baseUnitCents > unitCents){
+      bulkSavingsCents += (baseUnitCents - unitCents) * i.qty;
+    }
     const baseCents = unitCents * i.qty;
     const baseCurrency = product?.currency || i.currencyBase || i.currency || "CAD";
     return sum + PPS.convertCents(baseCents, baseCurrency, targetCurrency);
   }, 0);
   totalEl.textContent = PPS.money(total, targetCurrency, targetCurrency);
+  if(bulkSavingsRow && bulkSavingsAmount){
+    if(bulkSavingsCents > 0){
+      bulkSavingsRow.style.display = "";
+      bulkSavingsAmount.textContent = `- ${PPS.money(bulkSavingsCents, "CAD", targetCurrency)}`;
+    }else{
+      bulkSavingsRow.style.display = "none";
+    }
+  }
+  if(estimateEl){
+    const start = addBusinessDays(new Date(), 2);
+    const end = addBusinessDays(new Date(), 5);
+    estimateEl.textContent = `${formatShortDate(start)} - ${formatShortDate(end)}`;
+  }
 
   list.innerHTML = cart.map(i=>{
     const lang = window.PPS_I18N?.getLang?.() || "en";
@@ -203,6 +270,9 @@ function render(){
     const baseCurrency = product?.currency || i.currencyBase || i.currency || "CAD";
     const lineCents = unitCents * i.qty;
     const lineTotal = PPS.money(PPS.convertCents(lineCents, baseCurrency, targetCurrency), targetCurrency, targetCurrency);
+    const stockWarning = product && Number(product.stock) > 0 && Number(product.stock) <= 5
+      ? `<div class="cart-stock-warning">Only ${product.stock} left - order soon.</div>`
+      : "";
     const descHtml = desc
       ? `<div style="color:var(--muted); font-size:13px; margin-top:4px;">${desc}</div>`
       : "";
@@ -222,6 +292,7 @@ function render(){
             <span class="cart-item-line">${lineTotal}</span>
           </div>
           ${descHtml}
+          ${stockWarning}
         </div>
       </div>
 
@@ -241,6 +312,53 @@ function render(){
 
   // trigger fade-in
   document.querySelectorAll(".fade-in").forEach(el => el.classList.add("show"));
+
+  if(crossSellGrid && productsList.length){
+    const cartCats = new Set(cart.map(item=> productMap?.get(item.id)?.category).filter(Boolean));
+    const picks = productsList
+      .filter(p=> !cart.some(i=>i.id===p.id))
+      .filter(p=> cartCats.size ? cartCats.has(p.category) : true)
+      .slice(0, 4);
+    crossSellGrid.innerHTML = picks.length
+      ? picks.map(item=>`
+        <div class="card">
+          <a href="./product.html?slug=${encodeURIComponent(item.slug)}">
+            <img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async" width="320" height="170">
+          </a>
+          <div class="card-body">
+            <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(item.slug)}">${item.name}</a>
+            <div class="member-pricing">
+              <div>
+                <div class="market-label">Market price</div>
+                <span class="compare-price">${PPS.money((Number(item.priceCents) || 0) + 1000, item.currency)}</span>
+              </div>
+              <div>
+                <div class="member-label">Power Poly Member Price</div>
+                <span class="price">${PPS.money(Number(item.priceCents) || 0, item.currency)}</span>
+              </div>
+            </div>
+            <div style="margin-top:10px;">
+              <button class="btn btn-primary btn-sm" type="button" onclick="addCrossSell('${item.id}')">Add</button>
+            </div>
+          </div>
+        </div>
+      `).join("")
+      : `<div style="color:var(--muted); font-size:13px;">No cross-sell picks yet.</div>`;
+  }
+
+  if(reorderBtn){
+    const lastOrder = readLastOrder();
+    const session = PPS.getSession?.();
+    if(session && lastOrder?.items?.length){
+      reorderBtn.style.display = "";
+      reorderBtn.onclick = ()=>{
+        PPS.setCart(lastOrder.items);
+        render();
+      };
+    }else{
+      reorderBtn.style.display = "none";
+    }
+  }
 }
 
 function cssEscape(value){
@@ -317,6 +435,13 @@ window.saveForLater = (id)=>{
   PPS.addToWishlist?.(id);
   const next = PPS.getCart().filter(x=>x.id!==id);
   PPS.setCart(next);
+  render();
+};
+
+window.addCrossSell = (id)=>{
+  const product = productMap?.get(id);
+  if(!product) return;
+  PPS.addToCart(product, 1);
   render();
 };
 

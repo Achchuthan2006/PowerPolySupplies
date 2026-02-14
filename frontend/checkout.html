@@ -58,6 +58,12 @@
       <p style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);" data-i18n="checkout.kicker">Checkout</p>
       <h1 data-i18n="checkout.title">Secure checkout</h1>
       <p data-i18n="checkout.subtitle">Confirm your order details. Choose to pay online or place the order now and pay later.</p>
+      <div class="checkout-steps" aria-label="Checkout progress">
+        <div class="checkout-step done"><span class="checkout-dot"></span><span>Cart</span></div>
+        <div class="checkout-step active"><span class="checkout-dot"></span><span>Shipping</span></div>
+        <div class="checkout-step"><span class="checkout-dot"></span><span>Payment</span></div>
+        <div class="checkout-step"><span class="checkout-dot"></span><span>Review</span></div>
+      </div>
     </section>
 
     <section class="grid checkout-grid" style="grid-template-columns: 1.1fr .9fr; gap:16px; margin-top:16px;">

@@ -371,6 +371,54 @@ function postUrlEncoded(url, params){
   });
 }
 
+async function callOpenAiResponses({ messages }) {
+  if(!OPENAI_API_KEY) {
+    const err = new Error("OPENAI_API_KEY not configured.");
+    err.status = 500;
+    throw err;
+  }
+  const payload = {
+    model: OPENAI_MODEL || "gpt-5.2",
+    input: messages
+  };
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 20_000);
+  try{
+    const res = await fetch(`${OPENAI_BASE_URL}/v1/responses`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${OPENAI_API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload),
+      signal: controller.signal
+    });
+    const data = await res.json().catch(()=> ({}));
+    if(!res.ok){
+      const err = new Error(data?.error?.message || "OpenAI request failed.");
+      err.status = res.status;
+      throw err;
+    }
+    let reply = data?.output_text || "";
+    if(!reply && Array.isArray(data?.output)){
+      for(const item of data.output){
+        if(item?.type === "output_text" && item?.text){
+          reply = item.text;
+          break;
+        }
+      }
+    }
+    if(!reply){
+      const err = new Error("OpenAI response missing text.");
+      err.status = 502;
+      throw err;
+    }
+    return reply;
+  }finally{
+    clearTimeout(timeout);
+  }
+}
+
 async function verifyRecaptcha(token){
   if(!recaptchaSecretKey) return { ok:true, skipped:true, reason:"not_configured" };
   const response = String(token || "").trim();
@@ -421,6 +469,9 @@ const COMPANY_EMAIL = process.env.COMPANY_EMAIL || process.env.EMAIL_USER || "";
 const COMPANY_ADDRESS = process.env.COMPANY_ADDRESS || "";
 const COMPANY_LOGO_PATH = process.env.COMPANY_LOGO_PATH
   || path.join(__dirname, "../frontend/assets/logo.jpg");
+const OPENAI_API_KEY = String(process.env.OPENAI_API_KEY || "").trim();
+const OPENAI_MODEL = String(process.env.OPENAI_MODEL || "gpt-5.2").trim();
+const OPENAI_BASE_URL = String(process.env.OPENAI_BASE_URL || "https://api.openai.com").trim().replace(/\/+$/,"");
 
 app.get("/", (req,res)=>{
   if(HAS_FRONTEND){
@@ -2365,6 +2416,35 @@ app.post("/api/help", async (req,res)=>{
   }catch(err){
     console.error("Help request failed", err);
     res.status(500).json({ ok:false, message:"Failed to send help request" });
+  }
+});
+
+// ---- AI chat proxy ----
+const aiChatLimiter = rateLimit({ windowMs: 60_000, max: 40, keyPrefix: "ai:" });
+app.post("/api/ai-chat", aiChatLimiter, async (req,res)=>{
+  const { messages } = req.body || {};
+  if(!Array.isArray(messages) || !messages.length){
+    return res.status(400).json({ ok:false, message:"messages is required" });
+  }
+  const safeMessages = messages
+    .filter(m=> m && typeof m === "object")
+    .map(m=> ({
+      role: String(m.role || "").toLowerCase(),
+      content: String(m.content || "").trim()
+    }))
+    .filter(m=> ["system","user","assistant","developer"].includes(m.role) && m.content);
+  if(!safeMessages.length){
+    return res.status(400).json({ ok:false, message:"No valid messages provided" });
+  }
+  if(safeMessages.length > 12){
+    safeMessages.length = 12;
+  }
+  try{
+    const reply = await callOpenAiResponses({ messages: safeMessages });
+    res.json({ ok:true, reply });
+  }catch(err){
+    const status = Number(err?.status || 500);
+    res.status(status).json({ ok:false, message: err?.message || "AI request failed." });
   }
 });
 

@@ -594,6 +594,27 @@ formEl.addEventListener("submit", async (e)=>{
 
     localStorage.removeItem("pps_cart");
     try{
+      const emailKey = email ? `pps_last_order_${email}` : "pps_last_order_guest";
+      localStorage.setItem(emailKey, JSON.stringify({
+        items: cart.map(item=>({
+          id: item.id,
+          name: item.name,
+          priceCents: item.priceCents,
+          currency: item.currency,
+          qty: item.qty,
+          description: item.description || "",
+          description_fr: item.description_fr || "",
+          description_ko: item.description_ko || "",
+          description_hi: item.description_hi || "",
+          description_ta: item.description_ta || "",
+          description_es: item.description_es || ""
+        })),
+        placedAt: new Date().toISOString()
+      }));
+    }catch(_err){
+      // ignore
+    }
+    try{
       if(email){
         window.PPS_ACTIVITY?.record?.("order_placed", {
           orderId: data?.orderId || "",

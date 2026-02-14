@@ -44,6 +44,27 @@
   };
 
   const getSession = () => window.PPS?.getSession?.() || null;
+  const getAlertKey = () => {
+    const session = getSession();
+    const email = String(session?.email || "").trim().toLowerCase();
+    return email ? `pps_wishlist_alerts_${email}` : "pps_wishlist_alerts_guest";
+  };
+  const readAlerts = () => {
+    try{
+      const raw = localStorage.getItem(getAlertKey());
+      const parsed = JSON.parse(raw || "{}");
+      return parsed && typeof parsed === "object" ? parsed : {};
+    }catch(_err){
+      return {};
+    }
+  };
+  const writeAlerts = (data) => {
+    try{
+      localStorage.setItem(getAlertKey(), JSON.stringify(data || {}));
+    }catch(_err){
+      // ignore
+    }
+  };
 
   const ensureLogin = () => {
     const session = getSession();
@@ -105,6 +126,10 @@
         const stock = Number(p.stock || 0);
         const stockLabel = stock <= 0 ? "Out of stock" : stock <= 10 ? "Almost out" : "In stock";
         const priceCents = window.PPS?.getTieredPriceCents?.(p, 1) ?? p.priceCents;
+        const alerts = readAlerts();
+        const alert = alerts[id] || {};
+        const targetCents = Number(alert.targetCents) || priceCents;
+        const enabled = alert.enabled !== false;
         return `
           <div class="wishlist-item">
             <div style="display:flex; gap:12px; align-items:flex-start;">
@@ -113,6 +138,13 @@
                 <div style="font-weight:1000;">${esc(p.name || "Item")}</div>
                 <div style="color:var(--muted); font-size:13px; margin-top:4px;">${esc(p.category || "")} · ${esc(stockLabel)}</div>
                 <div style="font-weight:900; margin-top:6px;">${money(priceCents, p.currency)}</div>
+                <div class="wishlist-alert">
+                  <label class="filter-chip">
+                    <input type="checkbox" data-alert-toggle="${esc(p.id)}" ${enabled ? "checked" : ""}>
+                    <span>Price alert</span>
+                  </label>
+                  <input class="input" type="number" min="0" step="0.01" data-alert-target="${esc(p.id)}" value="${(targetCents / 100).toFixed(2)}" style="max-width:120px;">
+                </div>
                 <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
                   <a class="btn btn-outline btn-sm" href="./product.html?slug=${encodeURIComponent(p.slug || "")}">View</a>
                   <button class="btn btn-primary btn-sm" type="button" data-wl-addcart="${esc(p.id)}">Add to cart</button>
@@ -296,6 +328,29 @@
       }
     });
 
+    document.addEventListener("change", (e) => {
+      const toggle = e.target.closest("[data-alert-toggle]");
+      if (toggle) {
+        const id = toggle.getAttribute("data-alert-toggle");
+        const alerts = readAlerts();
+        alerts[id] = alerts[id] || {};
+        alerts[id].enabled = toggle.checked;
+        writeAlerts(alerts);
+        setInlineMsg("Price alert updated.");
+        return;
+      }
+      const target = e.target.closest("[data-alert-target]");
+      if (target) {
+        const id = target.getAttribute("data-alert-target");
+        const cents = Math.max(0, Math.round(Number(target.value || 0) * 100));
+        const alerts = readAlerts();
+        alerts[id] = alerts[id] || {};
+        alerts[id].targetCents = cents;
+        writeAlerts(alerts);
+        setInlineMsg("Alert price updated.");
+      }
+    });
+
     window.addEventListener("pps:wishlists", render);
     window.addEventListener("pps:currency", render);
     window.addEventListener("pps:lang", render);
@@ -303,4 +358,3 @@
 
   window.PPS_WISHLISTS = { init, setContext, render };
 })();
-

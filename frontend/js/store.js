@@ -441,6 +441,7 @@ function setCart(cart){
   try{
     const count = safe.reduce((sum, item)=> sum + (Number(item?.qty) || 0), 0);
     window.dispatchEvent(new CustomEvent("pps:cart", { detail:{ cart: safe, count } }));
+    window.PPS_ANALYTICS?.record?.("cart_update", { count });
   }catch(err){
     // ignore
   }
@@ -518,6 +519,11 @@ function addToCart(product, qty=1){
     });
   }
   setCart(cart);
+  try{
+    window.PPS_ANALYTICS?.record?.("add_to_cart", { id: product.id, qty: safeQty, name: product.name });
+  }catch(err){
+    // ignore
+  }
 }
 
 function setApiBaseOverride(url){

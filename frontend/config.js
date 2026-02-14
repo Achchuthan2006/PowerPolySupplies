@@ -22,3 +22,7 @@ window.SQUARE_LOCATION_ID = "";
 // Google reCAPTCHA (site key is safe to expose publicly; secret key must stay in backend env).
 // Create a key in Google reCAPTCHA admin and paste the *site key* here.
 window.RECAPTCHA_SITE_KEY = "";
+
+// AI chat proxy endpoint (server-side). Keep API keys on the backend.
+// Example: "https://your-api.example.com/api/ai-chat"
+window.PPS_AI_CHAT_ENDPOINT = "";

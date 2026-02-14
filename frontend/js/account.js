@@ -46,6 +46,12 @@
     ordersCountBadge: $("#ordersCountBadge"),
     invoicesCountBadge: $("#invoicesCountBadge"),
     favoritesCountBadge: $("#favoritesCountBadge"),
+    ordersUpdatedAt: $("#ordersUpdatedAt"),
+    orderRecsGrid: $("#orderRecsGrid"),
+    orderRecsMsg: $("#orderRecsMsg"),
+    businessForm: $("#businessForm"),
+    businessMsg: $("#businessMsg"),
+    downloadStatement: $("#downloadStatement"),
     orderSearch: $("#orderSearch"),
     orderStatus: $("#orderStatus"),
     orderRange: $("#orderRange"),
@@ -72,7 +78,25 @@
     templatesMsg: $("#templatesMsg"),
     templatesList: $("#templatesList"),
     combosMsg: $("#combosMsg"),
-    combosGrid: $("#combosGrid")
+    combosGrid: $("#combosGrid"),
+    businessTierForm: $("#businessTierForm"),
+    businessTierOutput: $("#businessTierOutput"),
+    rfqForm: $("#rfqForm"),
+    rfqOutput: $("#rfqOutput"),
+    netTermsForm: $("#netTermsForm"),
+    netTermsOutput: $("#netTermsOutput"),
+    poUploadForm: $("#poUploadForm"),
+    poUploadOutput: $("#poUploadOutput"),
+    approvalForm: $("#approvalForm"),
+    approvalList: $("#approvalList"),
+    bulkTemplateForm: $("#bulkTemplateForm"),
+    bulkTemplateList: $("#bulkTemplateList"),
+    csvUploadForm: $("#csvUploadForm"),
+    csvUploadOutput: $("#csvUploadOutput"),
+    repAssignForm: $("#repAssignForm"),
+    repAssignOutput: $("#repAssignOutput"),
+    creditAppForm: $("#creditAppForm"),
+    creditAppOutput: $("#creditAppOutput")
   };
 
   if (els.year) els.year.textContent = String(new Date().getFullYear());
@@ -362,6 +386,17 @@
   };
 
   const TEMPLATE_KEY = "order_templates_v1";
+  const SUBSCRIPTIONS_KEY = userKey("subscriptions_v1");
+  const BUSINESS_PROFILE_KEY = userKey("business_profile_v1");
+  const BUSINESS_TIER_KEY = userKey("business_tier_v1");
+  const BUSINESS_RFQ_KEY = userKey("business_rfq_v1");
+  const BUSINESS_NET_KEY = userKey("business_net_terms_v1");
+  const BUSINESS_PO_KEY = userKey("business_po_v1");
+  const BUSINESS_APPROVALS_KEY = userKey("business_approvals_v1");
+  const BUSINESS_TEMPLATES_KEY = userKey("business_bulk_templates_v1");
+  const BUSINESS_CSV_KEY = userKey("business_csv_upload_v1");
+  const BUSINESS_REP_KEY = userKey("business_rep_v1");
+  const BUSINESS_CREDIT_KEY = userKey("business_credit_app_v1");
 
   const readTemplates = () => {
     const key = userKey(TEMPLATE_KEY);
@@ -401,6 +436,37 @@
       }))
       .filter((it) => it.id)
       .slice(0, 40);
+
+  const readSubscriptions = () => {
+    const data = readJson(SUBSCRIPTIONS_KEY, { items: [] });
+    return Array.isArray(data?.items) ? data.items : [];
+  };
+
+  const writeSubscriptions = (items) => {
+    writeJson(SUBSCRIPTIONS_KEY, { items: Array.isArray(items) ? items.slice(0, 50) : [] });
+  };
+
+  const getSubscription = (productId) => {
+    const list = readSubscriptions();
+    return list.find((s) => String(s.id) === String(productId)) || null;
+  };
+
+  const toggleSubscription = (productId, cadenceDays) => {
+    const list = readSubscriptions();
+    const existing = list.find((s) => String(s.id) === String(productId));
+    if (existing) {
+      writeSubscriptions(list.filter((s) => String(s.id) !== String(productId)));
+      return null;
+    }
+    const next = {
+      id: String(productId),
+      cadenceDays: Math.max(7, Math.round(Number(cadenceDays) || 30)),
+      nextDate: new Date(Date.now() + Math.max(7, Math.round(Number(cadenceDays) || 30)) * DAY_MS).toISOString()
+    };
+    list.unshift(next);
+    writeSubscriptions(list);
+    return next;
+  };
 
   const computeCombos = () => {
     // Signature-based combos from order history. We only consider orders with 2+ items.
@@ -2125,6 +2191,8 @@
     els.frequentGrid.innerHTML = freq
       .map(({ product, count, avgQty, prediction }, idx) => {
         const defaultQty = Math.max(1, Math.round(Number(avgQty) || 1));
+        const subscription = getSubscription(product.id);
+        const cadence = subscription?.cadenceDays || Math.max(14, Number(avgQty) ? 30 : 30);
         return `
           <div class="card fade-in">
             <a href="./product.html?slug=${encodeURIComponent(product.slug)}">
@@ -2137,6 +2205,7 @@
                 Ordered ${count} time${count === 1 ? "" : "s"} &middot; Avg qty: ${defaultQty}
               </div>
               ${prediction ? `<div style="margin-top:8px; color:var(--muted); font-size:13px;">${esc(prediction)}</div>` : ""}
+              ${subscription ? `<div class="sub-note">Subscribed · next ${esc(fmtShortDate(subscription.nextDate))}</div>` : ""}
               <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
                 <label style="display:flex; align-items:center; gap:8px; font-weight:800;">
                   <span style="color:var(--muted); font-size:13px;">Qty</span>
@@ -2144,6 +2213,7 @@
                 </label>
                 <button class="btn btn-primary" ${product.stock <= 0 ? "disabled" : ""} type="button" data-freq-add="${esc(product.id)}">Add to cart</button>
                 <button class="btn btn-outline" type="button" onclick="addFav('${esc(product.id)}')">Favorite</button>
+                <button class="btn btn-outline" type="button" data-subscribe-id="${esc(product.id)}" data-subscribe-cadence="${cadence}">${subscription ? "Unsubscribe" : "Subscribe & Save"}</button>
               </div>
             </div>
           </div>
@@ -2162,6 +2232,18 @@
         const input = card ? card.querySelector("[data-freq-qty]") : null;
         const qty = Math.max(1, Math.round(Number(input?.value) || 1));
         window.quickAdd?.(productId, qty);
+      });
+    }
+    if (!state._subscriptionBound) {
+      state._subscriptionBound = true;
+      els.frequentGrid.addEventListener("click", (e) => {
+        const btn = e.target.closest?.("[data-subscribe-id]");
+        if (!btn) return;
+        const productId = btn.getAttribute("data-subscribe-id");
+        const cadence = Number(btn.getAttribute("data-subscribe-cadence") || 30);
+        toggleSubscription(productId, cadence);
+        renderFrequent();
+        toast("Subscription updated.");
       });
     }
   }
@@ -2217,6 +2299,147 @@
           .join("")}
       </div>
     `;
+  }
+
+  function renderOrderRecommendations() {
+    if (!els.orderRecsGrid || !els.orderRecsMsg) return;
+    if (!state.orders.length || !state.products.length) {
+      els.orderRecsMsg.textContent = "Recommendations will appear after your first order.";
+      els.orderRecsGrid.innerHTML = "";
+      return;
+    }
+    const catCounts = {};
+    const orderedIds = new Set();
+    state.orders.forEach((o) => {
+      (o.items || []).forEach((it) => {
+        orderedIds.add(String(it.id || ""));
+        const product = state.productsById.get(String(it.id || ""));
+        const cat = String(product?.category || "").trim();
+        if (!cat) return;
+        catCounts[cat] = (catCounts[cat] || 0) + (Number(it.qty) || 1);
+      });
+    });
+    const topCats = Object.keys(catCounts).sort((a, b) => catCounts[b] - catCounts[a]).slice(0, 3);
+    const picks = state.products
+      .filter((p) => !orderedIds.has(String(p.id)))
+      .filter((p) => (topCats.length ? topCats.includes(p.category) : true))
+      .slice(0, 6);
+    if (!picks.length) {
+      els.orderRecsMsg.textContent = "No recommendations available yet.";
+      els.orderRecsGrid.innerHTML = "";
+      return;
+    }
+    els.orderRecsMsg.textContent = "";
+    els.orderRecsGrid.innerHTML = picks
+      .map((p) => `
+        <div class="card fade-in" style="padding:14px;">
+          <a href="./product.html?slug=${encodeURIComponent(p.slug)}">
+            <img src="${esc(p.image)}" alt="${esc(p.name)}" loading="lazy" decoding="async" width="400" height="190">
+          </a>
+          <div class="card-body">
+            <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(p.slug)}">${esc(p.name)}</a>
+            <div class="card-meta">${esc(p.category || "")}</div>
+            <div style="margin-top:10px; display:flex; gap:10px;">
+              <button class="btn btn-primary btn-sm" type="button" onclick="quickAdd('${esc(p.id)}', 1)">Add</button>
+              <a class="btn btn-outline btn-sm" href="./product.html?slug=${encodeURIComponent(p.slug)}">View</a>
+            </div>
+          </div>
+        </div>
+      `)
+      .join("");
+    $$(".fade-in").forEach((el) => el.classList.add("show"));
+  }
+
+  function renderBusinessProfile() {
+    if (!els.businessForm || !els.businessMsg) return;
+    const data = readJson(BUSINESS_PROFILE_KEY, {});
+    ["company", "taxId", "billingEmail"].forEach((k) => {
+      const input = els.businessForm.querySelector(`[name="${k}"]`);
+      if (input) input.value = data?.[k] || "";
+    });
+    const invoiceByEmail = els.businessForm.querySelector('[name="invoiceByEmail"]');
+    if (invoiceByEmail) invoiceByEmail.checked = Boolean(data?.invoiceByEmail);
+  }
+
+  function renderBusinessExtras() {
+    if (els.businessTierForm && els.businessTierOutput) {
+      const data = readJson(BUSINESS_TIER_KEY, { tier: "starter", volume: 0, contractPricing: false });
+      els.businessTierForm.querySelector('[name="tier"]')?.setAttribute("data-current", data.tier || "starter");
+      const tierInput = els.businessTierForm.querySelector('[name="tier"]');
+      const volumeInput = els.businessTierForm.querySelector('[name="volume"]');
+      const contractInput = els.businessTierForm.querySelector('[name="contractPricing"]');
+      if (tierInput) tierInput.value = data.tier || "starter";
+      if (volumeInput) volumeInput.value = data.volume ?? 0;
+      if (contractInput) contractInput.checked = Boolean(data.contractPricing);
+      const discount = data.tier === "enterprise" ? 12 : data.tier === "growth" ? 7 : 3;
+      els.businessTierOutput.textContent = `Estimated tier discount: ${discount}% · Volume: ${Number(data.volume || 0)} cases.`;
+    }
+
+    if (els.rfqOutput) {
+      const data = readJson(BUSINESS_RFQ_KEY, null);
+      els.rfqOutput.textContent = data ? `RFQ submitted on ${fmtShortDate(data.createdAt)}.` : "No RFQ submitted yet.";
+    }
+
+    if (els.netTermsOutput && els.netTermsForm) {
+      const data = readJson(BUSINESS_NET_KEY, { terms: "net30", requested: false });
+      const termsSelect = els.netTermsForm.querySelector('[name="terms"]');
+      const req = els.netTermsForm.querySelector('[name="requestTerms"]');
+      if (termsSelect) termsSelect.value = data.terms || "net30";
+      if (req) req.checked = Boolean(data.requested);
+      els.netTermsOutput.textContent = data.requested
+        ? `Net terms request submitted (${data.terms}).`
+        : `Select a term and submit to request net terms.`;
+    }
+
+    if (els.poUploadOutput) {
+      const data = readJson(BUSINESS_PO_KEY, null);
+      els.poUploadOutput.textContent = data ? `PO uploaded: ${data.filename} (${fmtShortDate(data.createdAt)})` : "No PO uploaded.";
+    }
+
+    if (els.approvalList) {
+      const list = readJson(BUSINESS_APPROVALS_KEY, []);
+      if (!Array.isArray(list) || !list.length) {
+        els.approvalList.innerHTML = `<div class="muted">No approvers yet.</div>`;
+      } else {
+        els.approvalList.innerHTML = list.map((a) => `
+          <div class="business-list-item">
+            <div>${esc(a.email || "")}</div>
+            <div>$${Number(a.limit || 0).toLocaleString()} limit</div>
+          </div>
+        `).join("");
+      }
+    }
+
+    if (els.bulkTemplateList) {
+      const list = readJson(BUSINESS_TEMPLATES_KEY, []);
+      if (!Array.isArray(list) || !list.length) {
+        els.bulkTemplateList.innerHTML = `<div class="muted">No bulk templates saved.</div>`;
+      } else {
+        els.bulkTemplateList.innerHTML = list.map((t) => `
+          <div class="business-list-item">
+            <div>${esc(t.name || "Template")}</div>
+            <div>${(t.items || "").split("\n").filter(Boolean).length} items</div>
+          </div>
+        `).join("");
+      }
+    }
+
+    if (els.csvUploadOutput) {
+      const data = readJson(BUSINESS_CSV_KEY, null);
+      els.csvUploadOutput.textContent = data ? `CSV uploaded: ${data.filename} (${data.rows} rows).` : "Upload a CSV to preview.";
+    }
+
+    if (els.repAssignOutput && els.repAssignForm) {
+      const data = readJson(BUSINESS_REP_KEY, null);
+      const repSelect = els.repAssignForm.querySelector('[name="rep"]');
+      if (repSelect && data?.rep) repSelect.value = data.rep;
+      els.repAssignOutput.textContent = data ? `Assigned rep: ${data.label}.` : "No rep assigned yet.";
+    }
+
+    if (els.creditAppOutput) {
+      const data = readJson(BUSINESS_CREDIT_KEY, null);
+      els.creditAppOutput.textContent = data ? `Application submitted (${fmtShortDate(data.createdAt)}). Status: Pending review.` : "No application submitted.";
+    }
   }
 
   function upsertAddress(addr) {
@@ -2341,6 +2564,7 @@
       window._products = state.products;
       renderFavorites();
       renderFrequent();
+      renderOrderRecommendations();
       renderOrders();
       renderInvoices();
       renderTemplates();
@@ -2368,6 +2592,9 @@
       const data = await res.json();
       state.orders = Array.isArray(data) ? data : [];
       state.orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      if (els.ordersUpdatedAt) {
+        els.ordersUpdatedAt.textContent = `updated ${fmtDateTime(new Date().toISOString())}`;
+      }
 
       if (els.ordersCountBadge) els.ordersCountBadge.textContent = String(state.orders.length);
 
@@ -2382,6 +2609,7 @@
       renderOrders();
       renderInvoices();
       renderFrequent();
+      renderOrderRecommendations();
       renderTemplates();
       renderCombos();
       renderReports();
@@ -2679,6 +2907,164 @@
     });
   }
 
+  if (els.businessForm) {
+    els.businessForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const payload = {
+        company: els.businessForm.querySelector('[name="company"]')?.value?.trim?.() || "",
+        taxId: els.businessForm.querySelector('[name="taxId"]')?.value?.trim?.() || "",
+        billingEmail: els.businessForm.querySelector('[name="billingEmail"]')?.value?.trim?.() || "",
+        invoiceByEmail: Boolean(els.businessForm.querySelector('[name="invoiceByEmail"]')?.checked)
+      };
+      writeJson(BUSINESS_PROFILE_KEY, payload);
+      if (els.businessMsg) els.businessMsg.textContent = "Business profile saved.";
+      try{
+        window.PPS_ACTIVITY?.record?.("business_profile_saved", { company: payload.company || "" });
+      }catch{
+        // ignore
+      }
+    });
+  }
+
+  if (els.businessTierForm) {
+    els.businessTierForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const tier = els.businessTierForm.querySelector('[name="tier"]')?.value || "starter";
+      const volume = Number(els.businessTierForm.querySelector('[name="volume"]')?.value || 0);
+      const contractPricing = Boolean(els.businessTierForm.querySelector('[name="contractPricing"]')?.checked);
+      writeJson(BUSINESS_TIER_KEY, { tier, volume, contractPricing });
+      renderBusinessExtras();
+    });
+  }
+
+  if (els.rfqForm) {
+    els.rfqForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const items = els.rfqForm.querySelector('[name="items"]')?.value?.trim?.() || "";
+      writeJson(BUSINESS_RFQ_KEY, { items, createdAt: Date.now() });
+      if (els.rfqOutput) els.rfqOutput.textContent = "RFQ submitted. Our team will respond within 1 business day.";
+      els.rfqForm.reset();
+    });
+  }
+
+  if (els.netTermsForm) {
+    els.netTermsForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const terms = els.netTermsForm.querySelector('[name="terms"]')?.value || "net30";
+      const requested = Boolean(els.netTermsForm.querySelector('[name="requestTerms"]')?.checked);
+      writeJson(BUSINESS_NET_KEY, { terms, requested, createdAt: Date.now() });
+      renderBusinessExtras();
+    });
+  }
+
+  if (els.poUploadForm) {
+    els.poUploadForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const file = els.poUploadForm.querySelector('[name="poFile"]')?.files?.[0];
+      if (!file) {
+        if (els.poUploadOutput) els.poUploadOutput.textContent = "Upload a PO file to continue.";
+        return;
+      }
+      writeJson(BUSINESS_PO_KEY, { filename: file.name, createdAt: Date.now() });
+      renderBusinessExtras();
+      els.poUploadForm.reset();
+    });
+  }
+
+  if (els.approvalForm) {
+    els.approvalForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const email = els.approvalForm.querySelector('[name="approverEmail"]')?.value?.trim?.() || "";
+      const limit = Number(els.approvalForm.querySelector('[name="approverLimit"]')?.value || 0);
+      if (!email) return;
+      const list = readJson(BUSINESS_APPROVALS_KEY, []);
+      list.unshift({ email, limit });
+      writeJson(BUSINESS_APPROVALS_KEY, list.slice(0, 10));
+      els.approvalForm.reset();
+      renderBusinessExtras();
+    });
+  }
+
+  if (els.bulkTemplateForm) {
+    els.bulkTemplateForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name = els.bulkTemplateForm.querySelector('[name="templateName"]')?.value?.trim?.() || "Template";
+      const items = els.bulkTemplateForm.querySelector('[name="templateItems"]')?.value?.trim?.() || "";
+      const list = readJson(BUSINESS_TEMPLATES_KEY, []);
+      list.unshift({ name, items, createdAt: Date.now() });
+      writeJson(BUSINESS_TEMPLATES_KEY, list.slice(0, 10));
+      els.bulkTemplateForm.reset();
+      renderBusinessExtras();
+    });
+  }
+
+  if (els.csvUploadForm) {
+    els.csvUploadForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const file = els.csvUploadForm.querySelector('[name="csvFile"]')?.files?.[0];
+      if (!file) {
+        if (els.csvUploadOutput) els.csvUploadOutput.textContent = "Upload a CSV to preview.";
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const text = String(reader.result || "");
+        const rows = text.split(/\r?\n/).filter(Boolean);
+        writeJson(BUSINESS_CSV_KEY, { filename: file.name, rows: rows.length, createdAt: Date.now() });
+        if (els.csvUploadOutput) {
+          els.csvUploadOutput.textContent = `CSV uploaded: ${file.name} (${rows.length} rows).`;
+        }
+      };
+      reader.readAsText(file);
+    });
+  }
+
+  if (els.repAssignForm) {
+    els.repAssignForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const rep = els.repAssignForm.querySelector('[name="rep"]')?.value || "angel";
+      const labels = { angel: "Angel (Sales)", andrew: "Andrew (Product guidance)", achchu: "Achchu (Orders)" };
+      writeJson(BUSINESS_REP_KEY, { rep, label: labels[rep] || rep, createdAt: Date.now() });
+      renderBusinessExtras();
+    });
+  }
+
+  if (els.creditAppForm) {
+    els.creditAppForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const payload = {
+        legalName: els.creditAppForm.querySelector('[name="legalName"]')?.value?.trim?.() || "",
+        years: Number(els.creditAppForm.querySelector('[name="years"]')?.value || 0),
+        annualSpend: Number(els.creditAppForm.querySelector('[name="annualSpend"]')?.value || 0),
+        createdAt: Date.now()
+      };
+      writeJson(BUSINESS_CREDIT_KEY, payload);
+      renderBusinessExtras();
+      els.creditAppForm.reset();
+    });
+  }
+
+  if (els.downloadStatement) {
+    els.downloadStatement.addEventListener("click", () => {
+      const lines = [
+        "Power Poly Supplies - Monthly Statement",
+        `Generated: ${new Date().toLocaleString()}`,
+        `Account: ${session.email}`,
+        "",
+        `Orders: ${state.orders.length}`
+      ];
+      const blob = new Blob([lines.join("\n")], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "pps_statement.txt";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+  }
+
   if (els.settingsForm) {
     els.settingsForm.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -2727,7 +3113,14 @@
   renderSettings();
   renderMilestonesPrefs();
   renderReports();
+  renderBusinessProfile();
+  renderBusinessExtras();
 
   loadProducts();
   loadOrders();
+
+  // Poll for live order updates every 30 seconds.
+  setInterval(() => {
+    loadOrders();
+  }, 30000);
 })();

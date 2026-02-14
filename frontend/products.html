@@ -56,6 +56,7 @@
 
   <div class="container page">
     <section class="hero fade-in">
+      <nav class="breadcrumbs" aria-label="Breadcrumb" id="productBreadcrumbs"></nav>
       <p style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);" data-i18n="products.kicker">Catalog</p>
       <h1 data-i18n="products.title">Products built for daily use</h1>
       <p data-i18n="products.subtitle">Choose garment cover bags, hangers, polybags, wraps, and racks. Bulk-friendly pricing with dependable stock.</p>
@@ -66,22 +67,68 @@
       </div>
     </section>
 
+    <section class="card fade-in search-discovery" style="padding:16px; margin-top:16px;">
+      <div class="search-discovery-head">
+        <div>
+          <h2 style="margin:0;">Advanced search & discovery</h2>
+          <div class="muted">Search by image, industry, and trending queries.</div>
+        </div>
+        <div class="search-discovery-actions">
+          <button class="btn btn-outline btn-sm" type="button" id="openAdvancedFilters">Advanced filters</button>
+        </div>
+      </div>
+      <div class="search-discovery-grid" style="margin-top:12px;">
+        <div class="search-discovery-card">
+          <div class="search-discovery-title">Visual search</div>
+          <div class="search-discovery-desc">Upload a product image to find similar items.</div>
+          <form id="visualSearchForm" class="search-discovery-form">
+            <input class="input" type="file" id="visualSearchInput" accept="image/*">
+            <button class="btn btn-primary btn-sm" type="submit">Find similar</button>
+          </form>
+          <div class="search-discovery-output" id="visualSearchOutput">Try a garment bag, hanger, or wrap photo.</div>
+        </div>
+        <div class="search-discovery-card">
+          <div class="search-discovery-title">Search by industry</div>
+          <div class="search-discovery-desc">Pick your use-case to narrow results fast.</div>
+          <div class="search-discovery-pills" id="industrySearchPills">
+            <button class="industry-pill" type="button" data-use="dry">Dry cleaners</button>
+            <button class="industry-pill" type="button" data-use="laundry">Laundromats</button>
+            <button class="industry-pill" type="button" data-use="retail">Retail</button>
+            <button class="industry-pill" type="button" data-use="uniform">Uniform services</button>
+            <button class="industry-pill" type="button" data-use="shipping">Shipping / fulfillment</button>
+          </div>
+        </div>
+        <div class="search-discovery-card">
+          <div class="search-discovery-title">Trending searches</div>
+          <div class="search-discovery-desc">Popular queries from this week.</div>
+          <div class="search-discovery-tags" id="trendingSearches"></div>
+        </div>
+        <div class="search-discovery-card">
+          <div class="search-discovery-title">Search history</div>
+          <div class="search-discovery-desc">Recently used queries (saved for logged-in users).</div>
+          <div class="search-discovery-history" id="searchHistoryList"></div>
+        </div>
+      </div>
+    </section>
+
     <div class="filters card fade-in is-collapsed" id="filtersPanel" style="margin-top:16px; padding:14px;">
       <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
         <button class="btn btn-outline btn-sm" type="button" id="toggleFilters" aria-expanded="false" aria-controls="filtersGrid">Filters</button>
-        <button class="btn btn-outline btn-sm" type="button" id="clearFilters">Clear</button>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn btn-outline btn-sm" type="button" id="clearFilters">Clear</button>
+          <div class="view-toggle" role="group" aria-label="View toggle">
+            <button class="btn btn-outline btn-sm" type="button" data-view="grid">Grid</button>
+            <button class="btn btn-outline btn-sm" type="button" data-view="list">List</button>
+          </div>
+        </div>
       </div>
       <div class="filters-grid" id="filtersGrid" style="margin-top:12px;">
         <label class="filter-field">
-          <div class="filter-label">Category</div>
-          <select class="input" id="filterCat">
-            <option value="">All</option>
-            <option value="Garment Bags">Garment Bags</option>
-            <option value="Hangers">Hangers</option>
-            <option value="Polybags">Polybags</option>
-            <option value="Wraps">Wraps</option>
-            <option value="Racks">Racks</option>
-          </select>
+          <div class="filter-label">Search</div>
+          <div class="search-field">
+            <input class="input" id="filterSearch" type="search" placeholder="Search products">
+            <div class="search-suggestions" id="filterSearchSuggest" style="display:none;"></div>
+          </div>
         </label>
         <label class="filter-field">
           <div class="filter-label">Stock</div>
@@ -93,6 +140,17 @@
           </select>
         </label>
         <label class="filter-field">
+          <div class="filter-label">Sort</div>
+          <select class="input" id="filterSort">
+            <option value="relevance">Best match</option>
+            <option value="price_asc">Price (Low - High)</option>
+            <option value="price_desc">Price (High - Low)</option>
+            <option value="best">Best sellers</option>
+            <option value="newest">Newest</option>
+            <option value="rating">Rating</option>
+          </select>
+        </label>
+        <label class="filter-field">
           <div class="filter-label">Min price</div>
           <input class="input" id="filterMin" inputmode="decimal" placeholder="0">
         </label>
@@ -100,11 +158,61 @@
           <div class="filter-label">Max price</div>
           <input class="input" id="filterMax" inputmode="decimal" placeholder="100">
         </label>
+        <div class="filter-field">
+          <div class="filter-label">Category</div>
+          <div class="filter-options" id="filterCats"></div>
+        </div>
+        <div class="filter-field">
+          <div class="filter-label">Thickness</div>
+          <div class="filter-options" id="filterThickness"></div>
+        </div>
+        <div class="filter-field">
+          <div class="filter-label">Size</div>
+          <div class="filter-options" id="filterSize"></div>
+        </div>
+        <div class="filter-field">
+          <div class="filter-label">Material type</div>
+          <div class="filter-options" id="filterMaterial"></div>
+        </div>
+        <div class="filter-field">
+          <div class="filter-label">Rating</div>
+          <div class="filter-options" id="filterRating"></div>
+          <div class="filter-hint" id="filterRatingHint"></div>
+        </div>
+        <div class="filter-field">
+          <div class="filter-label">Industry / use case</div>
+          <div class="filter-options" id="filterUseCase"></div>
+        </div>
+        <div class="filter-field">
+          <div class="filter-label">Category refinement</div>
+          <div class="filter-options" id="filterRefine"></div>
+        </div>
+      </div>
+    </div>
+    <div class="filters-overlay" id="filtersOverlay"></div>
+    <div class="compare-bar" id="compareBar">
+      <div class="compare-left">
+        <strong>Compare</strong>
+        <span id="compareCount">0 selected</span>
+      </div>
+      <div class="compare-actions">
+        <button class="btn btn-outline btn-sm" type="button" id="compareClear">Clear</button>
+        <button class="btn btn-primary btn-sm" type="button" id="compareOpen">Compare</button>
       </div>
     </div>
 
-    <h2 style="margin:20px 0 12px;" data-i18n="products.list_title">Products</h2>
+    <div class="filter-breadcrumbs" id="filterBreadcrumbs" style="margin:16px 0 6px;"></div>
+    <h2 style="margin:6px 0 12px;" data-i18n="products.list_title">Products</h2>
+    <div class="search-related" id="relatedSearches"></div>
+    <div class="category-refine" id="categoryRefine" style="margin:10px 0;"></div>
     <div class="grid grid-4" id="grid"></div>
+    <div class="card fade-in" style="margin-top:18px; padding:18px;">
+      <div class="related-header" style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+        <h3 style="margin:0;">Recently viewed</h3>
+        <a class="btn btn-outline" href="./products.html">Browse all</a>
+      </div>
+      <div id="recentGrid" class="grid grid-4" style="margin-top:12px;"></div>
+    </div>
 
     <div class="footer">&copy; <span id="y"></span> <span data-i18n="footer.short">Power Poly Supplies. Power your packaging.</span></div>
   </div>
@@ -115,6 +223,14 @@
       <span class="badge" id="mobileCartCount" aria-label="Cart item count">0</span>
     </a>
     <a class="btn btn-primary mobile-cart-bar-btn" href="./cart.html" data-i18n="products.action.cart">Go to cart</a>
+  </div>
+
+  <div class="compare-modal" id="compareModal">
+    <div class="compare-backdrop" data-close="true"></div>
+    <div class="compare-card" role="dialog" aria-modal="true" aria-label="Compare products">
+      <button class="compare-close" type="button" data-close="true" aria-label="Close">x</button>
+      <div class="compare-body" id="compareModalBody"></div>
+    </div>
   </div>
  
   <script src="./config.js"></script>
@@ -184,6 +300,55 @@
       return Array.from(expanded);
     }
 
+    function parseDimensions(name){
+      const text = String(name || "");
+      const three = text.match(/(\d+(?:\.\d+)?)\s*\"\s*x\s*(\d+(?:\.\d+)?)\s*\"\s*x\s*(\d+(?:\.\d+)?)\s*\"/i);
+      if(three){
+        return { width: Number(three[1]), gusset: Number(three[2]), length: Number(three[3]) };
+      }
+      const two = text.match(/(\d+(?:\.\d+)?)\s*\"\s*x\s*(\d+(?:\.\d+)?)\s*\"/i);
+      if(two){
+        return { width: Number(two[1]), gusset: 0, length: Number(two[2]) };
+      }
+      return null;
+    }
+
+    function sizeLabelForProduct(product){
+      const dim = parseDimensions(product?.name);
+      if(dim){
+        return dim.gusset
+          ? `${dim.width}" x ${dim.gusset}" x ${dim.length}"`
+          : `${dim.width}" x ${dim.length}"`;
+      }
+      const match = String(product?.name || "").match(/(\d+(?:\.\d+)?)\s*\"/);
+      if(match) return `${match[1]}"`;
+      return "";
+    }
+
+    function thicknessLabelForProduct(product){
+      const name = String(product?.name || "").toLowerCase();
+      if(name.includes("extra heavy")) return "Extra Heavy";
+      if(name.includes("heavy")) return "Heavy";
+      if(name.includes("eco")) return "ECO";
+      if((product?.category || "") === "Garment Bags" || (product?.category || "") === "Polybags") return "Standard";
+      return "";
+    }
+
+    function materialLabelForProduct(product){
+      const cat = String(product?.category || "");
+      if(cat === "Garment Bags" || cat === "Polybags") return "LDPE (Virgin)";
+      if(cat === "Hangers") return "Steel + PVC";
+      if(cat === "Wraps") return "Stretch Film";
+      if(cat === "Racks") return "Powder-coated Steel";
+      return "Commercial grade";
+    }
+
+    function ratingForProduct(product){
+      const raw = Number(product?.rating ?? product?.ratingAvg ?? product?.avgRating);
+      if(Number.isFinite(raw) && raw > 0) return raw;
+      return 0;
+    }
+
     function isCloseMatch(a, b){
       if(a === b) return true;
       if(!a || !b) return false;
@@ -231,6 +396,47 @@
       return window.PPS_I18N?.t("products.stock.in") || "In stock";
     }
 
+    function stockBadge(stock){
+      if(stock <= 0) return `<span class="badge-pill badge-out">Out of stock</span>`;
+      if(stock <= 10) return `<span class="badge-pill badge-low">Low stock</span>`;
+      return `<span class="badge-pill badge-in">In stock</span>`;
+    }
+
+    function promoBadges(product){
+      const badges = [];
+      if(product?.bestSeller) badges.push(`<span class="badge-pill badge-best">Best seller</span>`);
+      if(product?.newArrival) badges.push(`<span class="badge-pill badge-new">New arrival</span>`);
+      if(product?.special) badges.push(`<span class="badge-pill badge-sale">On sale</span>`);
+      if(!badges.length) return "";
+      return `<div class="promo-badges">${badges.join("")}</div>`;
+    }
+
+    function trustBadges(){
+      return `
+        <div class="trust-inline">
+          <span class="trust-badge">Money-back guarantee</span>
+          <span class="trust-badge">Seller verified</span>
+        </div>
+      `;
+    }
+
+    function discountPercent(compareCents, memberCents){
+      const base = Number(compareCents) || 0;
+      const sale = Number(memberCents) || 0;
+      if(base <= 0 || sale <= 0 || sale >= base) return "";
+      const pct = Math.round(((base - sale) / base) * 100);
+      return pct >= 5 ? `${pct}% off` : "";
+    }
+
+    function bulkTierHtml(product){
+      if(!product) return "";
+      const tiers = [10, 15, 20].map(qty=>{
+        const price = PPS.getTieredPriceCents?.(product, qty) ?? product.priceCents;
+        return `<span>${qty}+ ${PPS.money(price, product.currency)}</span>`;
+      }).join("");
+      return `<div class="bulk-tier-row">${tiers}</div>`;
+    }
+
     function qualityBadgesHtml(category){
       const cat = String(category || "");
       if(cat === "Hangers"){
@@ -252,6 +458,7 @@
     }
 
     const heartIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.7-4.4-9.5-7.2A5.6 5.6 0 0 1 12 5.6a5.6 5.6 0 0 1 9.5 8.2C18.7 16.6 12 21 12 21z"/></svg>';
+    const bookmarkIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12a1 1 0 0 1 1 1v18l-7-4-7 4V4a1 1 0 0 1 1-1z"/></svg>';
 
     function favoriteTitle(active){
       return active
@@ -262,6 +469,23 @@
     function favoriteButton(productId){
       const active = PPS.isFavorite(productId);
       return `<button class="favorite-btn ${active ? "active" : ""}" type="button" data-fav-id="${productId}" aria-pressed="${active ? "true" : "false"}" title="${favoriteTitle(active)}">${heartIcon}</button>`;
+    }
+
+    function wishlistTitle(active){
+      return active ? "Remove from wishlist" : "Add to wishlist";
+    }
+
+    function wishlistButton(productId){
+      const active = PPS.isInAnyWishlist?.(productId);
+      return `<button class="wishlist-btn ${active ? "active" : ""}" type="button" data-wl-id="${productId}" aria-pressed="${active ? "true" : "false"}" title="${wishlistTitle(active)}">${heartIcon}</button>`;
+    }
+
+    function syncWishlistButton(btn){
+      const id = btn.dataset.wlId;
+      const active = PPS.isInAnyWishlist?.(id);
+      btn.classList.toggle("active", !!active);
+      btn.setAttribute("aria-pressed", active ? "true" : "false");
+      btn.title = wishlistTitle(active);
     }
 
     function syncFavoriteButton(btn){
@@ -281,8 +505,31 @@
       syncFavoriteButton(btn);
     });
 
+    document.addEventListener("click", (e)=>{
+      const btn = e.target.closest(".wishlist-btn");
+      if(!btn) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const session = PPS.getSession?.();
+      if(!session){
+        window.location.href = "./login.html";
+        return;
+      }
+      const id = btn.dataset.wlId;
+      const active = PPS.isInAnyWishlist?.(id);
+      if(active){
+        PPS.removeFromWishlist?.(id);
+      }else{
+        PPS.addToWishlist?.(id);
+      }
+      syncWishlistButton(btn);
+    });
+
     window.addEventListener("pps:favorites", ()=>{
       document.querySelectorAll(".favorite-btn").forEach(syncFavoriteButton);
+    });
+    window.addEventListener("pps:wishlists", ()=>{
+      document.querySelectorAll(".wishlist-btn").forEach(syncWishlistButton);
     });
 
     function renderSkeletons(grid, count=8){
@@ -294,19 +541,48 @@
     (async ()=>{
       const grid = document.getElementById("grid");
       const hint = document.getElementById("hint");
+      const breadcrumbs = document.getElementById("productBreadcrumbs");
+      const compareBar = document.getElementById("compareBar");
+      const compareCount = document.getElementById("compareCount");
+      const compareClear = document.getElementById("compareClear");
+      const compareOpen = document.getElementById("compareOpen");
+      const viewToggle = document.querySelector(".view-toggle");
 
       renderSkeletons(grid);
       const products = await PPS.loadProducts();
+      const orderById = new Map(products.map((p, idx)=> [p.id, idx]));
 
       let currentFiltered = [];
+      const compareSet = new Set();
 
-      const filterCat = document.getElementById("filterCat");
+      const filterSearch = document.getElementById("filterSearch");
+      const filterSearchSuggest = document.getElementById("filterSearchSuggest");
       const filterStock = document.getElementById("filterStock");
+      const filterSort = document.getElementById("filterSort");
       const filterMin = document.getElementById("filterMin");
       const filterMax = document.getElementById("filterMax");
+      const filterCats = document.getElementById("filterCats");
+      const filterThickness = document.getElementById("filterThickness");
+      const filterSize = document.getElementById("filterSize");
+      const filterMaterial = document.getElementById("filterMaterial");
+      const filterRating = document.getElementById("filterRating");
+      const filterRatingHint = document.getElementById("filterRatingHint");
+      const filterUseCase = document.getElementById("filterUseCase");
+      const filterRefine = document.getElementById("filterRefine");
       const clearBtn = document.getElementById("clearFilters");
       const filtersPanel = document.getElementById("filtersPanel");
       const toggleFiltersBtn = document.getElementById("toggleFilters");
+      const filtersOverlay = document.getElementById("filtersOverlay");
+      const openAdvancedBtn = document.getElementById("openAdvancedFilters");
+      const filterBreadcrumbs = document.getElementById("filterBreadcrumbs");
+      const relatedSearches = document.getElementById("relatedSearches");
+      const categoryRefine = document.getElementById("categoryRefine");
+      const visualSearchForm = document.getElementById("visualSearchForm");
+      const visualSearchInput = document.getElementById("visualSearchInput");
+      const visualSearchOutput = document.getElementById("visualSearchOutput");
+      const trendingSearches = document.getElementById("trendingSearches");
+      const searchHistoryList = document.getElementById("searchHistoryList");
+      const industrySearchPills = document.getElementById("industrySearchPills");
 
       function setFiltersOpen(open){
         if(!filtersPanel || !toggleFiltersBtn) return;
@@ -314,13 +590,26 @@
         filtersPanel.classList.toggle("is-collapsed", !isOpen);
         toggleFiltersBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
         toggleFiltersBtn.textContent = isOpen ? "Hide filters" : "Filters";
+        document.body.classList.toggle("filters-open", isOpen);
+        if(filtersOverlay){
+          filtersOverlay.classList.toggle("open", isOpen);
+        }
       }
 
       function shouldAutoOpenFilters(){
         const stock = qs("stock");
         const min = qs("min");
         const max = qs("max");
-        return Boolean((stock || "").trim() || (min || "").trim() || (max || "").trim());
+        const q = qs("q");
+        const cat = qs("cat");
+        const th = qs("th");
+        const size = qs("size");
+        const mat = qs("mat");
+        const rating = qs("rating");
+        const sort = qs("sort");
+        const use = qs("use");
+        const refine = qs("refine");
+        return Boolean((stock || "").trim() || (min || "").trim() || (max || "").trim() || (q || "").trim() || (cat || "").trim() || (th || "").trim() || (size || "").trim() || (mat || "").trim() || (rating || "").trim() || (sort || "").trim() || (use || "").trim() || (refine || "").trim());
       }
 
       function setParam(key, value){
@@ -382,20 +671,29 @@
       }
 
       function syncControlsFromParams(){
-        const cat = qs("cat") || "";
         const stock = qs("stock") || "";
         const min = qs("min") || "";
         const max = qs("max") || "";
-        if(filterCat) filterCat.value = cat;
         if(filterStock) filterStock.value = stock;
         if(filterMin) filterMin.value = min || "";
         if(filterMax) filterMax.value = max || "";
+        if(filterSearch) filterSearch.value = (qs("q") || "");
+        if(filterSort) filterSort.value = (qs("sort") || "relevance");
+        syncMultiSelectFromParams();
       }
 
       function applyFilters(){
-        const cat = (qs("cat") || "").trim();
+        const catRaw = (qs("cat") || "").trim();
+        const catList = catRaw ? catRaw.split(",").map(c=>c.trim()).filter(Boolean) : [];
         const query = (qs("q") || "").trim();
         const stock = (qs("stock") || "").trim();
+        const sort = (qs("sort") || "relevance").trim();
+        const thickness = (qs("th") || "").trim();
+        const size = (qs("size") || "").trim();
+        const material = (qs("mat") || "").trim();
+        const rating = (qs("rating") || "").trim();
+        const use = (qs("use") || "").trim();
+        const refine = (qs("refine") || "").trim();
         const minRaw = qs("min");
         const maxRaw = qs("max");
         const minVal = minRaw === null || String(minRaw).trim() === "" ? null : Number(minRaw);
@@ -403,8 +701,8 @@
         const minCents = Number.isFinite(minVal) ? Math.round(minVal * 100) : null;
         const maxCents = Number.isFinite(maxVal) ? Math.round(maxVal * 100) : null;
 
-        const base = cat
-          ? products.filter(p => (p.category || "").toLowerCase() === cat.toLowerCase())
+        const base = catList.length
+          ? products.filter(p => catList.some(c => (p.category || "").toLowerCase() === c.toLowerCase()))
           : products;
 
         const normQuery = normalizeSearchText(query);
@@ -436,6 +734,72 @@
             })
           : base;
 
+        if(use){
+          const selected = use.split(",").map(s=>s.trim()).filter(Boolean);
+          const useMap = {
+            dry: ["Garment Bags", "Hangers", "Wraps"],
+            laundry: ["Garment Bags", "Wraps", "Polybags"],
+            retail: ["Polybags", "Wraps", "Hangers"],
+            uniform: ["Garment Bags", "Hangers", "Racks"],
+            shipping: ["Polybags", "Wraps"]
+          };
+          filtered = filtered.filter(p=>{
+            const cat = String(p.category || "");
+            return selected.some(key=>{
+              const cats = useMap[key] || [];
+              return cats.includes(cat);
+            });
+          });
+        }
+
+        if(thickness){
+          const selected = thickness.split(",").map(s=>s.trim()).filter(Boolean);
+          filtered = filtered.filter(p=>{
+            const label = thicknessLabelForProduct(p);
+            return selected.includes(label);
+          });
+        }
+
+        if(size){
+          const selected = size.split(",").map(s=>s.trim()).filter(Boolean);
+          filtered = filtered.filter(p=>{
+            const label = sizeLabelForProduct(p);
+            return label && selected.includes(label);
+          });
+        }
+
+        if(material){
+          const selected = material.split(",").map(s=>s.trim()).filter(Boolean);
+          filtered = filtered.filter(p=>{
+            const label = materialLabelForProduct(p);
+            return label && selected.includes(label);
+          });
+        }
+
+        if(refine){
+          const selected = refine.split(",").map(s=>s.trim()).filter(Boolean);
+          filtered = filtered.filter(p=>{
+            const name = normalizeSearchText(p.name);
+            const desc = normalizeSearchText(p.description || "");
+            const hay = `${name} ${desc}`;
+            return selected.some(tag=>{
+              if(tag === "clear") return hay.includes("clear");
+              if(tag === "tinted") return hay.includes("tinted") || hay.includes("blue") || hay.includes("pink");
+              if(tag === "extra heavy") return hay.includes("extra heavy");
+              if(tag === "heavy") return hay.includes("heavy");
+              if(tag === "bulk") return Boolean(p.bestSeller || p.special);
+              return hay.includes(tag);
+            });
+          });
+        }
+
+        if(rating){
+          const minRating = Number(rating);
+          if(Number.isFinite(minRating) && minRating > 0){
+            filtered = filtered.filter(p=> ratingForProduct(p) >= minRating);
+          }
+        }
+
         if(stock){
           filtered = filtered.filter(p=>{
             const s = Number(p.stock) || 0;
@@ -457,22 +821,49 @@
           });
         }
 
+        if(sort && sort !== "relevance"){
+          const sorted = filtered.slice();
+          if(sort === "price_asc"){
+            sorted.sort((a,b)=> (a.priceCents || 0) - (b.priceCents || 0));
+          }else if(sort === "price_desc"){
+            sorted.sort((a,b)=> (b.priceCents || 0) - (a.priceCents || 0));
+          }else if(sort === "best"){
+            sorted.sort((a,b)=> {
+              const aScore = (a.bestSeller || a.special) ? 1 : 0;
+              const bScore = (b.bestSeller || b.special) ? 1 : 0;
+              if(aScore !== bScore) return bScore - aScore;
+              return (b.stock || 0) - (a.stock || 0);
+            });
+          }else if(sort === "newest"){
+            sorted.sort((a,b)=> {
+              const aDate = Number(a.createdAt || 0);
+              const bDate = Number(b.createdAt || 0);
+              if(aDate || bDate) return bDate - aDate;
+              return (orderById.get(b.id) ?? 0) - (orderById.get(a.id) ?? 0);
+            });
+          }else if(sort === "rating"){
+            sorted.sort((a,b)=> ratingForProduct(b) - ratingForProduct(a));
+          }
+          filtered = sorted;
+        }
+
         currentFiltered = filtered.slice();
 
         const showLabel = window.PPS_I18N?.t("products.hint.show") || "Showing category: {{cat}}";
         const browseLabel = window.PPS_I18N?.t("products.hint.browse") || "Browse all products";
-        const catLabel = cat ? categoryLabel(cat) : "";
+        const catLabel = catList.length ? catList.map(categoryLabel).join(", ") : "";
         const lang = window.PPS_I18N?.getLang?.() || "en";
         const resultsForLabel = lang === "es"
           ? (window.PPS_I18N?.autoTranslate?.("Results for", "es") || "Resultados para")
           : "Results for";
-        if(cat && query){
+        if(catList.length && query){
           hint.textContent = `${showLabel.replace("{{cat}}", catLabel)} • ${resultsForLabel} "${query}"`;
         }else if(query){
           hint.textContent = `${resultsForLabel} "${query}"`;
         }else{
-          hint.textContent = cat ? showLabel.replace("{{cat}}", catLabel) : browseLabel;
+          hint.textContent = catList.length ? showLabel.replace("{{cat}}", catLabel) : browseLabel;
         }
+        if(query) saveSearchHistory(query);
 
         if(currentFiltered.length === 0){
           const noTitle = window.PPS_I18N?.t("products.no_results") || "No results found";
@@ -521,8 +912,21 @@
             const isMember = Boolean(PPS.getSession?.());
             const bannerTemplate = window.PPS_I18N?.t("member.banner") || "Log in to save {{amount}} with Power Poly Member Pricing";
             const bannerText = bannerTemplate.replace("{{amount}}", PPS.money(savingsCents, p.currency));
+            const discountLabel = discountPercent(compareCents, memberCents);
+            const viewCount = Math.max(3, Math.min(50, Math.round((Number(p.stock) || 20) / 2) + Math.floor(Math.random() * 4)));
             return `
               <div class="card fade-in product-card" data-product-id="${p.id}">
+                <div class="product-card-top">
+                  ${promoBadges(p)}
+                  <div class="product-card-actions">
+                    ${wishlistButton(p.id)}
+                  </div>
+                  <label class="compare-check">
+                    <input type="checkbox" data-compare-id="${p.id}">
+                    <span>Compare</span>
+                  </label>
+                  ${discountLabel ? `<div class="discount-badge">${discountLabel}</div>` : ""}
+                </div>
                 <a href="./product.html?slug=${encodeURIComponent(p.slug)}">
                   <img src="${p.image}" alt="${displayName}" loading="lazy" decoding="async" width="400" height="190">
                 </a>
@@ -530,6 +934,8 @@
                   <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(p.slug)}">${displayName}</a>
                   <div class="card-meta">${categoryLabel(p.category)}</div>
                   ${qualityBadgesHtml(p.category)}
+                  ${bulkTierHtml(p)}
+                  ${trustBadges()}
                   <div class="member-pricing">
                     <div>
                       <div class="market-label" data-i18n="market.price.label">Market price</div>
@@ -546,10 +952,15 @@
                     <span class="dot"></span>
                     ${stockLabel(p.stock)}
                   </div>
+                  <div class="stock-badges">
+                    ${stockBadge(p.stock)}
+                  </div>
+                  <div class="viewing-now"> ${viewCount} people viewing this now</div>
                   <div class="product-actions" style="margin-top:12px;">
                     <button class="btn btn-primary product-add-btn" ${p.stock<=0?'disabled':''} onclick='add(event,"${p.id}")'>${window.PPS_I18N?.t("products.action.add") || "Add"}</button>
                     <a class="btn btn-outline product-view-btn" href="./product.html?slug=${encodeURIComponent(p.slug)}">${window.PPS_I18N?.t("products.action.view") || "View"}</a>
                     <a class="btn btn-outline product-cart-btn" href="./cart.html" data-i18n="products.action.cart">${window.PPS_I18N?.t("products.action.cart") || "Go to cart"}</a>
+                    <button class="btn btn-outline product-quick-btn" type="button" data-quick-id="${p.id}">Quick view</button>
                   </div>
                   <div class="bulk-quick">
                     <button class="btn btn-outline" ${p.stock<=0?'disabled':''} onclick='addBulk(event,"${p.id}",10)'>${window.PPS_I18N?.t("products.bulk.10") || "10+ boxes"}</button>
@@ -562,8 +973,287 @@
           }).join("");
         }
 
+        renderBreadcrumbs(catList, query);
+        renderFilterBreadcrumbs();
+        renderRelatedSearches();
+        renderCategoryRefine();
+        renderRecent(products);
+        syncCompareCheckboxes();
+        updateCompareBar();
         document.querySelectorAll(".fade-in").forEach(el => el.classList.add("show"));
         window.PPS_I18N?.applyTranslations?.();
+      }
+
+      function renderBreadcrumbs(catList, query){
+        if(!breadcrumbs) return;
+        const parts = [
+          `<a href="./index.html">Home</a>`,
+          `<a href="./products.html">Products</a>`
+        ];
+        if(catList.length){
+          parts.push(`<span>${catList.map(categoryLabel).join(", ")}</span>`);
+        }
+        if(query){
+          parts.push(`<span>Search: "${query}"</span>`);
+        }
+        breadcrumbs.innerHTML = parts.join(`<span class="crumb-sep" aria-hidden="true">/</span>`);
+      }
+
+      function renderFilterBreadcrumbs(){
+        if(!filterBreadcrumbs) return;
+        const entries = [];
+        const addChip = (label, key, value)=>{
+          entries.push(`<button class="filter-chip-btn" type="button" data-clear-key="${key}">${label} <span aria-hidden="true">×</span></button>`);
+        };
+        const q = (qs("q") || "").trim();
+        const cat = (qs("cat") || "").trim();
+        const stock = (qs("stock") || "").trim();
+        const min = (qs("min") || "").trim();
+        const max = (qs("max") || "").trim();
+        const th = (qs("th") || "").trim();
+        const size = (qs("size") || "").trim();
+        const mat = (qs("mat") || "").trim();
+        const rating = (qs("rating") || "").trim();
+        const use = (qs("use") || "").trim();
+        const refine = (qs("refine") || "").trim();
+        if(q) addChip(`Search: ${q}`, "q");
+        if(cat) addChip(`Category: ${cat}`, "cat");
+        if(stock) addChip(`Stock: ${stock}`, "stock");
+        if(min || max) addChip(`Price: ${min || "0"}-${max || "max"}`, "price");
+        if(th) addChip(`Thickness: ${th}`, "th");
+        if(size) addChip(`Size: ${size}`, "size");
+        if(mat) addChip(`Material: ${mat}`, "mat");
+        if(rating) addChip(`Rating: ${rating}+`, "rating");
+        if(use) addChip(`Use case: ${use}`, "use");
+        if(refine) addChip(`Refine: ${refine}`, "refine");
+        filterBreadcrumbs.innerHTML = entries.length ? entries.join("") : `<span class="muted">No active filters.</span>`;
+      }
+
+      function renderRelatedSearches(){
+        if(!relatedSearches) return;
+        const q = normalizeSearchText(qs("q") || "");
+        const suggestions = [];
+        if(q.includes("garment")) suggestions.push("garment bags clear", "garment bags extra heavy");
+        if(q.includes("hanger")) suggestions.push("strut hangers", "suit hangers");
+        if(q.includes("poly")) suggestions.push("polybags clear", "polybags heavy");
+        if(!suggestions.length){
+          suggestions.push("extra heavy garment bags", "bulk hanger boxes", "route-ready wraps");
+        }
+        relatedSearches.innerHTML = `
+          <div class="related-searches-title">Related searches:</div>
+          <div class="related-searches-list">
+            ${suggestions.map(s=>`<button class="related-search-btn" type="button" data-related="${s}">${s}</button>`).join("")}
+          </div>
+        `;
+      }
+
+      function renderCategoryRefine(){
+        if(!categoryRefine) return;
+        const categories = currentFiltered.reduce((acc,p)=>{
+          const key = String(p.category || "Other");
+          acc[key] = (acc[key] || 0) + 1;
+          return acc;
+        }, {});
+        const chips = Object.keys(categories).slice(0, 6).map(cat=>{
+          return `<button class="refine-btn" type="button" data-refine-cat="${cat}">${cat} <span>${categories[cat]}</span></button>`;
+        }).join("");
+        categoryRefine.innerHTML = chips ? `<div class="refine-title">Refine by category:</div><div class="refine-list">${chips}</div>` : "";
+      }
+
+      function renderRecent(products){
+        const recentGrid = document.getElementById("recentGrid");
+        if(!recentGrid) return;
+        const recentSlugs = (()=> {
+          try{
+            const raw = localStorage.getItem("pps_recently_viewed_v1");
+            const arr = JSON.parse(raw || "[]");
+            return Array.isArray(arr) ? arr : [];
+          }catch(_err){
+            return [];
+          }
+        })();
+        const recent = recentSlugs
+          .map(slug => products.find(x=>String(x.slug) === String(slug)))
+          .filter(Boolean)
+          .slice(0, 4);
+        if(!recent.length){
+          recentGrid.innerHTML = `<div style="color:var(--muted); font-size:13px;">No recently viewed products yet.</div>`;
+          return;
+        }
+        recentGrid.innerHTML = recent.map(item=>{
+          const compareCents = (Number(item.priceCents) || 0) + 1000;
+          const memberCents = Number(item.priceCents) || 0;
+          const s = item.stock<=0 ? "out" : item.stock<=10 ? "low" : "in";
+          const label = item.stock<=0
+            ? (window.PPS_I18N?.t("product.stock.out") || "Out of stock")
+            : item.stock<=10
+              ? (window.PPS_I18N?.t("product.stock.low") || "Almost out of stock")
+              : (window.PPS_I18N?.t("product.stock.in") || "In stock");
+          return `
+            <div class="card">
+              <a href="./product.html?slug=${encodeURIComponent(item.slug)}">
+                <img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async" width="400" height="190">
+              </a>
+              <div class="card-body">
+                <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(item.slug)}">${item.name}</a>
+                <div class="member-pricing">
+                  <div>
+                    <div class="market-label" data-i18n="market.price.label">Market price</div>
+                    <span class="compare-price">${PPS.money(compareCents,item.currency)}</span>
+                  </div>
+                  <div>
+                    <div class="member-label" data-i18n="member.price.label">Power Poly Member Price</div>
+                    <span class="price">${PPS.money(memberCents,item.currency)}</span>
+                  </div>
+                </div>
+                <div class="stock ${s}"><span class="dot"></span>${label}</div>
+              </div>
+            </div>
+          `;
+        }).join("");
+        window.PPS_I18N?.applyTranslations?.();
+      }
+
+      function updateCompareBar(){
+        if(!compareBar || !compareCount) return;
+        const count = compareSet.size;
+        compareCount.textContent = `${count} selected`;
+        compareBar.classList.toggle("active", count > 0);
+      }
+
+      function syncCompareCheckboxes(){
+        document.querySelectorAll("[data-compare-id]").forEach(input=>{
+          const id = input.getAttribute("data-compare-id");
+          input.checked = compareSet.has(id);
+        });
+      }
+
+      function openCompareModal(){
+        const modal = document.getElementById("compareModal");
+        const body = document.getElementById("compareModalBody");
+        if(!modal || !body) return;
+        const items = products.filter(p=> compareSet.has(p.id));
+        if(!items.length){
+          body.innerHTML = `<div class="empty-note">Select products to compare.</div>`;
+          modal.classList.add("open");
+          return;
+        }
+        body.innerHTML = `
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Size</th>
+                <th>Thickness</th>
+                <th>Pack</th>
+                <th>Price</th>
+                <th>Stock</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${items.map(item=>{
+                const size = sizeLabelForProduct(item);
+                const thickness = thicknessLabelForProduct(item);
+                const pack = item.category === "Hangers" ? (window.PPS_I18N?.t("pack.hangers_500") || "500 pcs / box") : "1 roll / box";
+                return `
+                  <tr>
+                    <td>${item.name}</td>
+                    <td>${size || "-"}</td>
+                    <td>${thickness || "-"}</td>
+                    <td>${pack}</td>
+                    <td>${PPS.money(item.priceCents, item.currency)}</td>
+                    <td>${item.stock}</td>
+                  </tr>
+                `;
+              }).join("")}
+            </tbody>
+          </table>
+        `;
+        modal.classList.add("open");
+      }
+
+      function buildOptions(list, paramKey, container){
+        if(!container) return;
+        container.innerHTML = list.map((item) => {
+          const value = typeof item === "object" ? item.value : item;
+          const label = typeof item === "object" ? item.label : item;
+          const safeValue = String(value).replace(/"/g, "&quot;");
+          return `
+          <label class="filter-chip">
+            <input type="checkbox" value="${safeValue}" data-param="${paramKey}">
+            <span>${label}</span>
+          </label>
+          `;
+        }).join("");
+      }
+
+      function syncMultiSelectFromParams(){
+        const map = {
+          cat: filterCats,
+          th: filterThickness,
+          size: filterSize,
+          mat: filterMaterial,
+          rating: filterRating,
+          use: filterUseCase,
+          refine: filterRefine
+        };
+        Object.keys(map).forEach(key=>{
+          const container = map[key];
+          if(!container) return;
+          const selected = (qs(key) || "").split(",").map(s=>s.trim()).filter(Boolean);
+          container.querySelectorAll("input[type=checkbox]").forEach(input=>{
+            input.checked = selected.includes(input.value);
+          });
+        });
+      }
+
+      function applyMultiSelectChange(paramKey, container){
+        const checked = Array.from(container.querySelectorAll("input:checked")).map(i=>i.value);
+        setParam(paramKey, checked.join(","));
+        applyFilters();
+        syncControlsFromParams();
+      }
+
+      function wireMultiSelect(container){
+        if(!container) return;
+        container.addEventListener("change", (e)=>{
+          if(!e.target.matches("input[type=checkbox]")) return;
+          const paramKey = e.target.getAttribute("data-param");
+          if(!paramKey) return;
+          applyMultiSelectChange(paramKey, container);
+        });
+      }
+
+      function buildSearchSuggestions(list, value){
+        if(!filterSearchSuggest) return;
+        const term = normalizeSearchText(value);
+        if(!term){
+          filterSearchSuggest.style.display = "none";
+          filterSearchSuggest.innerHTML = "";
+          return;
+        }
+        const matches = list.filter(p=>{
+          const hay = normalizeSearchText([p.name, p.category].join(" "));
+          return hay.includes(term);
+        }).slice(0, 6);
+        if(!matches.length){
+          filterSearchSuggest.style.display = "none";
+          filterSearchSuggest.innerHTML = "";
+          return;
+        }
+        filterSearchSuggest.innerHTML = matches.map(p=>{
+          const safeValue = String(p.name || "").replace(/"/g, "&quot;");
+          return `
+          <button type="button" data-value="${safeValue}">
+            <img class="suggestion-thumb" src="${p.image}" alt="">
+            <span class="suggestion-text">
+              <span class="suggestion-title">${p.name}</span>
+              <span class="suggestion-meta">${p.category}</span>
+            </span>
+          </button>
+          `;
+        }).join("");
+        filterSearchSuggest.style.display = "block";
       }
 
       function wireControls(){
@@ -572,15 +1262,27 @@
             setFiltersOpen(filtersPanel?.classList.contains("is-collapsed"));
           });
         }
-        if(filterCat){
-          filterCat.addEventListener("change", ()=>{
-            setParam("cat", filterCat.value);
-            applyFilters();
+        if(openAdvancedBtn){
+          openAdvancedBtn.addEventListener("click", ()=>{
+            setFiltersOpen(true);
           });
         }
+        wireMultiSelect(filterCats);
+        wireMultiSelect(filterThickness);
+        wireMultiSelect(filterSize);
+        wireMultiSelect(filterMaterial);
+        wireMultiSelect(filterRating);
+        wireMultiSelect(filterUseCase);
+        wireMultiSelect(filterRefine);
         if(filterStock){
           filterStock.addEventListener("change", ()=>{
             setParam("stock", filterStock.value);
+            applyFilters();
+          });
+        }
+        if(filterSort){
+          filterSort.addEventListener("change", ()=>{
+            setParam("sort", filterSort.value);
             applyFilters();
           });
         }
@@ -598,20 +1300,261 @@
             applyFilters();
           });
         }
+        if(filterSearch){
+          filterSearch.addEventListener("input", ()=>{
+            buildSearchSuggestions(products, filterSearch.value);
+          });
+          filterSearch.addEventListener("keydown", (e)=>{
+            if(e.key !== "Enter") return;
+            e.preventDefault();
+            setParam("q", filterSearch.value.trim());
+            window.PPS_ANALYTICS?.record?.("search_query", { q: filterSearch.value.trim() });
+            applyFilters();
+            if(filterSearchSuggest) filterSearchSuggest.style.display = "none";
+          });
+          filterSearch.addEventListener("change", ()=>{
+            setParam("q", filterSearch.value.trim());
+            window.PPS_ANALYTICS?.record?.("search_query", { q: filterSearch.value.trim() });
+            applyFilters();
+          });
+        }
+        if(filterSearchSuggest){
+          filterSearchSuggest.addEventListener("click", (e)=>{
+            const btn = e.target.closest("button");
+            if(!btn) return;
+            const value = btn.getAttribute("data-value");
+            if(!value) return;
+            filterSearch.value = value;
+            setParam("q", value);
+            filterSearchSuggest.style.display = "none";
+            applyFilters();
+          });
+          document.addEventListener("click", (e)=>{
+            if(e.target.closest("#filterSearch") || e.target.closest("#filterSearchSuggest")) return;
+            filterSearchSuggest.style.display = "none";
+          });
+        }
         if(clearBtn){
           clearBtn.addEventListener("click", ()=>{
-            ["cat","stock","min","max"].forEach(k=> setParam(k, ""));
+            ["cat","stock","min","max","q","sort","th","size","mat","rating","use","refine"].forEach(k=> setParam(k, ""));
             syncControlsFromParams();
             applyFilters();
             setFiltersOpen(false);
+          });
+        }
+        if(filtersOverlay){
+          filtersOverlay.addEventListener("click", ()=> setFiltersOpen(false));
+        }
+        if(viewToggle && grid){
+          viewToggle.addEventListener("click", (e)=>{
+            const btn = e.target.closest("button[data-view]");
+            if(!btn) return;
+            const view = btn.getAttribute("data-view") || "grid";
+            grid.dataset.view = view;
+            try{ localStorage.setItem("pps_products_view", view); }catch(_err){}
+            viewToggle.querySelectorAll("button").forEach(b=> b.classList.toggle("active", b === btn));
+          });
+        }
+        if(grid){
+          grid.addEventListener("change", (e)=>{
+            const input = e.target.closest("[data-compare-id]");
+            if(!input) return;
+            const id = input.getAttribute("data-compare-id");
+            if(!id) return;
+            if(input.checked){
+              if(compareSet.size >= 4){
+                input.checked = false;
+                return;
+              }
+              compareSet.add(id);
+            }else{
+              compareSet.delete(id);
+            }
+            updateCompareBar();
+          });
+        }
+        if(compareClear){
+          compareClear.addEventListener("click", ()=>{
+            compareSet.clear();
+            syncCompareCheckboxes();
+            updateCompareBar();
+          });
+        }
+        if(compareOpen){
+          compareOpen.addEventListener("click", openCompareModal);
+        }
+        if(filterBreadcrumbs){
+          filterBreadcrumbs.addEventListener("click", (e)=>{
+            const btn = e.target.closest("[data-clear-key]");
+            if(!btn) return;
+            const key = btn.getAttribute("data-clear-key");
+            if(key === "price"){
+              setParam("min", "");
+              setParam("max", "");
+            }else{
+              setParam(key, "");
+            }
+            syncControlsFromParams();
+            applyFilters();
+          });
+        }
+        if(relatedSearches){
+          relatedSearches.addEventListener("click", (e)=>{
+            const btn = e.target.closest("[data-related]");
+            if(!btn) return;
+            const value = btn.getAttribute("data-related") || "";
+            setParam("q", value);
+            if(filterSearch) filterSearch.value = value;
+            applyFilters();
+          });
+        }
+        if(trendingSearches){
+          trendingSearches.addEventListener("click", (e)=>{
+            const btn = e.target.closest("[data-related]");
+            if(!btn) return;
+            const value = btn.getAttribute("data-related") || "";
+            setParam("q", value);
+            if(filterSearch) filterSearch.value = value;
+            applyFilters();
+          });
+        }
+        if(categoryRefine){
+          categoryRefine.addEventListener("click", (e)=>{
+            const btn = e.target.closest("[data-refine-cat]");
+            if(!btn) return;
+            const cat = btn.getAttribute("data-refine-cat") || "";
+            setParam("cat", cat);
+            syncControlsFromParams();
+            applyFilters();
+          });
+        }
+        if(industrySearchPills){
+          industrySearchPills.addEventListener("click", (e)=>{
+            const btn = e.target.closest("[data-use]");
+            if(!btn) return;
+            const value = btn.getAttribute("data-use");
+            setParam("use", value);
+            syncControlsFromParams();
+            applyFilters();
+          });
+        }
+        if(visualSearchForm && visualSearchInput && visualSearchOutput){
+          visualSearchForm.addEventListener("submit", (e)=>{
+            e.preventDefault();
+            const file = visualSearchInput.files?.[0];
+            if(!file){
+              visualSearchOutput.textContent = "Upload an image to run visual search.";
+              return;
+            }
+            const name = String(file.name || "").toLowerCase();
+            let guess = "garment bag";
+            if(name.includes("hanger")) guess = "hanger";
+            if(name.includes("poly")) guess = "polybag";
+            if(name.includes("wrap")) guess = "wrap";
+            setParam("q", guess);
+            if(filterSearch) filterSearch.value = guess;
+            visualSearchOutput.textContent = `Searching for items similar to "${guess}".`;
+            applyFilters();
           });
         }
       }
 
       syncControlsFromParams();
       wireControls();
+      if(viewToggle && grid){
+        const savedView = (()=>{ try{ return localStorage.getItem("pps_products_view") || "grid"; }catch(_err){ return "grid"; }})();
+        grid.dataset.view = savedView;
+        viewToggle.querySelectorAll("button").forEach(b=> b.classList.toggle("active", b.getAttribute("data-view") === savedView));
+      }
       setFiltersOpen(shouldAutoOpenFilters());
       applyFilters();
+
+      const sizeOptions = Array.from(new Set(products.map(sizeLabelForProduct).filter(Boolean)));
+      const thicknessOptions = Array.from(new Set(products.map(thicknessLabelForProduct).filter(Boolean)));
+      const materialOptions = Array.from(new Set(products.map(materialLabelForProduct).filter(Boolean)));
+      const categoryOptions = Array.from(new Set(products.map(p=>p.category).filter(Boolean)));
+      const useOptions = [
+        { value:"dry", label:"Dry cleaners" },
+        { value:"laundry", label:"Laundromats" },
+        { value:"retail", label:"Retail" },
+        { value:"uniform", label:"Uniform services" },
+        { value:"shipping", label:"Shipping / fulfillment" }
+      ];
+      const refineOptions = [
+        { value:"clear", label:"Clear" },
+        { value:"tinted", label:"Tinted" },
+        { value:"extra heavy", label:"Extra Heavy" },
+        { value:"heavy", label:"Heavy" },
+        { value:"bulk", label:"Bulk-ready" }
+      ];
+      buildOptions(categoryOptions, "cat", filterCats);
+      buildOptions(thicknessOptions, "th", filterThickness);
+      buildOptions(sizeOptions, "size", filterSize);
+      buildOptions(materialOptions, "mat", filterMaterial);
+      buildOptions([{ value:"4", label:"4+ stars" }, { value:"3", label:"3+ stars" }], "rating", filterRating);
+      buildOptions(useOptions, "use", filterUseCase);
+      buildOptions(refineOptions, "refine", filterRefine);
+
+      const hasRatings = products.some(p => ratingForProduct(p) > 0);
+      if(!hasRatings && filterRatingHint){
+        filterRatingHint.textContent = "Ratings coming soon";
+        filterRating.querySelectorAll("input").forEach(input=> input.disabled = true);
+      }
+      syncMultiSelectFromParams();
+
+      function getSearchHistoryKey(){
+        const session = PPS.getSession?.();
+        if(!session) return null;
+        const id = session.id || session.email || session.name || "user";
+        return `pps_search_history_${id}`;
+      }
+
+      function loadSearchHistory(){
+        const key = getSearchHistoryKey();
+        if(!searchHistoryList) return;
+        if(!key){
+          searchHistoryList.innerHTML = `<div class="muted">Log in to save search history.</div>`;
+          return;
+        }
+        try{
+          const raw = localStorage.getItem(key);
+          const list = JSON.parse(raw || "[]");
+          if(!Array.isArray(list) || !list.length){
+            searchHistoryList.innerHTML = `<div class="muted">No saved searches yet.</div>`;
+            return;
+          }
+          searchHistoryList.innerHTML = list.map(item=>`<button class="history-btn" type="button" data-history="${item}">${item}</button>`).join("");
+        }catch(_err){}
+      }
+
+      function saveSearchHistory(query){
+        const key = getSearchHistoryKey();
+        if(!key || !query) return;
+        try{
+          const raw = localStorage.getItem(key);
+          const list = Array.isArray(JSON.parse(raw || "[]")) ? JSON.parse(raw || "[]") : [];
+          const next = [query, ...list.filter(q=>q !== query)].slice(0, 8);
+          localStorage.setItem(key, JSON.stringify(next));
+          loadSearchHistory();
+        }catch(_err){}
+      }
+
+      if(searchHistoryList){
+        searchHistoryList.addEventListener("click", (e)=>{
+          const btn = e.target.closest("[data-history]");
+          if(!btn) return;
+          const value = btn.getAttribute("data-history") || "";
+          setParam("q", value);
+          if(filterSearch) filterSearch.value = value;
+          applyFilters();
+        });
+      }
+
+      if(trendingSearches){
+        const base = ["extra heavy garment bags", "clear polybags", "strut hangers", "route-ready wraps", "bulk hanger boxes"];
+        trendingSearches.innerHTML = base.map(item=>`<button class="trending-btn" type="button" data-related="${item}">${item}</button>`).join("");
+      }
+      loadSearchHistory();
 
       window.add = (e,id)=>{
         const p = currentFiltered.find(x=>x.id===id);
@@ -643,10 +1586,103 @@
           btn.disabled = true;
           setTimeout(()=>{
             btn.textContent = prev;
-            btn.disabled = false;
-          }, 800);
+          btn.disabled = false;
+        }, 800);
         }
       };
+
+      const quickModal = document.createElement("div");
+      quickModal.className = "quick-modal";
+      quickModal.innerHTML = `
+        <div class="quick-backdrop" data-close="true"></div>
+        <div class="quick-card" role="dialog" aria-modal="true" aria-label="Quick view">
+          <button class="quick-close" type="button" data-close="true" aria-label="Close">x</button>
+          <div class="quick-body" id="quickBody"></div>
+        </div>
+      `;
+      document.body.appendChild(quickModal);
+
+      function openQuickView(product){
+        const body = document.getElementById("quickBody");
+        if(!body || !product) return;
+        const compareCents = (Number(product.priceCents) || 0) + 1000;
+        const memberCents = Number(product.priceCents) || 0;
+        const size = sizeLabelForProduct(product);
+        const thickness = thicknessLabelForProduct(product);
+        const material = materialLabelForProduct(product);
+        body.innerHTML = `
+          <div class="quick-grid">
+            <img src="${product.image}" alt="${product.name}" loading="lazy" decoding="async">
+            <div>
+              <h3 style="margin:0;">${product.name}</h3>
+              <div class="card-meta">${categoryLabel(product.category)}</div>
+              <div class="member-pricing" style="margin-top:8px;">
+                <div>
+                  <div class="market-label">Market price</div>
+                  <span class="compare-price">${PPS.money(compareCents,product.currency)}</span>
+                </div>
+                <div>
+                  <div class="member-label">Power Poly Member Price</div>
+                  <span class="price">${PPS.money(memberCents,product.currency)}</span>
+                </div>
+              </div>
+              <div class="quick-specs">
+                ${size ? `<span>Size: ${size}</span>` : ""}
+                ${thickness ? `<span>Thickness: ${thickness}</span>` : ""}
+                ${material ? `<span>Material: ${material}</span>` : ""}
+              </div>
+              <p style="color:var(--muted); line-height:1.5; margin-top:10px;">${product.description || ""}</p>
+              <div class="quick-actions">
+                <button class="btn btn-primary" ${product.stock<=0 ? "disabled" : ""} data-add-quick="${product.id}">Add to cart</button>
+                <a class="btn btn-outline" href="./product.html?slug=${encodeURIComponent(product.slug)}">View details</a>
+              </div>
+            </div>
+          </div>
+        `;
+        quickModal.classList.add("open");
+      }
+
+      document.addEventListener("click", (e)=>{
+        const btn = e.target.closest(".product-quick-btn");
+        if(!btn) return;
+        const id = btn.getAttribute("data-quick-id");
+        const product = products.find(p=>p.id===id);
+        openQuickView(product);
+      });
+
+      quickModal.addEventListener("click", (e)=>{
+        if(e.target?.getAttribute("data-close") === "true"){
+          quickModal.classList.remove("open");
+        }
+        const addBtn = e.target.closest("[data-add-quick]");
+        if(addBtn){
+          const id = addBtn.getAttribute("data-add-quick");
+          const product = products.find(p=>p.id===id);
+          if(product) PPS.addToCart(product);
+          quickModal.classList.remove("open");
+        }
+      });
+
+      document.addEventListener("keydown", (e)=>{
+        if(e.key === "Escape"){
+          quickModal.classList.remove("open");
+        }
+      });
+
+      const compareModal = document.getElementById("compareModal");
+      if(compareModal){
+        compareModal.addEventListener("click", (e)=>{
+          if(e.target?.getAttribute("data-close") === "true"){
+            compareModal.classList.remove("open");
+          }
+        });
+      }
+
+      document.addEventListener("keydown", (e)=>{
+        if(e.key === "Escape"){
+          compareModal?.classList.remove("open");
+        }
+      });
     })();
   </script>
 </body>
