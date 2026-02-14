@@ -146,7 +146,7 @@
   }
 
   function computeDeal(p) {
-    const compareCents = (Number(p.priceCents) || 0) + 1000;
+    const compareCents = window.PPS.getComparePriceCents?.(p) ?? ((Number(p.priceCents) || 0) + 1000);
     const memberCents = Number(p.priceCents) || 0;
     const savingsCents = Math.max(0, compareCents - memberCents);
     const pct = compareCents > 0 ? Math.round((savingsCents / compareCents) * 100) : 0;
@@ -243,6 +243,16 @@
       btn.addEventListener("click", () => {
         const q = Number(btn.getAttribute("data-tier-qty") || 0) || 1;
         setQty(q);
+        if (!window.PPS?.addToCart || product?.stock <= 0) return;
+        window.PPS.addToCart(product, q);
+        const prev = btn.innerHTML;
+        const addedLabel = tt("specials.added_qty", "Added {{qty}}") || "Added {{qty}}";
+        btn.innerHTML = `<strong>${addedLabel.replace("{{qty}}", String(q))}</strong><span>${window.PPS.money(getBulkTierPriceCents(product, q), product.currency)}</span>`;
+        btn.disabled = true;
+        setTimeout(() => {
+          btn.innerHTML = prev;
+          btn.disabled = false;
+        }, 900);
       });
     });
 

@@ -458,7 +458,7 @@
       }
 
       function renderMiniCard(item, withQty=false){
-        const compareCents = (Number(item.priceCents) || 0) + 1000;
+        const compareCents = PPS.getComparePriceCents?.(item) ?? ((Number(item.priceCents) || 0) + 1000);
         const memberCents = Number(item.priceCents) || 0;
         const label = item.stock <= 0 ? "Out of stock" : item.stock <= 10 ? "Almost out of stock" : "In stock";
         return `
@@ -801,7 +801,7 @@
               : lang === "es"
                 ? (window.PPS_I18N?.autoTranslate?.(p.description_es || p.description || "", "es") || (p.description_es || p.description || ""))
                 : p.description;
-      const compareCents = (Number(p.priceCents) || 0) + 1000;
+      const compareCents = PPS.getComparePriceCents?.(p) ?? ((Number(p.priceCents) || 0) + 1000);
       const memberCents = Number(p.priceCents) || 0;
       const savingsCents = Math.max(0, compareCents - memberCents);
       const isMember = Boolean(PPS.getSession?.());
@@ -1521,7 +1521,7 @@
         const locations = [
           { name:"Toronto, ON", weight: 0.35 },
           { name:"Mississauga, ON", weight: 0.25 },
-          { name:"Calgary, AB", weight: 0.2 },
+          { name:"Brampton, ON", weight: 0.2 },
           { name:"Vancouver, BC", weight: 0.2 }
         ];
         let remaining = total;
@@ -1567,7 +1567,7 @@
           recentGrid.innerHTML = `<div style="color:var(--muted); font-size:13px;">No recently viewed products yet.</div>`;
         }else{
           recentGrid.innerHTML = recent.map(item=>{
-            const compareCents = (Number(item.priceCents) || 0) + 1000;
+            const compareCents = PPS.getComparePriceCents?.(item) ?? ((Number(item.priceCents) || 0) + 1000);
             const memberCents = Number(item.priceCents) || 0;
             const s = item.stock<=0 ? "out" : item.stock<=10 ? "low" : "in";
             const label = item.stock<=0
@@ -1997,7 +1997,7 @@
           : item.stock<=10
             ? (window.PPS_I18N?.t("product.stock.low") || "Almost out of stock")
             : (window.PPS_I18N?.t("product.stock.in") || "In stock");
-        const compareCents = (Number(item.priceCents) || 0) + 1000;
+        const compareCents = PPS.getComparePriceCents?.(item) ?? ((Number(item.priceCents) || 0) + 1000);
         const memberCents = Number(item.priceCents) || 0;
         const savingsCents = Math.max(0, compareCents - memberCents);
         const isMember = Boolean(PPS.getSession?.());

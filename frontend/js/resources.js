@@ -42,6 +42,17 @@
 
   // ---- Simple PDF builder (no external libs) ----
   // Note: ASCII-only content for reliability.
+  function concatBytes(parts) {
+    const total = parts.reduce((sum, part) => sum + part.length, 0);
+    const out = new Uint8Array(total);
+    let offset = 0;
+    parts.forEach((part) => {
+      out.set(part, offset);
+      offset += part.length;
+    });
+    return out;
+  }
+
   function makeSimplePdf({ title, lines }) {
     const safe = (s) =>
       String(s || "")
@@ -108,9 +119,7 @@
     const startXref = offset;
     const trailer = trailerTemplate(startXref);
 
-    return new Uint8Array(
-      [...parts, xrefHeader, xrefBody, trailer].reduce((acc, b) => acc + b.length, 0)
-    );
+    return concatBytes([...parts, xrefHeader, xrefBody, trailer]);
   }
 
   function downloadBytes(filename, bytes) {

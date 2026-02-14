@@ -906,7 +906,7 @@
             const displayName = lang === "es"
               ? (window.PPS_I18N?.autoTranslate?.(p.name || "", "es") || p.name)
               : p.name;
-            const compareCents = (Number(p.priceCents) || 0) + 1000;
+            const compareCents = PPS.getComparePriceCents?.(p) ?? ((Number(p.priceCents) || 0) + 1000);
             const memberCents = Number(p.priceCents) || 0;
             const savingsCents = Math.max(0, compareCents - memberCents);
             const isMember = Boolean(PPS.getSession?.());
@@ -1081,7 +1081,7 @@
           return;
         }
         recentGrid.innerHTML = recent.map(item=>{
-          const compareCents = (Number(item.priceCents) || 0) + 1000;
+          const compareCents = PPS.getComparePriceCents?.(item) ?? ((Number(item.priceCents) || 0) + 1000);
           const memberCents = Number(item.priceCents) || 0;
           const s = item.stock<=0 ? "out" : item.stock<=10 ? "low" : "in";
           const label = item.stock<=0
@@ -1605,7 +1605,7 @@
       function openQuickView(product){
         const body = document.getElementById("quickBody");
         if(!body || !product) return;
-        const compareCents = (Number(product.priceCents) || 0) + 1000;
+        const compareCents = PPS.getComparePriceCents?.(product) ?? ((Number(product.priceCents) || 0) + 1000);
         const memberCents = Number(product.priceCents) || 0;
         const size = sizeLabelForProduct(product);
         const thickness = thicknessLabelForProduct(product);

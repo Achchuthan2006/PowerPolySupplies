@@ -13,6 +13,9 @@ const CART_COOKIE = "pps_cart";
 const CAPED_WE_LOVE_IMAGE = "./assets/welovecaped%20hanger.webp";
 const CLEAR_POLYBAG_IMAGE = "./assets/polybag%20clear.webp";
 const GARMENT_BAGS_IMAGE = "./assets/polybag%20clear.webp";
+const SHIRT_HANGER_ID = "hanger-shirt-18-plain";
+const SHIRT_HANGER_MEMBER_CENTS = 3259;
+const SHIRT_HANGER_COMPARE_CENTS = 4959;
 const PRODUCTS_CACHE_KEY = "pps_products_cache_v2";
 const PRODUCTS_FAST_MS = 400;
 const WISHLISTS_SUFFIX = "wishlists_v1";
@@ -22,12 +25,30 @@ function normalizeImagePath(value){
   return String(value).replace(/ /g, "%20");
 }
 
+function isShirtHangerPlain(product){
+  const id = String(product?.id || "").trim().toLowerCase();
+  const slug = String(product?.slug || "").trim().toLowerCase();
+  const name = String(product?.name || "").trim().toLowerCase();
+  if(id === SHIRT_HANGER_ID) return true;
+  if(slug === "shirt-hangers-18-plain") return true;
+  return /shirt\s*hangers?\s*plain\s*\(18/.test(name);
+}
+
 function normalizeProductImage(product){
   if(!product) return product;
   const image = normalizeImagePath(product.image);
   const images = Array.isArray(product.images)
     ? product.images.map(normalizeImagePath).filter(Boolean)
     : [];
+  if(isShirtHangerPlain(product)){
+    return {
+      ...product,
+      image,
+      images,
+      priceCents: SHIRT_HANGER_MEMBER_CENTS,
+      comparePriceCents: SHIRT_HANGER_COMPARE_CENTS
+    };
+  }
   if(product.id === "hanger-caped-16-we-love"){
     if(!image || /welovefinal|caped%20we%20love\.png/i.test(image)){
       return { ...product, image: CAPED_WE_LOVE_IMAGE, images };
@@ -213,6 +234,13 @@ function convertCents(cents, fromCurrency="CAD", toCurrency){
 function getTieredPriceCents(product, qty){
   if(!product) return 0;
   const base = Math.round(Number(product.priceCents) || 0);
+  if(isShirtHangerPlain(product)){
+    const count = Math.max(0, Number(qty) || 0);
+    if(count >= 20) return 2959;
+    if(count >= 15) return 3059;
+    if(count >= 10) return 3159;
+    return SHIRT_HANGER_MEMBER_CENTS;
+  }
   if((product.category || "") === "Garment Bags"){
     const count = Math.max(0, Number(qty) || 0);
     if(count >= 20) return 3699;
@@ -220,6 +248,16 @@ function getTieredPriceCents(product, qty){
     if(count >= 10) return 3899;
   }
   return base;
+}
+
+function getComparePriceCents(product){
+  if(!product) return 0;
+  if(isShirtHangerPlain(product)){
+    return SHIRT_HANGER_COMPARE_CENTS;
+  }
+  const compare = Math.round(Number(product.comparePriceCents));
+  if(Number.isFinite(compare) && compare > 0) return compare;
+  return (Math.round(Number(product.priceCents) || 0) + 1000);
 }
 
 function money(cents, currency="CAD", targetCurrency){
@@ -722,4 +760,4 @@ function addItemsToCart(items){
   });
 }
 
-window.PPS = { API_BASE, money, convertCents, getTieredPriceCents, getCurrency, setCurrency, pingBackend, loadProducts, fetchReviews, submitReview, getCart, setCart, updateCartBadge, addToCart, addItemsToCart, getFavorites, isFavorite, toggleFavorite, getSession, setSession, clearSession, setApiBaseOverride, getWishlists, createWishlist, renameWishlist, deleteWishlist, addToWishlist, removeFromWishlist, isInAnyWishlist };
+window.PPS = { API_BASE, money, convertCents, getTieredPriceCents, getComparePriceCents, getCurrency, setCurrency, pingBackend, loadProducts, fetchReviews, submitReview, getCart, setCart, updateCartBadge, addToCart, addItemsToCart, getFavorites, isFavorite, toggleFavorite, getSession, setSession, clearSession, setApiBaseOverride, getWishlists, createWishlist, renameWishlist, deleteWishlist, addToWishlist, removeFromWishlist, isInAnyWishlist };

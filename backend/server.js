@@ -506,7 +506,14 @@ function requireSupabase(res){
 
 function normalizeProductRow(row){
   if(!row) return row;
-  return {
+  const id = String(row.id || "").trim().toLowerCase();
+  const slug = String((row.slug || row.product_slug || "")).trim().toLowerCase();
+  const name = String((row.name || row.product_name || "")).trim().toLowerCase();
+  const isShirtHangerPlain =
+    id === "hanger-shirt-18-plain" ||
+    slug === "shirt-hangers-18-plain" ||
+    /shirt\s*hangers?\s*plain\s*\(18/.test(name);
+  const normalized = {
     ...row,
     priceCents: row.price_cents ?? row.priceCents,
     description_fr: row.description_fr ?? row.descriptionFr,
@@ -515,6 +522,11 @@ function normalizeProductRow(row){
     description_ta: row.description_ta ?? row.descriptionTa,
     description_es: row.description_es ?? row.descriptionEs
   };
+  if(isShirtHangerPlain){
+    normalized.priceCents = 3259;
+    normalized.comparePriceCents = 4959;
+  }
+  return normalized;
 }
 
 function normalizeOrderRow(row){
@@ -608,6 +620,20 @@ function formatMoney(cents, currency){
 function getTieredPriceCents(product, qty){
   if(!product) return 0;
   const base = Math.round(Number(product.priceCents) || 0);
+  const id = String(product.id || "").trim().toLowerCase();
+  const slug = String(product.slug || "").trim().toLowerCase();
+  const name = String(product.name || "").trim().toLowerCase();
+  const isShirtHangerPlain =
+    id === "hanger-shirt-18-plain" ||
+    slug === "shirt-hangers-18-plain" ||
+    /shirt\s*hangers?\s*plain\s*\(18/.test(name);
+  if(isShirtHangerPlain){
+    const count = Math.max(0, Number(qty) || 0);
+    if(count >= 20) return 2959;
+    if(count >= 15) return 3059;
+    if(count >= 10) return 3159;
+    return 3259;
+  }
   if((product.category || "") === "Garment Bags"){
     const count = Math.max(0, Number(qty) || 0);
     if(count >= 20) return 3699;

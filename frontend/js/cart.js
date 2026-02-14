@@ -107,6 +107,7 @@ function render(){
   const bulkSavingsRow = document.getElementById("bulkSavingsRow");
   const bulkSavingsAmount = document.getElementById("bulkSavingsAmount");
   const reorderBtn = document.getElementById("reorderBtn");
+  const crossSellSection = document.getElementById("crossSellSection");
   const crossSellGrid = document.getElementById("crossSellGrid");
   const heroIllustration = document.querySelector(".cart-hero-illustration");
   const boxWrap = document.getElementById("cartLoadBoxes");
@@ -319,6 +320,7 @@ function render(){
       .filter(p=> !cart.some(i=>i.id===p.id))
       .filter(p=> cartCats.size ? cartCats.has(p.category) : true)
       .slice(0, 4);
+    if(crossSellSection) crossSellSection.style.display = picks.length ? "" : "none";
     crossSellGrid.innerHTML = picks.length
       ? picks.map(item=>`
         <div class="card">
@@ -344,6 +346,8 @@ function render(){
         </div>
       `).join("")
       : `<div style="color:var(--muted); font-size:13px;">No cross-sell picks yet.</div>`;
+  }else if(crossSellSection){
+    crossSellSection.style.display = "none";
   }
 
   if(reorderBtn){

@@ -251,13 +251,6 @@
             <div class="category-tile-meta">Strut, capped, suit</div>
           </div>
         </a>
-        <a class="category-tile" href="./products.html?cat=Wraps">
-          <img src="./assets/poly%20wrap%20roll.webp" alt="Wraps" loading="lazy" decoding="async">
-          <div class="category-tile-overlay">
-            <div class="category-tile-title">Wraps</div>
-            <div class="category-tile-meta">Route-ready film</div>
-          </div>
-        </a>
       </div>
     </section>
 
@@ -305,11 +298,6 @@
           <div class="seasonal-desc">Longer garment bags and gusseted protection.</div>
           <a class="btn btn-outline btn-sm" href="./products.html?cat=Garment%20Bags">Shop gowns</a>
         </div>
-        <div class="seasonal-card">
-          <div class="seasonal-title">Holiday delivery surge</div>
-          <div class="seasonal-desc">Route-ready wraps and extra heavy film.</div>
-          <a class="btn btn-outline btn-sm" href="./products.html?cat=Wraps">Shop wraps</a>
-        </div>
       </div>
     </section>
 
@@ -342,7 +330,7 @@
         </div>
         <div class="success-card">
           <div class="success-metric">+2 hrs/week saved</div>
-          <div class="success-title">Laundry service in Calgary</div>
+          <div class="success-title">Laundry service in Scarborough</div>
           <div class="success-desc">Switched to bulk hangers with consistent pack sizes.</div>
         </div>
         <div class="success-card">
@@ -839,7 +827,7 @@
             <div class="quote-mark">&ldquo;</div>
             <div class="testimonial-rating" aria-label="Rating 5 out of 5">★★★★★</div>
             <p class="testimonial-text">Andrew keeps our weekly supplies consistent — clear garment covers and dependable hangers every time.</p>
-            <div class="testimonial-meta">Harrison Ramsey · Calgary Rocky Mountain Resorts</div>
+            <div class="testimonial-meta">Harrison Ramsey · Markham Grandview Suites</div>
           </div>
           <div class="testimonial-card en-only">
             <div class="quote-mark">&ldquo;</div>
@@ -870,7 +858,7 @@
             <div class="quote-mark">&ldquo;</div>
             <div class="testimonial-rating" aria-label="Rating 5 out of 5">★★★★★</div>
             <p class="testimonial-text"><span data-i18n="feedback.quote.three">Square checkout was smooth and our order arrived on schedule. Great experience overall.</span></p>
-            <div class="testimonial-meta"><span data-i18n="feedback.quote.three.meta">Laundry Service - Calgary, AB</span></div>
+            <div class="testimonial-meta"><span data-i18n="feedback.quote.three.meta">Laundry Service - Scarborough, ON</span></div>
           </div>
           <div class="testimonial-card">
             <div class="quote-mark">&ldquo;</div>
@@ -1121,7 +1109,7 @@
             return;
           }
           grid.innerHTML = list.map(item=>{
-            const compareCents = (Number(item.priceCents) || 0) + 1000;
+            const compareCents = PPS.getComparePriceCents?.(item) ?? ((Number(item.priceCents) || 0) + 1000);
             const memberCents = Number(item.priceCents) || 0;
             const s = item.stock<=0 ? "out" : item.stock<=10 ? "low" : "in";
             const label = item.stock<=0
@@ -1162,7 +1150,7 @@
             return;
           }
           grid.innerHTML = list.map(item=>{
-            const compareCents = (Number(item.priceCents) || 0) + 1000;
+            const compareCents = PPS.getComparePriceCents?.(item) ?? ((Number(item.priceCents) || 0) + 1000);
             const memberCents = Number(item.priceCents) || 0;
             return `
               <div class="card">
@@ -1197,7 +1185,7 @@
             return;
           }
           grid.innerHTML = list.map(item=>{
-            const compareCents = (Number(item.priceCents) || 0) + 1000;
+            const compareCents = PPS.getComparePriceCents?.(item) ?? ((Number(item.priceCents) || 0) + 1000);
             const memberCents = Number(item.priceCents) || 0;
             const s = item.stock<=0 ? "out" : item.stock<=10 ? "low" : "in";
             const label = item.stock<=0

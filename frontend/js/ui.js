@@ -814,7 +814,7 @@ function setupSearch(){
           </button>`;
         }
         const img = item.image ? `<img class="suggestion-thumb" src="${item.image}" alt="" loading="lazy" decoding="async" width="44" height="34">` : "";
-        const meta = [item.category, item.price, item.stockLabel].filter(Boolean).join(" · ");
+        const meta = [item.category, item.price, item.stockLabel].filter(Boolean).join(" | ");
         return `<button type="button" data-slug="${item.value}" class="suggestion suggestion-product">
           ${img}
           <span class="suggestion-text">
@@ -1728,7 +1728,7 @@ function injectHelpWidget(){
       ],
       match: (q)=> /hanger|hangers|shirt hanger|suit hanger|dress hanger|strut|capped|caped|cape|wire|500/i.test(q),
       answerKey: "help.chat.answer.hangers",
-      answer: () => `Most of our hanger SKUs are packed <b>500 pieces per box</b> (case pack) â€” check the product page for the exact pack size.<br><br><b>Quick pick:</b> <b>Shirt</b> for tops, <b>Suit</b> for jackets, <b>Strut</b> for daily allâ€‘purpose strength, and <b>Capped/Cape</b> when you want extra shoulder stability and premium presentation.<br><a href="./products.html?cat=Hangers">Browse hangers</a>`
+      answer: () => `Most of our hanger SKUs are packed <b>500 pieces per box</b> (case pack) - check the product page for the exact pack size.<br><br><b>Quick pick:</b> <b>Shirt</b> for tops, <b>Suit</b> for jackets, <b>Strut</b> for daily all-purpose strength, and <b>Capped/Cape</b> when you want extra shoulder stability and premium presentation.<br><a href="./products.html?cat=Hangers">Browse hangers</a>`
     },
     {
       id: "usage",
