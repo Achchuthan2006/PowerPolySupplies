@@ -621,6 +621,7 @@
       }
 
       function shouldAutoOpenFilters(){
+        if(isMobileProducts) return false;
         const stock = qs("stock");
         const min = qs("min");
         const max = qs("max");
@@ -1419,6 +1420,14 @@
         if(filtersOverlay){
           filtersOverlay.addEventListener("click", ()=> setFiltersOpen(false));
         }
+        document.addEventListener("pointerdown", (e)=>{
+          if(!isMobileProducts) return;
+          if(!document.body.classList.contains("filters-open")) return;
+          const target = e.target;
+          if(!(target instanceof Element)) return;
+          if(target.closest("#filtersPanel") || target.closest("#toggleFilters") || target.closest("#openAdvancedFilters")) return;
+          setFiltersOpen(false);
+        });
         if(viewToggle && grid){
           viewToggle.addEventListener("click", (e)=>{
             const btn = e.target.closest("button[data-view]");
