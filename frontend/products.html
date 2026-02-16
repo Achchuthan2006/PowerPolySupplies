@@ -933,6 +933,7 @@
                 <div class="card-body">
                   <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(p.slug)}">${displayName}</a>
                   <div class="card-meta">${categoryLabel(p.category)}</div>
+                  <div class="product-starting">Starting at <span>${PPS.money(memberCents,p.currency)}</span></div>
                   ${qualityBadgesHtml(p.category)}
                   ${bulkTierHtml(p)}
                   ${trustBadges()}
@@ -960,7 +961,7 @@
                     <button class="btn btn-primary product-add-btn" ${p.stock<=0?'disabled':''} onclick='add(event,"${p.id}")'>${window.PPS_I18N?.t("products.action.add") || "Add"}</button>
                     <a class="btn btn-outline product-view-btn" href="./product.html?slug=${encodeURIComponent(p.slug)}">${window.PPS_I18N?.t("products.action.view") || "View"}</a>
                     <a class="btn btn-outline product-cart-btn" href="./cart.html" data-i18n="products.action.cart">${window.PPS_I18N?.t("products.action.cart") || "Go to cart"}</a>
-                    <button class="btn btn-outline product-quick-btn" type="button" data-quick-id="${p.id}">Quick view</button>
+                    <button class="btn btn-outline product-quick-btn" type="button" data-quick-id="${p.id}">Quick View</button>
                   </div>
                   <div class="bulk-quick">
                     <button class="btn btn-outline" ${p.stock<=0?'disabled':''} onclick='addBulk(event,"${p.id}",10)'>${window.PPS_I18N?.t("products.bulk.10") || "10+ boxes"}</button>

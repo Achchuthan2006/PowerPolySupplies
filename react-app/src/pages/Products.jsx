@@ -164,7 +164,7 @@ export default function Products() {
               ? (window.PPS_I18N?.autoTranslate?.(p.name || "", "es") || p.name)
               : p.name;
             return (
-              <div key={p.id} className="card fade-in">
+              <div key={p.id} className="card fade-in product-card">
                 <Link to={`/product?slug=${encodeURIComponent(p.slug)}`}>
                   <img src={p.image} alt={displayName} loading="lazy" decoding="async" />
                 </Link>
@@ -173,6 +173,7 @@ export default function Products() {
                     {displayName}
                   </Link>
                   <div className="card-meta">{categoryLabel(lang, p.category)}</div>
+                  <div className="product-starting">Starting at <span>{window.PPS?.money?.(memberCents, p.currency)}</span></div>
                   <div className="member-pricing">
                     <div>
                       <div className="market-label" data-i18n="market.price.label">Market price</div>
@@ -190,18 +191,18 @@ export default function Products() {
                     <span className="dot" />
                     {stockLabel(p.stock)}
                   </div>
-                  <div style={{ marginTop: "12px", display: "flex", gap: "10px" }}>
-                    <Link className="btn" to={`/product?slug=${encodeURIComponent(p.slug)}`}>
-                      {window.PPS_I18N?.t("products.action.view") || "View"}
+                  <div className="product-actions" style={{ marginTop: "12px", display: "flex", gap: "10px" }}>
+                    <Link className="btn btn-outline product-quick-btn" to={`/product?slug=${encodeURIComponent(p.slug)}`}>
+                      Quick View
                     </Link>
                     <button
-                      className="btn btn-primary"
+                      className="btn btn-primary product-add-btn"
                       disabled={p.stock <= 0}
                       onClick={() => addToCart(p, 1)}
                     >
                       {window.PPS_I18N?.t("products.action.add") || "Add"}
                     </button>
-                    <Link className="btn btn-outline" to="/cart" data-i18n="products.action.cart">
+                    <Link className="btn btn-outline product-cart-btn" to="/cart" data-i18n="products.action.cart">
                       {window.PPS_I18N?.t("products.action.cart") || "Go to cart"}
                     </Link>
                   </div>
