@@ -9883,3 +9883,70 @@ select.input option:hover{
     grid-template-columns: 1fr;
   }
 }
+
+/* Mobile touch ergonomics: 44x44 targets + 8px spacing between taps */
+@media (max-width: 900px), (hover: none) and (pointer: coarse){
+  button,
+  .btn,
+  .menu-btn,
+  .dropbtn,
+  .navlinks a,
+  .dropdown-menu a,
+  .mobile-cart-bar-link,
+  .search-suggestions button,
+  .hero-actions a,
+  .product-actions a,
+  .product-actions button,
+  .bulk-quick button,
+  .industry-pill,
+  .history-btn,
+  .trending-btn,
+  .social-btn,
+  .related-header .btn,
+  .code-actions .btn,
+  .addr-actions .btn,
+  .profile-edit-actions .btn,
+  .quick-actions .btn,
+  .carousel-actions .carousel-btn,
+  .compare-actions .btn,
+  .hero-carousel-controls .carousel-btn{
+    min-height:44px;
+    min-width:44px;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+  select,
+  textarea{
+    min-height:44px;
+    font-size:16px;
+  }
+
+  .navlinks,
+  .nav-tools,
+  .hero-actions,
+  .product-actions,
+  .bulk-quick,
+  .compare-actions,
+  .quick-actions,
+  .search-discovery-actions,
+  .search-discovery-pills,
+  .industry-pills,
+  .carousel-actions,
+  .resources-hero-actions,
+  .bundle-actions,
+  .blog-share-actions{
+    gap:8px;
+  }
+
+  .hero-carousel-dots{
+    gap:14px;
+  }
+  .hero-carousel-dots button{
+    padding:14px;
+  }
+
+  .search-suggestions button{
+    padding-top:10px;
+    padding-bottom:10px;
+  }
+}
