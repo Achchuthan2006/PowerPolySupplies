@@ -67,13 +67,13 @@
 
         <form id="contactForm" class="grid" style="gap:10px;">
           <label class="input-label" for="contactName">Full Name</label>
-          <input required class="input" id="contactName" name="name" placeholder="Enter your full name" data-i18n-placeholder="contact.form.name" aria-label="Full name">
+          <input required class="input" id="contactName" name="name" autocomplete="name" placeholder="Enter your full name" data-i18n-placeholder="contact.form.name" aria-label="Full name">
           <label class="input-label" for="contactEmail">Email</label>
-          <input required class="input" id="contactEmail" type="email" name="email" placeholder="name@company.com" data-i18n-placeholder="contact.form.email" aria-label="Email address">
+          <input required class="input" id="contactEmail" type="email" name="email" autocomplete="email" inputmode="email" placeholder="name@company.com" data-i18n-placeholder="contact.form.email" aria-label="Email address">
           <label class="input-label" for="contactPhone">Phone (optional)</label>
-          <input class="input" id="contactPhone" name="phone" placeholder="Best number to reach you" data-i18n-placeholder="contact.form.phone" aria-label="Phone number">
+          <input class="input" id="contactPhone" type="tel" name="phone" autocomplete="tel" inputmode="tel" placeholder="Best number to reach you" data-i18n-placeholder="contact.form.phone" aria-label="Phone number">
           <label class="input-label" for="contactOrderType">Order Type</label>
-          <select class="input" id="contactOrderType" name="orderType" aria-label="Order type">
+          <select class="input" id="contactOrderType" name="orderType" autocomplete="organization-title" aria-label="Order type">
             <option value="bulk_quote">Bulk Quote</option>
             <option value="new_customer">New Customer</option>
             <option value="returning_customer">Returning Customer</option>
@@ -83,7 +83,7 @@
             <input class="input" id="contactAttachment" type="file" name="attachment" accept=".csv,.xlsx,.xls">
           </div>
           <label class="input-label" for="contactMessage">Message</label>
-          <textarea required class="input" id="contactMessage" name="message" placeholder="Tell us what you need and expected quantity" data-i18n-placeholder="contact.form.message" style="min-height:120px;" aria-label="Message"></textarea>
+          <textarea required class="input" id="contactMessage" name="message" autocomplete="on" placeholder="Tell us what you need and expected quantity" data-i18n-placeholder="contact.form.message" style="min-height:120px;" aria-label="Message"></textarea>
 
           <button class="btn btn-primary" type="submit" data-i18n="contact.form.send">Send Message</button>
           <div style="font-size:12px; color:var(--muted); font-weight:800;">We respond within 2 hours during business hours.</div>
