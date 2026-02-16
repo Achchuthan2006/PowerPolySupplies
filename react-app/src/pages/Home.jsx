@@ -33,7 +33,7 @@ export default function Home() {
             laundromats, and retailers that need reliable stock.
           </span>
         </p>
-        <div style={{ marginTop: "16px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
+        <div className="hero-actions" style={{ marginTop: "16px" }}>
           <Link className="btn btn-primary" to="/products" data-i18n="index.hero.browse">
             Browse Products
           </Link>

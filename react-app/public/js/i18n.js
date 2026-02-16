@@ -2,7 +2,7 @@ const PPS_TRANSLATIONS = {
   en: {
     "brand.name": "Power Poly Supplies",
     "brand.tagline": "Power your packaging",
-    "promo.right": "Bulk-ready stock | Fast response | Canada-wide supply",
+    "promo.right": "Bulk stock | Fast shipping | Canada-wide",
     "nav.home": "Home",
     "nav.menu": "Menu",
     "nav.specials": "Special Offers",
@@ -48,7 +48,7 @@ const PPS_TRANSLATIONS = {
     "index.support.customer": "Customer support",
     "index.support.questions": "Questions? We're here.",
     "index.support.fast": "Fast replies during business hours",
-    "footer.meta": "Bulk-ready stock | Fast response | Canada-wide supply",
+    "footer.meta": "Bulk stock | Fast shipping | Canada-wide",
     "footer.shop": "Shop",
     "footer.all_products": "All products",
     "footer.special_offers": "Special offers",
@@ -2130,7 +2130,7 @@ const PPS_I18N = (() => {
     });
 
     const phraseMap = [
-      ["Bulk-ready stock | Fast response | Canada-wide supply", "Stock listo al por mayor | Respuesta rápida | Suministro en todo Canadá"],
+      ["Bulk stock | Fast shipping | Canada-wide", "Stock listo al por mayor | Respuesta rápida | Suministro en todo Canadá"],
       ["Power your packaging", "Impulsa tu empaque"],
       ["Browse Products", "Ver productos"],
       ["View Special Offers", "Ver ofertas especiales"],
@@ -2387,5 +2387,6 @@ window.PPS_I18N = PPS_I18N;
 window.addEventListener("DOMContentLoaded", () => {
   PPS_I18N.applyTranslations();
 });
+
 
 

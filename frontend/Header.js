@@ -13,7 +13,7 @@ export default function Header() {
       <div className="promo-strip">
         <div className="container promo-inner">
           <div><strong>Power Poly Supplies</strong> | <span>Power your packaging</span></div>
-          <div style={{ fontWeight: 700 }}>Bulk-ready stock | Fast response | Canada-wide supply</div>
+          <div style={{ fontWeight: 700 }}>Bulk stock | Fast shipping | Canada-wide</div>
         </div>
       </div>
       <div className="navbar">

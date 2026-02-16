@@ -568,7 +568,7 @@ function injectFooter(){
         <div class="footer-brand">
           <span data-i18n="brand.name">Power Poly Supplies</span>
           <span style="color:#ffb25c; font-size:12px;" data-i18n="brand.tagline">Power your packaging</span>
-          <div class="footer-meta" data-i18n="footer.meta">Bulk-ready stock | Fast response | Canada-wide supply</div>
+          <div class="footer-meta" data-i18n="footer.meta">Bulk stock | Fast shipping | Canada-wide</div>
         </div>
         <div>
           <h4 data-i18n="footer.shop">Shop</h4>
@@ -2855,3 +2855,4 @@ window.addEventListener("DOMContentLoaded", ()=>{
 
 // Expose to pages that render footers dynamically after load
 window.injectFooter = injectFooter;
+

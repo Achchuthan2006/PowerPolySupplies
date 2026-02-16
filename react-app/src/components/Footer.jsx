@@ -19,7 +19,7 @@ export default function Footer() {
             Power your packaging
           </span>
           <div className="footer-meta" data-i18n="footer.meta">
-            Bulk-ready stock | Fast response | Canada-wide supply
+            Bulk stock | Fast shipping | Canada-wide
           </div>
         </div>
         <div>
@@ -60,3 +60,4 @@ export default function Footer() {
     </footer>
   );
 }
+

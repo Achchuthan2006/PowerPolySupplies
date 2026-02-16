@@ -33,7 +33,7 @@ export default function Header() {
             <span data-i18n="brand.tagline">Power your packaging</span>
           </div>
           <div className="promo-right" data-i18n="promo.right">
-            Bulk-ready stock | Fast response | Canada-wide supply
+            Bulk stock | Fast shipping | Canada-wide
           </div>
         </div>
       </div>
@@ -186,3 +186,4 @@ export default function Header() {
     </header>
   );
 }
+

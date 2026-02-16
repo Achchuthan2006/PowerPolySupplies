@@ -469,6 +469,11 @@ html[lang="ta"] .navlinks a{
   flex-wrap:wrap;
   margin-top:16px;
 }
+.hero-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
 .callout-pill{
   display:inline-flex;
   align-items:center;
@@ -1447,6 +1452,25 @@ select.input option:hover{
     flex:1;
     min-width:0;
   }
+  .navlinks .search-bar{
+    background: rgba(255,255,255,.92);
+    border:1px solid rgba(255,122,26,.32);
+    box-shadow: 0 10px 22px rgba(17,24,39,.12);
+    padding: 6px 8px;
+    border-radius:14px;
+  }
+  .navlinks .search-bar input{
+    font-size:16px;
+    min-height:48px;
+    padding:12px 10px;
+    min-width:0;
+  }
+  .navlinks .search-bar button{
+    font-size:14px;
+    min-height:48px;
+    padding:0 14px;
+    border-radius:10px;
+  }
   .menu-btn{ display:inline-flex; }
 
   .navlinks{
@@ -1462,6 +1486,55 @@ select.input option:hover{
     border-radius:16px;
     background:var(--surface);
     box-shadow: var(--shadow);
+  }
+  .navlinks > a,
+  .navlinks > .dropdown,
+  .navlinks > form.nav-search{
+    width:100%;
+    border-bottom:1px solid rgba(17,24,39,.1);
+    padding-bottom:8px;
+  }
+  .navlinks > form.nav-search{
+    padding-bottom:12px;
+    margin-bottom:2px;
+  }
+  .navlinks > a,
+  .navlinks .dropbtn{
+    font-size:18px;
+    min-height:48px;
+    padding:12px 12px;
+    border-radius:12px;
+    align-items:center;
+    justify-content:flex-start;
+  }
+  .navlinks .dropbtn{
+    width:100%;
+  }
+  .navlinks > a[href="/"]::before,
+  .navlinks > a[href="/specials"]::before,
+  .navlinks > a[href="/about"]::before,
+  .navlinks .dropbtn::before{
+    content:"";
+    width:18px;
+    height:18px;
+    flex:0 0 18px;
+    margin-right:8px;
+    background-size:contain;
+    background-repeat:no-repeat;
+    background-position:center;
+    filter: drop-shadow(0 2px 5px rgba(31,39,51,.16));
+  }
+  .navlinks > a[href="/"]::before{
+    background-image:url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='%231f2733' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 4.2 3.8 11a1 1 0 0 0-.3.74V20a1 1 0 0 0 1 1h5.2a1 1 0 0 0 1-1v-4.6h2.6V20a1 1 0 0 0 1 1h5.2a1 1 0 0 0 1-1v-8.26a1 1 0 0 0-.35-.76L12 4.2Z'/%3E%3C/svg%3E");
+  }
+  .navlinks > a[href="/specials"]::before{
+    background-image:url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='%231f2733' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m12 2.8 2.25 4.56 5.03.73-3.64 3.54.86 5.01L12 14.33 7.5 16.64l.86-5.01L4.72 8.09l5.03-.73L12 2.8Z'/%3E%3C/svg%3E");
+  }
+  .navlinks > a[href="/about"]::before{
+    background-image:url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='%231f2733' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 3.4a8.6 8.6 0 1 0 0 17.2 8.6 8.6 0 0 0 0-17.2Zm.05 4.1a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5ZM10.8 11h2.3v6h-2.3v-6Z'/%3E%3C/svg%3E");
+  }
+  .navlinks .dropbtn::before{
+    background-image:url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='%231f2733' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 4h7v7H4V4Zm9 0h7v7h-7V4ZM4 13h7v7H4v-7Zm9 0h7v7h-7v-7Z'/%3E%3C/svg%3E");
   }
   .navlinks.open{
     display:flex;
@@ -1616,7 +1689,10 @@ select.input option:hover{
 
 
 @media (max-width: 600px){
-  .promo-strip{ font-size:11px; }
+  .promo-strip{
+    font-size:10px;
+    letter-spacing:.2px;
+  }
   .promo-inner{
     flex-direction:column;
     align-items:flex-start;
@@ -1626,8 +1702,10 @@ select.input option:hover{
   .promo-right{
     margin-left:0;
     width:100%;
-    text-align:right;
+    text-align:left;
     transform:none;
+    font-size:10px;
+    line-height:1.25;
   }
   .promo-strip .container,
   .navbar .container{
@@ -1640,12 +1718,25 @@ select.input option:hover{
   .brand-title{ font-size:16px; }
   .brand-tagline{ font-size:10px; }
   .hero{ padding:22px; border-radius:20px; }
-  .hero-logo{ width:64px; height:64px; }
+  .hero-logo{
+    width:36px;
+    height:36px;
+    margin-bottom:6px;
+  }
   .hero h1{ font-size:28px; }
   .hero p{ font-size:14px; }
   .hero-callouts{ gap:8px; }
   .callout-pill{ font-size:12px; padding:7px 10px; }
   .btn{ width:100%; }
+  .hero-actions{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:12px;
+  }
+  .hero .btn{
+    min-height:44px;
+    padding:12px 16px;
+  }
   .search-bar{ width:100%; }
   .search-bar input{ width:100%; }
 }
