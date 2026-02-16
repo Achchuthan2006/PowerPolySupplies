@@ -640,9 +640,17 @@ function injectFooter(){
           <span data-i18n="brand.name">Power Poly Supplies</span>
           <span style="color:#ffb25c; font-size:12px;" data-i18n="brand.tagline">Power your packaging</span>
           <div class="footer-meta" data-i18n="footer.meta">Bulk stock | Fast shipping | Canada-wide</div>
+          <div class="footer-essential">
+            <a href="tel:+16475238645">647-523-8645</a>
+            <span>|</span>
+            <a href="mailto:powerpolysupplies@gmail.com">powerpolysupplies@gmail.com</a>
+          </div>
         </div>
-        <div>
-          <h4 data-i18n="footer.shop">Shop</h4>
+        <details class="footer-section footer-section-shop" open>
+          <summary>
+            <h4 data-i18n="footer.shop">Shop</h4>
+            <span class="footer-caret" aria-hidden="true"></span>
+          </summary>
           <ul>
             <li><a href="./products.html" data-i18n="footer.all_products">All products</a></li>
             <li><a href="./specials.html" data-i18n="footer.special_offers">Special offers</a></li>
@@ -650,9 +658,12 @@ function injectFooter(){
             <li><a href="./contact.html" data-i18n="footer.contact">Contact</a></li>
             <li><a href="./feedback.html" data-i18n="footer.feedback">Feedback</a></li>
           </ul>
-        </div>
-        <div class="footer-contact">
-          <h4 data-i18n="footer.support">Support</h4>
+        </details>
+        <details class="footer-section footer-section-support footer-contact" open>
+          <summary>
+            <h4 data-i18n="footer.support">Support</h4>
+            <span class="footer-caret" aria-hidden="true"></span>
+          </summary>
           <div data-i18n="footer.help_line">Help line:</div>
           <div class="footer-contact-row">
             <span class="footer-inline-icon" aria-hidden="true">
@@ -684,9 +695,12 @@ function injectFooter(){
             </span>
             <span data-i18n="footer.address">Address:</span> 15725 Weston Rd, Kettleby, ON L7B 0L4
           </div>
-        </div>
-        <div>
-          <h4 data-i18n="footer.connect">Connect</h4>
+        </details>
+        <details class="footer-section footer-section-connect" open>
+          <summary>
+            <h4 data-i18n="footer.connect">Connect</h4>
+            <span class="footer-caret" aria-hidden="true"></span>
+          </summary>
           <div class="footer-social">
             <a class="footer-icon" aria-label="Instagram" href="https://www.instagram.com/powerpolysupplies/" title="Instagram" target="_blank" rel="noopener">
               <svg viewBox="0 0 24 24"><path d="M7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4zm10 2H7a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm-5 3.5A4.5 4.5 0 1 1 7.5 13 4.5 4.5 0 0 1 12 8.5zm0 2A2.5 2.5 0 1 0 14.5 13 2.5 2.5 0 0 0 12 10.5zm4.75-4.25a1 1 0 1 1-1 1 1 1 0 0 1 1-1z"/></svg>
@@ -704,15 +718,18 @@ function injectFooter(){
               <svg viewBox="0 0 24 24"><path d="M12.04 2a9.94 9.94 0 0 0-8.52 15.05L2 22l5.1-1.33A9.95 9.95 0 1 0 12.04 2zm5.78 14.4c-.24.68-1.38 1.31-1.9 1.38-.5.07-1.14.1-1.84-.11-.42-.14-.95-.3-1.64-.6-2.9-1.26-4.78-4.16-4.92-4.36-.14-.2-1.18-1.57-1.18-3 0-1.43.75-2.13 1.01-2.42.25-.28.56-.35.74-.35h.53c.17 0 .4-.06.62.47.24.56.8 1.94.87 2.08.07.14.12.3.02.48-.1.18-.16.3-.31.46-.16.16-.33.35-.47.47-.16.16-.34.34-.15.65.2.31.9 1.47 1.93 2.38 1.33 1.17 2.44 1.53 2.8 1.7.36.17.57.14.78-.09.21-.23.9-1.05 1.14-1.41.24-.36.48-.3.8-.18.33.12 2.08.98 2.44 1.16.36.18.6.27.69.42.09.15.09.87-.15 1.55z"/></svg>
             </a>
           </div>
-        </div>
-        <div>
-          <h4 data-i18n="footer.legal">Legal</h4>
+        </details>
+        <details class="footer-section footer-section-legal" open>
+          <summary>
+            <h4 data-i18n="footer.legal">Legal</h4>
+            <span class="footer-caret" aria-hidden="true"></span>
+          </summary>
           <ul>
             <li><a href="./legal-shipping.html" data-i18n="footer.shipping">Shipping & Returns</a></li>
             <li><a href="./legal-privacy.html" data-i18n="footer.privacy">Privacy Policy</a></li>
             <li><a href="./legal-terms.html" data-i18n="footer.terms">Terms & Conditions</a></li>
           </ul>
-        </div>
+        </details>
         <div class="footer-recent">
           <div class="footer-recent-title">Recently viewed</div>
           <div class="footer-recent-grid" id="footerRecentGrid"></div>
@@ -732,6 +749,7 @@ function injectFooter(){
   `;
   footer.remove();
   document.body.appendChild(newFooter);
+  setupFooterSections(newFooter);
   window.PPS_I18N?.applyTranslations?.();
   renderFooterRecentProducts();
 
@@ -742,6 +760,28 @@ function injectFooter(){
     });
   }, { threshold: 0.2 });
   io.observe(newFooter);
+}
+
+function setupFooterSections(footerEl){
+  if(!footerEl) return;
+  const sections = Array.from(footerEl.querySelectorAll(".footer-section"));
+  if(!sections.length) return;
+  const mobileMq = window.matchMedia("(max-width: 900px)");
+  const syncSections = ()=>{
+    sections.forEach((section)=>{
+      if(mobileMq.matches){
+        section.removeAttribute("open");
+      }else{
+        section.setAttribute("open", "");
+      }
+    });
+  };
+  syncSections();
+  if(typeof mobileMq.addEventListener === "function"){
+    mobileMq.addEventListener("change", syncSections);
+  }else if(typeof mobileMq.addListener === "function"){
+    mobileMq.addListener(syncSections);
+  }
 }
 
 async function renderFooterRecentProducts(){
@@ -764,7 +804,7 @@ async function renderFooterRecentProducts(){
   const picks = recent
     .map(slug => products.find(p=>String(p.slug) === String(slug)))
     .filter(Boolean)
-    .slice(0, 3);
+    .slice(0, window.matchMedia("(max-width: 900px)").matches ? 2 : 4);
   if(!picks.length){
     grid.innerHTML = `<div class="footer-recent-empty">Browse products to see your recently viewed items.</div>`;
     return;

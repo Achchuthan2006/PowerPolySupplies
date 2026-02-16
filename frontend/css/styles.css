@@ -5003,6 +5003,46 @@ select.input option:hover{
   text-align:center;
 }
 .dark-footer ul{list-style:none; padding:0;}
+.dark-footer .footer-essential{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:8px;
+  font-size:13px;
+  font-weight:800;
+  color:#e9edf3;
+}
+.dark-footer .footer-section{
+  width:100%;
+  max-width:320px;
+}
+.dark-footer .footer-section > summary{
+  list-style:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  cursor:pointer;
+  user-select:none;
+}
+.dark-footer .footer-section > summary::-webkit-details-marker{
+  display:none;
+}
+.dark-footer .footer-section > summary h4{
+  margin:0;
+}
+.dark-footer .footer-caret{
+  width:9px;
+  height:9px;
+  border-right:2px solid rgba(255,255,255,.72);
+  border-bottom:2px solid rgba(255,255,255,.72);
+  transform: rotate(45deg) translateY(-1px);
+  transition: transform .18s ease;
+}
+.dark-footer .footer-section[open] .footer-caret{
+  transform: rotate(225deg) translateY(-1px);
+}
 .dark-footer .footer-social{
   display:flex;
   gap:10px;
@@ -5078,6 +5118,15 @@ select.input option:hover{
 }
 .footer-address{
   white-space: nowrap;
+}
+@media (min-width: 901px){
+  .dark-footer .footer-section > summary{
+    cursor:default;
+    pointer-events:none;
+  }
+  .dark-footer .footer-caret{
+    display:none;
+  }
 }
 .dark-footer.reveal{
   opacity:1;
@@ -8316,6 +8365,32 @@ select.input option:hover{
   }
 
   /* Mobile footer trust alignment */
+  .dark-footer .footer-inner{
+    gap:14px;
+  }
+  .dark-footer .footer-section{
+    max-width:100%;
+    border-top:1px solid rgba(255,255,255,.12);
+    padding-top:10px;
+  }
+  .dark-footer .footer-section > summary{
+    justify-content:space-between;
+    padding:2px 2px 0;
+  }
+  .dark-footer .footer-section > summary h4{
+    font-size:13px;
+    letter-spacing:.6px;
+  }
+  .dark-footer .footer-section[open] ul,
+  .dark-footer .footer-section[open] .footer-social,
+  .dark-footer .footer-section[open] .footer-contact-row,
+  .dark-footer .footer-section[open] [data-i18n="footer.help_line"]{
+    margin-top:8px;
+  }
+  .dark-footer .footer-essential{
+    margin-top:4px;
+    font-size:12px;
+  }
   .footer-bottom{
     flex-direction:column;
     gap:10px;
