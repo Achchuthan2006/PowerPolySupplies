@@ -1185,6 +1185,40 @@ function injectBottomNav(){
 }
 
 function focusSmartSearch(){
+  const isMobile = window.matchMedia?.("(max-width: 860px)")?.matches;
+  const focusInput = (input)=>{
+    if(!input) return false;
+    try{
+      input.scrollIntoView({ behavior: "auto", block: "nearest" });
+    }catch(_err){
+      // ignore
+    }
+    try{
+      input.focus({ preventScroll: true });
+      input.select?.();
+    }catch(_err){
+      // ignore
+    }
+    return true;
+  };
+
+  const productsSearch = document.getElementById("filterSearch");
+  if(productsSearch){
+    const filtersPanel = document.getElementById("filtersPanel");
+    const toggleFiltersBtn = document.getElementById("toggleFilters");
+    if(isMobile && filtersPanel?.classList.contains("is-collapsed")){
+      try{ toggleFiltersBtn?.click?.(); }catch(_err){ /* ignore */ }
+    }
+    setTimeout(()=> focusInput(productsSearch), 40);
+    return true;
+  }
+
+  // On mobile non-products pages, avoid focusing the hidden nav-menu search input.
+  if(isMobile){
+    window.location.href = "./products.html#pps-search";
+    return true;
+  }
+
   const navLinks = document.getElementById("navLinks");
   const dropdown = document.querySelector(".dropdown");
   if(navLinks){
@@ -1197,19 +1231,7 @@ function focusSmartSearch(){
     document.querySelector('form.search-bar input[type="search"]');
 
   if(!input) return false;
-
-  try{
-    input.scrollIntoView({ behavior: "smooth", block: "center" });
-  }catch(_err){
-    // ignore
-  }
-  try{
-    input.focus();
-    input.select?.();
-  }catch(_err){
-    // ignore
-  }
-  return true;
+  return focusInput(input);
 }
 
 function setupBottomNavSearch(){
