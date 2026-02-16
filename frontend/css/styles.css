@@ -7105,6 +7105,33 @@ select.input option:hover{
   .contact-grid{
     grid-template-columns: 1fr !important;
   }
+  .contact-page #contactForm{
+    gap:12px !important;
+  }
+  .contact-page #contactForm .input-label{
+    margin-top:2px;
+    margin-bottom:-2px;
+    font-size:12px;
+  }
+  .contact-page #contactForm .input,
+  .contact-page #contactForm select.input,
+  .contact-page #contactForm textarea.input{
+    min-height:48px;
+    padding:16px 12px;
+    font-size:16px;
+    line-height:1.35;
+  }
+  .contact-page #contactForm select.input{
+    padding-right:42px;
+  }
+  .contact-page #contactForm textarea.input{
+    min-height:136px !important;
+  }
+  .contact-page #contactForm .input::placeholder,
+  .contact-page #contactForm textarea.input::placeholder{
+    color:#667586;
+    opacity:1;
+  }
   .checkout-grid{
     grid-template-columns: 1fr !important;
   }

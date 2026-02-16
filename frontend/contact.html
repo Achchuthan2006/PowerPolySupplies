@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="./css/styles.css?v=20260126"/>
   <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
 </head>
-<body>
+<body class="contact-page">
   <header class="site-header">
     <div class="promo-strip">
       <div class="container promo-inner">
@@ -66,19 +66,24 @@
         <h2 style="margin:0 0 10px;" data-i18n="contact.form.title">Send a message</h2>
 
         <form id="contactForm" class="grid" style="gap:10px;">
-          <input required class="input" name="name" placeholder="Full Name" data-i18n-placeholder="contact.form.name">
-          <input required class="input" type="email" name="email" placeholder="Email" data-i18n-placeholder="contact.form.email">
-          <input class="input" name="phone" placeholder="Phone (optional)" data-i18n-placeholder="contact.form.phone">
-          <select class="input" name="orderType" aria-label="Order type">
+          <label class="input-label" for="contactName">Full Name</label>
+          <input required class="input" id="contactName" name="name" placeholder="Enter your full name" data-i18n-placeholder="contact.form.name" aria-label="Full name">
+          <label class="input-label" for="contactEmail">Email</label>
+          <input required class="input" id="contactEmail" type="email" name="email" placeholder="name@company.com" data-i18n-placeholder="contact.form.email" aria-label="Email address">
+          <label class="input-label" for="contactPhone">Phone (optional)</label>
+          <input class="input" id="contactPhone" name="phone" placeholder="Best number to reach you" data-i18n-placeholder="contact.form.phone" aria-label="Phone number">
+          <label class="input-label" for="contactOrderType">Order Type</label>
+          <select class="input" id="contactOrderType" name="orderType" aria-label="Order type">
             <option value="bulk_quote">Bulk Quote</option>
             <option value="new_customer">New Customer</option>
             <option value="returning_customer">Returning Customer</option>
           </select>
           <div>
-            <label style="font-size:12px; font-weight:900; color:var(--muted); letter-spacing:.2px;">Attach bulk order list (CSV, Excel)</label>
-            <input class="input" type="file" name="attachment" accept=".csv,.xlsx,.xls" style="padding:10px;">
+            <label class="input-label" for="contactAttachment">Attach bulk order list (CSV, Excel)</label>
+            <input class="input" id="contactAttachment" type="file" name="attachment" accept=".csv,.xlsx,.xls">
           </div>
-          <textarea required class="input" name="message" placeholder="Your message..." data-i18n-placeholder="contact.form.message" style="min-height:120px;"></textarea>
+          <label class="input-label" for="contactMessage">Message</label>
+          <textarea required class="input" id="contactMessage" name="message" placeholder="Tell us what you need and expected quantity" data-i18n-placeholder="contact.form.message" style="min-height:120px;" aria-label="Message"></textarea>
 
           <button class="btn btn-primary" type="submit" data-i18n="contact.form.send">Send Message</button>
           <div style="font-size:12px; color:var(--muted); font-weight:800;">We respond within 2 hours during business hours.</div>
