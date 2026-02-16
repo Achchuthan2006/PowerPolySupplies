@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="./css/styles.css?v=20260126"/>
   <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
 </head>
-<body>
+<body class="product-page">
   <header class="site-header">
     <div class="promo-strip">
       <div class="container promo-inner">
@@ -1048,6 +1048,9 @@
               </div>
             </div>
 
+            <details class="product-section-accordion" id="reviewsAccordion">
+              <summary><span>Reviews</span></summary>
+              <div class="product-section-panel">
             <div class="reviews-section">
               <div class="reviews-topline">
                 <div class="reviews-header" id="reviewsHeader">${renderStars(0)} <span class="review-meta">(${window.PPS_I18N?.t("product.reviews.none") || "No reviews yet"})</span></div>
@@ -1088,8 +1091,13 @@
                 <div id="reviewMsg" style="color:var(--muted); font-size:13px;"></div>
               </form>
             </div>
+              </div>
+            </details>
           </div>
         </div>
+        <details class="product-section-accordion" id="qaAccordion">
+          <summary><span>Questions & answers</span></summary>
+          <div class="product-section-panel">
         <div class="card fade-in" style="margin-top:18px; padding:18px;">
           <div class="section-head">
             <h3 style="margin:0;">Questions & answers</h3>
@@ -1103,6 +1111,11 @@
             <div id="qaMsg" style="color:var(--muted); font-size:13px;"></div>
           </form>
         </div>
+          </div>
+        </details>
+        <details class="product-section-accordion" id="faqAccordion">
+          <summary><span>FAQ</span></summary>
+          <div class="product-section-panel">
         <div class="card fade-in" style="margin-top:18px; padding:18px;">
           <div class="section-head">
             <h3 style="margin:0;">FAQ</h3>
@@ -1127,7 +1140,12 @@
             </details>
           </div>
         </div>
+          </div>
+        </details>
         <div class="grid grid-2" style="margin-top:18px; gap:18px;">
+          <details class="product-section-accordion section-card-accordion" id="specsAccordion">
+            <summary><span>Specifications</span></summary>
+            <div class="product-section-panel">
           <div class="card fade-in" style="padding:18px;">
             <div class="section-head">
               <h3 style="margin:0;">Specifications</h3>
@@ -1155,6 +1173,11 @@
               </details>
             </div>
           </div>
+            </div>
+          </details>
+          <details class="product-section-accordion section-card-accordion" id="dimensionsAccordion">
+            <summary><span>Dimensions</span></summary>
+            <div class="product-section-panel">
           <div class="card fade-in" style="padding:18px;">
             <div class="section-head">
               <h3 style="margin:0;">Dimensions</h3>
@@ -1163,7 +1186,12 @@
             <div id="dimensionDiagram"></div>
             <div id="sizeChart" style="margin-top:14px;"></div>
           </div>
+            </div>
+          </details>
         </div>
+        <details class="product-section-accordion" id="certsAccordion">
+          <summary><span>Certifications</span></summary>
+          <div class="product-section-panel">
         <div class="card fade-in" style="margin-top:18px; padding:18px;">
           <div class="section-head">
             <h3 style="margin:0;">Certifications & safety</h3>
@@ -1171,6 +1199,8 @@
           </div>
           <div id="certInfo"></div>
         </div>
+          </div>
+        </details>
         <div class="card fade-in" style="margin-top:18px; padding:18px;">
           <div class="section-head">
             <h3 style="margin:0;">Frequently bought together</h3>
@@ -1223,6 +1253,16 @@
           </div>
         </div>
       `;
+
+      const sectionAccordions = Array.from(document.querySelectorAll(".product-section-accordion"));
+      const applySectionAccordionMode = ()=>{
+        const mobile = window.matchMedia("(max-width: 860px)").matches;
+        sectionAccordions.forEach((el)=>{
+          el.open = !mobile;
+        });
+      };
+      applySectionAccordionMode();
+      window.addEventListener("resize", applySectionAccordionMode);
 
       // Product structured data (Schema.org)
       try{
