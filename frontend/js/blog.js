@@ -27,7 +27,7 @@
   };
 
   const META_SEP = " · ";
-  const MOJIBAKE_BULLET = "\u00E2\u20AC\u00A2"; // "â€¢" when UTF-8 "•" is mis-decoded as cp1252
+  const MOJIBAKE_BULLET = "\u00E2\u20AC\u00A2"; // "?" when UTF-8 "•" is mis-decoded as cp1252
   const splitBullet = (text) =>
     String(text || "")
       .split(MOJIBAKE_BULLET).join("·")

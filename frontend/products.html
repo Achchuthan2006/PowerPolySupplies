@@ -986,7 +986,7 @@
           ? (window.PPS_I18N?.autoTranslate?.("Results for", "es") || "Resultados para")
           : "Results for";
         if(catList.length && query){
-          hint.textContent = `${showLabel.replace("{{cat}}", catLabel)} â€¢ ${resultsForLabel} "${query}"`;
+          hint.textContent = `${showLabel.replace("{{cat}}", catLabel)} • ${resultsForLabel} "${query}"`;
         }else if(query){
           hint.textContent = `${resultsForLabel} "${query}"`;
         }else{
@@ -1072,7 +1072,7 @@
         if(!filterBreadcrumbs) return;
         const entries = [];
         const addChip = (label, key, value)=>{
-          entries.push(`<button class="filter-chip-btn" type="button" data-clear-key="${key}">${label} <span aria-hidden="true">Ã—</span></button>`);
+          entries.push(`<button class="filter-chip-btn" type="button" data-clear-key="${key}">${label} <span aria-hidden="true">×</span></button>`);
         };
         const q = (qs("q") || "").trim();
         const cat = (qs("cat") || "").trim();
