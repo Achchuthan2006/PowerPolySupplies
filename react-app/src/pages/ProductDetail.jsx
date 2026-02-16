@@ -110,7 +110,7 @@ export default function ProductDetail() {
       setRating(5);
       const data = await window.PPS?.fetchReviews?.(product.id);
       setReviews(Array.isArray(data?.reviews) ? data.reviews : []);
-    } catch (err) {
+    } catch (_err) {
       setReviewMsg(window.PPS_I18N?.t("product.reviews.submit_failed") || "Failed to submit review.");
     }
   };
@@ -186,7 +186,7 @@ export default function ProductDetail() {
 
       <section className="reviews-section">
         <div className="reviews-header">
-          <span data-i18n="product.reviews.count">{{count}} reviews</span>
+          <span>{(window.PPS_I18N?.t("product.reviews.count") || "{{count}} reviews").replace("{{count}}", String(reviews.length))}</span>
           <span className="review-meta">
             {renderStars(average)} ({average.toFixed(1)} / 5)
           </span>
@@ -234,3 +234,4 @@ export default function ProductDetail() {
     </>
   );
 }
+

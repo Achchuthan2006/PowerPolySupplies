@@ -25,7 +25,7 @@ function readCachedProducts(){
       window._products = parsed;
       return parsed;
     }
-  }catch(err){
+  }catch (_err){
     // ignore
   }
   return null;
@@ -36,7 +36,7 @@ function cacheProducts(products){
   window._products = products;
   try{
     sessionStorage.setItem(PRODUCTS_CACHE_KEY, JSON.stringify(products));
-  }catch(err){
+  }catch (_err){
     // ignore
   }
 }
@@ -57,7 +57,7 @@ async function fetchBackendProducts(){
     if(data?.ok && Array.isArray(data.products)) {
       return wrapProducts(data.products);
     }
-  }catch(err){
+  }catch (_err){
     // ignore
   }
   return null;
@@ -69,7 +69,7 @@ async function fetchLocalProducts(){
     if(!res.ok) return null;
     const json = await res.json();
     return wrapProducts(json || []);
-  }catch(err){
+  }catch (_err){
     // ignore
   }
   return null;
@@ -123,13 +123,13 @@ function getCurrency(){
   try{
     const fromQuery = new URLSearchParams(window.location.search).get("currency");
     if(fromQuery) return fromQuery === "USD" ? "USD" : "CAD";
-  }catch(err){
+  }catch (_err){
     // ignore
   }
   try{
     const saved = localStorage.getItem("pps_currency");
     if(saved) return saved === "USD" ? "USD" : "CAD";
-  }catch(err){
+  }catch (_err){
     // ignore
   }
   const match = document.cookie.match(/(?:^|; )pps_currency=([^;]*)/);
@@ -142,7 +142,7 @@ function setCurrency(currency){
   const current = getCurrency();
   try{
     localStorage.setItem("pps_currency", next);
-  }catch(err){
+  }catch (_err){
     // ignore
   }
   const maxAge = 60 * 60 * 24 * 365;
@@ -151,7 +151,7 @@ function setCurrency(currency){
     const url = new URL(window.location.href);
     url.searchParams.set("currency", next);
     window.history.replaceState({}, "", url.toString());
-  }catch(err){
+  }catch (_err){
     // ignore
   }
   if(current !== next){
@@ -195,7 +195,7 @@ async function pingBackend(){
   try{
     const res = await fetch(`${API_BASE}/api/health`, { cache:"no-store" });
     return res.ok;
-  }catch(err){
+  }catch (_err){
     return false;
   }
 }
@@ -270,7 +270,7 @@ function readCartFromCookie(){
     return parsed
       .filter(entry => Array.isArray(entry) && entry[0])
       .map(([id, qty]) => ({ id: String(id), qty: Math.max(1, Number(qty) || 1) }));
-  }catch(err){
+  }catch (_err){
     return [];
   }
 }
@@ -297,7 +297,7 @@ function readCartFromQuery(){
     return parsed
       .filter(entry => Array.isArray(entry) && entry[0])
       .map(([id, qty]) => ({ id: String(id), qty: Math.max(1, Number(qty) || 1) }));
-  }catch(err){
+  }catch (_err){
     return [];
   }
 }
@@ -310,7 +310,7 @@ function getCart(){
       writeCookie(CART_COOKIE, serializeCartForCookie(normalized));
       return normalized;
     }
-  }catch(err){
+  }catch (_err){
     // ignore and fall back to cookie
   }
 
@@ -318,7 +318,7 @@ function getCart(){
   if(fromQuery.length){
     try{
       localStorage.setItem(CART_KEY, JSON.stringify(fromQuery));
-    }catch(err){
+    }catch (_err){
       // ignore
     }
     writeCookie(CART_COOKIE, JSON.stringify(fromQuery));
@@ -352,7 +352,7 @@ function getCart(){
 
   try{
     localStorage.setItem(CART_KEY, JSON.stringify(hydrated));
-  }catch(err){
+  }catch (_err){
     // ignore
   }
   return hydrated;
@@ -362,7 +362,7 @@ function setCart(cart){
   const safe = normalizeCartItems(cart);
   try{
     localStorage.setItem(CART_KEY, JSON.stringify(safe));
-  }catch(err){
+  }catch (_err){
     // ignore
   }
   writeCookie(CART_COOKIE, serializeCartForCookie(safe));
@@ -373,7 +373,7 @@ function getFavorites(){
   try{
     const raw = JSON.parse(localStorage.getItem(FAVORITES_KEY) || "[]");
     return Array.isArray(raw) ? raw.filter(Boolean) : [];
-  }catch(err){
+  }catch (_err){
     return [];
   }
 }
@@ -462,7 +462,7 @@ function getSession(){
       return null;
     }
     return data;
-  }catch(err){
+  }catch (_err){
     return null;
   }
 }
@@ -499,3 +499,4 @@ function addItemsToCart(items){
 }
 
 window.PPS = { API_BASE, money, convertCents, getTieredPriceCents, getCurrency, setCurrency, pingBackend, loadProducts, fetchReviews, submitReview, getCart, setCart, updateCartBadge, addToCart, addItemsToCart, getFavorites, isFavorite, toggleFavorite, getSession, setSession, clearSession, setApiBaseOverride };
+

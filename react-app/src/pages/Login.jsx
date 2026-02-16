@@ -46,7 +46,7 @@ export default function Login() {
         });
         navigate("/account");
       }
-    } catch (err) {
+    } catch (_err) {
       setStatus({
         text: window.PPS_I18N?.t("login.status.unreachable") || "Server unreachable. Is the backend running?",
         type: "error"
@@ -97,3 +97,4 @@ export default function Login() {
     </>
   );
 }
+

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Signup() {
@@ -43,7 +42,7 @@ export default function Signup() {
           : (window.PPS_I18N?.t("signup.status.sent") || "Verification code sent. Check your email."),
         type: "success"
       });
-    } catch (err) {
+    } catch (_err) {
       setStatus({
         text: window.PPS_I18N?.t("signup.status.failed_send") || "Failed to send code.",
         type: "error"
@@ -81,7 +80,7 @@ export default function Signup() {
         text: window.PPS_I18N?.t("signup.status.verified") || "Verification completed. Create your password.",
         type: "success"
       });
-    } catch (err) {
+    } catch (_err) {
       setStatus({
         text: window.PPS_I18N?.t("signup.status.invalid") || "Invalid code. You can resend it.",
         type: "error"
@@ -131,9 +130,9 @@ export default function Signup() {
         expiresAt: data.expiresAt,
       });
       navigate("/account");
-    } catch (err) {
+    } catch (_err) {
       setStatus({
-        text: err.message || (window.PPS_I18N?.t("signup.status.failed") || "Account creation failed."),
+        text: _err?.message || (window.PPS_I18N?.t("signup.status.failed") || "Account creation failed."),
         type: "error"
       });
     } finally {
@@ -173,3 +172,4 @@ export default function Signup() {
     </section>
   );
 }
+

@@ -78,7 +78,7 @@ export default function Checkout() {
   const formRef = useRef(null);
   const [cart, setCart] = useState([]);
   const [productMap, setProductMap] = useState(new Map());
-  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [_loadingProducts, setLoadingProducts] = useState(true);
   const [province, setProvince] = useState("");
   const [postal, setPostal] = useState("");
   const [status, setStatusState] = useState({ text: "", type: "muted" });
@@ -257,8 +257,8 @@ export default function Checkout() {
 
       window.PPS?.setCart?.([]);
       navigate("/thank-you");
-    } catch (err) {
-      if (err && err.name === "AbortError") {
+    } catch (_err) {
+      if (_err && _err.name === "AbortError") {
         updateStatus("Request timed out. Please try again.", "error");
       } else {
         updateStatus(
@@ -359,7 +359,7 @@ export default function Checkout() {
           "error"
         );
       }
-    } catch (err) {
+    } catch (_err) {
       updateStatus(
         window.PPS_I18N?.t("checkout.status.unreachable") || "Server unreachable. Please try again.",
         "error"
@@ -541,5 +541,6 @@ export default function Checkout() {
     </>
   );
 }
+
 
 

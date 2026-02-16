@@ -42,7 +42,7 @@ export default function HelpWidget() {
       }
       setStatus({ text: sent, type: "success" });
       form.reset();
-    } catch (err) {
+    } catch (_err) {
       setStatus({ text: error, type: "error" });
     } finally {
       setBusy(false);
@@ -95,3 +95,4 @@ export default function HelpWidget() {
     </div>
   );
 }
+

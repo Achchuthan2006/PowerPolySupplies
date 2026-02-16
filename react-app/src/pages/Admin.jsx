@@ -28,7 +28,7 @@ export default function Admin() {
         return;
       }
       setOrders(Array.isArray(data.orders) ? data.orders : []);
-    } catch (err) {
+    } catch (_err) {
       setStatus(window.PPS_I18N?.t("admin.orders.unreachable") || "Server unreachable. Please try again.");
       setOrders([]);
     } finally {
@@ -40,7 +40,7 @@ export default function Admin() {
     try {
       await fetch(`${window.PPS?.API_BASE}/api/admin/orders/${id}/fulfill`, { method: "POST" });
       load();
-    } catch (err) {
+    } catch (_err) {
       setStatus(window.PPS_I18N?.t("admin.orders.fulfill_failed") || "Failed to mark as fulfilled. Check the backend server.");
     }
   };
@@ -114,3 +114,4 @@ export default function Admin() {
     </>
   );
 }
+

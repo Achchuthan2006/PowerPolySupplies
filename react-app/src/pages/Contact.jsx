@@ -45,11 +45,11 @@ export default function Contact() {
         type: "success"
       });
       form.reset();
-    } catch (err) {
+    } catch (_err) {
       const unreachable = window.PPS_I18N?.t("contact.status.unreachable")
         || "Server unreachable. Please try again.";
       setStatus({
-        text: err && err.name === "AbortError"
+        text: _err && _err.name === "AbortError"
           ? unreachable
           : (window.PPS_I18N?.t("contact.status.failed") || "Failed to send. Check backend/email settings."),
         type: "error"
@@ -117,3 +117,4 @@ export default function Contact() {
     </>
   );
 }
+

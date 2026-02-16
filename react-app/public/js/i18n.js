@@ -207,7 +207,6 @@ const PPS_TRANSLATIONS = {
     "legal.shipping.li2": "Delivery timing is confirmed after we review your order and address.",
     "legal.shipping.li3": "For large or bulk orders, our team may contact you to confirm delivery details.",
     "legal.shipping.li4": "If you choose \"place order and pay later\" and cancel after delivery is attempted or completed, you are responsible for any delivery or service charges already incurred.",
-    "legal.shipping.li4": "If you choose \"place order and pay later\" and cancel after delivery is attempted or completed, you are responsible for any delivery or service charges already incurred.",
     "legal.returns.section": "Returns",
     "legal.returns.blurb": "We accept returns within 30 days of delivery for unused items in original packaging.",
     "legal.returns.li1": "Return shipping is paid by the customer.",
@@ -336,7 +335,7 @@ const PPS_TRANSLATIONS = {
     ,
     "member.price.label": "Power Poly Member Price",
     "market.price.label": "Market price",
-    "member.banner": "Log in to save {{amount}} with Power Poly Member Pricing"
+    "member.banner": "Log in to save {{amount}} with Power Poly Member Pricing",
     "products.no_results": "No results found",
     "products.no_results_body": "Try a different search, or browse the full catalog.",
     "products.no_results_all": "Browse all products",
@@ -761,8 +760,7 @@ const PPS_TRANSLATIONS = {
     ,
     "member.price.label": "Prix membre Power Poly",
     "market.price.label": "Prix du marche",
-    "member.banner": "Connectez-vous pour economiser {{amount}} avec les prix membre Power Poly"
-    
+    "member.banner": "Connectez-vous pour economiser {{amount}} avec les prix membre Power Poly",
     "account.favorites.title": "Favoris",
 
     "account.favorites.empty": "Aucun favori pour l'instant.",
@@ -2069,12 +2067,12 @@ const PPS_I18N = (() => {
         const decoded = new TextDecoder("utf-8", { fatal:false }).decode(bytes);
         if(decoded && decoded !== raw) return decoded;
       }
-    }catch(err){
+    }catch (_err){
       // ignore
     }
     try{
       return decodeURIComponent(escape(raw));
-    }catch(err){
+    }catch (_err){
       return raw;
     }
   }
@@ -2093,7 +2091,7 @@ const PPS_I18N = (() => {
     try{
       const fromQuery = new URLSearchParams(window.location.search).get("lang");
       return normalizeLang(fromQuery || localStorage.getItem("pps_lang") || readCookie("pps_lang") || "en");
-    }catch(err){
+    }catch (_err){
       const fromQuery = new URLSearchParams(window.location.search).get("lang");
       return normalizeLang(fromQuery || readCookie("pps_lang") || "en");
     }
@@ -2104,7 +2102,7 @@ const PPS_I18N = (() => {
     const current = getLang();
     try{
       localStorage.setItem("pps_lang", next);
-    }catch(err){
+    }catch (_err){
       // Non-fatal when storage is blocked (e.g. strict privacy settings).
     }
     writeCookie("pps_lang", next);
@@ -2112,7 +2110,7 @@ const PPS_I18N = (() => {
       const url = new URL(window.location.href);
       url.searchParams.set("lang", next);
       window.history.replaceState({}, "", url.toString());
-    }catch(err){
+    }catch (_err){
       // Ignore URL update failures (e.g. older browsers).
     }
     applyTranslations(next);
@@ -2330,8 +2328,8 @@ const PPS_I18N = (() => {
     const raw = text || "";
     const trimmed = raw.trim();
     if(!trimmed) return true;
-    if(/^[\s\-_|,.:;!?()\[\]{}\/\\]+$/.test(trimmed)) return true;
-    if(/^[0-9\s$.,%()+\-]+$/.test(trimmed)) return true;
+    if(/^[\s\-_|,.:;!?(){}\\]+$/.test(trimmed)) return true;
+    if(/^[0-9\s$.,%()+-]+$/.test(trimmed)) return true;
     if(trimmed === "Power Poly Supplies") return true;
     return false;
   }
@@ -2389,3 +2387,5 @@ window.PPS_I18N = PPS_I18N;
 window.addEventListener("DOMContentLoaded", () => {
   PPS_I18N.applyTranslations();
 });
+
+

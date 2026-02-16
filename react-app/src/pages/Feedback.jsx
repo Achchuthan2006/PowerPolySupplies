@@ -43,11 +43,11 @@ export default function Feedback() {
         type: "success"
       });
       form.reset();
-    } catch (err) {
+    } catch (_err) {
       const unreachable = window.PPS_I18N?.t("feedback.status.unreachable")
         || "Server unreachable. Please try again.";
       setStatus({
-        text: err && err.name === "AbortError"
+        text: _err && _err.name === "AbortError"
           ? unreachable
           : (window.PPS_I18N?.t("feedback.status.failed") || "Failed to send feedback."),
         type: "error"
@@ -116,3 +116,4 @@ export default function Feedback() {
     </>
   );
 }
+

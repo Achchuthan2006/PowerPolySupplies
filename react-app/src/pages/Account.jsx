@@ -51,7 +51,7 @@ export default function Account() {
         }
         setOrders(Array.isArray(data.orders) ? data.orders : []);
         setStatus("");
-      } catch (err) {
+      } catch (_err) {
         setStatus(window.PPS_I18N?.t("account.status.unreachable") || "Server unreachable. Start the backend to load your orders.");
       }
     };
@@ -66,7 +66,7 @@ export default function Account() {
         method: "POST",
         headers: { Authorization: `Bearer ${session?.token || ""}` },
       });
-    } catch (err) {
+    } catch (_err) {
       // ignore
     }
     window.PPS?.clearSession?.();
@@ -156,3 +156,4 @@ export default function Account() {
     </>
   );
 }
+

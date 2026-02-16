@@ -22,7 +22,7 @@ export default function AdminMessages() {
       }
       setStatus("");
       setMessages(list);
-    } catch (err) {
+    } catch (_err) {
       setStatus(window.PPS_I18N?.t("admin.messages.unreachable") || "Server unreachable. Is the backend running?");
       setMessages([]);
     }
@@ -77,3 +77,4 @@ export default function AdminMessages() {
     </>
   );
 }
+
