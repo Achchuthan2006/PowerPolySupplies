@@ -511,6 +511,9 @@
           <a class="btn btn-outline btn-sm" href="./resources.html#dry-cleaner-packaging-usage">Monthly usage planner</a>
         </div>
       </div>
+      <div id="mobileToolsSummary" class="tool-output" style="display:none; margin-top:12px;">
+        Mobile view keeps tools simple. Open Resources for calculators and detailed planning workflows.
+      </div>
 
       <div class="tool-grid">
         <article class="tool-card">
@@ -979,6 +982,32 @@
   <script>
     document.getElementById("y").textContent = new Date().getFullYear();
     PPS.updateCartBadge();
+    const isCompactMobileHome = window.matchMedia("(max-width: 900px)").matches;
+
+    function hideSectionByGridId(gridId){
+      const section = document.getElementById(gridId)?.closest("section");
+      if(section) section.style.display = "none";
+    }
+
+    function setupCompactMobileHomepage(){
+      if(!isCompactMobileHome) return;
+
+      // Keep only a focused set of product sections on mobile.
+      ["trendingNowGrid", "industryRecsGrid", "recentlyLaunchedGrid", "bestByCategory", "trendsGrid", "dealsGrid"]
+        .forEach(hideSectionByGridId);
+
+      // Collapse complex tool suite on mobile; keep a lightweight summary + CTA.
+      const toolsSection = document.getElementById("interactive-tools");
+      const toolsGrid = toolsSection?.querySelector(".tool-grid");
+      const toolsSummary = document.getElementById("mobileToolsSummary");
+      if(toolsGrid){
+        toolsGrid.style.display = "none";
+      }
+      if(toolsSummary){
+        toolsSummary.style.display = "block";
+      }
+    }
+    setupCompactMobileHomepage();
 
     function setupHomeTestimonials(){
       const track = document.getElementById("homeTestimonialGrid");
@@ -1313,10 +1342,12 @@
         renderMiniCardGrid("recommendedGrid", mergedPersonalized, "Browse products to unlock personalized recommendations.");
         renderDealGrid("dealsDayGrid", dealsDay, "Deals refresh daily. Check back soon.");
         renderCarouselGrid("featuredCarouselTrack", featured, "Featured products will appear here.");
-        deferWork(()=>{
-          renderMiniCardGrid("trendingNowGrid", trendingNow, "Check back soon for new trends.");
-          renderMiniCardGrid("recentlyLaunchedGrid", recentlyLaunched, "New launches are coming soon.");
-        });
+        if(!isCompactMobileHome){
+          deferWork(()=>{
+            renderMiniCardGrid("trendingNowGrid", trendingNow, "Check back soon for new trends.");
+            renderMiniCardGrid("recentlyLaunchedGrid", recentlyLaunched, "New launches are coming soon.");
+          });
+        }
 
         const industryMap = {
           dry: ["Garment Bags", "Hangers", "Wraps"],
@@ -1329,9 +1360,11 @@
           const picks = products.filter(p=> cats.includes(p.category)).slice(0, 4);
           renderMiniCardGrid("industryRecsGrid", picks, "No picks yet.");
         };
-        deferWork(()=> renderIndustry("dry"));
+        if(!isCompactMobileHome){
+          deferWork(()=> renderIndustry("dry"));
+        }
         const industryPills = document.getElementById("industryPills");
-        if(industryPills){
+        if(industryPills && !isCompactMobileHome){
           industryPills.addEventListener("click", (e)=>{
             const btn = e.target.closest(".industry-pill");
             if(!btn) return;
@@ -1342,7 +1375,7 @@
         }
 
         const bestByCategory = document.getElementById("bestByCategory");
-        if(bestByCategory){
+        if(bestByCategory && !isCompactMobileHome){
           const grouped = products.reduce((acc,p)=>{
             const key = String(p.category || "Other");
             acc[key] = acc[key] || [];
