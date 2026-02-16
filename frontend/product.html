@@ -1201,32 +1201,47 @@
         </div>
           </div>
         </details>
-        <div class="card fade-in" style="margin-top:18px; padding:18px;">
-          <div class="section-head">
-            <h3 style="margin:0;">Frequently bought together</h3>
-            <p class="muted">Bundle your order with compatible supplies.</p>
+        <details class="product-section-accordion related-extra" id="bundleAccordion">
+          <summary><span>Frequently bought together</span></summary>
+          <div class="product-section-panel">
+            <div class="card fade-in" style="margin-top:18px; padding:18px;">
+              <div class="section-head">
+                <h3 style="margin:0;">Frequently bought together</h3>
+                <p class="muted">Bundle your order with compatible supplies.</p>
+              </div>
+              <div id="bundleGrid" class="grid grid-3" style="margin-top:12px;"></div>
+              <div class="bundle-actions">
+                <button class="btn btn-primary" type="button" id="addBundleBtn">Add bundle to cart</button>
+                <span class="muted" id="bundleMsg"></span>
+              </div>
+            </div>
           </div>
-          <div id="bundleGrid" class="grid grid-3" style="margin-top:12px;"></div>
-          <div class="bundle-actions">
-            <button class="btn btn-primary" type="button" id="addBundleBtn">Add bundle to cart</button>
-            <span class="muted" id="bundleMsg"></span>
+        </details>
+        <details class="product-section-accordion related-extra" id="compareAccordion">
+          <summary><span>Compare similar products</span></summary>
+          <div class="product-section-panel">
+            <div class="card fade-in" style="margin-top:18px; padding:18px;">
+              <div class="section-head">
+                <h3 style="margin:0;">Compare similar products</h3>
+                <p class="muted">Select up to three items to compare.</p>
+              </div>
+              <div id="compareList" class="compare-list"></div>
+              <div id="compareTable" style="margin-top:14px;"></div>
+            </div>
           </div>
-        </div>
-        <div class="card fade-in" style="margin-top:18px; padding:18px;">
-          <div class="section-head">
-            <h3 style="margin:0;">Compare similar products</h3>
-            <p class="muted">Select up to three items to compare.</p>
+        </details>
+        <details class="product-section-accordion related-extra" id="alsoBoughtAccordion">
+          <summary><span>Customers also bought</span></summary>
+          <div class="product-section-panel">
+            <div class="card fade-in" style="margin-top:18px; padding:18px;">
+              <div class="section-head">
+                <h3 style="margin:0;">Customers also bought</h3>
+                <p class="muted">Other essentials frequently ordered together.</p>
+              </div>
+              <div id="alsoBoughtGrid" class="grid grid-4" style="margin-top:12px;"></div>
+            </div>
           </div>
-          <div id="compareList" class="compare-list"></div>
-          <div id="compareTable" style="margin-top:14px;"></div>
-        </div>
-        <div class="card fade-in" style="margin-top:18px; padding:18px;">
-          <div class="section-head">
-            <h3 style="margin:0;">Customers also bought</h3>
-            <p class="muted">Other essentials frequently ordered together.</p>
-          </div>
-          <div id="alsoBoughtGrid" class="grid grid-4" style="margin-top:12px;"></div>
-        </div>
+        </details>
         <div class="card fade-in" style="margin-top:18px; padding:18px;">
           <div class="related-header" style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
             <h3 style="margin:0;" data-i18n="product.related.title">You may also like</h3>
@@ -1255,6 +1270,13 @@
       `;
 
       const sectionAccordions = Array.from(document.querySelectorAll(".product-section-accordion"));
+      const extraRelatedAccordions = Array.from(document.querySelectorAll(".related-extra"));
+      const applyMobileRelatedSectionLimit = ()=>{
+        const mobile = window.matchMedia("(max-width: 860px)").matches;
+        extraRelatedAccordions.forEach((el)=>{
+          el.style.display = mobile ? "none" : "";
+        });
+      };
       const applySectionAccordionMode = ()=>{
         const mobile = window.matchMedia("(max-width: 860px)").matches;
         sectionAccordions.forEach((el)=>{
@@ -1262,7 +1284,9 @@
         });
       };
       applySectionAccordionMode();
+      applyMobileRelatedSectionLimit();
       window.addEventListener("resize", applySectionAccordionMode);
+      window.addEventListener("resize", applyMobileRelatedSectionLimit);
 
       // Product structured data (Schema.org)
       try{
@@ -1434,11 +1458,12 @@
       const stickyAdd = document.getElementById("stickyAdd");
       const stickyAddBtn = document.getElementById("stickyAddBtn");
       if(stickyAdd && stickyAddBtn){
+        const mobileSticky = window.matchMedia("(max-width: 860px)").matches;
         stickyAddBtn.addEventListener("click", ()=>{
           document.getElementById("add")?.click?.();
         });
         const primaryCta = document.getElementById("add");
-        if(primaryCta && "IntersectionObserver" in window){
+        if(primaryCta && "IntersectionObserver" in window && !mobileSticky){
           const io = new IntersectionObserver((entries)=>{
             entries.forEach((entry)=>{
               const visible = entry.isIntersecting;
@@ -1447,6 +1472,10 @@
             });
           }, { threshold: 0.2 });
           io.observe(primaryCta);
+        }
+        if(mobileSticky){
+          stickyAdd.classList.add("show");
+          stickyAdd.setAttribute("aria-hidden", "false");
         }
       }
 
