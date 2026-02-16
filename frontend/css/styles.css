@@ -9127,25 +9127,24 @@ select.input option:hover{
 }
 .hero-carousel-dots{
   display:flex;
-  gap:12px;
+  gap:6px;
   align-items:center;
   justify-content:center;
   flex:0 0 auto;
   pointer-events:auto;
 }
 .hero-carousel-dots button{
-  width:16px;
-  height:16px;
-  min-height:16px;
-  min-width:16px;
-  border-radius:999px;
-  border:2px solid rgba(17,24,39,.24);
+  width:10px;
+  height:10px;
+  min-height:10px;
+  min-width:10px;
+  border-radius:3px;
+  border:1px solid rgba(17,24,39,.2);
   background:#fff;
   cursor:pointer;
-  padding:4px;
-  box-sizing:content-box;
+  padding:0;
   box-shadow:none;
-  transition: transform .16s ease, background .16s ease, border-color .16s ease;
+  transition: background .16s ease, border-color .16s ease;
 }
 .hero-carousel-dots button.active{
   background:var(--primary);
