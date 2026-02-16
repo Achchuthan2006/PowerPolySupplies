@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="./css/styles.min.css?v=20260216"/>
   <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
 </head>
-<body class="has-mobile-cart-bar">
+<body class="has-mobile-cart-bar products-page">
   <header class="site-header">
     <div class="promo-strip">
       <div class="container promo-inner">
@@ -67,13 +67,14 @@
       </div>
     </section>
 
-    <section class="card fade-in search-discovery" style="padding:16px; margin-top:16px;">
+    <section class="card fade-in search-discovery" id="searchDiscoverySection" style="padding:16px; margin-top:16px;">
       <div class="search-discovery-head">
         <div>
           <h2 style="margin:0;">Advanced search & discovery</h2>
-          <div class="muted">Search by image, industry, and trending queries.</div>
+          <div class="muted" id="searchDiscoverySummary">Search by image, industry, and trending queries.</div>
         </div>
         <div class="search-discovery-actions">
+          <button class="btn btn-outline btn-sm" type="button" id="toggleSearchDiscovery" aria-expanded="false">Show discovery</button>
           <button class="btn btn-outline btn-sm" type="button" id="openAdvancedFilters">Advanced filters</button>
         </div>
       </div>
@@ -588,13 +589,31 @@
       const trendingSearches = document.getElementById("trendingSearches");
       const searchHistoryList = document.getElementById("searchHistoryList");
       const industrySearchPills = document.getElementById("industrySearchPills");
+      const searchDiscoverySection = document.getElementById("searchDiscoverySection");
+      const searchDiscoveryGrid = searchDiscoverySection?.querySelector(".search-discovery-grid");
+      const searchDiscoverySummary = document.getElementById("searchDiscoverySummary");
+      const toggleSearchDiscoveryBtn = document.getElementById("toggleSearchDiscovery");
+      const isMobileProducts = window.matchMedia("(max-width: 900px)").matches;
+
+      function setSearchDiscoveryOpen(open){
+        if(!searchDiscoverySection || !searchDiscoveryGrid || !toggleSearchDiscoveryBtn) return;
+        const isOpen = Boolean(open);
+        searchDiscoverySection.classList.toggle("is-collapsed", !isOpen);
+        toggleSearchDiscoveryBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        toggleSearchDiscoveryBtn.textContent = isOpen ? "Hide discovery" : "Show discovery";
+        if(searchDiscoverySummary){
+          searchDiscoverySummary.textContent = isOpen
+            ? "Search by image, industry, and trending queries."
+            : "Quick mode enabled for mobile. Tap to expand discovery tools.";
+        }
+      }
 
       function setFiltersOpen(open){
         if(!filtersPanel || !toggleFiltersBtn) return;
         const isOpen = Boolean(open);
         filtersPanel.classList.toggle("is-collapsed", !isOpen);
         toggleFiltersBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
-        toggleFiltersBtn.textContent = isOpen ? "Hide filters" : "Filters";
+        toggleFiltersBtn.textContent = isOpen ? "Close filters" : "Filters";
         document.body.classList.toggle("filters-open", isOpen);
         if(filtersOverlay){
           filtersOverlay.classList.toggle("open", isOpen);
@@ -1316,6 +1335,12 @@
             setFiltersOpen(true);
           });
         }
+        if(toggleSearchDiscoveryBtn){
+          toggleSearchDiscoveryBtn.addEventListener("click", ()=>{
+            const collapsed = searchDiscoverySection?.classList.contains("is-collapsed");
+            setSearchDiscoveryOpen(Boolean(collapsed));
+          });
+        }
         wireMultiSelect(filterCats);
         wireMultiSelect(filterThickness);
         wireMultiSelect(filterSize);
@@ -1518,6 +1543,7 @@
 
       syncControlsFromParams();
       wireControls();
+      setSearchDiscoveryOpen(!isMobileProducts);
       if(viewToggle && grid){
         const savedView = (()=>{ try{ return localStorage.getItem("pps_products_view") || "grid"; }catch(_err){ return "grid"; }})();
         grid.dataset.view = savedView;

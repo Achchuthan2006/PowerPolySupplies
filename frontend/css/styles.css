@@ -8227,23 +8227,28 @@ select.input option:hover{
   .filters-grid{ grid-template-columns: 1fr; }
   .filters{
     position:fixed;
-    top:0;
+    left:0;
     right:0;
-    height:100%;
-    width:92%;
-    max-width:380px;
+    bottom:0;
+    top:auto;
+    height:auto;
+    width:100%;
+    max-width:none;
+    max-height:82vh;
+    overflow-y:auto;
     margin:0;
-    border-radius:18px 0 0 18px;
-    transform: translateX(100%);
+    border-radius:18px 18px 0 0;
+    transform: translateY(110%);
     transition: transform .2s ease;
     z-index:1200;
     background:rgba(255,255,255,.98);
+    box-shadow:0 -20px 52px rgba(17,24,39,.26);
   }
   .filters.is-collapsed{
     display:block;
   }
   body.filters-open .filters{
-    transform: translateX(0);
+    transform: translateY(0);
   }
   .filters-overlay{
     position:fixed;
@@ -8255,6 +8260,21 @@ select.input option:hover{
   }
   .filters-overlay.open{
     display:block;
+  }
+  .products-page .search-discovery{
+    padding:12px !important;
+  }
+  .products-page .search-discovery-actions{
+    width:100%;
+  }
+  .products-page #toggleSearchDiscovery{
+    display:inline-flex;
+  }
+  .products-page .search-discovery-actions .btn{
+    flex:1 1 0;
+  }
+  .products-page #grid{
+    grid-template-columns: 1fr !important;
   }
 
   /* Mobile account page polish */
@@ -8486,6 +8506,9 @@ select.input option:hover{
   gap:8px;
   flex-wrap:wrap;
 }
+#toggleSearchDiscovery{
+  display:none;
+}
 .search-discovery-grid{
   display:grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -8529,6 +8552,9 @@ select.input option:hover{
   display:flex;
   flex-wrap:wrap;
   gap:8px;
+}
+.search-discovery.is-collapsed .search-discovery-grid{
+  display:none;
 }
 .trending-btn,
 .history-btn,
