@@ -8057,6 +8057,20 @@ select.input option:hover{
   }
   .hero h1{ font-size:28px; }
   .hero p{ font-size:16px; }
+  .hero-carousel-dots{
+    gap:14px;
+  }
+  .hero-carousel-dots button{
+    width:16px;
+    height:16px;
+    min-width:16px;
+    min-height:16px;
+    padding:5px;
+  }
+  .hero-swipe-hint{
+    bottom:50px;
+    font-size:12px;
+  }
   .hero-callouts{ gap:8px; }
   .callout-pill{ font-size:12px; padding:7px 10px; }
   .btn{ width:100%; }
@@ -8933,28 +8947,61 @@ select.input option:hover{
 }
 .hero-carousel-dots{
   display:flex;
-  gap:6px;
+  gap:12px;
   align-items:center;
   justify-content:center;
   flex:0 0 auto;
   pointer-events:auto;
 }
 .hero-carousel-dots button{
-  width:10px;
-  height:10px;
-  min-height:10px;
-  min-width:10px;
-  border-radius:3px;
-  border:1px solid rgba(17,24,39,.2);
+  width:16px;
+  height:16px;
+  min-height:16px;
+  min-width:16px;
+  border-radius:999px;
+  border:2px solid rgba(17,24,39,.24);
   background:#fff;
   cursor:pointer;
-  padding:0;
+  padding:4px;
+  box-sizing:content-box;
   box-shadow:none;
-  transition: background .16s ease, border-color .16s ease;
+  transition: transform .16s ease, background .16s ease, border-color .16s ease;
 }
 .hero-carousel-dots button.active{
   background:var(--primary);
   border-color:var(--primary);
+}
+.hero-carousel-dots button:active{
+  transform: scale(.94);
+}
+.hero-swipe-hint{
+  position:absolute;
+  left:50%;
+  bottom:42px;
+  transform:translateX(-50%);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:7px 10px;
+  border-radius:999px;
+  background:rgba(17,24,39,.72);
+  color:#fff;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.2px;
+  z-index:2;
+  white-space:nowrap;
+}
+.hero-swipe-hint.is-visible{
+  display:inline-flex;
+  animation: ppsSwipeHintPulse .9s ease-in-out 2;
+}
+.hero-swipe-hint.is-hidden{
+  display:none;
+}
+@keyframes ppsSwipeHintPulse{
+  0%,100%{ transform:translateX(-50%) scale(1); }
+  50%{ transform:translateX(-50%) scale(1.04); }
 }
 .hero-eyebrow{
   font-size:12px;

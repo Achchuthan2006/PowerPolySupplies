@@ -132,6 +132,7 @@
         <div class="hero-carousel-dots" id="heroCarouselDots"></div>
         <button class="carousel-btn" type="button" data-hero-next aria-label="Next slide">&rsaquo;</button>
       </div>
+      <div class="hero-swipe-hint" id="heroSwipeHint" aria-live="polite">Swipe for more offers</div>
     </section>
 
     <section class="trust-strip fade-in" aria-label="Trust badges">
@@ -1000,14 +1001,34 @@
     }
 
     function setupHeroCarousel(){
+      const carousel = document.getElementById("heroCarousel");
       const track = document.getElementById("heroCarouselTrack");
       const dotsWrap = document.getElementById("heroCarouselDots");
-      if(!track || !dotsWrap) return;
+      if(!carousel || !track || !dotsWrap) return;
       const slides = Array.from(track.querySelectorAll("[data-hero-slide]"));
       if(!slides.length) return;
       let index = 0;
+      const swipeHint = document.getElementById("heroSwipeHint");
+      const swipeHintKey = "pps_hero_swipe_hint_seen";
+      const isMobile = window.matchMedia("(max-width: 900px)").matches;
       dotsWrap.innerHTML = slides.map((_, idx)=>`<button type="button" aria-label="Go to slide ${idx + 1}" data-hero-dot="${idx}"></button>`).join("");
       const dots = Array.from(dotsWrap.querySelectorAll("button"));
+      const dismissSwipeHint = ()=>{
+        if(!swipeHint) return;
+        swipeHint.classList.remove("is-visible");
+        swipeHint.classList.add("is-hidden");
+        try{ sessionStorage.setItem(swipeHintKey, "1"); }catch(_){}
+      };
+      if(swipeHint && isMobile){
+        let seen = false;
+        try{ seen = sessionStorage.getItem(swipeHintKey) === "1"; }catch(_){}
+        if(!seen){
+          swipeHint.classList.add("is-visible");
+          setTimeout(()=> dismissSwipeHint(), 5200);
+        }else{
+          swipeHint.classList.add("is-hidden");
+        }
+      }
       const setActive = (next)=>{
         index = (next + slides.length) % slides.length;
         track.style.transform = `translateX(-${index * 100}%)`;
@@ -1016,14 +1037,45 @@
       setActive(0);
       const prevBtn = document.querySelector("[data-hero-prev]");
       const nextBtn = document.querySelector("[data-hero-next]");
-      if(prevBtn) prevBtn.addEventListener("click", ()=> setActive(index - 1));
-      if(nextBtn) nextBtn.addEventListener("click", ()=> setActive(index + 1));
+      const startAutoRotate = ()=> setInterval(()=> setActive(index + 1), 7000);
+      let autoRotateTimer = startAutoRotate();
+      const resetAutoRotate = ()=>{
+        clearInterval(autoRotateTimer);
+        autoRotateTimer = startAutoRotate();
+      };
+      const goToSlide = (next)=>{
+        setActive(next);
+        dismissSwipeHint();
+        resetAutoRotate();
+      };
+      if(prevBtn) prevBtn.addEventListener("click", ()=> goToSlide(index - 1));
+      if(nextBtn) nextBtn.addEventListener("click", ()=> goToSlide(index + 1));
       dotsWrap.addEventListener("click", (e)=>{
         const btn = e.target.closest("button[data-hero-dot]");
         if(!btn) return;
-        setActive(Number(btn.dataset.heroDot) || 0);
+        goToSlide(Number(btn.dataset.heroDot) || 0);
       });
-      setInterval(()=> setActive(index + 1), 7000);
+
+      let touchStartX = 0;
+      let touchStartY = 0;
+      track.addEventListener("touchstart", (e)=>{
+        const touch = e.changedTouches?.[0];
+        if(!touch) return;
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+      }, { passive:true });
+      track.addEventListener("touchend", (e)=>{
+        const touch = e.changedTouches?.[0];
+        if(!touch) return;
+        const deltaX = touch.clientX - touchStartX;
+        const deltaY = touch.clientY - touchStartY;
+        if(Math.abs(deltaX) < 40 || Math.abs(deltaX) <= Math.abs(deltaY)) return;
+        if(deltaX < 0){
+          goToSlide(index + 1);
+        }else{
+          goToSlide(index - 1);
+        }
+      }, { passive:true });
     }
 
     function setupDealsCountdown(){
