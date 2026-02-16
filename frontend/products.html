@@ -1420,13 +1420,21 @@
         if(filtersOverlay){
           filtersOverlay.addEventListener("click", ()=> setFiltersOpen(false));
         }
-        document.addEventListener("pointerdown", (e)=>{
+        const closeFiltersOnOutsideTap = (e)=>{
           if(!isMobileProducts) return;
           if(!document.body.classList.contains("filters-open")) return;
           const target = e.target;
           if(!(target instanceof Element)) return;
           if(target.closest("#filtersPanel") || target.closest("#toggleFilters") || target.closest("#openAdvancedFilters")) return;
           setFiltersOpen(false);
+        };
+        ["pointerdown", "touchstart", "click"].forEach((evt)=>{
+          document.addEventListener(evt, closeFiltersOnOutsideTap, true);
+        });
+        window.addEventListener("pageshow", ()=>{
+          if(isMobileProducts){
+            setFiltersOpen(false);
+          }
         });
         if(viewToggle && grid){
           viewToggle.addEventListener("click", (e)=>{
