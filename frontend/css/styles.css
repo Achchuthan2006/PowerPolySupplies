@@ -8117,6 +8117,62 @@ select.input option:hover{
     font-size:20px;
     font-weight:1000;
   }
+  .specials-card .card-body{
+    padding:12px;
+  }
+  .specials-card .specials-badges{
+    gap:6px;
+  }
+  .specials-card .specials-badge{
+    padding:7px 10px;
+    font-size:12px;
+  }
+  .specials-card .specials-badge-limited{
+    display:none;
+  }
+  .specials-card .specials-meta-row{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:6px;
+  }
+  .specials-card .member-pricing > div:first-child{
+    display:none;
+  }
+  .specials-card .member-pricing{
+    justify-content:space-between;
+    align-items:center;
+    margin-top:8px;
+  }
+  .specials-card .specials-countdown,
+  .specials-spotlight .specials-countdown{
+    font-size:16px;
+    line-height:1.3;
+    font-weight:1000;
+    color:#17212f;
+    background:#fff;
+    border:1px solid rgba(23,33,47,.22);
+    border-radius:10px;
+    padding:6px 10px;
+    box-shadow:0 4px 12px rgba(23,33,47,.10);
+  }
+  .specials-card .specials-countdown.soon,
+  .specials-spotlight .specials-countdown.soon{
+    color:#9a3f00;
+    background:#fff4e9;
+    border-color:rgba(154,63,0,.35);
+  }
+  .specials-card .specials-countdown.urgent,
+  .specials-spotlight .specials-countdown.urgent{
+    color:#7a1f12;
+    background:#ffe9e6;
+    border-color:rgba(122,31,18,.38);
+  }
+  .specials-card .specials-countdown.expired,
+  .specials-spotlight .specials-countdown.expired{
+    color:#4b5563;
+    background:#f3f4f6;
+    border-color:rgba(75,85,99,.26);
+  }
   .filters-grid{ grid-template-columns: 1fr; }
   .filters{
     position:fixed;
