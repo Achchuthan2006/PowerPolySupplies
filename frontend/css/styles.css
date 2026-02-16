@@ -2504,8 +2504,8 @@ html[lang="fr"] .navlinks a{
 
 .help-widget{
   position:fixed;
-  right:20px;
-  bottom:20px;
+  right:18px;
+  bottom:18px;
   z-index:999;
   display:flex;
   flex-direction:column;
@@ -2518,21 +2518,21 @@ html[lang="fr"] .navlinks a{
   display:inline-flex;
   align-items:center;
   gap:8px;
-  padding:10px 14px;
+  padding:9px 12px;
   border-radius:999px;
   border:0;
   background:var(--primary);
   color:white;
   font-weight:800;
-  box-shadow:0 12px 24px rgba(240,127,41,.3);
+  box-shadow:0 8px 18px rgba(17,24,39,.22);
   cursor:pointer;
   pointer-events:auto;
 }
 
 .help-fab-icon{
   display:inline-flex;
-  width:22px;
-  height:22px;
+  width:20px;
+  height:20px;
   align-items:center;
   justify-content:center;
   background:rgba(255,255,255,.18);
@@ -3215,8 +3215,8 @@ html[lang="fr"] .navlinks a{
     padding-bottom:96px;
   }
   .help-widget{
-    right:12px;
-    bottom:96px;
+    right:14px;
+    bottom:calc(86px + env(safe-area-inset-bottom, 0px));
   }
   .help-panel{
     width: min(360px, calc(100vw - 24px));
@@ -3224,7 +3224,9 @@ html[lang="fr"] .navlinks a{
     overflow:auto;
   }
   .help-fab{
-    padding:10px 12px;
+    padding:8px 11px;
+    gap:7px;
+    box-shadow:0 8px 16px rgba(17,24,39,.2);
   }
 }
 .card{
