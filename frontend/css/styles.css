@@ -8146,6 +8146,22 @@ select.input option:hover{
   .hero-callouts{ gap:8px; }
   .callout-pill{ font-size:12px; padding:7px 10px; }
   .btn{ width:100%; }
+  .help-chat-input{
+    align-items:stretch;
+  }
+  .help-chat-input .input{
+    flex:1 1 auto;
+    min-width:0;
+    width:auto;
+  }
+  .help-chat-input .btn{
+    width:auto;
+    flex:0 0 auto;
+    min-width:92px;
+    padding-left:14px;
+    padding-right:14px;
+    white-space:nowrap;
+  }
   .hero-actions{
     display:grid;
     grid-template-columns:1fr;
