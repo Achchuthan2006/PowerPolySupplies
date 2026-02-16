@@ -1,11 +1,11 @@
-<!doctype html>
+﻿<!doctype html>
 <html>
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Products | Power Poly Supplies</title>
   <meta name="description" content="Browse Power Poly Supplies products: garment cover bags, hangers, polybags, and more. Filter by category, stock, and price.">
-  <link rel="stylesheet" href="./css/styles.css?v=20260126"/>
+  <link rel="stylesheet" href="./css/styles.min.css?v=20260216"/>
   <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
 </head>
 <body class="has-mobile-cart-bar">
@@ -206,6 +206,7 @@
     <div class="search-related" id="relatedSearches"></div>
     <div class="category-refine" id="categoryRefine" style="margin:10px 0;"></div>
     <div class="grid grid-4" id="grid"></div>
+    <div id="productsInfiniteStatus" style="margin-top:12px; color:var(--muted); font-size:13px; text-align:center; display:none;"></div>
     <div class="card fade-in" style="margin-top:18px; padding:18px;">
       <div class="related-header" style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
         <h3 style="margin:0;">Recently viewed</h3>
@@ -233,12 +234,12 @@
     </div>
   </div>
  
-  <script src="./config.js"></script>
+  <script src="./config.min.js"></script>
 
-  <script src="./js/store.js"></script>
-  <script src="./js/notifications.js"></script>
-  <script src="./js/i18n.js"></script>
-  <script src="./js/ui.js"></script>
+  <script src="./js/store.min.js"></script>
+  <script src="./js/notifications.min.js"></script>
+  <script src="./js/i18n.min.js"></script>
+  <script src="./js/ui.min.js"></script>
   <script>
     document.getElementById("y").textContent = new Date().getFullYear();
     PPS.updateCartBadge();
@@ -553,6 +554,10 @@
       const orderById = new Map(products.map((p, idx)=> [p.id, idx]));
 
       let currentFiltered = [];
+      const infiniteStatus = document.getElementById("productsInfiniteStatus");
+      const pageSize = window.matchMedia("(max-width: 900px)").matches ? 12 : 24;
+      let visibleCount = 0;
+      let isAppending = false;
       const compareSet = new Set();
 
       const filterSearch = document.getElementById("filterSearch");
@@ -680,6 +685,110 @@
         if(filterSearch) filterSearch.value = (qs("q") || "");
         if(filterSort) filterSort.value = (qs("sort") || "relevance");
         syncMultiSelectFromParams();
+      }
+
+      function updateInfiniteStatus(){
+        if(!infiniteStatus) return;
+        if(!currentFiltered.length){
+          infiniteStatus.style.display = "none";
+          infiniteStatus.textContent = "";
+          return;
+        }
+        infiniteStatus.style.display = "block";
+        infiniteStatus.textContent = `Showing ${Math.min(visibleCount, currentFiltered.length)} of ${currentFiltered.length} products`;
+      }
+
+      function buildProductCardHtml(p){
+        const lang = window.PPS_I18N?.getLang?.() || "en";
+        const displayName = lang === "es"
+          ? (window.PPS_I18N?.autoTranslate?.(p.name || "", "es") || p.name)
+          : p.name;
+        const compareCents = PPS.getComparePriceCents?.(p) ?? ((Number(p.priceCents) || 0) + 1000);
+        const memberCents = Number(p.priceCents) || 0;
+        const savingsCents = Math.max(0, compareCents - memberCents);
+        const isMember = Boolean(PPS.getSession?.());
+        const bannerTemplate = window.PPS_I18N?.t("member.banner") || "Log in to save {{amount}} with Power Poly Member Pricing";
+        const bannerText = bannerTemplate.replace("{{amount}}", PPS.money(savingsCents, p.currency));
+        const discountLabel = discountPercent(compareCents, memberCents);
+        const viewCount = Math.max(3, Math.min(50, Math.round((Number(p.stock) || 20) / 2) + Math.floor(Math.random() * 4)));
+        return `
+          <div class="card fade-in product-card" data-product-id="${p.id}">
+            <div class="product-card-top">
+              ${promoBadges(p)}
+              <div class="product-card-actions">
+                ${wishlistButton(p.id)}
+              </div>
+              <label class="compare-check">
+                <input type="checkbox" data-compare-id="${p.id}">
+                <span>Compare</span>
+              </label>
+              ${discountLabel ? `<div class="discount-badge">${discountLabel}</div>` : ""}
+            </div>
+            <a href="./product.html?slug=${encodeURIComponent(p.slug)}">
+              <img src="${p.image}" alt="${displayName}" loading="lazy" decoding="async" width="400" height="190">
+            </a>
+            <div class="card-body">
+              <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(p.slug)}">${displayName}</a>
+              <div class="card-meta">${categoryLabel(p.category)}</div>
+              <div class="product-starting">Starting at <span>${PPS.money(memberCents,p.currency)}</span></div>
+              ${qualityBadgesHtml(p.category)}
+              ${bulkTierHtml(p)}
+              ${trustBadges()}
+              <div class="member-pricing">
+                <div>
+                  <div class="market-label" data-i18n="market.price.label">Market price</div>
+                  <span class="compare-price">${PPS.money(compareCents,p.currency)}</span>
+                </div>
+                <div>
+                  <div class="member-label" data-i18n="member.price.label">Power Poly Member Price</div>
+                  <span class="price">${PPS.money(memberCents,p.currency)}</span>
+                </div>
+                ${favoriteButton(p.id)}
+              </div>
+              ${!isMember && savingsCents > 0 ? `<a class="member-banner" href="./login.html">${bannerText}</a>` : ""}
+              <div class="stock ${stockClass(p.stock)}">
+                <span class="dot"></span>
+                ${stockLabel(p.stock)}
+              </div>
+              <div class="stock-badges">
+                ${stockBadge(p.stock)}
+              </div>
+              <div class="viewing-now"> ${viewCount} people viewing this now</div>
+              <div class="product-actions" style="margin-top:12px;">
+                <button class="btn btn-primary product-add-btn" ${p.stock<=0?'disabled':''} onclick='add(event,"${p.id}")'>${window.PPS_I18N?.t("products.action.add") || "Add"}</button>
+                <a class="btn btn-outline product-view-btn" href="./product.html?slug=${encodeURIComponent(p.slug)}">${window.PPS_I18N?.t("products.action.view") || "View"}</a>
+                <a class="btn btn-outline product-cart-btn" href="./cart.html" data-i18n="products.action.cart">${window.PPS_I18N?.t("products.action.cart") || "Go to cart"}</a>
+                <button class="btn btn-outline product-quick-btn" type="button" data-quick-id="${p.id}">Quick View</button>
+              </div>
+              <div class="bulk-quick">
+                <button class="btn btn-outline" ${p.stock<=0?'disabled':''} onclick='addBulk(event,"${p.id}",10)'>${window.PPS_I18N?.t("products.bulk.10") || "10+ boxes"}</button>
+                <button class="btn btn-outline" ${p.stock<=0?'disabled':''} onclick='addBulk(event,"${p.id}",15)'>${window.PPS_I18N?.t("products.bulk.15") || "15+ boxes"}</button>
+                <button class="btn btn-outline" ${p.stock<=0?'disabled':''} onclick='addBulk(event,"${p.id}",20)'>${window.PPS_I18N?.t("products.bulk.20") || "20+ boxes"}</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      function renderVisibleProducts(){
+        grid.innerHTML = currentFiltered
+          .slice(0, Math.min(visibleCount, currentFiltered.length))
+          .map(buildProductCardHtml)
+          .join("");
+        updateInfiniteStatus();
+      }
+
+      function appendMoreProducts(){
+        if(isAppending) return;
+        if(visibleCount >= currentFiltered.length) return;
+        isAppending = true;
+        visibleCount = Math.min(currentFiltered.length, visibleCount + pageSize);
+        renderVisibleProducts();
+        syncCompareCheckboxes();
+        updateCompareBar();
+        document.querySelectorAll(".fade-in").forEach(el => el.classList.add("show"));
+        window.PPS_I18N?.applyTranslations?.();
+        isAppending = false;
       }
 
       function applyFilters(){
@@ -857,7 +966,7 @@
           ? (window.PPS_I18N?.autoTranslate?.("Results for", "es") || "Resultados para")
           : "Results for";
         if(catList.length && query){
-          hint.textContent = `${showLabel.replace("{{cat}}", catLabel)} • ${resultsForLabel} "${query}"`;
+          hint.textContent = `${showLabel.replace("{{cat}}", catLabel)} â€¢ ${resultsForLabel} "${query}"`;
         }else if(query){
           hint.textContent = `${resultsForLabel} "${query}"`;
         }else{
@@ -900,78 +1009,10 @@
               syncControlsFromParams();
             });
           }
+          updateInfiniteStatus();
         }else{
-          grid.innerHTML = currentFiltered.map(p=>{
-            const lang = window.PPS_I18N?.getLang?.() || "en";
-            const displayName = lang === "es"
-              ? (window.PPS_I18N?.autoTranslate?.(p.name || "", "es") || p.name)
-              : p.name;
-            const compareCents = PPS.getComparePriceCents?.(p) ?? ((Number(p.priceCents) || 0) + 1000);
-            const memberCents = Number(p.priceCents) || 0;
-            const savingsCents = Math.max(0, compareCents - memberCents);
-            const isMember = Boolean(PPS.getSession?.());
-            const bannerTemplate = window.PPS_I18N?.t("member.banner") || "Log in to save {{amount}} with Power Poly Member Pricing";
-            const bannerText = bannerTemplate.replace("{{amount}}", PPS.money(savingsCents, p.currency));
-            const discountLabel = discountPercent(compareCents, memberCents);
-            const viewCount = Math.max(3, Math.min(50, Math.round((Number(p.stock) || 20) / 2) + Math.floor(Math.random() * 4)));
-            return `
-              <div class="card fade-in product-card" data-product-id="${p.id}">
-                <div class="product-card-top">
-                  ${promoBadges(p)}
-                  <div class="product-card-actions">
-                    ${wishlistButton(p.id)}
-                  </div>
-                  <label class="compare-check">
-                    <input type="checkbox" data-compare-id="${p.id}">
-                    <span>Compare</span>
-                  </label>
-                  ${discountLabel ? `<div class="discount-badge">${discountLabel}</div>` : ""}
-                </div>
-                <a href="./product.html?slug=${encodeURIComponent(p.slug)}">
-                  <img src="${p.image}" alt="${displayName}" loading="lazy" decoding="async" width="400" height="190">
-                </a>
-                <div class="card-body">
-                  <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(p.slug)}">${displayName}</a>
-                  <div class="card-meta">${categoryLabel(p.category)}</div>
-                  <div class="product-starting">Starting at <span>${PPS.money(memberCents,p.currency)}</span></div>
-                  ${qualityBadgesHtml(p.category)}
-                  ${bulkTierHtml(p)}
-                  ${trustBadges()}
-                  <div class="member-pricing">
-                    <div>
-                      <div class="market-label" data-i18n="market.price.label">Market price</div>
-                      <span class="compare-price">${PPS.money(compareCents,p.currency)}</span>
-                    </div>
-                    <div>
-                      <div class="member-label" data-i18n="member.price.label">Power Poly Member Price</div>
-                      <span class="price">${PPS.money(memberCents,p.currency)}</span>
-                    </div>
-                    ${favoriteButton(p.id)}
-                  </div>
-                  ${!isMember && savingsCents > 0 ? `<a class="member-banner" href="./login.html">${bannerText}</a>` : ""}
-                  <div class="stock ${stockClass(p.stock)}">
-                    <span class="dot"></span>
-                    ${stockLabel(p.stock)}
-                  </div>
-                  <div class="stock-badges">
-                    ${stockBadge(p.stock)}
-                  </div>
-                  <div class="viewing-now"> ${viewCount} people viewing this now</div>
-                  <div class="product-actions" style="margin-top:12px;">
-                    <button class="btn btn-primary product-add-btn" ${p.stock<=0?'disabled':''} onclick='add(event,"${p.id}")'>${window.PPS_I18N?.t("products.action.add") || "Add"}</button>
-                    <a class="btn btn-outline product-view-btn" href="./product.html?slug=${encodeURIComponent(p.slug)}">${window.PPS_I18N?.t("products.action.view") || "View"}</a>
-                    <a class="btn btn-outline product-cart-btn" href="./cart.html" data-i18n="products.action.cart">${window.PPS_I18N?.t("products.action.cart") || "Go to cart"}</a>
-                    <button class="btn btn-outline product-quick-btn" type="button" data-quick-id="${p.id}">Quick View</button>
-                  </div>
-                  <div class="bulk-quick">
-                    <button class="btn btn-outline" ${p.stock<=0?'disabled':''} onclick='addBulk(event,"${p.id}",10)'>${window.PPS_I18N?.t("products.bulk.10") || "10+ boxes"}</button>
-                    <button class="btn btn-outline" ${p.stock<=0?'disabled':''} onclick='addBulk(event,"${p.id}",15)'>${window.PPS_I18N?.t("products.bulk.15") || "15+ boxes"}</button>
-                    <button class="btn btn-outline" ${p.stock<=0?'disabled':''} onclick='addBulk(event,"${p.id}",20)'>${window.PPS_I18N?.t("products.bulk.20") || "20+ boxes"}</button>
-                  </div>
-                </div>
-              </div>
-            `;
-          }).join("");
+          visibleCount = Math.min(currentFiltered.length, pageSize);
+          renderVisibleProducts();
         }
 
         renderBreadcrumbs(catList, query);
@@ -983,6 +1024,13 @@
         updateCompareBar();
         document.querySelectorAll(".fade-in").forEach(el => el.classList.add("show"));
         window.PPS_I18N?.applyTranslations?.();
+        if(currentFiltered.length && visibleCount < currentFiltered.length){
+          setTimeout(()=>{
+            if((document.documentElement.scrollHeight - window.innerHeight) <= 120){
+              appendMoreProducts();
+            }
+          }, 0);
+        }
       }
 
       function renderBreadcrumbs(catList, query){
@@ -1004,7 +1052,7 @@
         if(!filterBreadcrumbs) return;
         const entries = [];
         const addChip = (label, key, value)=>{
-          entries.push(`<button class="filter-chip-btn" type="button" data-clear-key="${key}">${label} <span aria-hidden="true">×</span></button>`);
+          entries.push(`<button class="filter-chip-btn" type="button" data-clear-key="${key}">${label} <span aria-hidden="true">Ã—</span></button>`);
         };
         const q = (qs("q") || "").trim();
         const cat = (qs("cat") || "").trim();
@@ -1374,6 +1422,14 @@
             updateCompareBar();
           });
         }
+        window.addEventListener("scroll", ()=>{
+          if(!currentFiltered.length) return;
+          if(visibleCount >= currentFiltered.length) return;
+          const nearBottom = (window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - 640);
+          if(nearBottom){
+            appendMoreProducts();
+          }
+        }, { passive:true });
         if(compareClear){
           compareClear.addEventListener("click", ()=>{
             compareSet.clear();
@@ -1688,4 +1744,5 @@
   </script>
 </body>
 </html>
+
 

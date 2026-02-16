@@ -1,11 +1,11 @@
-<!doctype html>
+﻿<!doctype html>
 <html>
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title data-i18n="industries.page_title">Industries | Power Poly Supplies</title>
   <meta name="description" data-i18n-content="industries.meta_desc" content="Industry-specific guides for commercial laundry, healthcare, retail, and more. Stock smarter with packaging and hanger supply built for repeat orders."/>
-  <link rel="stylesheet" href="./css/styles.css?v=20260126"/>
+  <link rel="stylesheet" href="./css/styles.min.css?v=20260216"/>
   <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
 </head>
 <body>
@@ -99,30 +99,30 @@
     <section class="card fade-in" style="padding:18px; margin-top:16px;">
       <div class="industry-grid">
         <a class="card card-link industry-card" href="./industry-commercial-laundry.html">
-          <div class="industry-card-icon" aria-hidden="true">🏭</div>
+          <div class="industry-card-icon" aria-hidden="true">ðŸ­</div>
           <div class="industry-card-title" data-i18n="industries.card.laundry.title">Commercial laundry facilities</div>
           <div class="industry-card-desc" data-i18n="industries.card.laundry.desc">Standardize packaging and hanger workflows for high-volume processing and delivery routes.</div>
           <div class="industry-card-meta" data-i18n="industries.card.laundry.meta">Best for: laundries, uniform programs, route delivery</div>
         </a>
 
         <a class="card card-link industry-card" href="./industry-healthcare.html">
-          <div class="industry-card-icon" aria-hidden="true">🏥</div>
+          <div class="industry-card-icon" aria-hidden="true">ðŸ¥</div>
           <div class="industry-card-title" data-i18n="industries.card.health.title">Healthcare & clinics</div>
           <div class="industry-card-desc" data-i18n="industries.card.health.desc">Clean, consistent packaging for uniforms and garment handling across teams and locations.</div>
           <div class="industry-card-meta" data-i18n="industries.card.health.meta">Best for: clinics, hospitals, care facilities</div>
         </a>
 
         <a class="card card-link industry-card" href="./resources.html">
-          <div class="industry-card-icon" aria-hidden="true">🧠</div>
+          <div class="industry-card-icon" aria-hidden="true">ðŸ§ </div>
           <div class="industry-card-title" data-i18n="industries.card.resources.title">Buying guides</div>
           <div class="industry-card-desc" data-i18n="industries.card.resources.desc">Sizing rules, thickness guidance, and reorder planning to reduce returns and rework.</div>
           <div class="industry-card-meta" data-i18n="industries.card.resources.meta">Start with: sizes, thickness, monthly usage</div>
         </a>
 
         <a class="card card-link industry-card" href="./contact.html">
-          <div class="industry-card-icon" aria-hidden="true">🤝</div>
+          <div class="industry-card-icon" aria-hidden="true">ðŸ¤</div>
           <div class="industry-card-title" data-i18n="industries.card.help.title">Need a custom plan?</div>
-          <div class="industry-card-desc" data-i18n="industries.card.help.desc">Tell us your volume and workflow. We’ll recommend sizes + quantities.</div>
+          <div class="industry-card-desc" data-i18n="industries.card.help.desc">Tell us your volume and workflow. Weâ€™ll recommend sizes + quantities.</div>
           <div class="industry-card-meta" data-i18n="industries.card.help.meta">Fast replies during business hours</div>
         </a>
       </div>
@@ -132,7 +132,7 @@
       <div class="industry-help">
         <div>
           <h2 style="margin:0;" data-i18n="industries.help.title">Not sure what to stock?</h2>
-          <div class="industry-help-sub" data-i18n="industries.help.desc">Tell us your daily volume and whether you deliver. We’ll recommend sizes + quantities that fit your workflow.</div>
+          <div class="industry-help-sub" data-i18n="industries.help.desc">Tell us your daily volume and whether you deliver. Weâ€™ll recommend sizes + quantities that fit your workflow.</div>
         </div>
         <div class="industry-actions">
           <a class="btn btn-primary" href="./contact.html" data-i18n="industries.help.cta_contact">Contact sales</a>
@@ -144,15 +144,16 @@
     <div class="footer">&copy; <span id="y"></span> <span data-i18n="footer.short">Power Poly Supplies. Power your packaging.</span></div>
   </div>
 
-  <script src="./config.js"></script>
-  <script src="./js/store.js"></script>
-  <script src="./js/notifications.js"></script>
-  <script src="./js/i18n.js"></script>
-  <script src="./js/ui.js"></script>
+  <script src="./config.min.js"></script>
+  <script src="./js/store.min.js"></script>
+  <script src="./js/notifications.min.js"></script>
+  <script src="./js/i18n.min.js"></script>
+  <script src="./js/ui.min.js"></script>
   <script>
     document.getElementById("y").textContent = new Date().getFullYear();
     PPS.updateCartBadge();
   </script>
 </body>
 </html>
+
 

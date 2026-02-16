@@ -1,11 +1,11 @@
-<!doctype html>
+﻿<!doctype html>
 <html>
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Page Not Found | Power Poly Supplies</title>
   <meta name="description" content="Page not found. Browse products or contact Power Poly Supplies for help.">
-  <link rel="stylesheet" href="./css/styles.css?v=20260126"/>
+  <link rel="stylesheet" href="./css/styles.min.css?v=20260216"/>
   <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
 </head>
 <body>
@@ -44,7 +44,7 @@
     <section class="hero fade-in">
       <p style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);">404</p>
       <h1>Page not found</h1>
-      <p style="max-width:720px;">The page you’re looking for doesn’t exist (or moved). Use the links below to get back on track.</p>
+      <p style="max-width:720px;">The page youâ€™re looking for doesnâ€™t exist (or moved). Use the links below to get back on track.</p>
       <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
         <a class="btn btn-primary" href="./products.html">Browse products</a>
         <a class="btn btn-outline" href="./contact.html">Contact support</a>
@@ -55,16 +55,17 @@
     <div class="footer">&copy; <span id="y"></span> <span data-i18n="footer.short">Power Poly Supplies. Power your packaging.</span></div>
   </div>
 
-  <script src="./config.js"></script>
-  <script src="./js/store.js"></script>
-  <script src="./js/notifications.js"></script>
-  <script src="./js/i18n.js"></script>
-  <script src="./js/ui.js"></script>
+  <script src="./config.min.js"></script>
+  <script src="./js/store.min.js"></script>
+  <script src="./js/notifications.min.js"></script>
+  <script src="./js/i18n.min.js"></script>
+  <script src="./js/ui.min.js"></script>
   <script>
     document.getElementById("y").textContent = new Date().getFullYear();
     PPS.updateCartBadge();
   </script>
 </body>
 </html>
+
 
 

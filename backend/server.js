@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import compression from "compression";
 import dotenv from "dotenv";
 import nodemailer from "nodemailer";
 import fs from "fs";
@@ -92,13 +93,31 @@ app.use(express.json({
   }
 }));
 
+app.use(compression({
+  threshold: 1024,
+  filter(req, res){
+    if(req.headers["x-no-compression"]) return false;
+    return compression.filter(req, res);
+  }
+}));
+
 // Serve the static frontend when deployed together (optional).
 const FRONTEND_DIR = path.join(__dirname, "../frontend");
 const FRONTEND_INDEX = path.join(FRONTEND_DIR, "index.html");
 const HAS_FRONTEND = fs.existsSync(FRONTEND_INDEX);
 if(HAS_FRONTEND){
   // Disable automatic index so we can customize "/" behavior.
-  app.use(express.static(FRONTEND_DIR, { index: false, extensions: ["html"] }));
+  app.use(express.static(FRONTEND_DIR, {
+    index: false,
+    extensions: ["html"],
+    setHeaders(res, filePath){
+      if(/\.(css|js|mjs|png|jpe?g|webp|svg|ico|woff2?)$/i.test(filePath)){
+        res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+      }else if(/\.html$/i.test(filePath)){
+        res.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
+      }
+    }
+  }));
 }
 
 const supabaseUrl = process.env.SUPABASE_URL;

@@ -1,11 +1,11 @@
-<!doctype html>
+﻿<!doctype html>
 <html>
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title data-i18n="industry.laundry.page_title">Commercial Laundry Facilities | Power Poly Supplies</title>
   <meta name="description" data-i18n-content="industry.laundry.meta_desc" content="Professional packaging and hanger workflows for commercial laundry facilities. Reduce rewraps, standardize sizes, and speed up reorders."/>
-  <link rel="stylesheet" href="./css/styles.css?v=20260126"/>
+  <link rel="stylesheet" href="./css/styles.min.css?v=20260216"/>
   <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
 </head>
 <body>
@@ -120,7 +120,7 @@
     <section class="card fade-in industry-section" style="padding:18px; margin-top:16px;">
       <div class="industry-section-head">
         <h2 style="margin:0;" data-i18n="industry.laundry.calc.title">Interactive: monthly usage estimator</h2>
-        <div class="industry-section-sub" data-i18n="industry.laundry.calc.subtitle">A simple estimate to guide purchasing—then refine based on your route mix.</div>
+        <div class="industry-section-sub" data-i18n="industry.laundry.calc.subtitle">A simple estimate to guide purchasingâ€”then refine based on your route mix.</div>
       </div>
       <form class="industry-calc" data-pps-industry-calc>
         <label>
@@ -155,7 +155,7 @@
     <section class="card fade-in industry-section" style="padding:18px; margin-top:16px;">
       <div class="industry-section-head">
         <h2 style="margin:0;" data-i18n="industry.laundry.checklist.title">Interactive: facility checklist</h2>
-        <div class="industry-section-sub" data-i18n="industry.laundry.checklist.subtitle">Select what you do—we’ll suggest a simple starter bundle.</div>
+        <div class="industry-section-sub" data-i18n="industry.laundry.checklist.subtitle">Select what you doâ€”weâ€™ll suggest a simple starter bundle.</div>
       </div>
       <div class="industry-checklist" data-pps-industry-checklist>
         <label class="industry-check">
@@ -177,7 +177,7 @@
       </div>
       <div class="industry-reco-box" role="status" aria-live="polite" data-pps-industry-reco>
         <div class="industry-reco-title" data-i18n="industry.reco.title">Suggested starter bundle</div>
-        <div class="industry-reco-text" data-pps-industry-reco-text>—</div>
+        <div class="industry-reco-text" data-pps-industry-reco-text>â€”</div>
         <div class="industry-actions" style="margin-top:10px;">
           <button class="btn btn-outline btn-sm" type="button" data-pps-copy-reco data-i18n="industry.reco.copy">Copy summary</button>
           <a class="btn btn-primary btn-sm" href="./contact.html" data-i18n="industry.reco.cta">Get a quote</a>
@@ -191,10 +191,10 @@
         <div class="industry-section-sub" data-i18n="industry.trust.subtitle">Simple things that make customers feel confident in every delivery.</div>
       </div>
       <div class="industry-trust">
-        <div class="industry-trust-pill"><span class="trust-icon" aria-hidden="true">✅</span><span data-i18n="industry.trust.p1">Clear specs and repeatable reorders</span></div>
-        <div class="industry-trust-pill"><span class="trust-icon" aria-hidden="true">📦</span><span data-i18n="industry.trust.p2">Bulk-ready inventory for steady supply</span></div>
-        <div class="industry-trust-pill"><span class="trust-icon" aria-hidden="true">🔒</span><span data-i18n="industry.trust.p3">Secure checkout via Square</span></div>
-        <div class="industry-trust-pill"><span class="trust-icon" aria-hidden="true">☎️</span><span data-i18n="industry.trust.p4">Fast replies during business hours</span></div>
+        <div class="industry-trust-pill"><span class="trust-icon" aria-hidden="true">âœ…</span><span data-i18n="industry.trust.p1">Clear specs and repeatable reorders</span></div>
+        <div class="industry-trust-pill"><span class="trust-icon" aria-hidden="true">ðŸ“¦</span><span data-i18n="industry.trust.p2">Bulk-ready inventory for steady supply</span></div>
+        <div class="industry-trust-pill"><span class="trust-icon" aria-hidden="true">ðŸ”’</span><span data-i18n="industry.trust.p3">Secure checkout via Square</span></div>
+        <div class="industry-trust-pill"><span class="trust-icon" aria-hidden="true">â˜Žï¸</span><span data-i18n="industry.trust.p4">Fast replies during business hours</span></div>
       </div>
     </section>
 
@@ -202,7 +202,7 @@
       <div class="industry-help">
         <div>
           <h2 style="margin:0;" data-i18n="industry.bottom.title">Want a packaged plan for your routes?</h2>
-          <div class="industry-help-sub" data-i18n="industry.bottom.desc">Share your volume and garment mix. We’ll recommend sizes, thickness, and starter quantities.</div>
+          <div class="industry-help-sub" data-i18n="industry.bottom.desc">Share your volume and garment mix. Weâ€™ll recommend sizes, thickness, and starter quantities.</div>
         </div>
         <div class="industry-actions">
           <a class="btn btn-primary" href="./contact.html" data-i18n="industry.bottom.cta_contact">Contact sales</a>
@@ -214,16 +214,17 @@
     <div class="footer">&copy; <span id="y"></span> <span data-i18n="footer.short">Power Poly Supplies. Power your packaging.</span></div>
   </div>
 
-  <script src="./config.js"></script>
-  <script src="./js/store.js"></script>
-  <script src="./js/notifications.js"></script>
-  <script src="./js/i18n.js"></script>
-  <script src="./js/ui.js"></script>
-  <script src="./js/industries.js"></script>
+  <script src="./config.min.js"></script>
+  <script src="./js/store.min.js"></script>
+  <script src="./js/notifications.min.js"></script>
+  <script src="./js/i18n.min.js"></script>
+  <script src="./js/ui.min.js"></script>
+  <script src="./js/industries.min.js"></script>
   <script>
     document.getElementById("y").textContent = new Date().getFullYear();
     PPS.updateCartBadge();
   </script>
 </body>
 </html>
+
 

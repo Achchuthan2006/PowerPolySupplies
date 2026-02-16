@@ -1,11 +1,11 @@
-<!doctype html>
+﻿<!doctype html>
 <html>
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Product | Power Poly Supplies</title>
   <meta name="description" content="Product details, bulk pricing tiers, and availability for Power Poly Supplies.">
-  <link rel="stylesheet" href="./css/styles.css?v=20260126"/>
+  <link rel="stylesheet" href="./css/styles.min.css?v=20260216"/>
   <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
 </head>
 <body class="product-page">
@@ -56,12 +56,12 @@
 
   <div class="container page" id="wrap"></div>
 
-  <script src="./config.js"></script>
+  <script src="./config.min.js"></script>
 
-  <script src="./js/store.js"></script>
-  <script src="./js/notifications.js"></script>
-  <script src="./js/i18n.js"></script>
-  <script src="./js/ui.js"></script>
+  <script src="./js/store.min.js"></script>
+  <script src="./js/notifications.min.js"></script>
+  <script src="./js/i18n.min.js"></script>
+  <script src="./js/ui.min.js"></script>
   <script>
     PPS.updateCartBadge();
 
@@ -846,7 +846,7 @@
           <div class="print-sheet-header">
             <div>
               <h1 style="margin:0;">${displayName}</h1>
-              <div class="print-sheet-meta">${displayCategory} · ${PPS.money(memberCents, p.currency)}</div>
+              <div class="print-sheet-meta">${displayCategory} Â· ${PPS.money(memberCents, p.currency)}</div>
             </div>
             <div class="print-sheet-logo">Power Poly Supplies</div>
           </div>
@@ -895,7 +895,7 @@
               </div>
             ${!isMember && savingsCents > 0 ? `<a class="member-banner" href="./login.html">${bannerText}</a>` : ""}
             ${(()=>{ const s = stockClass(p.stock); return `<div class="stock ${s.cls}"><span class="dot"></span>${s.label}</div>`; })()}
-            ${p.stock > 0 && p.stock <= 15 ? `<div class="stock-urgency">Only <strong>${p.stock}</strong> boxes left — order soon.</div>` : ""}
+            ${p.stock > 0 && p.stock <= 15 ? `<div class="stock-urgency">Only <strong>${p.stock}</strong> boxes left â€” order soon.</div>` : ""}
             ${qualityBadgesHtml(p.category)}
             <div class="trust-inline" style="margin-top:10px;">
               <span class="trust-badge">SSL secured</span>
@@ -917,7 +917,7 @@
                 <div class="specs">
                   <div class="specs-title">Quick specs</div>
                   <ul class="specs-list">
-                    ${specs.map(s=>`<li><span class="check">✓</span><span><strong>${s.label}:</strong> ${s.value}</span></li>`).join("")}
+                    ${specs.map(s=>`<li><span class="check">âœ“</span><span><strong>${s.label}:</strong> ${s.value}</span></li>`).join("")}
                   </ul>
                 </div>
               `;
@@ -1127,7 +1127,7 @@
               <div class="spec-accordion-body">Match garment width + 4-6 inches and length + 4-8 inches. Use gusseted bags for bulky items.</div>
             </details>
             <details>
-              <summary>Heavy vs Extra Heavy â€” which is right?</summary>
+              <summary>Heavy vs Extra Heavy Ã¢â‚¬â€ which is right?</summary>
               <div class="spec-accordion-body">Heavy is for daily in-store use. Extra Heavy is best for delivery routes or sharp edges.</div>
             </details>
             <details>
@@ -1409,7 +1409,7 @@
         const total = unit * qty;
         qtyTotal.textContent = `Total: ${PPS.money(total, p.currency)}`;
         const tierMsg = qty >= 20 ? "20+ pricing applied" : qty >= 15 ? "15+ pricing applied" : qty >= 10 ? "10+ pricing applied" : "Standard pricing";
-        qtyNote.textContent = `${PPS.money(unit, p.currency)} / box · ${tierMsg}`;
+        qtyNote.textContent = `${PPS.money(unit, p.currency)} / box Â· ${tierMsg}`;
       }
       function setQty(val){
         if(!qtyInput) return;
@@ -1455,7 +1455,7 @@
       if(deliveryEl){
         const start = addBusinessDays(new Date(), 2);
         const end = addBusinessDays(new Date(), 5);
-        deliveryEl.textContent = `Estimated delivery: ${formatShortDate(start)} – ${formatShortDate(end)} (business days)`;
+        deliveryEl.textContent = `Estimated delivery: ${formatShortDate(start)} â€“ ${formatShortDate(end)} (business days)`;
       }
       const viewingNow = document.getElementById("viewingNow");
       if(viewingNow){
@@ -1550,7 +1550,7 @@
             shippingOutput.textContent = "Enter a postal code to see delivery estimate.";
             return;
           }
-          shippingOutput.textContent = `${data.region}: ${data.days} business days · Est. $${data.cost} shipping.`;
+          shippingOutput.textContent = `${data.region}: ${data.days} business days Â· Est. $${data.cost} shipping.`;
         });
       }
 
@@ -1585,7 +1585,7 @@
           const total = unit * qty;
           const baseTotal = basePrice * qty;
           const savings = Math.max(0, baseTotal - total);
-          bulkOutput.textContent = `Total: ${PPS.money(Math.round(total * 100), p.currency)} · Savings: ${PPS.money(Math.round(savings * 100), p.currency)}.`;
+          bulkOutput.textContent = `Total: ${PPS.money(Math.round(total * 100), p.currency)} Â· Savings: ${PPS.money(Math.round(savings * 100), p.currency)}.`;
         };
         ["input","change","submit"].forEach((evt)=> bulkForm.addEventListener(evt, (e)=>{
           if(evt === "submit") e.preventDefault();
@@ -2085,4 +2085,5 @@
 </script>
 </body>
 </html>
+
 
