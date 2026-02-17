@@ -1,0 +1,48 @@
+name: Lint and Basic Checks
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+
+jobs:
+  lint-basic:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check for merge conflict markers
+        run: |
+          if grep -R --line-number --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.git_old --exclude-dir=.git-work --exclude-dir=.git_blocked -E '^(<<<<<<<|=======|>>>>>>>)' .; then
+            echo "Merge conflict markers found."
+            exit 1
+          fi
+          echo "No merge conflict markers found."
+
+      - name: JavaScript syntax check
+        run: |
+          set -e
+          while IFS= read -r -d '' file; do
+            echo "Checking $file"
+            node --check "$file"
+          done < <(find frontend backend -type f -name "*.js" ! -name "*.min.js" -print0)
+
+      - name: JSON parse check
+        run: |
+          set -e
+          while IFS= read -r -d '' file; do
+            echo "Validating JSON $file"
+            node -e "JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8'))" "$file"
+          done < <(find . -type f -name "*.json" ! -path "./node_modules/*" ! -path "./.git/*" ! -path "./.git_old/*" ! -path "./.git-work/*" ! -path "./.git_blocked/*" -print0)
