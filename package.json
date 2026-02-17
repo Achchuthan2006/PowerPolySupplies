@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "validate:products": "python scripts/validate_products.py"
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.89.0"
   }
