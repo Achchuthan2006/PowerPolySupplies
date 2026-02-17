@@ -8939,6 +8939,15 @@ select.input option:hover{
   font-size:13px;
   font-weight:700;
 }
+@media (max-width: 900px){
+  .cred-grid{
+    grid-template-columns: minmax(0, 1fr);
+    gap:12px;
+  }
+  .cred-card{
+    padding:16px;
+  }
+}
 
 .tool-hub-head{
   display:flex;
