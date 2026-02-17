@@ -1016,6 +1016,7 @@
                   <a class="social-btn" id="shareLinkedIn" target="_blank" rel="noopener">LinkedIn</a>
                   <a class="social-btn" id="shareFacebook" target="_blank" rel="noopener">Facebook</a>
                   <a class="social-btn" id="shareX" target="_blank" rel="noopener">X</a>
+                  <a class="social-btn" id="shareInstagram" target="_blank" rel="noopener">Instagram</a>
                 </div>
                 <form id="emailProductForm" class="utility-form">
                   <label>
@@ -1679,6 +1680,7 @@
       const shareLinkedIn = document.getElementById("shareLinkedIn");
       const shareFacebook = document.getElementById("shareFacebook");
       const shareX = document.getElementById("shareX");
+      const shareInstagram = document.getElementById("shareInstagram");
       if(shareLinkedIn){
         shareLinkedIn.href = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareData.url)}`;
       }
@@ -1688,6 +1690,15 @@
       if(shareX){
         const text = encodeURIComponent(`${displayName} - Power Poly Supplies`);
         shareX.href = `https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(shareData.url)}`;
+      }
+      if(shareInstagram){
+        shareInstagram.href = "https://www.instagram.com/";
+        shareInstagram.addEventListener("click", ()=>{
+          if(!navigator.clipboard?.writeText) return;
+          navigator.clipboard.writeText(shareData.url).then(()=>{
+            setShareMsg("Link copied. Paste it into Instagram.");
+          }).catch(()=>{});
+        });
       }
 
       function setShareMsg(text){
