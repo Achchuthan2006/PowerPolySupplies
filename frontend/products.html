@@ -618,6 +618,21 @@
         if(filtersOverlay){
           filtersOverlay.classList.toggle("open", isOpen);
         }
+        if(isMobileProducts){
+          if(isOpen){
+            filtersPanel.style.transform = "translateY(0)";
+            filtersPanel.style.opacity = "1";
+            filtersPanel.style.visibility = "visible";
+            filtersPanel.style.pointerEvents = "auto";
+            filtersPanel.setAttribute("aria-hidden", "false");
+          }else{
+            filtersPanel.style.transform = "translateY(110%)";
+            filtersPanel.style.opacity = "0";
+            filtersPanel.style.visibility = "hidden";
+            filtersPanel.style.pointerEvents = "none";
+            filtersPanel.setAttribute("aria-hidden", "true");
+          }
+        }
       }
 
       function shouldAutoOpenFilters(){
@@ -1430,6 +1445,19 @@
         };
         ["pointerdown", "touchstart", "click"].forEach((evt)=>{
           document.addEventListener(evt, closeFiltersOnOutsideTap, true);
+        });
+        const closeFiltersEverywhere = ()=>{
+          if(isMobileProducts){
+            setFiltersOpen(false);
+          }
+        };
+        window.addEventListener("scroll", closeFiltersEverywhere, { passive: true });
+        window.addEventListener("resize", closeFiltersEverywhere, { passive: true });
+        window.addEventListener("orientationchange", closeFiltersEverywhere);
+        document.addEventListener("visibilitychange", ()=>{
+          if(document.hidden){
+            closeFiltersEverywhere();
+          }
         });
         window.addEventListener("pageshow", ()=>{
           if(isMobileProducts){
