@@ -817,7 +817,7 @@
       const galleryThumbs = galleryImages.length > 1
         ? `<div class="product-gallery-thumbs" id="galleryThumbs">
             ${galleryImages.map((src, idx)=>`
-              <button type="button" class="thumb ${idx===0 ? "active" : ""}" data-src="${String(src).replace(/"/g,"&quot;")}" aria-label="View image ${idx+1}">
+              <button type="button" class="thumb ${idx===0 ? "active" : ""}" data-index="${idx}" aria-label="View image ${idx+1}">
                 <img src="${src}" alt="" loading="lazy" decoding="async" width="120" height="86">
               </button>
             `).join("")}
@@ -1389,15 +1389,18 @@
         }
       }
       if(mainImg && thumbs){
-        thumbs.addEventListener("click", (e)=>{
-          const btn = e.target.closest("button.thumb");
+        const handleThumbSelect = (e)=>{
+          const target = e.target instanceof Element ? e.target : null;
+          const btn = target?.closest?.("button.thumb");
           if(!btn) return;
-          const src = btn.getAttribute("data-src");
-          if(!src) return;
-          const idx = galleryList.findIndex(x=> String(x) === String(src));
+          const rawIdx = Number(btn.getAttribute("data-index"));
+          const idx = Number.isFinite(rawIdx) ? rawIdx : 0;
           setGalleryIndex(idx >= 0 ? idx : 0);
           window.PPS_ANALYTICS?.record?.("product_gallery_click", { id: p.id, index: galleryIndex });
-        });
+        };
+        thumbs.addEventListener("click", handleThumbSelect);
+        thumbs.addEventListener("pointerup", handleThumbSelect);
+        thumbs.addEventListener("touchend", handleThumbSelect, { passive:true });
       }
       if(mainImg && galleryList.length > 1){
         let touchStartX = 0;
