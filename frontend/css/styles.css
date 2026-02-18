@@ -10248,3 +10248,46 @@ select.input option:hover{
 .contact-page #contactForm textarea.input{
   min-height:136px;
 }
+
+/* Hero mobile controls: swipe + larger tap targets on dots */
+@media (max-width: 900px){
+  .hero-carousel-controls [data-hero-prev],
+  .hero-carousel-controls [data-hero-next]{
+    display:none !important;
+  }
+  .hero-carousel-controls{
+    justify-content:center;
+    gap:0;
+    pointer-events:auto;
+  }
+  .hero-carousel-dots{
+    gap:4px;
+  }
+  .hero-carousel-dots button{
+    width:44px !important;
+    height:44px !important;
+    min-width:44px !important;
+    min-height:44px !important;
+    padding:0 !important;
+    border:0 !important;
+    background:transparent !important;
+    border-radius:999px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .hero-carousel-dots button::before{
+    content:"";
+    width:10px;
+    height:10px;
+    border-radius:999px;
+    border:1px solid rgba(17,24,39,.26);
+    background:#fff;
+    transition: background .16s ease, border-color .16s ease, transform .16s ease;
+  }
+  .hero-carousel-dots button.active::before{
+    background:var(--primary);
+    border-color:var(--primary);
+    transform:scale(1.04);
+  }
+}
