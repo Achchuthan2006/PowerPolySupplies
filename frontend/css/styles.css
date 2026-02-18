@@ -10324,7 +10324,7 @@ select.input option:hover{
   }
 }
 
-/* Hero mobile controls: swipe + larger tap targets on dots */
+/* Hero mobile controls: swipe + larger tap targets on square indicators */
 @media (max-width: 900px), (hover:none) and (pointer:coarse){
   .hero-carousel-controls [data-hero-prev],
   .hero-carousel-controls [data-hero-next]{
@@ -10346,7 +10346,7 @@ select.input option:hover{
     padding:0 !important;
     border:0 !important;
     background:transparent !important;
-    border-radius:999px;
+    border-radius:6px;
     display:inline-flex;
     align-items:center;
     justify-content:center;
@@ -10355,7 +10355,7 @@ select.input option:hover{
     content:"";
     width:10px;
     height:10px;
-    border-radius:999px;
+    border-radius:3px;
     border:1px solid rgba(17,24,39,.26);
     background:#fff;
     transition: background .16s ease, border-color .16s ease, transform .16s ease;
