@@ -128,6 +128,17 @@ a{color:inherit;}
   font-size:12px;
   letter-spacing:.4px;
   padding:6px 0;
+  max-height:48px;
+  overflow:hidden;
+  transition:max-height .22s ease, padding .22s ease, opacity .22s ease, transform .22s ease;
+}
+.site-header.promo-collapsed .promo-strip{
+  max-height:0;
+  padding-top:0;
+  padding-bottom:0;
+  opacity:0;
+  transform:translateY(-100%);
+  pointer-events:none;
 }
 .promo-inner{
   display:flex;
