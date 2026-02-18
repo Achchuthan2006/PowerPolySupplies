@@ -2163,41 +2163,6 @@ function setupRetentionSignals(){
     try{ localStorage.setItem(cartKey, String(Date.now())); }catch(_err){}
   });
 
-  const cart = window.PPS?.getCart?.() || [];
-  const last = Number(localStorage.getItem(cartKey) || 0);
-  const hours = last ? (Date.now() - last) / 3600000 : 0;
-  if(cart.length && hours > 6){
-    if(!document.getElementById("abandonBanner")){
-      const banner = document.createElement("div");
-      banner.id = "abandonBanner";
-      banner.className = "marketing-banner";
-      banner.innerHTML = `
-        <div class="marketing-banner-inner">
-          <strong>Finish your order?</strong>
-          <span>We can email your cart and apply a small discount.</span>
-          <form id="abandonEmailForm">
-            <input class="input" type="email" name="email" placeholder="you@company.com" required>
-            <button class="btn btn-primary btn-sm" type="submit">Email my cart</button>
-          </form>
-          <button class="marketing-banner-close" type="button" aria-label="Close">x</button>
-        </div>
-      `;
-      document.body.appendChild(banner);
-      banner.querySelector(".marketing-banner-close")?.addEventListener("click", ()=> banner.remove());
-      const form = document.getElementById("abandonEmailForm");
-      if(form){
-        form.addEventListener("submit", (e)=>{
-          e.preventDefault();
-          const email = form.email?.value?.trim?.() || "";
-          if(!email) return;
-          try{ localStorage.setItem("pps_abandon_email", email); }catch(_err){}
-          banner.querySelector("span")?.remove?.();
-          form.innerHTML = `<span class="muted">Email queued. We will send a reminder.</span>`;
-        });
-      }
-    }
-  }
-
   const lastVisitKey = "pps_last_visit";
   const lastVisit = Number(localStorage.getItem(lastVisitKey) || 0);
   const days = lastVisit ? (Date.now() - lastVisit) / (1000 * 60 * 60 * 24) : 0;
