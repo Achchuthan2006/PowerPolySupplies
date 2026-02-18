@@ -26,3 +26,6 @@
 /* Help FAB placement: keep clear of hero/content and mobile bottom nav */
 .help-widget{position:fixed!important;top:auto!important;left:auto!important;right:16px!important;bottom:16px!important}
 @media(max-width:860px){.help-widget{right:14px!important;bottom:calc(104px + env(safe-area-inset-bottom,0px))!important}}
+/* Footer accordion cue clarity: larger chevron + clear open rotation */
+.dark-footer .footer-caret{display:inline-flex;width:12px;height:12px;margin-left:auto;border-right:2px solid rgba(255,255,255,.96);border-bottom:2px solid rgba(255,255,255,.96);transform:rotate(45deg);transform-origin:center;transition:transform .22s ease,border-color .22s ease,opacity .22s ease;opacity:.95}
+.dark-footer .footer-section[open] .footer-caret{transform:rotate(225deg);border-color:#fff;opacity:1}

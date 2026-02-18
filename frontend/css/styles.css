@@ -5071,15 +5071,21 @@ select.input option:hover{
   margin:0;
 }
 .dark-footer .footer-caret{
-  width:9px;
-  height:9px;
-  border-right:2px solid rgba(255,255,255,.72);
-  border-bottom:2px solid rgba(255,255,255,.72);
-  transform: rotate(45deg) translateY(-1px);
-  transition: transform .18s ease;
+  display:inline-flex;
+  width:12px;
+  height:12px;
+  margin-left:auto;
+  border-right:2px solid rgba(255,255,255,.96);
+  border-bottom:2px solid rgba(255,255,255,.96);
+  transform: rotate(45deg);
+  transform-origin:center;
+  transition: transform .22s ease, border-color .22s ease, opacity .22s ease;
+  opacity:.95;
 }
 .dark-footer .footer-section[open] .footer-caret{
-  transform: rotate(225deg) translateY(-1px);
+  transform: rotate(225deg);
+  border-color:#ffffff;
+  opacity:1;
 }
 .dark-footer .footer-social{
   display:flex;
