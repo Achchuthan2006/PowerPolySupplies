@@ -9402,6 +9402,15 @@ select.input option:hover{
   font-size:12px;
   opacity:.9;
 }
+@media (max-width: 900px){
+  .category-tiles{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:10px;
+  }
+  .category-tile img{
+    height:150px;
+  }
+}
 .carousel-head{
   display:flex;
   align-items:center;
