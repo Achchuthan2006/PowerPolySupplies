@@ -6996,8 +6996,13 @@ select.input option:hover{
     backdrop-filter: blur(8px) saturate(1.03);
     -webkit-backdrop-filter: blur(8px) saturate(1.03);
     z-index:200;
+    height: calc(100vh - 96px);
     max-height: calc(100vh - 96px);
+    height: calc(100dvh - 96px);
+    max-height: calc(100dvh - 96px);
     overflow-y:auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
     pointer-events:none;
   }
   .navlinks > a,
@@ -10186,7 +10191,10 @@ select.input option:hover{
 
   .navlinks{
     top:58px;
+    height:calc(100vh - 70px);
     max-height:calc(100vh - 70px);
+    height:calc(100dvh - 70px);
+    max-height:calc(100dvh - 70px);
     padding:10px;
   }
 

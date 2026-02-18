@@ -15,6 +15,20 @@ function setupNavbar(){
         navLinks.classList.remove("open");
       }
     });
+
+    // Keep mobile nav search stable when virtual keyboard opens.
+    const navSearchInput =
+      navLinks.querySelector('input[type="search"]') ||
+      navLinks.querySelector(".search-bar input");
+    if(navSearchInput){
+      navSearchInput.addEventListener("focus", ()=>{
+        setTimeout(()=>{
+          try{
+            navSearchInput.scrollIntoView({ behavior:"smooth", block:"center" });
+          }catch{}
+        }, 300);
+      });
+    }
   }
 
   if(menuBtn && navLinks){
