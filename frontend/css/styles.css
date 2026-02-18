@@ -10355,13 +10355,13 @@ select.input option:hover{
     pointer-events:auto;
   }
   .hero-carousel-dots{
-    gap:4px;
+    gap:2px;
   }
   .hero-carousel-dots button{
-    width:44px !important;
-    height:44px !important;
-    min-width:44px !important;
-    min-height:44px !important;
+    width:30px !important;
+    height:30px !important;
+    min-width:30px !important;
+    min-height:30px !important;
     padding:0 !important;
     border:0 !important;
     background:transparent !important;
