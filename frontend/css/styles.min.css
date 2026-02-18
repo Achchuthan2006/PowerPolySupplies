@@ -11,3 +11,7 @@
 .help-widget{top:auto;left:auto}
 @media(max-width:860px){.help-widget{top:auto;left:auto;right:14px;bottom:calc(86px + env(safe-area-inset-bottom,0px))}}
 [data-vercel-toolbar],[data-vercel-speed-insights],[data-vercel],#vercel-toolbar,#__vercel,#vercel-live-feedback,iframe[src*="/_vercel/"],iframe[src*="vercel.live"],iframe[src*="vercel.com"],iframe[title*="Vercel"]{display:none!important;visibility:hidden!important;pointer-events:none!important}
+
+.hero-product-image{width:min(220px,64vw);height:auto;aspect-ratio:1/1;object-fit:contain;margin-bottom:12px;border-radius:16px;background:#fff;border:1px solid rgba(17,24,39,.08);box-shadow:0 14px 34px rgba(17,24,39,.14)}
+@media(max-width:860px){.hero-product-image{width:min(180px,58vw);margin-bottom:10px}}
+@media(max-width:1024px) and (max-height:560px) and (orientation:landscape){.hero-product-image{width:min(140px,52vw);margin-bottom:8px}}

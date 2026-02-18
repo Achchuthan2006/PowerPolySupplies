@@ -319,6 +319,17 @@ html[lang="es"] .navbar .container{
   margin-bottom:10px;
   filter: drop-shadow(0 14px 30px rgba(240,127,41,.25));
 }
+.hero-product-image{
+  width:min(220px, 64vw);
+  height:auto;
+  aspect-ratio:1/1;
+  object-fit:contain;
+  margin-bottom:12px;
+  border-radius:16px;
+  background:#fff;
+  border:1px solid rgba(17,24,39,.08);
+  box-shadow:0 14px 34px rgba(17,24,39,.14);
+}
 .brand-text{
   display:flex;
   flex-direction:column;
@@ -8213,6 +8224,10 @@ select.input option:hover{
     height:46px;
     margin-bottom:6px;
   }
+  .hero-product-image{
+    width:min(180px, 58vw);
+    margin-bottom:10px;
+  }
   .hero h1{ font-size:28px; }
   .hero p{ font-size:16px; }
   .hero-carousel-controls{
@@ -10163,6 +10178,10 @@ select.input option:hover{
     width:40px;
     height:40px;
     margin-bottom:4px;
+  }
+  .hero-product-image{
+    width:min(140px, 52vw);
+    margin-bottom:8px;
   }
   .hero h1{
     font-size:24px;
