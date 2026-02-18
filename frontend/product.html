@@ -1,7 +1,7 @@
-﻿<!doctype html>
+<!doctype html>
 <html>
 <head>
-  <meta charset="utf-8"/>
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Product | Power Poly Supplies</title>
   <meta name="description" content="Product details, bulk pricing tiers, and availability for Power Poly Supplies.">
@@ -846,7 +846,7 @@
           <div class="print-sheet-header">
             <div>
               <h1 style="margin:0;">${displayName}</h1>
-              <div class="print-sheet-meta">${displayCategory} Â· ${PPS.money(memberCents, p.currency)}</div>
+              <div class="print-sheet-meta">${displayCategory} \u00B7 ${PPS.money(memberCents, p.currency)}</div>
             </div>
             <div class="print-sheet-logo">Power Poly Supplies</div>
           </div>
@@ -1437,7 +1437,7 @@
         const total = unit * qty;
         qtyTotal.textContent = `Total: ${PPS.money(total, p.currency)}`;
         const tierMsg = qty >= 20 ? "20+ pricing applied" : qty >= 15 ? "15+ pricing applied" : qty >= 10 ? "10+ pricing applied" : "Standard pricing";
-        qtyNote.textContent = `${PPS.money(unit, p.currency)} / box Â· ${tierMsg}`;
+        qtyNote.textContent = `${PPS.money(unit, p.currency)} / box \u00B7 ${tierMsg}`;
       }
       function setQty(val){
         if(!qtyInput) return;
@@ -1583,7 +1583,7 @@
             shippingOutput.textContent = "Enter a postal code to see delivery estimate.";
             return;
           }
-          shippingOutput.textContent = `${data.region}: ${data.days} business days Â· Est. $${data.cost} shipping.`;
+          shippingOutput.textContent = `${data.region}: ${data.days} business days \u00B7 Est. $${data.cost} shipping.`;
         });
       }
 
@@ -1618,7 +1618,7 @@
           const total = unit * qty;
           const baseTotal = basePrice * qty;
           const savings = Math.max(0, baseTotal - total);
-          bulkOutput.textContent = `Total: ${PPS.money(Math.round(total * 100), p.currency)} Â· Savings: ${PPS.money(Math.round(savings * 100), p.currency)}.`;
+          bulkOutput.textContent = `Total: ${PPS.money(Math.round(total * 100), p.currency)} \u00B7 Savings: ${PPS.money(Math.round(savings * 100), p.currency)}.`;
         };
         ["input","change","submit"].forEach((evt)=> bulkForm.addEventListener(evt, (e)=>{
           if(evt === "submit") e.preventDefault();

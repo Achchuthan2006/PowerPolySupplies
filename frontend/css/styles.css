@@ -3168,10 +3168,11 @@ html[lang="fr"] .navlinks a{
   z-index:1200;
   display:none;
   min-height:70px;
+  border-top:1px solid rgba(17,24,39,.12);
   border-radius:18px;
   background:rgba(255,250,243,.92);
   border:1px solid rgba(241,223,204,.9);
-  box-shadow:0 22px 60px rgba(17,24,39,.22);
+  box-shadow:0 -6px 16px rgba(17,24,39,.12), 0 22px 60px rgba(17,24,39,.22);
   backdrop-filter: blur(12px);
 }
 .bottom-nav-item{
@@ -3180,12 +3181,12 @@ html[lang="fr"] .navlinks a{
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  gap:6px;
+  gap:7px;
   min-height:70px;
   padding:12px 10px 14px;
   text-decoration:none;
   color:var(--text);
-  font-size:11px;
+  font-size:12px;
   font-weight:900;
   position:relative;
 }
@@ -3193,13 +3194,13 @@ html[lang="fr"] .navlinks a{
   transform: translateY(1px);
 }
 .bottom-nav-item .bicon{
-  width:26px;
-  height:26px;
+  width:32px;
+  height:32px;
   display:inline-flex;
 }
 .bottom-nav-item svg{
-  width:26px;
-  height:26px;
+  width:32px;
+  height:32px;
 }
 .bottom-badge{
   position:absolute;
@@ -10247,6 +10248,39 @@ select.input option:hover{
 }
 .contact-page #contactForm textarea.input{
   min-height:136px;
+}
+
+/* Mobile promo strip readability: static centered message */
+@media (max-width: 860px){
+  .promo-strip{
+    padding:8px 0;
+  }
+  .promo-inner{
+    align-items:center;
+    justify-content:center;
+    gap:0;
+  }
+  .promo-inner > div:first-child{
+    display:none;
+  }
+  .promo-right{
+    display:block;
+    width:100%;
+    margin:0;
+    padding:0;
+    text-align:center;
+    font-size:12px;
+    line-height:1.35;
+    font-weight:800;
+    letter-spacing:.2px;
+  }
+}
+@media (max-width: 1024px) and (max-height: 560px) and (orientation: landscape){
+  .promo-right{
+    display:block;
+    text-align:center;
+    font-size:12px;
+  }
 }
 
 /* Hero mobile controls: swipe + larger tap targets on dots */

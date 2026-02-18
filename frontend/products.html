@@ -1,11 +1,54 @@
-﻿<!doctype html>
+<!doctype html>
 <html>
 <head>
-  <meta charset="utf-8"/>
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Products | Power Poly Supplies</title>
   <meta name="description" content="Browse Power Poly Supplies products: garment cover bags, hangers, polybags, and more. Filter by category, stock, and price.">
   <link rel="stylesheet" href="./css/styles.min.css?v=20260216"/>
+  <style>
+    .top-category-pills{
+      display:flex;
+      gap:8px;
+      overflow-x:auto;
+      padding:4px 2px 8px;
+      margin-top:12px;
+      -webkit-overflow-scrolling:touch;
+      scrollbar-width:none;
+    }
+    .top-category-pills::-webkit-scrollbar{
+      display:none;
+    }
+    .top-category-pill{
+      flex:0 0 auto;
+      border:1px solid rgba(17,24,39,.12);
+      border-radius:999px;
+      padding:8px 12px;
+      background:#fff;
+      font-size:12px;
+      font-weight:800;
+      white-space:nowrap;
+      cursor:pointer;
+    }
+    .top-category-pill.active{
+      background:rgba(255,122,26,.12);
+      border-color:rgba(255,122,26,.42);
+      color:#7a3b12;
+    }
+    @media (max-width: 860px){
+      .products-page .product-card .product-add-btn{
+        display:inline-flex;
+        width:100%;
+      }
+      .products-page .product-card .product-quick-btn{
+        display:inline-flex;
+        width:100%;
+      }
+      .products-page .search-discovery{
+        display:none;
+      }
+    }
+  </style>
   <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
 </head>
 <body class="has-mobile-cart-bar products-page">
@@ -64,6 +107,16 @@
         <span data-i18n="products.filter_hint">Filter by category to jump in.</span>
         <span>|</span>
         <span id="hint" style="font-weight:700;"></span>
+      </div>
+    </section>
+    <section class="fade-in" aria-label="Quick categories">
+      <div class="top-category-pills" id="topCategoryPills">
+        <button class="top-category-pill" type="button" data-top-cat="">All</button>
+        <button class="top-category-pill" type="button" data-top-cat="Garment Bags">Garment Bags</button>
+        <button class="top-category-pill" type="button" data-top-cat="Hangers">Hangers</button>
+        <button class="top-category-pill" type="button" data-top-cat="Polybags">Polybags</button>
+        <button class="top-category-pill" type="button" data-top-cat="Wraps">Wraps</button>
+        <button class="top-category-pill" type="button" data-top-cat="Racks">Racks</button>
       </div>
     </section>
 
@@ -553,6 +606,7 @@
       renderSkeletons(grid);
       const products = await PPS.loadProducts();
       const orderById = new Map(products.map((p, idx)=> [p.id, idx]));
+      const categoryOptions = Array.from(new Set(products.map(p=>p.category).filter(Boolean)));
 
       let currentFiltered = [];
       const infiniteStatus = document.getElementById("productsInfiniteStatus");
@@ -575,6 +629,7 @@
       const filterRatingHint = document.getElementById("filterRatingHint");
       const filterUseCase = document.getElementById("filterUseCase");
       const filterRefine = document.getElementById("filterRefine");
+      const topCategoryPills = document.getElementById("topCategoryPills");
       const clearBtn = document.getElementById("clearFilters");
       const filtersPanel = document.getElementById("filtersPanel");
       const toggleFiltersBtn = document.getElementById("toggleFilters");
@@ -662,6 +717,32 @@
         window.history.replaceState({}, "", url.toString());
       }
 
+      function normalizeCategoryToken(value){
+        const normalized = normalizeSearchText(value).replace(/\bcover\b/g, "").replace(/\s+/g, " ").trim();
+        if(normalized === "garment bag" || normalized === "garment bags") return "garment bags";
+        return normalized;
+      }
+
+      function resolveCategoryParamValue(rawValue){
+        const token = normalizeCategoryToken(rawValue);
+        if(!token) return "";
+        const direct = categoryOptions.find((cat)=> normalizeCategoryToken(cat) === token);
+        return direct || rawValue;
+      }
+
+      function syncTopCategoryPills(){
+        if(!topCategoryPills) return;
+        const selected = (qs("cat") || "").split(",").map(s=>s.trim()).filter(Boolean);
+        const single = selected.length === 1 ? normalizeCategoryToken(selected[0]) : "";
+        topCategoryPills.querySelectorAll("[data-top-cat]").forEach((btn)=>{
+          const value = btn.getAttribute("data-top-cat") || "";
+          const token = normalizeCategoryToken(value);
+          const isAll = !token;
+          const isActive = isAll ? !single : (token === single);
+          btn.classList.toggle("active", isActive);
+        });
+      }
+
       function readMoneyInput(input){
         const raw = String(input?.value || "").trim().replace(/,/g, "");
         const val = Number(raw);
@@ -720,6 +801,7 @@
         if(filterSearch) filterSearch.value = (qs("q") || "");
         if(filterSort) filterSort.value = (qs("sort") || "relevance");
         syncMultiSelectFromParams();
+        syncTopCategoryPills();
       }
 
       function updateInfiniteStatus(){
@@ -790,7 +872,7 @@
               </div>
               <div class="viewing-now"> ${viewCount} people viewing this now</div>
               <div class="product-actions" style="margin-top:12px;">
-                <button class="btn btn-primary product-add-btn" ${p.stock<=0?'disabled':''} onclick='add(event,"${p.id}")'>${window.PPS_I18N?.t("products.action.add") || "Add"}</button>
+                <button class="btn btn-primary product-add-btn" ${p.stock<=0?'disabled':''} onclick='add(event,"${p.id}")'>${window.PPS_I18N?.t("add to cart") || "Add to cart"}</button>
                 <a class="btn btn-outline product-view-btn" href="./product.html?slug=${encodeURIComponent(p.slug)}">${window.PPS_I18N?.t("products.action.view") || "View"}</a>
                 <a class="btn btn-outline product-cart-btn" href="./cart.html" data-i18n="products.action.cart">${window.PPS_I18N?.t("products.action.cart") || "Go to cart"}</a>
                 <button class="btn btn-outline product-quick-btn" type="button" data-quick-id="${p.id}">Quick View</button>
@@ -1357,6 +1439,17 @@
             setSearchDiscoveryOpen(Boolean(collapsed));
           });
         }
+        if(topCategoryPills){
+          topCategoryPills.addEventListener("click", (e)=>{
+            const btn = e.target.closest("[data-top-cat]");
+            if(!btn) return;
+            const raw = btn.getAttribute("data-top-cat") || "";
+            const value = resolveCategoryParamValue(raw);
+            setParam("cat", value);
+            syncControlsFromParams();
+            applyFilters();
+          });
+        }
         wireMultiSelect(filterCats);
         wireMultiSelect(filterThickness);
         wireMultiSelect(filterSize);
@@ -1588,7 +1681,7 @@
 
       syncControlsFromParams();
       wireControls();
-      setSearchDiscoveryOpen(!isMobileProducts);
+      setSearchDiscoveryOpen(false);
       if(viewToggle && grid){
         const savedView = (()=>{ try{ return localStorage.getItem("pps_products_view") || "grid"; }catch(_err){ return "grid"; }})();
         grid.dataset.view = savedView;
@@ -1600,7 +1693,6 @@
       const sizeOptions = Array.from(new Set(products.map(sizeLabelForProduct).filter(Boolean)));
       const thicknessOptions = Array.from(new Set(products.map(thicknessLabelForProduct).filter(Boolean)));
       const materialOptions = Array.from(new Set(products.map(materialLabelForProduct).filter(Boolean)));
-      const categoryOptions = Array.from(new Set(products.map(p=>p.category).filter(Boolean)));
       const useOptions = [
         { value:"dry", label:"Dry cleaners" },
         { value:"laundry", label:"Laundromats" },

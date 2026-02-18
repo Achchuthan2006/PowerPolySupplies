@@ -1,7 +1,7 @@
-﻿<!doctype html>
+<!doctype html>
 <html>
 <head>
-  <meta charset="utf-8"/>
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Power Poly Supplies</title>
   <meta name="description" content="Bulk garment cover bags, poly bags, wraps, racks, and professional-grade hangers for dry cleaners, laundromats, and retailers. Bulk-friendly pricing and dependable stock.">
@@ -156,15 +156,15 @@
 
     <section class="stats-row fade-in" aria-label="Business stats" style="margin-top:16px;">
       <div class="stat">
-        <div class="stat-value"><span data-count-up="500">0</span>+</div>
+        <div class="stat-value"><span data-count-up="500">500</span>+</div>
         <div class="stat-label">Businesses served</div>
       </div>
       <div class="stat">
-        <div class="stat-value"><span data-count-up="2" data-count-suffix="h">0</span></div>
+        <div class="stat-value"><span data-count-up="2" data-count-suffix="h">2h</span></div>
         <div class="stat-label">Typical response time</div>
       </div>
       <div class="stat">
-        <div class="stat-value"><span data-count-up="14">0</span></div>
+        <div class="stat-value"><span data-count-up="14">14</span></div>
         <div class="stat-label">Products in stock</div>
       </div>
     </section>
@@ -812,37 +812,37 @@
             <div class="quote-mark">&ldquo;</div>
             <div class="testimonial-rating" aria-label="Rating 5 out of 5">★★★★★</div>
             <p class="testimonial-text">I have always loved dealing with Andrew from PowerPolySupplies. This is a fantastic company!</p>
-            <div class="testimonial-meta">Tony Stephen Â· Finchdale Cleaners</div>
+            <div class="testimonial-meta">Tony Stephen &middot; Finchdale Cleaners</div>
           </div>
           <div class="testimonial-card en-only">
             <div class="quote-mark">&ldquo;</div>
             <div class="testimonial-rating" aria-label="Rating 5 out of 5">★★★★★</div>
             <p class="testimonial-text">Angel helped us pick the right garment bag sizes in minutes. Orders are always smooth and on time.</p>
-            <div class="testimonial-meta">Sonia Patel Â· Downtown Cleaners</div>
+            <div class="testimonial-meta">Sonia Patel &middot; Downtown Cleaners</div>
           </div>
           <div class="testimonial-card en-only">
             <div class="quote-mark">&ldquo;</div>
             <div class="testimonial-rating" aria-label="Rating 5 out of 5">★★★★★</div>
             <p class="testimonial-text">Achchu always answers fast and makes sure we get the hanger style we need. Great service.</p>
-            <div class="testimonial-meta">Marco R. Â· Northside Laundry</div>
+            <div class="testimonial-meta">Marco R. &middot; Northside Laundry</div>
           </div>
           <div class="testimonial-card en-only">
             <div class="quote-mark">&ldquo;</div>
             <div class="testimonial-rating" aria-label="Rating 5 out of 5">★★★★★</div>
             <p class="testimonial-text">Andrew keeps our weekly supplies consistent — clear garment covers and dependable hangers every time.</p>
-            <div class="testimonial-meta">Harrison Ramsey Â· Markham Grandview Suites</div>
+            <div class="testimonial-meta">Harrison Ramsey &middot; Markham Grandview Suites</div>
           </div>
           <div class="testimonial-card en-only">
             <div class="quote-mark">&ldquo;</div>
             <div class="testimonial-rating" aria-label="Rating 5 out of 5">★★★★★</div>
             <p class="testimonial-text">Angel’s product guidance is the best — quick answers, honest recommendations, and no wasted time.</p>
-            <div class="testimonial-meta">Lina Chen Â· Midtown Alterations</div>
+            <div class="testimonial-meta">Lina Chen &middot; Midtown Alterations</div>
           </div>
           <div class="testimonial-card en-only">
             <div class="quote-mark">&ldquo;</div>
             <div class="testimonial-rating" aria-label="Rating 5 out of 5">★★★★★</div>
             <p class="testimonial-text">Achchu helped us standardize our hanger types across two locations. PowerPolySupplies is now our go-to.</p>
-            <div class="testimonial-meta">Daniel K. Â· West End Cleaners</div>
+            <div class="testimonial-meta">Daniel K. &middot; West End Cleaners</div>
           </div>
 
           <div class="testimonial-card">
@@ -1416,6 +1416,46 @@
         personalizedForm.reset();
       });
     }
+
+    // Homepage safety net: ensure count-up triggers on mobile scroll as soon as stats approach viewport.
+    (function ensureHomeStatsCountUp(){
+      const els = Array.from(document.querySelectorAll("[data-count-up]"));
+      if(!els.length) return;
+      const prefersReduce = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+      const format = (n)=> String(Math.round(n));
+      const animate = (el)=>{
+        if(el.dataset.counted === "1") return;
+        const target = Number(el.getAttribute("data-count-up"));
+        const suffix = el.getAttribute("data-count-suffix") || "";
+        if(!Number.isFinite(target)) return;
+        el.dataset.counted = "1";
+        if(prefersReduce){
+          el.textContent = format(target) + suffix;
+          return;
+        }
+        const start = performance.now();
+        const duration = 900;
+        const step = (now)=>{
+          const t = Math.min(1, (now - start) / duration);
+          const eased = 1 - Math.pow(1 - t, 3);
+          el.textContent = format(target * eased) + suffix;
+          if(t < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      };
+
+      const io = new IntersectionObserver((entries)=>{
+        entries.forEach((entry)=>{
+          if(entry.isIntersecting) animate(entry.target);
+        });
+      }, { threshold: 0.15, rootMargin: "0px 0px -10% 0px" });
+      els.forEach((el)=> io.observe(el));
+
+      setTimeout(()=> els.forEach((el)=>{
+        const rect = el.getBoundingClientRect();
+        if(rect.top < window.innerHeight * 0.95 && rect.bottom > 0) animate(el);
+      }), 500);
+    })();
   </script>
 </body>
 </html>
