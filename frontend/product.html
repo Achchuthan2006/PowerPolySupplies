@@ -957,97 +957,107 @@
             <div class="urgency-row">
               <span class="urgency-pill" id="viewingNow">-- people viewing now</span>
             </div>
-            <div style="margin-top:10px;">
-              <button class="share-btn" type="button" id="shareBtn" aria-label="${window.PPS_I18N?.t("product.share") || "Share"}">
-                <span class="share-icon" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="16" height="16" focusable="false" aria-hidden="true">
-                    <path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M12 4v12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                    <path d="M7.5 8.5 12 4l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </span>
-                <span data-i18n="product.share">Share</span>
-              </button>
-              <div id="shareMsg" style="color:var(--muted); font-size:12px; margin-top:6px;"></div>
-            </div>
+            <details class="product-section-accordion section-card-accordion" id="buyingToolsAccordion">
+              <summary><span>Buying tools</span></summary>
+              <div class="product-section-panel">
+                <div class="product-utility-grid">
+                  <div class="utility-card">
+                    <div class="utility-title">Shipping calculator</div>
+                    <div class="utility-desc">Estimate delivery by postal code.</div>
+                    <form id="shippingCalcForm" class="utility-form">
+                      <label>
+                        <span>Postal code</span>
+                        <input class="input" name="postal" placeholder="e.g., M5V 2T6" autocomplete="postal-code">
+                      </label>
+                      <button class="btn btn-outline btn-sm" type="submit">Calculate</button>
+                    </form>
+                    <div class="utility-output" id="shippingCalcOutput">Enter a postal code to see delivery estimate.</div>
+                  </div>
+                  <div class="utility-card">
+                    <div class="utility-title">Stock by location</div>
+                    <div class="utility-desc">Live inventory snapshot by warehouse.</div>
+                    <ul class="utility-list" id="stockLocationList"></ul>
+                  </div>
+                  <div class="utility-card">
+                    <div class="utility-title">Bulk discount calculator</div>
+                    <div class="utility-desc">See total price and savings instantly.</div>
+                    <form id="bulkDiscountForm" class="utility-form">
+                      <label>
+                        <span>Quantity (boxes)</span>
+                        <input class="input" name="qty" type="number" min="1" step="1" value="12">
+                      </label>
+                      <label>
+                        <span>Base price / box</span>
+                        <input class="input" name="price" type="number" min="0" step="0.01" value="${(memberCents / 100).toFixed(2)}">
+                      </label>
+                      <button class="btn btn-outline btn-sm" type="submit">Update</button>
+                    </form>
+                    <div class="utility-output" id="bulkDiscountOutput">Total: ${PPS.money(memberCents * 12, p.currency)}.</div>
+                  </div>
+                </div>
+              </div>
+            </details>
 
-            <div class="product-utility-grid">
-              <div class="utility-card">
-                <div class="utility-title">Shipping calculator</div>
-                <div class="utility-desc">Estimate delivery by postal code.</div>
-                <form id="shippingCalcForm" class="utility-form">
-                  <label>
-                    <span>Postal code</span>
-                    <input class="input" name="postal" placeholder="e.g., M5V 2T6" autocomplete="postal-code">
-                  </label>
-                  <button class="btn btn-outline btn-sm" type="submit">Calculate</button>
-                </form>
-                <div class="utility-output" id="shippingCalcOutput">Enter a postal code to see delivery estimate.</div>
-              </div>
-              <div class="utility-card">
-                <div class="utility-title">Stock by location</div>
-                <div class="utility-desc">Live inventory snapshot by warehouse.</div>
-                <ul class="utility-list" id="stockLocationList"></ul>
-              </div>
-              <div class="utility-card">
-                <div class="utility-title">Bulk discount calculator</div>
-                <div class="utility-desc">See total price and savings instantly.</div>
-                <form id="bulkDiscountForm" class="utility-form">
-                  <label>
-                    <span>Quantity (boxes)</span>
-                    <input class="input" name="qty" type="number" min="1" step="1" value="12">
-                  </label>
-                  <label>
-                    <span>Base price / box</span>
-                    <input class="input" name="price" type="number" min="0" step="0.01" value="${(memberCents / 100).toFixed(2)}">
-                  </label>
-                  <button class="btn btn-outline btn-sm" type="submit">Update</button>
-                </form>
-                <div class="utility-output" id="bulkDiscountOutput">Total: ${PPS.money(memberCents * 12, p.currency)}.</div>
-              </div>
-              <div class="utility-card">
-                <div class="utility-title">Product actions</div>
-                <div class="utility-desc">Share, print, or request a quote.</div>
-                <div class="utility-actions">
-                  <button class="btn btn-primary btn-sm" type="button" id="printProductBtn">Print product sheet</button>
-                  <a class="btn btn-outline btn-sm" href="./contact.html">Request quote</a>
+            <details class="product-section-accordion section-card-accordion" id="shareAlertsAccordion">
+              <summary><span>Share & alerts</span></summary>
+              <div class="product-section-panel">
+                <div class="product-utility-grid">
+                  <div class="utility-card">
+                    <div class="utility-title">Product actions</div>
+                    <div class="utility-desc">Share, print, or request a quote.</div>
+                    <button class="share-btn" type="button" id="shareBtn" aria-label="${window.PPS_I18N?.t("product.share") || "Share"}">
+                      <span class="share-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" width="16" height="16" focusable="false" aria-hidden="true">
+                          <path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M12 4v12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                          <path d="M7.5 8.5 12 4l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </span>
+                      <span data-i18n="product.share">Share</span>
+                    </button>
+                    <div id="shareMsg" style="color:var(--muted); font-size:12px; margin-top:6px;"></div>
+                    <div class="utility-actions">
+                      <button class="btn btn-primary btn-sm" type="button" id="printProductBtn">Print product sheet</button>
+                      <a class="btn btn-outline btn-sm" href="./contact.html">Request quote</a>
+                    </div>
+                    <div class="utility-social">
+                      <a class="social-btn" id="shareLinkedIn" target="_blank" rel="noopener">LinkedIn</a>
+                      <a class="social-btn" id="shareFacebook" target="_blank" rel="noopener">Facebook</a>
+                      <a class="social-btn" id="shareX" target="_blank" rel="noopener">X</a>
+                      <a class="social-btn" id="shareInstagram" target="_blank" rel="noopener">Instagram</a>
+                    </div>
+                    <form id="emailProductForm" class="utility-form">
+                      <label>
+                        <span>Email to colleague</span>
+                        <input class="input" name="email" type="email" placeholder="colleague@company.com" required>
+                      </label>
+                      <button class="btn btn-outline btn-sm" type="submit">Send email</button>
+                    </form>
+                    <div class="utility-output" id="emailProductOutput">We will open your email client with a pre-filled message.</div>
+                  </div>
+                  <div class="utility-card">
+                    <div class="utility-title">Product alerts</div>
+                    <div class="utility-desc">Get notified for back-in-stock and price drops.</div>
+                    <form id="productAlertForm" class="utility-form">
+                      <label>
+                        <span>Email</span>
+                        <input class="input" name="alertEmail" type="email" placeholder="you@company.com" required>
+                      </label>
+                      <label class="pref-item">
+                        <input type="checkbox" name="alertStock" checked>
+                        <span>Back in stock</span>
+                      </label>
+                      <label class="pref-item">
+                        <input type="checkbox" name="alertPrice" checked>
+                        <span>Price drop alerts</span>
+                      </label>
+                      <button class="btn btn-outline btn-sm" type="submit">Save alerts</button>
+                    </form>
+                    <div class="utility-output" id="productAlertOutput">Alerts are saved to this browser.</div>
+                  </div>
                 </div>
-                <div class="utility-social">
-                  <a class="social-btn" id="shareLinkedIn" target="_blank" rel="noopener">LinkedIn</a>
-                  <a class="social-btn" id="shareFacebook" target="_blank" rel="noopener">Facebook</a>
-                  <a class="social-btn" id="shareX" target="_blank" rel="noopener">X</a>
-                  <a class="social-btn" id="shareInstagram" target="_blank" rel="noopener">Instagram</a>
-                </div>
-                <form id="emailProductForm" class="utility-form">
-                  <label>
-                    <span>Email to colleague</span>
-                    <input class="input" name="email" type="email" placeholder="colleague@company.com" required>
-                  </label>
-                  <button class="btn btn-outline btn-sm" type="submit">Send email</button>
-                </form>
-                <div class="utility-output" id="emailProductOutput">We will open your email client with a pre-filled message.</div>
               </div>
-              <div class="utility-card">
-                <div class="utility-title">Product alerts</div>
-                <div class="utility-desc">Get notified for back-in-stock and price drops.</div>
-                <form id="productAlertForm" class="utility-form">
-                  <label>
-                    <span>Email</span>
-                    <input class="input" name="alertEmail" type="email" placeholder="you@company.com" required>
-                  </label>
-                  <label class="pref-item">
-                    <input type="checkbox" name="alertStock" checked>
-                    <span>Back in stock</span>
-                  </label>
-                  <label class="pref-item">
-                    <input type="checkbox" name="alertPrice" checked>
-                    <span>Price drop alerts</span>
-                  </label>
-                  <button class="btn btn-outline btn-sm" type="submit">Save alerts</button>
-                </form>
-                <div class="utility-output" id="productAlertOutput">Alerts are saved to this browser.</div>
-              </div>
-            </div>
+            </details>
 
             <details class="product-section-accordion" id="reviewsAccordion">
               <summary><span>Reviews</span></summary>
