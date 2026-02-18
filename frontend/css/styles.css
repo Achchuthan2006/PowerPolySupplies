@@ -3363,6 +3363,9 @@ iframe[title*="Vercel"]{
   color:var(--muted);
   font-weight:800;
 }
+.member-pricing .price{
+  color:var(--danger);
+}
 .member-banner{
   margin-top:10px;
   padding:8px 10px;
