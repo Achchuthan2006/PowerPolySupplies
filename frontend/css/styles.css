@@ -10305,7 +10305,7 @@ select.input option:hover{
 }
 
 /* Hero mobile controls: swipe + larger tap targets on dots */
-@media (max-width: 900px){
+@media (max-width: 900px), (hover:none) and (pointer:coarse){
   .hero-carousel-controls [data-hero-prev],
   .hero-carousel-controls [data-hero-next]{
     display:none !important;
