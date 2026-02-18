@@ -407,17 +407,6 @@
     <section class="card fade-in" style="padding:18px; margin-top:16px;">
       <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
         <div>
-          <h2 style="margin:0;">Pick up where you left off</h2>
-          <div style="color:var(--muted); font-size:13px; margin-top:4px;">Continue shopping from your recent visits.</div>
-        </div>
-        <a class="btn btn-outline btn-sm" href="./products.html">Browse all</a>
-      </div>
-      <div class="grid grid-4" id="continueGrid" style="margin-top:12px;"></div>
-    </section>
-
-    <section class="card fade-in" style="padding:18px; margin-top:16px;">
-      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
-        <div>
           <h2 style="margin:0;">Business credentials</h2>
           <div style="color:var(--muted); font-size:13px; margin-top:4px;">Certified packaging supplier with compliance documentation available on request.</div>
         </div>
@@ -1308,7 +1297,6 @@
         const recentCats = recentProducts.map(p=>p.category).filter(Boolean);
         const favoredCats = Array.from(new Set([...topCats, ...recentCats])).slice(0, 3);
 
-        const continuePicks = recentProducts.slice(0, 4);
         const recommended = products
           .filter(p=> favoredCats.includes(p.category) && !recentProducts.some(r=>r.id===p.id))
           .slice(0, 4);
@@ -1337,7 +1325,6 @@
           if(section) section.style.display = "none";
         });
 
-        renderMiniCardGrid("continueGrid", continuePicks, "No recent products yet. Start browsing to build your list.");
         renderMiniCardGrid("recommendedGrid", mergedPersonalized, "Browse products to unlock personalized recommendations.");
         renderDealGrid("dealsDayGrid", dealsDay, "Deals refresh daily. Check back soon.");
         renderCarouselGrid("featuredCarouselTrack", featured, "Featured products will appear here.");
