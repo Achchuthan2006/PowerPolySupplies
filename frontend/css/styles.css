@@ -10283,6 +10283,21 @@ select.input option:hover{
   }
 }
 
+/* Help FAB placement: keep clear of hero/content and mobile bottom nav */
+.help-widget{
+  position:fixed !important;
+  top:auto !important;
+  left:auto !important;
+  right:16px !important;
+  bottom:16px !important;
+}
+@media (max-width: 860px){
+  .help-widget{
+    right:14px !important;
+    bottom:calc(104px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
 /* Hero mobile controls: swipe + larger tap targets on dots */
 @media (max-width: 900px){
   .hero-carousel-controls [data-hero-prev],
