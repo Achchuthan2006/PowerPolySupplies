@@ -154,6 +154,10 @@ a{color:inherit;}
   text-align:right;
   transform:none;
 }
+.promo-right::before{
+  content:"\26A1  ";
+  font-weight:900;
+}
 
 .search-bar{
   display:flex;
