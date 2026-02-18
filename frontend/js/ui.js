@@ -2930,6 +2930,45 @@ function setupPageTransitionProgress(){
   }
 }
 
+function suppressVercelOverlays(){
+  const selectors = [
+    "[data-vercel-toolbar]",
+    "[data-vercel-speed-insights]",
+    "[data-vercel]",
+    "#vercel-toolbar",
+    "#__vercel",
+    "#vercel-live-feedback",
+    'iframe[src*="/_vercel/"]',
+    'iframe[src*="vercel.live"]',
+    'iframe[src*="vercel.com"]',
+    'iframe[title*="Vercel"]'
+  ];
+  const removeMatches = ()=>{
+    selectors.forEach((selector)=>{
+      document.querySelectorAll(selector).forEach((el)=>{
+        try{
+          el.remove();
+        }catch(_err){
+          if(el && el.style){
+            el.style.display = "none";
+            el.style.visibility = "hidden";
+            el.style.pointerEvents = "none";
+          }
+        }
+      });
+    });
+  };
+
+  removeMatches();
+  setTimeout(removeMatches, 250);
+  setTimeout(removeMatches, 1000);
+
+  if(typeof MutationObserver !== "undefined"){
+    const observer = new MutationObserver(()=> removeMatches());
+    observer.observe(document.documentElement || document.body, { childList:true, subtree:true });
+  }
+}
+
 // Run ASAP so login.html doesn't render before the redirect.
 handleOauthReturn();
 
@@ -2937,6 +2976,7 @@ handleOauthReturn();
 setupPageTransitionProgress();
 
 window.addEventListener("DOMContentLoaded", ()=>{
+  suppressVercelOverlays();
   try{
     if("serviceWorker" in navigator){
       navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(()=>{});

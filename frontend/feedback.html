@@ -357,6 +357,11 @@
     function setupMarquee(){
       const track = document.getElementById("testimonialGrid");
       if(!track || track.dataset.cloned === "true") return;
+      const isMobile = window.matchMedia?.("(max-width: 768px)")?.matches;
+      if(isMobile){
+        track.dataset.cloned = "mobile";
+        return;
+      }
       const cards = Array.from(track.children);
       if(!cards.length) return;
       cards.forEach((card)=> track.appendChild(card.cloneNode(true)));

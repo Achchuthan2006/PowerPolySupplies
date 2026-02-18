@@ -2506,6 +2506,8 @@ html[lang="fr"] .navlinks a{
   position:fixed;
   right:18px;
   bottom:18px;
+  top:auto;
+  left:auto;
   z-index:999;
   display:flex;
   flex-direction:column;
@@ -3215,6 +3217,8 @@ html[lang="fr"] .navlinks a{
     padding-bottom:96px;
   }
   .help-widget{
+    top:auto;
+    left:auto;
     right:14px;
     bottom:calc(86px + env(safe-area-inset-bottom, 0px));
   }
@@ -3228,6 +3232,22 @@ html[lang="fr"] .navlinks a{
     gap:7px;
     box-shadow:0 8px 16px rgba(17,24,39,.2);
   }
+}
+
+/* Production guard: hide Vercel toolbar / speed-insights overlays if injected. */
+[data-vercel-toolbar],
+[data-vercel-speed-insights],
+[data-vercel],
+#vercel-toolbar,
+#__vercel,
+#vercel-live-feedback,
+iframe[src*="/_vercel/"],
+iframe[src*="vercel.live"],
+iframe[src*="vercel.com"],
+iframe[title*="Vercel"]{
+  display:none !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
 }
 .card{
   border:1px solid rgba(255,122,26,.15);
@@ -5222,6 +5242,40 @@ select.input option:hover{
   letter-spacing:1px;
   margin-bottom:6px;
 }
+@media (max-width: 768px){
+  .testimonial-marquee{
+    overflow-x:auto;
+    overflow-y:visible;
+    -webkit-mask-image:none;
+    mask-image:none;
+    padding-bottom:4px;
+  }
+  .testimonial-track{
+    width:100%;
+    gap:10px;
+    animation:none !important;
+    transform:none !important;
+    will-change:auto;
+    overflow-x:auto;
+    overflow-y:visible;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    padding-inline:2px;
+  }
+  .testimonial-track .testimonial-card{
+    flex:0 0 100%;
+    width:100%;
+    scroll-snap-align:start;
+    scroll-snap-stop:always;
+    animation:none;
+  }
+  .testimonial-text,
+  .testimonial-meta{
+    white-space:normal;
+    overflow-wrap:anywhere;
+    word-break:break-word;
+  }
+}
 @keyframes floatCard{
   0%,100%{ transform: translateY(0); }
   50%{ transform: translateY(-6px); }
@@ -7040,6 +7094,46 @@ select.input option:hover{
   .dropdown.open .dropdown-menu{ display:block; }
   .navlinks a{
     white-space:normal;
+  }
+
+  /* Mobile hamburger submenu: force accordion drop-down, never side flyout */
+  @media (max-width: 768px){
+    .navlinks .dropdown{
+      display:block;
+      width:100%;
+    }
+    .navlinks .dropbtn{
+      width:100%;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .navlinks .dropdown-menu{
+      position:static !important;
+      top:auto !important;
+      left:auto !important;
+      transform:none !important;
+      opacity:1 !important;
+      pointer-events:auto !important;
+      min-width:0 !important;
+      max-width:100% !important;
+      width:100%;
+      margin-top:6px;
+      display:none;
+      border:1px solid rgba(255,122,26,.2);
+      border-radius:12px;
+      box-shadow:none;
+      overflow:visible;
+      background:rgba(240,127,41,.06);
+    }
+    .navlinks .dropdown.open .dropdown-menu{
+      display:block;
+    }
+    .navlinks .dropdown-menu a{
+      width:100%;
+      padding:11px 12px;
+      white-space:normal;
+      word-break:break-word;
+    }
   }
 
   .has-mobile-cart-bar .page{
