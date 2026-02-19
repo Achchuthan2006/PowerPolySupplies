@@ -35,8 +35,6 @@
               <a href="./products.html?cat=Garment%20Bags" data-i18n="nav.garment">Garment Cover Bags</a>
               <a href="./products.html?cat=Polybags" data-i18n="nav.polybags">Polybags</a>
               <a href="./products.html?cat=Hangers" data-i18n="nav.hangers">Hangers</a>
-              <a href="./products.html?cat=Wraps" data-i18n="nav.wraps">Wraps</a>
-              <a href="./products.html?cat=Racks" data-i18n="nav.racks">Racks</a>
             </div>
           </div>
           <a href="./about.html" data-i18n="nav.about">About Us</a>
@@ -60,8 +58,8 @@
 
   <script src="./js/store.min.js"></script>
   <script src="./js/notifications.min.js"></script>
-  <script src="./js/i18n.min.js"></script>
-  <script src="./js/ui.min.js"></script>
+  <script src="./js/i18n.js"></script>
+  <script src="./js/ui.js"></script>
   <script>
     PPS.updateCartBadge();
 
@@ -71,9 +69,7 @@
       const map = {
         "Garment Bags": "nav.garment",
         "Polybags": "nav.polybags",
-        "Hangers": "nav.hangers",
-        "Wraps": "nav.wraps",
-        "Racks": "nav.racks"
+        "Hangers": "nav.hangers"
       };
       const key = map[String(category || "").trim()];
       if(key && window.PPS_I18N?.t) return window.PPS_I18N.t(key);
@@ -289,20 +285,6 @@
             recycle: "Mixed materials"
           };
         }
-        if(category === "Wraps"){
-          return {
-            composition: "LDPE stretch film",
-            finish: "Clear",
-            recycle: "#4 LDPE"
-          };
-        }
-        if(category === "Racks"){
-          return {
-            composition: "Powder-coated steel",
-            finish: "Industrial grade",
-            recycle: "Steel"
-          };
-        }
         return {
           composition: "Commercial-grade material",
           finish: "Standard",
@@ -490,11 +472,9 @@
 
       function renderFrequentlyBought(products, product){
         const map = {
-          "Garment Bags": ["Hangers", "Polybags", "Wraps"],
-          "Polybags": ["Hangers", "Garment Bags", "Wraps"],
-          "Hangers": ["Garment Bags", "Polybags", "Racks"],
-          "Wraps": ["Garment Bags", "Polybags", "Racks"],
-          "Racks": ["Hangers", "Garment Bags", "Wraps"]
+          "Garment Bags": ["Hangers", "Polybags"],
+          "Polybags": ["Hangers", "Garment Bags"],
+          "Hangers": ["Garment Bags", "Polybags"]
         };
         const targetCats = map[product.category] || [];
         const picks = targetCats.map(cat => pickFirstByCategory(products, cat, product.slug)).filter(Boolean).slice(0, 3);
@@ -860,8 +840,8 @@
               <div>
                 <h3 class="print-sheet-title">Compatibility</h3>
                 <ul class="print-sheet-list">
-                  <li>Works with standard garment racks and delivery routes.</li>
-                  <li>Compatible with hangers, wraps, and polybag inserts.</li>
+                  <li>Works with standard delivery workflows and route handling.</li>
+                  <li>Compatible with hangers and polybag inserts.</li>
                   <li>Recommended for dry cleaners, retailers, and uniform services.</li>
                 </ul>
                 <div class="print-sheet-note">Request a quote: sales@powerpolysupplies.com</div>
@@ -1179,7 +1159,7 @@
               <details>
                 <summary>Compatibility & use-cases</summary>
                 <div class="spec-accordion-body">
-                  Compatible with standard dry cleaning hangers, garment racks, and route-ready wrapping.
+                  Compatible with standard dry cleaning hangers and route-ready packaging.
                 </div>
               </details>
             </div>
@@ -2138,5 +2118,6 @@
 </script>
 </body>
 </html>
+
 
 

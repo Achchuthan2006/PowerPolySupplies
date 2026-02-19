@@ -1095,8 +1095,6 @@
       if (/garment/i.test(c)) return "Garment Bags";
       if (/hanger/i.test(c)) return "Hangers";
       if (/poly/i.test(c)) return "Polybags";
-      if (/wrap/i.test(c)) return "Wraps";
-      if (/rack/i.test(c)) return "Racks";
       return "Other";
     };
     const grouped = new Map();

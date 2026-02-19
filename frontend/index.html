@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content"/>
   <title>Power Poly Supplies</title>
-  <meta name="description" content="Bulk garment cover bags, poly bags, wraps, racks, and professional-grade hangers for dry cleaners, laundromats, and retailers. Bulk-friendly pricing and dependable stock.">
+  <meta name="description" content="Bulk garment cover bags, poly bags, and professional-grade hangers for dry cleaners, laundromats, and retailers. Bulk-friendly pricing and dependable stock.">
   <link rel="preload" as="image" href="./assets/poly%20logo%20without%20background.png"/>
   <link rel="stylesheet" href="./css/styles.min.css?v=20260216"/>
   <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
@@ -36,8 +36,6 @@
               <a href="./products.html?cat=Garment%20Bags" data-i18n="nav.garment">Garment Cover Bags</a>
               <a href="./products.html?cat=Polybags" data-i18n="nav.polybags">Polybags</a>
               <a href="./products.html?cat=Hangers" data-i18n="nav.hangers">Hangers</a>
-              <a href="./products.html?cat=Wraps" data-i18n="nav.wraps">Wraps</a>
-              <a href="./products.html?cat=Racks" data-i18n="nav.racks">Racks</a>
             </div>
           </div>
           <a href="./about.html" data-i18n="nav.about">About Us</a>
@@ -64,7 +62,7 @@
             <p style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);" data-i18n="index.hero.kicker">Power your packaging</p>
             <h1 data-i18n="index.hero.title">Power Poly Supplies</h1>
             <p>
-              <span data-i18n="index.hero.desc">Bulk garment cover bags, poly bags, wraps, racks, and professional-grade hangers. Built for dry cleaners, laundromats, and retailers that need reliable stock.</span>
+              <span data-i18n="index.hero.desc">Bulk garment cover bags, poly bags, and professional-grade hangers. Built for dry cleaners, laundromats, and retailers that need reliable stock.</span>
             </p>
             <div class="hero-actions" style="margin-top:16px;">
               <a class="btn btn-primary" href="./products.html" data-i18n="index.hero.browse">Browse Products</a>
@@ -193,7 +191,7 @@
         </a>
         <a class="guide-card" href="./resources.html#dry-cleaner-packaging-usage">
           <div class="guide-title">Monthly usage planner</div>
-          <div class="guide-desc">Estimate bags, hangers, and wraps fast.</div>
+          <div class="guide-desc">Estimate bags, hangers, and polybags fast.</div>
         </a>
       </div>
     </section>
@@ -336,7 +334,7 @@
         <div class="success-card">
           <div class="success-metric">-18% supply cost</div>
           <div class="success-title">Retail fulfillment team</div>
-          <div class="success-desc">Moved to route-ready wraps and consolidated SKUs.</div>
+          <div class="success-desc">Moved to stronger film and consolidated SKUs.</div>
         </div>
       </div>
     </section>
@@ -520,7 +518,6 @@
                   <option>Garment Bags</option>
                   <option>Polybags</option>
                   <option>Hangers</option>
-                  <option>Wraps</option>
                 </select>
               </label>
               <label>
@@ -675,7 +672,6 @@
                   <option>Garment bags</option>
                   <option>Polybags</option>
                   <option>Hangers</option>
-                  <option>Wraps</option>
                 </select>
               </label>
             </div>
@@ -955,8 +951,8 @@
 
   <script src="./js/store.min.js"></script>
   <script src="./js/notifications.min.js"></script>
-  <script src="./js/i18n.min.js"></script>
-  <script src="./js/ui.min.js"></script>
+  <script src="./js/i18n.js"></script>
+  <script src="./js/ui.js"></script>
   <script>
     document.getElementById("y").textContent = new Date().getFullYear();
     PPS.updateCartBadge();
@@ -1326,10 +1322,10 @@
         }
 
         const industryMap = {
-          dry: ["Garment Bags", "Hangers", "Wraps"],
-          laundry: ["Garment Bags", "Wraps", "Polybags"],
-          retail: ["Polybags", "Wraps", "Hangers"],
-          uniform: ["Garment Bags", "Hangers", "Racks"]
+          dry: ["Garment Bags", "Hangers", "Polybags"],
+          laundry: ["Garment Bags", "Polybags", "Hangers"],
+          retail: ["Polybags", "Hangers", "Garment Bags"],
+          uniform: ["Garment Bags", "Hangers", "Polybags"]
         };
         const renderIndustry = (key)=>{
           const cats = industryMap[key] || [];
@@ -1436,6 +1432,7 @@
   </script>
 </body>
 </html>
+
 
 
 

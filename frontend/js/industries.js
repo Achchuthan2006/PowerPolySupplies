@@ -34,7 +34,7 @@
     base.push(tt("industry.reco.base", "Starter bundle: Standard garment bags + Polybags (Heavy) + a small set of hanger types."));
 
     if (flags.deliver || flags.routes) {
-      base.push(tt("industry.reco.deliver", "Delivery routes: consider Extra Heavy for stress points, plus wraps for bundles."));
+      base.push(tt("industry.reco.deliver", "Delivery routes: consider Extra Heavy for stress points and cleaner bundled handling."));
     }
     if (flags.uniforms) {
       base.push(tt("industry.reco.uniforms", "Uniform programs: standardize 2–3 hanger types to reduce wrong-hanger returns."));
@@ -104,4 +104,3 @@
     setupChecklists();
   });
 })();
-

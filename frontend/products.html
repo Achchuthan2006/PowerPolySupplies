@@ -78,8 +78,6 @@
               <a href="./products.html?cat=Garment%20Bags" data-i18n="nav.garment">Garment Cover Bags</a>
               <a href="./products.html?cat=Polybags" data-i18n="nav.polybags">Polybags</a>
               <a href="./products.html?cat=Hangers" data-i18n="nav.hangers">Hangers</a>
-              <a href="./products.html?cat=Wraps" data-i18n="nav.wraps">Wraps</a>
-              <a href="./products.html?cat=Racks" data-i18n="nav.racks">Racks</a>
             </div>
           </div>
           <a href="./about.html" data-i18n="nav.about">About Us</a>
@@ -102,7 +100,7 @@
       <nav class="breadcrumbs" aria-label="Breadcrumb" id="productBreadcrumbs"></nav>
       <p style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);" data-i18n="products.kicker">Catalog</p>
       <h1 data-i18n="products.title">Products built for daily use</h1>
-      <p data-i18n="products.subtitle">Choose garment cover bags, hangers, polybags, wraps, and racks. Bulk-friendly pricing with dependable stock.</p>
+      <p data-i18n="products.subtitle">Choose garment cover bags, hangers, and polybags. Bulk-friendly pricing with dependable stock.</p>
       <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:12px; color:var(--muted); font-size:13px;">
         <span data-i18n="products.filter_hint">Filter by category to jump in.</span>
         <span>|</span>
@@ -115,8 +113,6 @@
         <button class="top-category-pill" type="button" data-top-cat="Garment Bags">Garment Bags</button>
         <button class="top-category-pill" type="button" data-top-cat="Hangers">Hangers</button>
         <button class="top-category-pill" type="button" data-top-cat="Polybags">Polybags</button>
-        <button class="top-category-pill" type="button" data-top-cat="Wraps">Wraps</button>
-        <button class="top-category-pill" type="button" data-top-cat="Racks">Racks</button>
       </div>
     </section>
 
@@ -292,8 +288,8 @@
 
   <script src="./js/store.min.js"></script>
   <script src="./js/notifications.min.js"></script>
-  <script src="./js/i18n.min.js"></script>
-  <script src="./js/ui.min.js"></script>
+  <script src="./js/i18n.js"></script>
+  <script src="./js/ui.js"></script>
   <script>
     document.getElementById("y").textContent = new Date().getFullYear();
     PPS.updateCartBadge();
@@ -393,8 +389,6 @@
       const cat = String(product?.category || "");
       if(cat === "Garment Bags" || cat === "Polybags") return "LDPE (Virgin)";
       if(cat === "Hangers") return "Steel + PVC";
-      if(cat === "Wraps") return "Stretch Film";
-      if(cat === "Racks") return "Powder-coated Steel";
       return "Commercial grade";
     }
 
@@ -430,9 +424,7 @@
       const map = {
         "Garment Bags": "nav.garment",
         "Polybags": "nav.polybags",
-        "Hangers": "nav.hangers",
-        "Wraps": "nav.wraps",
-        "Racks": "nav.racks"
+        "Hangers": "nav.hangers"
       };
       const key = map[String(category || "").trim()];
       if(key && window.PPS_I18N?.t) return window.PPS_I18N.t(key);
@@ -963,11 +955,11 @@
         if(use){
           const selected = use.split(",").map(s=>s.trim()).filter(Boolean);
           const useMap = {
-            dry: ["Garment Bags", "Hangers", "Wraps"],
-            laundry: ["Garment Bags", "Wraps", "Polybags"],
-            retail: ["Polybags", "Wraps", "Hangers"],
-            uniform: ["Garment Bags", "Hangers", "Racks"],
-            shipping: ["Polybags", "Wraps"]
+            dry: ["Garment Bags", "Hangers", "Polybags"],
+            laundry: ["Garment Bags", "Hangers", "Polybags"],
+            retail: ["Polybags", "Hangers", "Garment Bags"],
+            uniform: ["Garment Bags", "Hangers", "Polybags"],
+            shipping: ["Polybags", "Garment Bags"]
           };
           filtered = filtered.filter(p=>{
             const cat = String(p.category || "");
@@ -1203,7 +1195,7 @@
         if(q.includes("hanger")) suggestions.push("strut hangers", "suit hangers");
         if(q.includes("poly")) suggestions.push("polybags clear", "polybags heavy");
         if(!suggestions.length){
-          suggestions.push("extra heavy garment bags", "bulk hanger boxes", "route-ready wraps");
+          suggestions.push("extra heavy garment bags", "bulk hanger boxes", "clear polybags");
         }
         relatedSearches.innerHTML = `
           <div class="related-searches-title">Related searches:</div>
@@ -1771,7 +1763,7 @@
       }
 
       if(trendingSearches){
-        const base = ["extra heavy garment bags", "clear polybags", "strut hangers", "route-ready wraps", "bulk hanger boxes"];
+        const base = ["extra heavy garment bags", "clear polybags", "strut hangers", "garment bags clear", "bulk hanger boxes"];
         trendingSearches.innerHTML = base.map(item=>`<button class="trending-btn" type="button" data-related="${item}">${item}</button>`).join("");
       }
       loadSearchHistory();
@@ -1907,5 +1899,6 @@
   </script>
 </body>
 </html>
+
 
 

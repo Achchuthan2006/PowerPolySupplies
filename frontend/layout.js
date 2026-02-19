@@ -5,7 +5,7 @@ import { CartProvider } from '@/context/CartContext';
 
 export const metadata = {
   title: 'Power Poly Supplies',
-  description: 'Bulk garment cover bags, poly bags, wraps, racks, and professional-grade hangers.',
+  description: 'Bulk garment cover bags, poly bags, and professional-grade hangers.',
 };
 
 export default function RootLayout({ children }) {

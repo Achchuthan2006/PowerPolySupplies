@@ -46,8 +46,6 @@ export default function Header() {
                 <Link href="/products?cat=Garment%20Bags">Garment Cover Bags</Link>
                 <Link href="/products?cat=Polybags">Polybags</Link>
                 <Link href="/products?cat=Hangers">Hangers</Link>
-                <Link href="/products?cat=Wraps">Wraps</Link>
-                <Link href="/products?cat=Racks">Racks</Link>
               </div>
             </div>
 

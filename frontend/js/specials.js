@@ -54,9 +54,7 @@
       const map = {
         "Garment Bags": "Housses de vetements",
         "Hangers": "Cintres",
-        "Polybags": "Sacs en poly",
-        "Wraps": "Films",
-        "Racks": "Portants"
+        "Polybags": "Sacs en poly"
       };
       return map[category] || category || "";
     }
@@ -64,9 +62,7 @@
       const map = {
         "Garment Bags": "Garment Bags",
         "Hangers": "Hangers",
-        "Polybags": "Polybags",
-        "Wraps": "Wraps",
-        "Racks": "Racks"
+        "Polybags": "Polybags"
       };
       return map[category] || category || "";
     }
@@ -74,9 +70,7 @@
       const map = {
         "Garment Bags": "Bolsas para prendas",
         "Hangers": "Ganchos",
-        "Polybags": "Bolsas de polietileno",
-        "Wraps": "Film",
-        "Racks": "Percheros"
+        "Polybags": "Bolsas de polietileno"
       };
       return map[category] || category || "";
     }

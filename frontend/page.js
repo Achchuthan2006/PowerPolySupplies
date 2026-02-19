@@ -10,7 +10,7 @@ export default function HomePage() {
         </p>
         <h1>Power Poly Supplies</h1>
         <p>
-          Bulk garment cover bags, poly bags, wraps, racks, and professional-grade hangers. 
+          Bulk garment cover bags, poly bags, and professional-grade hangers. 
           Built for dry cleaners, laundromats, and retailers that need reliable stock.
         </p>
         

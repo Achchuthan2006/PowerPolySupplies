@@ -690,41 +690,43 @@ function injectFooter(){
             <li><a href="./feedback.html" data-i18n="footer.feedback">Feedback</a></li>
           </ul>
         </details>
-        <details class="footer-section footer-section-support footer-contact" open>
+        <details class="footer-section footer-section-support" open>
           <summary>
             <h4 data-i18n="footer.support">Support</h4>
             <span class="footer-caret" aria-hidden="true"></span>
           </summary>
-          <div data-i18n="footer.help_line">Help line:</div>
-          <div class="footer-contact-row">
-            <span class="footer-inline-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path d="M6.6 2.9c.6-.6 1.6-.7 2.3-.2l3 2a1.8 1.8 0 0 1 .6 2.3l-1.1 2.2a1 1 0 0 0 .2 1.2l2.8 2.8a1 1 0 0 0 1.2.2l2.2-1.1a1.8 1.8 0 0 1 2.3.6l2 3a1.8 1.8 0 0 1-.2 2.3l-1.3 1.3c-.8.8-2 1.2-3.1 1-3.1-.5-6.2-2.2-9.1-5.1S2.3 9.7 1.8 6.6c-.2-1.1.2-2.3 1-3.1z"/></svg>
-            </span>
-            Angel <a href="tel:+16475238645">647-523-8645</a>
-          </div>
-          <div class="footer-contact-row">
-            <span class="footer-inline-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path d="M6.6 2.9c.6-.6 1.6-.7 2.3-.2l3 2a1.8 1.8 0 0 1 .6 2.3l-1.1 2.2a1 1 0 0 0 .2 1.2l2.8 2.8a1 1 0 0 0 1.2.2l2.2-1.1a1.8 1.8 0 0 1 2.3.6l2 3a1.8 1.8 0 0 1-.2 2.3l-1.3 1.3c-.8.8-2 1.2-3.1 1-3.1-.5-6.2-2.2-9.1-5.1S2.3 9.7 1.8 6.6c-.2-1.1.2-2.3 1-3.1z"/></svg>
-            </span>
-            Andrew <a href="tel:+14374256638">437-425-6638</a>
-          </div>
-          <div class="footer-contact-row">
-            <span class="footer-inline-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path d="M6.6 2.9c.6-.6 1.6-.7 2.3-.2l3 2a1.8 1.8 0 0 1 .6 2.3l-1.1 2.2a1 1 0 0 0 .2 1.2l2.8 2.8a1 1 0 0 0 1.2.2l2.2-1.1a1.8 1.8 0 0 1 2.3.6l2 3a1.8 1.8 0 0 1-.2 2.3l-1.3 1.3c-.8.8-2 1.2-3.1 1-3.1-.5-6.2-2.2-9.1-5.1S2.3 9.7 1.8 6.6c-.2-1.1.2-2.3 1-3.1z"/></svg>
-            </span>
-            Achchu <a href="tel:+16475704878">647-570-4878</a>
-          </div>
-          <div class="footer-contact-row">
-            <span class="footer-inline-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path d="M4 6h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1zm0 2.2V17h16V8.2l-7.6 4.53a1.5 1.5 0 0 1-1.54 0zM19.2 7H4.8l7.2 4.28z"/></svg>
-            </span>
-            <span data-i18n="footer.email">Email:</span> <a href="mailto:powerpolysupplies@gmail.com">powerpolysupplies@gmail.com</a>
-          </div>
-          <div class="footer-contact-row footer-address">
-            <span class="footer-inline-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 5.25-7 13-7 13S5 14.25 5 9a7 7 0 0 1 7-7zm0 4a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg>
-            </span>
-            <span data-i18n="footer.address">Address:</span> 15725 Weston Rd, Kettleby, ON L7B 0L4
+          <div class="footer-contact">
+            <div data-i18n="footer.help_line">Help line:</div>
+            <div class="footer-contact-row">
+              <span class="footer-inline-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M6.6 2.9c.6-.6 1.6-.7 2.3-.2l3 2a1.8 1.8 0 0 1 .6 2.3l-1.1 2.2a1 1 0 0 0 .2 1.2l2.8 2.8a1 1 0 0 0 1.2.2l2.2-1.1a1.8 1.8 0 0 1 2.3.6l2 3a1.8 1.8 0 0 1-.2 2.3l-1.3 1.3c-.8.8-2 1.2-3.1 1-3.1-.5-6.2-2.2-9.1-5.1S2.3 9.7 1.8 6.6c-.2-1.1.2-2.3 1-3.1z"/></svg>
+              </span>
+              Angel <a href="tel:+16475238645">647-523-8645</a>
+            </div>
+            <div class="footer-contact-row">
+              <span class="footer-inline-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M6.6 2.9c.6-.6 1.6-.7 2.3-.2l3 2a1.8 1.8 0 0 1 .6 2.3l-1.1 2.2a1 1 0 0 0 .2 1.2l2.8 2.8a1 1 0 0 0 1.2.2l2.2-1.1a1.8 1.8 0 0 1 2.3.6l2 3a1.8 1.8 0 0 1-.2 2.3l-1.3 1.3c-.8.8-2 1.2-3.1 1-3.1-.5-6.2-2.2-9.1-5.1S2.3 9.7 1.8 6.6c-.2-1.1.2-2.3 1-3.1z"/></svg>
+              </span>
+              Andrew <a href="tel:+14374256638">437-425-6638</a>
+            </div>
+            <div class="footer-contact-row">
+              <span class="footer-inline-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M6.6 2.9c.6-.6 1.6-.7 2.3-.2l3 2a1.8 1.8 0 0 1 .6 2.3l-1.1 2.2a1 1 0 0 0 .2 1.2l2.8 2.8a1 1 0 0 0 1.2.2l2.2-1.1a1.8 1.8 0 0 1 2.3.6l2 3a1.8 1.8 0 0 1-.2 2.3l-1.3 1.3c-.8.8-2 1.2-3.1 1-3.1-.5-6.2-2.2-9.1-5.1S2.3 9.7 1.8 6.6c-.2-1.1.2-2.3 1-3.1z"/></svg>
+              </span>
+              Achchu <a href="tel:+16475704878">647-570-4878</a>
+            </div>
+            <div class="footer-contact-row">
+              <span class="footer-inline-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M4 6h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1zm0 2.2V17h16V8.2l-7.6 4.53a1.5 1.5 0 0 1-1.54 0zM19.2 7H4.8l7.2 4.28z"/></svg>
+              </span>
+              <span data-i18n="footer.email">Email:</span> <a href="mailto:powerpolysupplies@gmail.com">powerpolysupplies@gmail.com</a>
+            </div>
+            <div class="footer-contact-row footer-address">
+              <span class="footer-inline-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 5.25-7 13-7 13S5 14.25 5 9a7 7 0 0 1 7-7zm0 4a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg>
+              </span>
+              <span data-i18n="footer.address">Address:</span> 15725 Weston Rd, Kettleby, ON L7B 0L4
+            </div>
           </div>
         </details>
         <details class="footer-section footer-section-connect" open>
@@ -2965,6 +2967,65 @@ function suppressVercelOverlays(){
   }
 }
 
+function enforceAvailableCategoryCopy(){
+  const lang = window.PPS_I18N?.getLang?.() || "en";
+  const copyByLang = {
+    en: {
+      "nav.wraps": "Polybags",
+      "nav.racks": "Hangers",
+      "index.hero.desc": "Bulk garment cover bags, poly bags, and professional-grade hangers. Built for dry cleaners, laundromats, and retailers that need reliable stock.",
+      "products.subtitle": "Choose garment cover bags, hangers, and polybags. Bulk-friendly pricing with dependable stock.",
+      "resources.planner.meta": "Use this simple method to estimate monthly bags, hangers, and polybag needs.",
+      "feedback.quote.twelve": "Great variety of garment bags and polybags. The team makes bulk ordering simple."
+    },
+    fr: {
+      "nav.wraps": "Sacs en poly",
+      "nav.racks": "Cintres",
+      "index.hero.desc": "Housses a vetements, sacs en poly et cintres professionnels en vrac. Concu pour les nettoyeurs a sec, blanchisseries et detaillants qui ont besoin d'un stock fiable.",
+      "products.subtitle": "Choisissez des housses, cintres et sacs en poly. Prix en vrac et stock fiable.",
+      "resources.planner.meta": "Une methode simple pour estimer housses, cintres et sacs poly mensuels.",
+      "feedback.quote.twelve": "Grande variete de housses et de sacs en poly. L'equipe rend les commandes en gros simples."
+    },
+    es: {
+      "nav.wraps": "Bolsas de polietileno",
+      "nav.racks": "Ganchos",
+      "products.subtitle": "Elige fundas para prendas, ganchos y bolsas de polietileno. Precio mayorista y stock confiable.",
+      "resources.planner.meta": "Usa este metodo simple para estimar fundas, ganchos y bolsas de polietileno mensuales.",
+      "feedback.quote.twelve": "Gran variedad de fundas y polybags. El equipo hace simple pedir al por mayor."
+    },
+    ko: {
+      "nav.wraps": "폴리백",
+      "nav.racks": "행거",
+      "index.hero.desc": "대량 의류 커버 백, 폴리백 및 전문가급 옷걸이. 안정적인 재고가 필요한 세탁소, 세탁소 및 소매업체를 위해 제작되었습니다.",
+      "products.subtitle": "의류 커버 백, 행거, 폴리백을 선택하세요. 신뢰할 수 있는 재고를 갖춘 대량 친화적인 가격.",
+      "resources.planner.meta": "월간 커버백, 옷걸이, 폴리백 사용량을 추정하는 간단한 방법.",
+      "feedback.quote.twelve": "의류 커버백과 폴리백 종류가 다양합니다. 대량 주문을 간단하게 만들어줘요."
+    },
+    hi: {
+      "nav.wraps": "पॉलीबैग",
+      "nav.racks": "हैंगर्स",
+      "index.hero.desc": "बल्क गारमेंट कवर बैग, पॉली बैग और प्रोफेशनल हैंगर। ड्राई क्लीनर्स, लॉन्ड्रोमैट्स और रिटेलर्स के लिए भरोसेमंद स्टॉक।",
+      "products.subtitle": "गारमेंट कवर बैग, हैंगर और पॉलीबैग चुनें। बल्क-फ्रेंडली कीमतों के साथ भरोसेमंद स्टॉक।",
+      "resources.planner.meta": "मासिक बैग, हैंगर और पॉलीबैग की जरूरत का अनुमान लगाने का आसान तरीका।",
+      "feedback.quote.twelve": "गारमेंट बैग और पॉलीबैग की अच्छी वैरायटी। टीम बल्क ऑर्डरिंग को सरल बनाती है।"
+    },
+    ta: {
+      "nav.wraps": "பாலிபேக்குகள்",
+      "nav.racks": "ஹேங்கர்கள்",
+      "index.hero.desc": "மொத்த ஆடை கவர் பைகள், பாலி பைகள் மற்றும் தொழில்முறை ஹேங்கர்கள். ட்ரை கிளீனர், லாண்ட்ரோமாட் மற்றும் ரிடெய்லர்களுக்கு நம்பகமான கையிருப்பு.",
+      "products.subtitle": "ஆடை கவர் பைகள், ஹேங்கர்கள், பாலிபேக்குகள். மொத்த விலை மற்றும் நம்பகமான கையிருப்பு.",
+      "resources.planner.meta": "மாதாந்திர பேக்கள், ஹேங்கர்கள், பாலிபேக்குகள் தேவையை கணக்கிடும் எளிய முறை.",
+      "feedback.quote.twelve": "ஆடை கவர் பைகள் மற்றும் பாலிபேக்குகள் நிறைய வகைகள். மொத்த ஆர்டர் செய்வதை சுலபமாக்குகிறார்கள்."
+    }
+  };
+  const selected = copyByLang[lang] || copyByLang.en;
+  Object.entries(selected).forEach(([key, text]) => {
+    document.querySelectorAll(`[data-i18n="${key}"]`).forEach((el) => {
+      el.textContent = text;
+    });
+  });
+}
+
 // Run ASAP so login.html doesn't render before the redirect.
 handleOauthReturn();
 
@@ -3021,6 +3082,8 @@ window.addEventListener("DOMContentLoaded", ()=>{
   injectHelpWidget();
   setupRetentionSignals();
   scheduleLanguagePrompt();
+  enforceAvailableCategoryCopy();
+  window.addEventListener("pps:lang", ()=> setTimeout(enforceAvailableCategoryCopy, 0));
 });
 
 // Expose to pages that render footers dynamically after load
