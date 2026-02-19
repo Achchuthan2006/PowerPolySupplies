@@ -4714,17 +4714,17 @@ select.input option:hover{
 }
 .cart-cross-sell-title{
   margin:0;
-  font-size:34px;
-  line-height:1.18;
+  font-size:28px;
+  line-height:1.22;
   letter-spacing:-0.01em;
-  font-weight:900;
+  font-weight:800;
   color:var(--text);
 }
 .cart-cross-sell-desc{
   margin:8px 0 0;
   color:var(--muted);
-  font-size:17px;
-  line-height:1.5;
+  font-size:15px;
+  line-height:1.45;
   font-weight:700;
 }
 .cart-cross-sell-grid{
@@ -4952,13 +4952,13 @@ select.input option:hover{
     align-items:flex-start;
   }
   .cart-cross-sell-title{
-    font-size:18px;
-    line-height:1.25;
+    font-size:16px;
+    line-height:1.28;
     letter-spacing:0;
   }
   .cart-cross-sell-desc{
-    font-size:13px;
-    line-height:1.4;
+    font-size:12px;
+    line-height:1.35;
     margin-top:4px;
   }
   .cart-empty{

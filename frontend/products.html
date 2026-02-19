@@ -1479,6 +1479,13 @@
           filterSearch.addEventListener("input", ()=>{
             buildSearchSuggestions(products, filterSearch.value);
           });
+          filterSearch.addEventListener("focus", ()=>{
+            if(!isMobileProducts) return;
+            setFiltersOpen(true);
+            setTimeout(()=>{
+              try{ filterSearch.scrollIntoView({ block:"center", behavior:"smooth" }); }catch(_err){}
+            }, 220);
+          });
           filterSearch.addEventListener("keydown", (e)=>{
             if(e.key !== "Enter") return;
             e.preventDefault();
@@ -1520,9 +1527,16 @@
         if(filtersOverlay){
           filtersOverlay.addEventListener("click", ()=> setFiltersOpen(false));
         }
+        const isEditingFiltersField = ()=>{
+          const active = document.activeElement;
+          if(!(active instanceof Element)) return false;
+          if(!active.closest("#filtersPanel")) return false;
+          return /^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName);
+        };
         const closeFiltersOnOutsideTap = (e)=>{
           if(!isMobileProducts) return;
           if(!document.body.classList.contains("filters-open")) return;
+          if(isEditingFiltersField()) return;
           const target = e.target;
           if(!(target instanceof Element)) return;
           if(target.closest("#filtersPanel") || target.closest("#toggleFilters") || target.closest("#openAdvancedFilters")) return;
@@ -1533,11 +1547,15 @@
         });
         const closeFiltersEverywhere = ()=>{
           if(isMobileProducts){
+            if(isEditingFiltersField()) return;
             setFiltersOpen(false);
           }
         };
         window.addEventListener("scroll", closeFiltersEverywhere, { passive: true });
         window.addEventListener("resize", closeFiltersEverywhere, { passive: true });
+        if(window.visualViewport){
+          window.visualViewport.addEventListener("resize", closeFiltersEverywhere, { passive: true });
+        }
         window.addEventListener("orientationchange", closeFiltersEverywhere);
         document.addEventListener("visibilitychange", ()=>{
           if(document.hidden){
