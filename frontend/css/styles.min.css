@@ -5,7 +5,7 @@
 @media(max-width:900px){.cred-grid{grid-template-columns:minmax(0,1fr)!important;gap:12px}.cred-card{padding:16px}}
 
 /* Mobile hamburger submenu: force accordion drop-down, never side flyout */
-@media (max-width:768px){.navlinks .dropdown{display:block;width:100%}.navlinks .dropbtn{width:100%;justify-content:space-between;align-items:center}.navlinks .dropdown-menu{position:static!important;top:auto!important;left:auto!important;transform:none!important;opacity:1!important;pointer-events:auto!important;min-width:0!important;max-width:100%!important;width:100%;margin-top:6px;display:none;border:1px solid rgba(255,122,26,.2);border-radius:12px;box-shadow:none;overflow:visible;background:rgba(240,127,41,.06)}.navlinks .dropdown.open .dropdown-menu{display:block}.navlinks .dropdown-menu a{width:100%;padding:11px 12px;white-space:normal;word-break:break-word}}
+@media (max-width:768px){.navlinks .dropdown{display:block;width:100%}.navlinks .dropbtn{width:100%;justify-content:center;align-items:center;text-align:center}.navlinks .dropdown-menu{position:static!important;top:auto!important;left:auto!important;transform:none!important;opacity:1!important;pointer-events:auto!important;min-width:0!important;max-width:100%!important;width:100%;margin-top:6px;display:none;border:1px solid rgba(255,122,26,.2);border-radius:12px;box-shadow:none;overflow:visible;background:rgba(240,127,41,.06)}.navlinks .dropdown.open .dropdown-menu{display:block}.navlinks .dropdown-menu a{width:100%;padding:11px 12px;white-space:normal;word-break:break-word}}
 @media(max-width:768px){.testimonial-marquee{overflow-x:auto;overflow-y:visible;-webkit-mask-image:none;mask-image:none;padding-bottom:4px}.testimonial-track{width:100%;gap:10px;animation:none!important;transform:none!important;will-change:auto;overflow-x:auto;overflow-y:visible;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding-inline:2px}.testimonial-track .testimonial-card{flex:0 0 100%;width:100%;scroll-snap-align:start;scroll-snap-stop:always;animation:none}.testimonial-text,.testimonial-meta{white-space:normal;overflow-wrap:anywhere;word-break:break-word}}
 
 .help-widget{top:auto;left:auto}
@@ -29,6 +29,7 @@
 /* Footer accordion cue clarity: larger chevron + clear open rotation */
 .dark-footer .footer-caret{display:inline-flex;width:12px;height:12px;margin-left:auto;border-right:2px solid rgba(255,255,255,.96);border-bottom:2px solid rgba(255,255,255,.96);transform:rotate(45deg);transform-origin:center;transition:transform .22s ease,border-color .22s ease,opacity .22s ease;opacity:.95}
 .dark-footer .footer-section[open] .footer-caret{transform:rotate(225deg);border-color:#fff;opacity:1}
+
 
 
 

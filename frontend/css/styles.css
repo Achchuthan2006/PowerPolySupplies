@@ -7047,7 +7047,8 @@ select.input option:hover{
     padding:12px 12px;
     border-radius:12px;
     align-items:center;
-    justify-content:flex-start;
+    justify-content:center;
+    text-align:center;
   }
   .navlinks .dropbtn{
     width:100%;
@@ -7154,8 +7155,9 @@ select.input option:hover{
     }
     .navlinks .dropbtn{
       width:100%;
-      justify-content:space-between;
+      justify-content:center;
       align-items:center;
+      text-align:center;
     }
     .navlinks .dropdown-menu{
       position:static !important;
