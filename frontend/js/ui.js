@@ -2967,6 +2967,59 @@ function suppressVercelOverlays(){
   }
 }
 
+function suppressCartEmailPopup(){
+  const phrases = [
+    "finish your order",
+    "email my cart",
+    "we can email your cart"
+  ];
+  const candidateSelector = [
+    ".pps-modal-overlay",
+    ".pps-modal",
+    ".modal",
+    ".overlay",
+    "form",
+    "section",
+    "aside",
+    "div"
+  ].join(",");
+
+  const shouldRemove = (el)=>{
+    if(!el || el.nodeType !== 1) return false;
+    let text = "";
+    try{
+      text = String(el.textContent || "").toLowerCase();
+    }catch(_err){
+      text = "";
+    }
+    return phrases.some((phrase)=> text.includes(phrase));
+  };
+
+  const removeMatches = ()=>{
+    document.querySelectorAll(candidateSelector).forEach((el)=>{
+      if(!shouldRemove(el)) return;
+      try{
+        el.remove();
+      }catch(_err){
+        if(el && el.style){
+          el.style.display = "none";
+          el.style.visibility = "hidden";
+          el.style.pointerEvents = "none";
+        }
+      }
+    });
+  };
+
+  removeMatches();
+  setTimeout(removeMatches, 250);
+  setTimeout(removeMatches, 1000);
+
+  if(typeof MutationObserver !== "undefined"){
+    const observer = new MutationObserver(()=> removeMatches());
+    observer.observe(document.documentElement || document.body, { childList:true, subtree:true });
+  }
+}
+
 function enforceAvailableCategoryCopy(){
   const lang = window.PPS_I18N?.getLang?.() || "en";
   const copyByLang = {
@@ -3034,6 +3087,7 @@ setupPageTransitionProgress();
 
 window.addEventListener("DOMContentLoaded", ()=>{
   suppressVercelOverlays();
+  suppressCartEmailPopup();
   try{
     if("serviceWorker" in navigator){
       navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(()=>{});
