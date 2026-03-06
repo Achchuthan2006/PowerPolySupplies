@@ -672,6 +672,97 @@
     }
   }
 
+  function setupPostPagination(posts) {
+    const postsWrap = document.querySelector(".blog-posts");
+    if (!postsWrap || !Array.isArray(posts) || !posts.length) return;
+
+    const mobileMq = window.matchMedia("(max-width: 860px)");
+    const pageSize = 3;
+    let visibleCount = pageSize;
+
+    const control = document.createElement("div");
+    control.className = "blog-load-more";
+    control.style.marginTop = "14px";
+    control.style.textAlign = "center";
+    control.innerHTML = `<button class="btn btn-outline" type="button">${tt("blog.load_more", "Load more articles")}</button>`;
+    const btn = control.querySelector("button");
+    postsWrap.insertAdjacentElement("afterend", control);
+
+    const getHashId = () => {
+      const raw = String(window.location.hash || "").trim();
+      return raw.startsWith("#") ? raw.slice(1) : "";
+    };
+
+    const ensureHashTargetVisible = () => {
+      const id = getHashId();
+      if (!id) return null;
+      const idx = posts.findIndex((p) => p.id === id);
+      if (idx < 0) return null;
+      visibleCount = Math.max(visibleCount, idx + 1);
+      return posts[idx]?.el || null;
+    };
+
+    const applyVisibility = () => {
+      if (!mobileMq.matches) {
+        posts.forEach((post) => {
+          post.el.style.display = "";
+          post.el.hidden = false;
+        });
+        control.hidden = true;
+        return;
+      }
+
+      ensureHashTargetVisible();
+
+      const safeVisible = Math.max(1, Math.min(posts.length, visibleCount));
+      posts.forEach((post, idx) => {
+        const show = idx < safeVisible;
+        post.el.style.display = show ? "" : "none";
+        post.el.hidden = !show;
+      });
+
+      const remaining = Math.max(0, posts.length - safeVisible);
+      if (remaining > 0) {
+        btn.textContent = `${tt("blog.load_more", "Load more articles")} (${remaining})`;
+        control.hidden = false;
+      } else {
+        control.hidden = true;
+      }
+    };
+
+    btn.addEventListener("click", () => {
+      visibleCount = Math.min(posts.length, visibleCount + pageSize);
+      applyVisibility();
+    });
+
+    window.addEventListener("hashchange", () => {
+      if (!mobileMq.matches) return;
+      const target = ensureHashTargetVisible();
+      applyVisibility();
+      if (target) {
+        setTimeout(() => {
+          try {
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
+          } catch {
+            // ignore
+          }
+        }, 40);
+      }
+    });
+
+    const onBreakpoint = () => {
+      visibleCount = pageSize;
+      applyVisibility();
+    };
+    if (typeof mobileMq.addEventListener === "function") {
+      mobileMq.addEventListener("change", onBreakpoint);
+    } else if (typeof mobileMq.addListener === "function") {
+      mobileMq.addListener(onBreakpoint);
+    }
+
+    applyVisibility();
+  }
+
   function init() {
     const posts = parsePosts();
     if (!posts.length) return;
@@ -686,6 +777,7 @@
     addComments(posts);
     addPrevNext(posts);
     addShareBarsBottom(posts);
+    setupPostPagination(posts);
     setupSubscribeForm();
   }
 

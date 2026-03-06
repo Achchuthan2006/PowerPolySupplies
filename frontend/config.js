@@ -5,8 +5,14 @@
 (function(){
   const host = String(window.location.hostname || "").toLowerCase();
   const isLocal = host === "localhost" || host === "127.0.0.1";
-  const isRender = host.endsWith("onrender.com");
-  window.API_BASE_URL = (isLocal || isRender) ? "" : "https://powerpolysupplies.onrender.com";
+  const backendOrigin = "https://powerpolysupplies.onrender.com";
+  const sameOriginHosts = new Set([
+    "powerpolysupplies.com",
+    "www.powerpolysupplies.com",
+    "powerpolysupplies.onrender.com"
+  ]);
+  const useSameOrigin = isLocal || sameOriginHosts.has(host);
+  window.API_BASE_URL = useSameOrigin ? "" : backendOrigin;
 })();
 
 // Backwards-compat: older scripts read `window.PPS_API_BASE`.

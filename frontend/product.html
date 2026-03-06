@@ -64,6 +64,13 @@
     PPS.updateCartBadge();
 
     function qs(name){ return new URLSearchParams(location.search).get(name); }
+    function escAttr(value){
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
 
     function categoryLabel(category){
       const map = {
@@ -446,7 +453,7 @@
         return `
           <div class="card mini-card">
             <a href="./product.html?slug=${encodeURIComponent(item.slug)}">
-              <img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async" width="320" height="170">
+              <img src="${item.image}" alt="${escAttr(item.name)}" loading="lazy" decoding="async" width="320" height="170">
             </a>
             <div class="card-body">
               <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(item.slug)}">${item.name}</a>
@@ -853,7 +860,7 @@
           <div class="card fade-in">
             <div class="product-gallery">
               <div class="product-gallery-main">
-                <img id="mainImg" src="${galleryMain}" alt="${displayName}" width="900" height="640" decoding="async">
+                <img id="mainImg" src="${galleryMain}" alt="${escAttr(displayName)}" width="900" height="640" decoding="async">
               </div>
               ${galleryThumbs}
             </div>
@@ -1538,11 +1545,20 @@
         });
       }
 
-      // Engagement timing
+      // Engagement timing: use page lifecycle events instead of unload.
       const startTime = Date.now();
-      window.addEventListener("beforeunload", ()=>{
+      let sentTimeOnPage = false;
+      const recordTimeOnPage = ()=>{
+        if(sentTimeOnPage) return;
+        sentTimeOnPage = true;
         const seconds = Math.round((Date.now() - startTime) / 1000);
         window.PPS_ANALYTICS?.record?.("product_time_on_page", { id: p.id, seconds });
+      };
+      window.addEventListener("pagehide", recordTimeOnPage, { once: true });
+      document.addEventListener("visibilitychange", ()=>{
+        if(document.visibilityState === "hidden"){
+          recordTimeOnPage();
+        }
       });
 
       // Shipping calculator by postal code
@@ -1641,7 +1657,7 @@
             return `
               <div class="card">
                 <a href="./product.html?slug=${encodeURIComponent(item.slug)}">
-                  <img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async" width="400" height="190">
+                  <img src="${item.image}" alt="${escAttr(item.name)}" loading="lazy" decoding="async" width="400" height="190">
                 </a>
                 <div class="card-body">
                   <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(item.slug)}">${item.name}</a>
@@ -2079,7 +2095,7 @@
         return `
           <div class="card fade-in">
             <a href="./product.html?slug=${encodeURIComponent(item.slug)}">
-              <img src="${item.image}" alt="${displayName}" loading="lazy" decoding="async" width="400" height="190">
+              <img src="${item.image}" alt="${escAttr(displayName)}" loading="lazy" decoding="async" width="400" height="190">
             </a>
             <div class="card-body">
               <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(item.slug)}">${displayName}</a>

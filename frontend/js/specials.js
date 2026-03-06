@@ -10,6 +10,12 @@
   };
 
   const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
+  const escAttr = (value) =>
+    String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/"/g, "&quot;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
 
   function hashString(str) {
     const s = String(str || "");
@@ -324,7 +330,7 @@
 
       <div class="specials-spotlight-body">
         <a class="specials-spotlight-media" href="./product.html?slug=${encodeURIComponent(p.slug)}">
-          <img src="${p.image}" alt="${p.name || ""}" loading="lazy" decoding="async" width="640" height="280">
+          <img src="${p.image}" alt="${escAttr(p.name || "")}" loading="lazy" decoding="async" width="640" height="280">
         </a>
          <div class="specials-spotlight-info">
            <a class="specials-spotlight-title" href="./product.html?slug=${encodeURIComponent(p.slug)}">${p.name || ""}</a>
@@ -353,23 +359,24 @@
              </div>
            </div>
 
-           <div class="qty-row" style="margin-top:16px;">
-             <div class="qty-stepper" aria-label="Quantity selector">
-               <button class="qty-btn" type="button" id="spotQtyMinus" aria-label="Decrease quantity">-</button>
-               <input class="qty-input" id="spotQty" inputmode="numeric" pattern="[0-9]*" value="1" aria-label="Quantity">
-               <button class="qty-btn" type="button" id="spotQtyPlus" aria-label="Increase quantity">+</button>
+           <div class="deal-actions">
+             <div class="qty-row qty-control">
+               <div class="qty-stepper" aria-label="Quantity selector">
+                 <button class="qty-btn" type="button" id="spotQtyMinus" aria-label="Decrease quantity">-</button>
+                 <input class="qty-input" id="spotQty" inputmode="numeric" pattern="[0-9]*" value="1" aria-label="Quantity">
+                 <button class="qty-btn" type="button" id="spotQtyPlus" aria-label="Increase quantity">+</button>
+               </div>
+               <div class="qty-meta">
+                 <div class="qty-total" id="spotQtyTotal"></div>
+                 <div class="qty-note" id="spotQtyNote"></div>
+               </div>
              </div>
-             <div class="qty-meta">
-               <div class="qty-total" id="spotQtyTotal"></div>
-               <div class="qty-note" id="spotQtyNote"></div>
+             <div class="btn-row">
+               <a class="btn btn-outline" href="./product.html?slug=${encodeURIComponent(p.slug)}">${view}</a>
+               <button class="btn btn-primary" ${p.stock <= 0 ? "disabled" : ""} data-add-id="${p.id}" data-qty-input="spotQty">${add}</button>
+               <a class="btn" href="./cart.html" data-i18n="specials.action.cart">${tt("specials.action.cart", "Go to cart")}</a>
+               <a class="btn btn-outline" href="./contact.html?subject=${encodeURIComponent("Bulk quote")}&product=${encodeURIComponent(p.name || "")}">${bulkQuote}</a>
              </div>
-           </div>
-
-           <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
-             <a class="btn btn-outline" href="./product.html?slug=${encodeURIComponent(p.slug)}">${view}</a>
-             <button class="btn btn-primary" ${p.stock <= 0 ? "disabled" : ""} data-add-id="${p.id}" data-qty-input="spotQty">${add}</button>
-             <a class="btn" href="./cart.html" data-i18n="specials.action.cart">${tt("specials.action.cart", "Go to cart")}</a>
-             <a class="btn btn-outline" href="./contact.html?subject=${encodeURIComponent("Bulk quote")}&product=${encodeURIComponent(p.name || "")}">${bulkQuote}</a>
            </div>
 
            <div class="delivery-estimate" id="spotDeliveryEstimate" aria-live="polite"></div>
@@ -411,7 +418,7 @@
       <div class="card fade-in specials-card" data-ends="${endsAt}">
         <div class="specials-media">
           <a href="./product.html?slug=${encodeURIComponent(p.slug)}">
-            <img src="${p.image}" alt="${displayName}" loading="lazy" decoding="async" width="400" height="190">
+            <img src="${p.image}" alt="${escAttr(displayName)}" loading="lazy" decoding="async" width="400" height="190">
           </a>
           <div class="specials-badges">
             <span class="specials-badge specials-badge-save">${saveTpl.replace("{{pct}}", String(deal.pct))}</span>
