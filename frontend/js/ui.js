@@ -102,29 +102,20 @@ function setupFadeIn(){
 function setupStickyHeader(){
   const header = document.querySelector(".site-header");
   if(!header) return;
-  const navLinks = document.getElementById("navLinks");
   let ticking = false;
-  let lastY = Math.max(0, window.scrollY || 0);
+  let isScrolled = false;
   const onScroll = ()=>{
     if(ticking) return;
     ticking = true;
     requestAnimationFrame(()=>{
       const y = Math.max(0, window.scrollY || 0);
-      header.classList.toggle("scrolled", y > 8);
-      if(navLinks?.classList?.contains("open")){
-        header.classList.remove("promo-collapsed");
-        lastY = y;
-        ticking = false;
-        return;
+      const nextScrolled = y > 8;
+      if(nextScrolled !== isScrolled){
+        isScrolled = nextScrolled;
+        header.classList.toggle("scrolled", isScrolled);
       }
-      if(y <= 12){
-        header.classList.remove("promo-collapsed");
-      }else if(y > lastY + 2){
-        header.classList.add("promo-collapsed");
-      }else if(y < lastY - 2){
-        header.classList.remove("promo-collapsed");
-      }
-      lastY = y;
+      // Keep promo strip stable to avoid jumpy header movement on desktop/mobile scroll.
+      header.classList.remove("promo-collapsed");
       ticking = false;
     });
   };
