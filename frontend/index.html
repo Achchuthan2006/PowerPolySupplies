@@ -94,7 +94,6 @@
         <article class="hero hero-split hero-no-media hero-slide" data-hero-slide>
           <div class="hero-content">
             <div class="hero-eyebrow">Deals & bulk savings</div>
-            <img class="hero-product-image" src="./assets/powerpolyboxesinventory.webp" alt="Bulk packaging inventory ready to ship" width="220" height="220" loading="lazy" decoding="async">
             <h2>Deals of the day for route-ready packaging</h2>
             <p>Lock in discounted bulk pricing for fast-moving sizes and shipment-ready film.</p>
             <div class="hero-tags">
@@ -111,7 +110,6 @@
         <article class="hero hero-split hero-no-media hero-slide" data-hero-slide>
           <div class="hero-content">
             <div class="hero-eyebrow">New arrivals</div>
-            <img class="hero-product-image" src="./assets/polybag%20clear.webp" alt="New clear polybag arrivals" width="220" height="220" loading="lazy" decoding="async">
             <h2>Recently launched packaging essentials</h2>
             <p>Fresh stock of clear garment bags, premium hangers, and poly film for peak season demand.</p>
             <div class="hero-tags">
@@ -434,8 +432,8 @@
     <section class="card fade-in" style="padding:18px; margin-top:16px;">
       <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
         <div>
-          <h2 id="recommendedTitle" style="margin:0;">Popular picks</h2>
-          <div id="recommendedSub" style="color:var(--muted); font-size:13px; margin-top:4px;">Top products customers reorder most often.</div>
+          <h2 style="margin:0;">Recommended for you</h2>
+          <div style="color:var(--muted); font-size:13px; margin-top:4px;">Based on your browsing history and cart activity.</div>
         </div>
         <a class="btn btn-outline btn-sm" href="./products.html">Shop catalog</a>
       </div>
@@ -639,7 +637,7 @@
             <div class="tool-row">
               <label>
                 <span>Minutes saved / order</span>
-                <input class="input" name="minutesSaved" type="number" min="0" step="0.1" value="0.6">
+                <input class="input" name="minutesSaved" type="number" min="0" step="0.5" value="0.6">
               </label>
               <label>
                 <span>Hourly labor cost</span>
@@ -987,38 +985,16 @@
 
     function setupHomeTestimonials(){
       const track = document.getElementById("homeTestimonialGrid");
-      if(!track) return;
+      if(!track || track.dataset.cloned === "true") return;
 
       const lang = window.PPS_I18N?.getLang?.() || "en";
       if(lang !== "en"){
         track.querySelectorAll(".testimonial-card.en-only").forEach(el => el.remove());
       }
 
-      track.querySelectorAll(".testimonial-clone").forEach((clone)=> clone.remove());
-      const cards = Array.from(track.querySelectorAll(".testimonial-card:not(.testimonial-clone)"));
-      if(!cards.length){
-        track.dataset.cloned = "false";
-        track.classList.remove("is-marquee");
-        return;
-      }
-      const shouldCloneForMarquee = window.matchMedia("(min-width: 769px) and (prefers-reduced-motion: no-preference)").matches;
-      if(!shouldCloneForMarquee){
-        track.dataset.cloned = "false";
-        track.classList.remove("is-marquee");
-        track.style.removeProperty("--marquee-duration");
-        return;
-      }
-
-      track.classList.add("is-marquee");
-      cards.forEach((card)=>{
-        const clone = card.cloneNode(true);
-        clone.setAttribute("aria-hidden", "true");
-        clone.classList.add("testimonial-clone");
-        clone.querySelectorAll("a, button, input, select, textarea, [tabindex]").forEach((el)=>{
-          el.setAttribute("tabindex", "-1");
-        });
-        track.appendChild(clone);
-      });
+      const cards = Array.from(track.children);
+      if(!cards.length) return;
+      cards.forEach((card)=> track.appendChild(card.cloneNode(true)));
       track.dataset.cloned = "true";
       requestAnimationFrame(()=>{
         const total = track.scrollWidth / 2;
@@ -1064,16 +1040,10 @@
       setActive(0);
       const prevBtn = document.querySelector("[data-hero-prev]");
       const nextBtn = document.querySelector("[data-hero-next]");
-      const startAutoRotate = ()=>{
-        if(slides.length < 2 || document.hidden) return 0;
-        return window.setInterval(()=> setActive(index + 1), 7000);
-      };
+      const startAutoRotate = ()=> setInterval(()=> setActive(index + 1), 7000);
       let autoRotateTimer = startAutoRotate();
       const resetAutoRotate = ()=>{
-        if(autoRotateTimer){
-          clearInterval(autoRotateTimer);
-          autoRotateTimer = 0;
-        }
+        clearInterval(autoRotateTimer);
         autoRotateTimer = startAutoRotate();
       };
       const goToSlide = (next)=>{
@@ -1109,49 +1079,24 @@
           goToSlide(index - 1);
         }
       }, { passive:true });
-      document.addEventListener("visibilitychange", ()=>{
-        if(document.hidden){
-          if(autoRotateTimer){
-            clearInterval(autoRotateTimer);
-            autoRotateTimer = 0;
-          }
-          return;
-        }
-        if(!autoRotateTimer){
-          autoRotateTimer = startAutoRotate();
-        }
-      });
     }
 
     function setupDealsCountdown(){
       const countdownEl = document.getElementById("dealCountdown");
       if(!countdownEl) return;
       const end = Date.now() + (6 * 60 * 60 * 1000);
-      let timerId = 0;
-      let dealTimerTargets = [];
-      const syncDealTargets = ()=>{
-        dealTimerTargets = Array.from(document.querySelectorAll("[data-deal-timer]"));
-      };
       const update = ()=>{
-        if(document.hidden) return;
         const diff = Math.max(0, end - Date.now());
         const hrs = Math.floor(diff / 3600000);
         const mins = Math.floor((diff % 3600000) / 60000);
         const secs = Math.floor((diff % 60000) / 1000);
-        const value = `${String(hrs).padStart(2,"0")}:${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
-        countdownEl.textContent = value;
-        dealTimerTargets.forEach((el)=>{
-          el.textContent = value;
+        countdownEl.textContent = `${String(hrs).padStart(2,"0")}:${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
+        document.querySelectorAll("[data-deal-timer]").forEach(el=>{
+          el.textContent = countdownEl.textContent;
         });
-        if(diff <= 0 && timerId){
-          clearInterval(timerId);
-          timerId = 0;
-        }
       };
-      syncDealTargets();
-      window.addEventListener("pps:deals-rendered", syncDealTargets);
       update();
-      timerId = setInterval(update, 1000);
+      setInterval(update, 1000);
     }
 
     function setupFeaturedCarousel(){
@@ -1174,10 +1119,6 @@
       setupHeroCarousel();
       setupDealsCountdown();
       setupFeaturedCarousel();
-    });
-    window.addEventListener("resize", ()=>{
-      clearTimeout(window.__ppsTestimonialResizeTimer);
-      window.__ppsTestimonialResizeTimer = setTimeout(setupHomeTestimonials, 180);
     });
     (async ()=>{
       try{
@@ -1215,34 +1156,6 @@
           return counts;
         }
 
-        const CARD_IMAGE_FALLBACK = "./assets/poly%20logo%20without%20background.png";
-        const FALLBACK_ONERROR = "this.onerror=null;this.src='./assets/poly%20logo%20without%20background.png';";
-        function escAttr(value){
-          return String(value ?? "")
-            .replace(/&/g, "&amp;")
-            .replace(/"/g, "&quot;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;");
-        }
-        function getCardImage(item){
-          const raw = String(item?.image || "").trim();
-          if(!raw) return CARD_IMAGE_FALLBACK;
-          return raw.replace(/ /g, "%20");
-        }
-        function getCardAlt(item){
-          const name = String(item?.name || "").trim();
-          return name || "Product image";
-        }
-        let translationsScheduled = false;
-        const applyTranslationsSoon = ()=>{
-          if(translationsScheduled) return;
-          translationsScheduled = true;
-          requestAnimationFrame(()=>{
-            translationsScheduled = false;
-            window.PPS_I18N?.applyTranslations?.();
-          });
-        };
-
         function renderMiniCardGrid(targetId, list, emptyText){
           const grid = document.getElementById(targetId);
           if(!grid) return;
@@ -1259,12 +1172,10 @@
               : item.stock<=10
                 ? (window.PPS_I18N?.t("product.stock.low") || "Almost out of stock")
                 : (window.PPS_I18N?.t("product.stock.in") || "In stock");
-            const imgSrc = escAttr(getCardImage(item));
-            const imgAlt = escAttr(getCardAlt(item));
             return `
               <div class="card">
                 <a href="./product.html?slug=${encodeURIComponent(item.slug)}">
-                  <img src="${imgSrc}" alt="${imgAlt}" loading="lazy" decoding="async" width="400" height="190" onerror="${FALLBACK_ONERROR}">
+                  <img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async" width="400" height="190">
                 </a>
                 <div class="card-body">
                   <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(item.slug)}">${item.name}</a>
@@ -1283,7 +1194,7 @@
               </div>
             `;
           }).join("");
-          applyTranslationsSoon();
+          window.PPS_I18N?.applyTranslations?.();
         }
 
         function renderDealGrid(targetId, list, emptyText){
@@ -1296,12 +1207,10 @@
           grid.innerHTML = list.map(item=>{
             const compareCents = PPS.getComparePriceCents?.(item) ?? ((Number(item.priceCents) || 0) + 1000);
             const memberCents = Number(item.priceCents) || 0;
-            const imgSrc = escAttr(getCardImage(item));
-            const imgAlt = escAttr(getCardAlt(item));
             return `
               <div class="card">
                 <a href="./product.html?slug=${encodeURIComponent(item.slug)}">
-                  <img src="${imgSrc}" alt="${imgAlt}" loading="lazy" decoding="async" width="400" height="190" onerror="${FALLBACK_ONERROR}">
+                  <img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async" width="400" height="190">
                 </a>
                 <div class="card-body">
                   <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(item.slug)}">${item.name}</a>
@@ -1320,8 +1229,7 @@
               </div>
             `;
           }).join("");
-          window.dispatchEvent(new Event("pps:deals-rendered"));
-          applyTranslationsSoon();
+          window.PPS_I18N?.applyTranslations?.();
         }
 
         function renderCarouselGrid(targetId, list, emptyText){
@@ -1340,12 +1248,10 @@
               : item.stock<=10
                 ? (window.PPS_I18N?.t("product.stock.low") || "Almost out of stock")
                 : (window.PPS_I18N?.t("product.stock.in") || "In stock");
-            const imgSrc = escAttr(getCardImage(item));
-            const imgAlt = escAttr(getCardAlt(item));
             return `
               <div class="card">
                 <a href="./product.html?slug=${encodeURIComponent(item.slug)}">
-                  <img src="${imgSrc}" alt="${imgAlt}" loading="lazy" decoding="async" width="400" height="190" onerror="${FALLBACK_ONERROR}">
+                  <img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async" width="400" height="190">
                 </a>
                 <div class="card-body">
                   <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(item.slug)}">${item.name}</a>
@@ -1364,7 +1270,7 @@
               </div>
             `;
           }).join("");
-          applyTranslationsSoon();
+          window.PPS_I18N?.applyTranslations?.();
         }
 
         const recentSlugs = readRecentSlugs();
@@ -1376,18 +1282,6 @@
         const topCats = Object.keys(cartCatCounts).sort((a,b)=> (cartCatCounts[b] || 0) - (cartCatCounts[a] || 0));
         const recentCats = recentProducts.map(p=>p.category).filter(Boolean);
         const favoredCats = Array.from(new Set([...topCats, ...recentCats])).slice(0, 3);
-        const hasPersonalizationSignals = favoredCats.length > 0;
-        const recommendedTitle = document.getElementById("recommendedTitle");
-        const recommendedSub = document.getElementById("recommendedSub");
-        if(recommendedTitle && recommendedSub){
-          if(hasPersonalizationSignals){
-            recommendedTitle.textContent = "Recommended for you";
-            recommendedSub.textContent = "Based on your browsing history and cart activity.";
-          }else{
-            recommendedTitle.textContent = "Popular picks";
-            recommendedSub.textContent = "Top products customers reorder most often.";
-          }
-        }
 
         const recommended = products
           .filter(p=> favoredCats.includes(p.category) && !recentProducts.some(r=>r.id===p.id))
@@ -1402,11 +1296,9 @@
         const dealsDay = deals.length ? deals : products.slice(0, 4);
         const featured = products.slice(0, 10);
         const recentlyLaunched = products.slice(-4);
-        const mergedPersonalized = hasPersonalizationSignals
-          ? Array.from(new Map(
-              [...recommended, ...trends, ...deals].map(item => [item.id, item])
-            ).values()).slice(0, 4)
-          : products.slice(0, 4);
+        const mergedPersonalized = Array.from(new Map(
+          [...recommended, ...trends, ...deals].map(item => [item.id, item])
+        ).values()).slice(0, 4);
         const deferWork = (fn)=>{
           if(typeof window.requestIdleCallback === "function"){
             window.requestIdleCallback(fn, { timeout: 1200 });
@@ -1525,14 +1417,9 @@
         requestAnimationFrame(step);
       };
 
-      let remaining = els.length;
       const io = new IntersectionObserver((entries)=>{
         entries.forEach((entry)=>{
-          if(!entry.isIntersecting) return;
-          animate(entry.target);
-          io.unobserve(entry.target);
-          remaining = Math.max(0, remaining - 1);
-          if(!remaining) io.disconnect();
+          if(entry.isIntersecting) animate(entry.target);
         });
       }, { threshold: 0.15, rootMargin: "0px 0px -10% 0px" });
       els.forEach((el)=> io.observe(el));

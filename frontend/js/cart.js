@@ -52,14 +52,6 @@ function formatShortDate(d){
   }
 }
 
-function escAttr(value){
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/"/g, "&quot;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-}
-
 function getLastOrderKey(){
   const session = PPS.getSession?.();
   const email = String(session?.email || "").trim().toLowerCase();
@@ -333,7 +325,7 @@ function render(){
       ? picks.map(item=>`
         <div class="card">
           <a href="./product.html?slug=${encodeURIComponent(item.slug)}">
-            <img src="${item.image}" alt="${escAttr(item.name)}" loading="lazy" decoding="async" width="320" height="170">
+            <img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async" width="320" height="170">
           </a>
           <div class="card-body">
             <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(item.slug)}">${item.name}</a>

@@ -23,8 +23,7 @@
       flex:0 0 auto;
       border:1px solid rgba(17,24,39,.12);
       border-radius:999px;
-      min-height:44px;
-      padding:10px 18px;
+      padding:8px 12px;
       background:#fff;
       font-size:12px;
       font-weight:800;
@@ -808,14 +807,6 @@
         infiniteStatus.textContent = `Showing ${Math.min(visibleCount, currentFiltered.length)} of ${currentFiltered.length} products`;
       }
 
-      function escAttr(value){
-        return String(value ?? "")
-          .replace(/&/g, "&amp;")
-          .replace(/"/g, "&quot;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;");
-      }
-
       function buildProductCardHtml(p){
         const lang = window.PPS_I18N?.getLang?.() || "en";
         const displayName = lang === "es"
@@ -843,7 +834,7 @@
               ${discountLabel ? `<div class="discount-badge">${discountLabel}</div>` : ""}
             </div>
             <a href="./product.html?slug=${encodeURIComponent(p.slug)}">
-              <img src="${p.image}" alt="${escAttr(displayName)}" loading="lazy" decoding="async" width="400" height="190">
+              <img src="${p.image}" alt="${displayName}" loading="lazy" decoding="async" width="400" height="190">
             </a>
             <div class="card-body">
               <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(p.slug)}">${displayName}</a>
@@ -1259,7 +1250,7 @@
           return `
             <div class="card">
               <a href="./product.html?slug=${encodeURIComponent(item.slug)}">
-                <img src="${item.image}" alt="${escAttr(item.name)}" loading="lazy" decoding="async" width="400" height="190">
+                <img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async" width="400" height="190">
               </a>
               <div class="card-body">
                 <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(item.slug)}">${item.name}</a>
@@ -1851,7 +1842,7 @@
         const material = materialLabelForProduct(product);
         body.innerHTML = `
           <div class="quick-grid">
-            <img src="${product.image}" alt="${escAttr(product.name)}" loading="lazy" decoding="async">
+            <img src="${product.image}" alt="${product.name}" loading="lazy" decoding="async">
             <div>
               <h3 style="margin:0;">${product.name}</h3>
               <div class="card-meta">${categoryLabel(product.category)}</div>

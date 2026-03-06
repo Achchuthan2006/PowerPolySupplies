@@ -6,40 +6,6 @@
   <title>Account | Power Poly Supplies</title>
   <link rel="stylesheet" href="./css/styles.min.css?v=20260216"/>
   <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
-  <style>
-    .login-row{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:4px;
-      margin-bottom:2px;
-    }
-    .remember-wrap{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      font-size:13px;
-      font-weight:700;
-      color:var(--muted);
-    }
-    .remember-wrap input{
-      width:16px;
-      height:16px;
-      margin:0;
-      accent-color:var(--primary);
-    }
-    .forgot-link{
-      font-size:13px;
-      font-weight:700;
-      color:var(--primary-strong);
-      text-decoration:none;
-    }
-    .forgot-link:hover{
-      text-decoration:underline;
-    }
-  </style>
 </head>
 <body class="auth-page">
   <header class="site-header">
@@ -139,13 +105,6 @@
               <span class="eye"></span>
             </button>
           </div>
-          <div class="login-row">
-            <label class="remember-wrap" for="rememberLogin">
-              <input type="checkbox" id="rememberLogin" checked>
-              <span data-i18n="login.form.remember">Remember me</span>
-            </label>
-            <a class="forgot-link" href="./contact.html?topic=password-reset" data-i18n="login.form.forgot">Forgot your password?</a>
-          </div>
           <button class="btn btn-primary btn-full" type="button" id="loginBtn" data-i18n="login.form.submit">Log in</button>
           <div id="loginStatus" class="status muted"></div>
           <p class="auth-note">Need help? <a href="./contact.html">Ask our support team</a></p>
@@ -180,26 +139,7 @@
     const statusEl = document.getElementById("loginStatus");
     const oauthStatusEl = document.getElementById("oauthStatus");
     const loginBtn = document.getElementById("loginBtn");
-    const rememberInput = document.getElementById("rememberLogin");
     const toggleButtons = Array.from(document.querySelectorAll(".toggle-visibility"));
-    const REMEMBER_KEY = "pps_login_remember";
-    const SHORT_SESSION_MS = 24 * 60 * 60 * 1000;
-
-    if(rememberInput){
-      try{
-        const saved = localStorage.getItem(REMEMBER_KEY);
-        rememberInput.checked = saved == null ? true : saved === "1";
-      }catch(err){
-        rememberInput.checked = true;
-      }
-      rememberInput.addEventListener("change", ()=>{
-        try{
-          localStorage.setItem(REMEMBER_KEY, rememberInput.checked ? "1" : "0");
-        }catch(err){
-          // ignore
-        }
-      });
-    }
 
     function setLoginStatus(text, type = "muted"){
       if(!statusEl) return;
@@ -236,12 +176,6 @@
         const data = await res.json().catch(()=> ({}));
         if(res.ok && data.ok && data.token){
           const lowerEmail = String(data.email || email).trim().toLowerCase();
-          const rememberMe = rememberInput ? !!rememberInput.checked : true;
-          const serverExpiry = Number(data.expiresAt) || 0;
-          const localExpiry = Date.now() + SHORT_SESSION_MS;
-          const expiresAt = rememberMe
-            ? serverExpiry
-            : (serverExpiry > 0 ? Math.min(serverExpiry, localExpiry) : localExpiry);
           let profile = {};
           try{
             profile = JSON.parse(localStorage.getItem(`pps_profile_${lowerEmail}`) || "{}");
@@ -254,7 +188,7 @@
             name: data.name || "",
             phone: String(profile?.phone || ""),
             province: String(profile?.province || ""),
-            expiresAt
+            expiresAt: data.expiresAt
           });
           try{
             window.PPS_ACTIVITY?.record?.("login", { email: lowerEmail });
