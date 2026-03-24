@@ -1,0 +1,321 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content"/>
+  <title>Account | Power Poly Supplies</title>
+  <link rel="stylesheet" href="./css/styles.css"/>
+  <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
+</head>
+<body class="auth-page">
+  <header class="site-header">
+    <div class="promo-strip">
+      <div class="container promo-inner">
+        <div><strong data-i18n="brand.name">Power Poly Supplies</strong> | <span data-i18n="brand.tagline">Power your packaging</span></div>
+        <div style="font-weight:700;" data-i18n="promo.right">Bulk stock | Fast shipping | Canada-wide</div>
+      </div>
+    </div>
+    <div class="navbar">
+      <div class="container navbar-inner">
+        <a class="brand" href="./index.html">
+          <img src="./assets/poly%20logo%20without%20background.png" alt="Power Poly Supplies" width="62" height="62" decoding="async">
+          <div class="brand-text">
+            <span class="brand-title" data-i18n="brand.name">Power Poly Supplies</span>
+            <span class="brand-tagline" data-i18n="brand.tagline">Power your packaging</span>
+          </div>
+        </a>
+        <button class="menu-btn" id="menuBtn" aria-label="Open menu" data-i18n="nav.menu">Menu</button>
+        <nav class="navlinks" id="navLinks">
+          <a href="./index.html" data-i18n="nav.home">Home</a>
+          <a href="./specials.html" data-i18n="nav.specials">Special Offers</a>
+          <div class="dropdown">
+            <button class="dropbtn" type="button"><span data-i18n="nav.shop">Shop by Category</span> <span class="caret" aria-hidden="true"></span></button>
+            <div class="dropdown-menu">
+              <a href="./products.html?cat=Garment%20Bags" data-i18n="nav.garment">Garment Cover Bags</a>
+              <a href="./products.html?cat=Polybags" data-i18n="nav.polybags">Polybags</a>
+              <a href="./products.html?cat=Hangers" data-i18n="nav.hangers">Hangers</a>
+            </div>
+          </div>
+          <a href="./about.html" data-i18n="nav.about">About Us</a>
+          <a href="./contact.html"><span class="nav-icon phone-icon" aria-hidden="true"></span><span data-i18n="nav.contact">Contact</span></a>
+          <a href="./feedback.html"><span class="nav-icon pen-icon" aria-hidden="true"></span><span data-i18n="nav.feedback">Feedback</span></a>
+          <a href="./login.html"><span class="nav-icon user-icon" aria-hidden="true"></span><span data-i18n="nav.account">Account</span></a>
+          <a href="./cart.html"><span class="nav-icon cart-icon" aria-hidden="true"></span><span data-i18n="nav.cart">Cart</span> <span class="badge" data-cart-badge>0</span></a>
+          <form class="search-bar nav-search" action="./products.html" method="get" role="search">
+            <input type="search" name="q" placeholder="Search" aria-label="Search products" data-i18n-placeholder="nav.search_placeholder">
+            <button type="submit" data-i18n="nav.search_button">Search</button>
+          </form>
+
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <div class="container page">
+    <section class="hero fade-in">
+      <p style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);" data-i18n="login.kicker">Account</p>
+      <h1 data-i18n="login.title">Sign in</h1>
+      <p data-i18n="login.subtitle">Log in to view your orders and check out faster.</p>
+    </section>
+
+    <section class="auth-panel fade-in">
+      <div class="auth-promo">
+        <div class="promo-tagline">PowerPolySupplies.com</div>
+        <h2>Canada-wide B2B packaging supply</h2>
+        <p>
+          Sign in to reorder faster, save multiple delivery locations, and track invoices with full visibility.
+        </p>
+        <ul class="promo-list">
+          <li>
+            <span class="promo-icon promo-icon-van" aria-hidden="true"></span>
+            <span>Fast quotes, reliable fulfillment</span>
+          </li>
+          <li>
+            <span class="promo-icon promo-icon-bag" aria-hidden="true"></span>
+            <span>Multi-location delivery ready</span>
+          </li>
+          <li>
+            <span class="promo-icon promo-icon-box" aria-hidden="true"></span>
+            <span>Bulk pricing, consistent inventory</span>
+          </li>
+        </ul>
+      </div>
+      <div class="auth-card">
+        <h2>Sign in or create account</h2>
+        <p class="auth-subtitle">New here? Create an account in seconds.</p>
+        <div class="social-login">
+          <button class="social-btn google" type="button" data-oauth-provider="google" disabled>
+            <span class="social-icon google-icon" aria-hidden="true"></span>
+            <span>Continue with Google</span>
+          </button>
+          <button class="social-btn facebook" type="button" data-oauth-provider="facebook" disabled>
+            <span class="social-icon facebook-icon" aria-hidden="true"></span>
+            <span>Continue with Facebook</span>
+          </button>
+        </div>
+        <div id="oauthStatus" class="status muted" style="margin-top:8px; display:none;"></div>
+        <div class="divider"><span>OR</span></div>
+        <form id="loginForm" class="auth-form">
+          <label class="input-label" for="loginEmail">Email</label>
+          <input class="input" type="email" placeholder="Email" data-i18n-placeholder="login.form.email" required id="loginEmail">
+          <label class="input-label" for="loginPassword">Password</label>
+          <div class="password-field">
+            <input class="input" type="password" placeholder="Password" data-i18n-placeholder="login.form.password" required id="loginPassword">
+            <button class="toggle-visibility hidden" type="button" aria-label="Show password" data-i18n-title="signup.password.show" data-toggle="loginPassword">
+              <span class="eye"></span>
+            </button>
+          </div>
+          <button class="btn btn-primary btn-full" type="button" id="loginBtn" data-i18n="login.form.submit">Log in</button>
+          <div id="loginStatus" class="status muted"></div>
+          <p class="auth-note">Need help? <a href="./contact.html">Ask our support team</a></p>
+          <div class="auth-actions">
+            <a class="btn btn-outline" href="./signup.html" data-i18n="login.create.signup">Create an account</a>
+            <a class="btn" href="./products.html" data-i18n="login.create.browse">Browse products</a>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <div class="footer">&copy; <span id="y"></span> <span data-i18n="footer.short">Power Poly Supplies. Power your packaging.</span></div>
+  </div>
+
+  <script src="./config.min.js"></script>
+ 
+  <script src="./js/store.min.js"></script>
+  <script src="./js/notifications.min.js"></script>
+  <script src="./js/i18n.js"></script>
+  <script src="./js/ui.js"></script>
+  <script src="./js/activity.min.js"></script>
+  <script>
+    document.getElementById("y").textContent = new Date().getFullYear();
+    PPS.updateCartBadge();
+    const session = PPS.getSession();
+    if(session){
+      window.location.href = "./account.html";
+    }
+
+    const emailInput = document.getElementById("loginEmail");
+    const passInput = document.getElementById("loginPassword");
+    const statusEl = document.getElementById("loginStatus");
+    const oauthStatusEl = document.getElementById("oauthStatus");
+    const loginBtn = document.getElementById("loginBtn");
+    const toggleButtons = Array.from(document.querySelectorAll(".toggle-visibility"));
+
+    function setLoginStatus(text, type = "muted"){
+      if(!statusEl) return;
+      const msg = String(text || "").trim();
+      statusEl.textContent = msg;
+      statusEl.classList.remove("error", "success", "muted");
+      statusEl.classList.add(type || "muted");
+    }
+
+    function normalizeLoginStatus(message){
+      const raw = String(message || "");
+      if(!raw) return "";
+      if(raw.includes("Supabase not configured")){
+        return window.PPS_I18N?.t("login.status.unavailable") || "Login temporarily unavailable. Please try again later.";
+      }
+      return raw;
+    }
+
+    async function login(){
+      const email = emailInput.value.trim();
+      const password = passInput.value;
+      if(!email || !password){
+        setLoginStatus(window.PPS_I18N?.t("login.status.missing") || "Enter email and password.", "error");
+        return;
+      }
+      setLoginStatus(window.PPS_I18N?.t("login.status.signing") || "Signing in...", "muted");
+      loginBtn.disabled = true;
+      try{
+        const res = await fetch(`${PPS.API_BASE}/api/auth/login`,{
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json().catch(()=> ({}));
+        if(res.ok && data.ok && data.token){
+          const lowerEmail = String(data.email || email).trim().toLowerCase();
+          let profile = {};
+          try{
+            profile = JSON.parse(localStorage.getItem(`pps_profile_${lowerEmail}`) || "{}");
+          }catch(err){
+            profile = {};
+          }
+          PPS.setSession({
+            token: data.token,
+            email: lowerEmail,
+            name: data.name || "",
+            phone: String(profile?.phone || ""),
+            province: String(profile?.province || ""),
+            expiresAt: data.expiresAt
+          });
+          try{
+            window.PPS_ACTIVITY?.record?.("login", { email: lowerEmail });
+          }catch(err){
+            // ignore
+          }
+          window.location.href = "./account.html";
+        }else{
+          const normalized = normalizeLoginStatus(data?.message);
+          setLoginStatus(normalized || (window.PPS_I18N?.t("login.status.failed") || "Login failed."), "error");
+        }
+      }catch(err){
+        setLoginStatus(
+          window.PPS_I18N?.t("login.status.unreachable") || "Login service is temporarily unavailable. Please try again in a moment.",
+          "error"
+        );
+      }finally{
+        loginBtn.disabled = false;
+      }
+    }
+
+    async function checkLoginService(){
+      const ok = await window.PPS?.pingBackend?.();
+      if(ok) return;
+      setLoginStatus(
+        window.PPS_I18N?.t("login.status.unreachable") || "Login service is temporarily unavailable. Please try again in a moment.",
+        "error"
+      );
+    }
+
+    function getSafeNextUrl(){
+      try{
+        const stored = String(sessionStorage.getItem("pps_login_next") || "").trim();
+        if(stored) return stored;
+      }catch(err){
+        // ignore
+      }
+      return "./account.html";
+    }
+
+    function startOauth(provider){
+      const next = getSafeNextUrl();
+      window.location.href = `${PPS.API_BASE}/api/auth/oauth/${encodeURIComponent(provider)}/start?next=${encodeURIComponent(next)}`;
+    }
+
+    async function refreshOauthButtons(){
+      const googleBtn = document.querySelector('[data-oauth-provider="google"]');
+      const facebookBtn = document.querySelector('[data-oauth-provider="facebook"]');
+      const setOauthStatus = (text, type = "muted")=>{
+        if(!oauthStatusEl) return;
+        const msg = String(text || "").trim();
+        if(!msg){
+          oauthStatusEl.style.display = "none";
+          oauthStatusEl.textContent = "";
+          oauthStatusEl.classList.remove("error","success","muted");
+          oauthStatusEl.classList.add("status","muted");
+          return;
+        }
+        oauthStatusEl.style.display = "";
+        oauthStatusEl.textContent = msg;
+        oauthStatusEl.classList.remove("error","success","muted");
+        oauthStatusEl.classList.add("status", type || "muted");
+      };
+
+      if(googleBtn) googleBtn.disabled = true;
+      if(facebookBtn) facebookBtn.disabled = true;
+      try{
+        const res = await fetch(`${PPS.API_BASE}/api/auth/oauth/status`, { cache:"no-store" });
+        const data = await res.json().catch(()=> ({}));
+        const googleOk = !!data?.providers?.google?.configured;
+        const fbOk = !!data?.providers?.facebook?.configured;
+        if(googleBtn) googleBtn.disabled = !googleOk;
+        if(facebookBtn) facebookBtn.disabled = !fbOk;
+        if(!googleOk && !fbOk){
+          setOauthStatus("Google/Facebook sign-in is not set up yet. Please sign in with email + password.", "muted");
+        }else if(!googleOk){
+          setOauthStatus("Google sign-in is not available right now. Please use email + password.", "muted");
+        }else if(!fbOk){
+          setOauthStatus("Facebook sign-in is not available right now. Please use email + password.", "muted");
+        }else{
+          setOauthStatus("");
+        }
+      }catch(err){
+        // keep disabled on failure
+        setOauthStatus("Unable to check Google/Facebook sign-in right now. Please use email + password.", "muted");
+      }
+    }
+
+    document.querySelectorAll("[data-oauth-provider]").forEach((btn)=>{
+      btn.addEventListener("click", ()=>{
+        const provider = btn.getAttribute("data-oauth-provider") || "";
+        if(!provider) return;
+        startOauth(provider);
+      });
+    });
+    refreshOauthButtons();
+    checkLoginService();
+
+    function setToggleLabel(btn, fieldType){
+      const show = window.PPS_I18N?.t("signup.password.show") || "Show password";
+      const hide = window.PPS_I18N?.t("signup.password.hide") || "Hide password";
+      const text = fieldType === "password" ? show : hide;
+      btn.setAttribute("aria-label", text);
+      btn.setAttribute("title", text);
+    }
+
+    function togglePassword(e){
+      const btn = e.currentTarget;
+      const id = btn.dataset.toggle;
+      const field = document.getElementById(id);
+      if(!field) return;
+      const nextType = field.type === "password" ? "text" : "password";
+      field.type = nextType;
+      setToggleLabel(btn, nextType);
+      btn.classList.toggle("visible", nextType === "text");
+      btn.classList.toggle("hidden", nextType === "password");
+    }
+
+    toggleButtons.forEach((btn)=>{
+      setToggleLabel(btn, "password");
+      btn.addEventListener("click", togglePassword);
+    });
+
+    if(loginBtn) loginBtn.addEventListener("click", login);
+  </script>
+</body>
+</html>
+
+
+

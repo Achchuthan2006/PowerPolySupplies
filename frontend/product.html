@@ -1,0 +1,2123 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content"/>
+  <title>Product | Power Poly Supplies</title>
+  <meta name="description" content="Product details, bulk pricing tiers, and availability for Power Poly Supplies.">
+  <link rel="stylesheet" href="./css/styles.css"/>
+  <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
+</head>
+<body class="product-page">
+  <header class="site-header">
+    <div class="promo-strip">
+      <div class="container promo-inner">
+        <div><strong data-i18n="brand.name">Power Poly Supplies</strong> | <span data-i18n="brand.tagline">Power your packaging</span></div>
+        <div style="font-weight:700;" data-i18n="promo.right">Bulk stock | Fast shipping | Canada-wide</div>
+      </div>
+    </div>
+    <div class="navbar">
+      <div class="container navbar-inner">
+        <a class="brand" href="./index.html">
+          <img src="./assets/poly%20logo%20without%20background.png" alt="Power Poly Supplies" width="62" height="62" decoding="async">
+          <div class="brand-text">
+            <span class="brand-title" data-i18n="brand.name">Power Poly Supplies</span>
+            <span class="brand-tagline" data-i18n="brand.tagline">Power your packaging</span>
+          </div>
+        </a>
+        <button class="menu-btn" id="menuBtn" aria-label="Open menu" data-i18n="nav.menu">Menu</button>
+        <nav class="navlinks" id="navLinks">
+          <a href="./index.html" data-i18n="nav.home">Home</a>
+          <a href="./specials.html" data-i18n="nav.specials">Special Offers</a>
+          <div class="dropdown">
+            <button class="dropbtn" type="button"><span data-i18n="nav.shop">Shop by Category</span> <span class="caret" aria-hidden="true"></span></button>
+            <div class="dropdown-menu">
+              <a href="./products.html?cat=Garment%20Bags" data-i18n="nav.garment">Garment Cover Bags</a>
+              <a href="./products.html?cat=Polybags" data-i18n="nav.polybags">Polybags</a>
+              <a href="./products.html?cat=Hangers" data-i18n="nav.hangers">Hangers</a>
+            </div>
+          </div>
+          <a href="./about.html" data-i18n="nav.about">About Us</a>
+          <a href="./contact.html"><span class="nav-icon phone-icon" aria-hidden="true"></span><span data-i18n="nav.contact">Contact</span></a>
+          <a href="./feedback.html"><span class="nav-icon pen-icon" aria-hidden="true"></span><span data-i18n="nav.feedback">Feedback</span></a>
+          <a href="./login.html"><span class="nav-icon user-icon" aria-hidden="true"></span><span data-i18n="nav.account">Account</span></a>
+          <a href="./cart.html"><span class="nav-icon cart-icon" aria-hidden="true"></span><span data-i18n="nav.cart">Cart</span> <span class="badge" data-cart-badge>0</span></a>
+          <form class="search-bar nav-search" action="./products.html" method="get" role="search">
+            <input type="search" name="q" placeholder="Search" aria-label="Search products" data-i18n-placeholder="nav.search_placeholder">
+            <button type="submit" data-i18n="nav.search_button">Search</button>
+          </form>
+
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <div class="container page" id="wrap"></div>
+
+  <script src="./config.min.js"></script>
+
+  <script src="./js/store.min.js"></script>
+  <script src="./js/notifications.min.js"></script>
+  <script src="./js/i18n.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    PPS.updateCartBadge();
+
+    function qs(name){ return new URLSearchParams(location.search).get(name); }
+
+    function categoryLabel(category){
+      const map = {
+        "Garment Bags": "nav.garment",
+        "Polybags": "nav.polybags",
+        "Hangers": "nav.hangers"
+      };
+      const key = map[String(category || "").trim()];
+      if(key && window.PPS_I18N?.t) return window.PPS_I18N.t(key);
+      return category || "";
+    }
+
+    const heartIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.7-4.4-9.5-7.2A5.6 5.6 0 0 1 12 5.6a5.6 5.6 0 0 1 9.5 8.2C18.7 16.6 12 21 12 21z"/></svg>';
+    const bookmarkIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12a1 1 0 0 1 1 1v18l-7-4-7 4V4a1 1 0 0 1 1-1z"/></svg>';
+
+    function favoriteTitle(active){
+      return active
+        ? (window.PPS_I18N?.t("favorite.remove") || "Remove from favorites")
+        : (window.PPS_I18N?.t("favorite.add") || "Add to favorites");
+    }
+
+    function favoriteButton(productId){
+      const active = PPS.isFavorite(productId);
+      return `<button class="favorite-btn ${active ? "active" : ""}" type="button" data-fav-id="${productId}" aria-pressed="${active ? "true" : "false"}" title="${favoriteTitle(active)}">${heartIcon}</button>`;
+    }
+
+    function wishlistTitle(active){
+      return active ? "Remove from wishlist" : "Add to wishlist";
+    }
+
+    function wishlistButton(productId){
+      const active = PPS.isInAnyWishlist?.(productId);
+      return `<button class="wishlist-btn ${active ? "active" : ""}" type="button" data-wl-id="${productId}" aria-pressed="${active ? "true" : "false"}" title="${wishlistTitle(active)}">${bookmarkIcon}</button>`;
+    }
+
+    function syncWishlistButton(btn){
+      const id = btn.dataset.wlId;
+      const active = PPS.isInAnyWishlist?.(id);
+      btn.classList.toggle("active", !!active);
+      btn.setAttribute("aria-pressed", active ? "true" : "false");
+      btn.title = wishlistTitle(active);
+    }
+
+    function syncFavoriteButton(btn){
+      const id = btn.dataset.favId;
+      const active = PPS.isFavorite(id);
+      btn.classList.toggle("active", active);
+      btn.setAttribute("aria-pressed", active ? "true" : "false");
+      btn.title = favoriteTitle(active);
+    }
+
+    document.addEventListener("click", (e)=>{
+      const btn = e.target.closest(".favorite-btn");
+      if(!btn) return;
+      e.preventDefault();
+      e.stopPropagation();
+      PPS.toggleFavorite(btn.dataset.favId);
+      syncFavoriteButton(btn);
+    });
+
+    document.addEventListener("click", (e)=>{
+      const btn = e.target.closest(".wishlist-btn");
+      if(!btn) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const session = PPS.getSession?.();
+      if(!session){
+        window.location.href = "./login.html";
+        return;
+      }
+      const id = btn.dataset.wlId;
+      const active = PPS.isInAnyWishlist?.(id);
+      if(active){
+        PPS.removeFromWishlist?.(id);
+      }else{
+        PPS.addToWishlist?.(id);
+      }
+      syncWishlistButton(btn);
+    });
+
+    window.addEventListener("pps:favorites", ()=>{
+      document.querySelectorAll(".favorite-btn").forEach(syncFavoriteButton);
+    });
+
+    window.addEventListener("pps:wishlists", ()=>{
+      document.querySelectorAll(".wishlist-btn").forEach(syncWishlistButton);
+    });
+
+    (async ()=>{
+      const slug = qs("slug");
+      const products = await PPS.loadProducts();
+      const p = products.find(x=>x.slug===slug);
+      const wrap = document.getElementById("wrap");
+
+      if(!p){
+        wrap.innerHTML = `<p>${window.PPS_I18N?.t("product.not_found") || "Product not found."}</p>`;
+        return;
+      }
+
+      function renderStars(value){
+        const full = Math.round(value);
+        return new Array(5).fill(0).map((_, idx)=>`
+          <span class="star ${idx < full ? "filled" : ""}" aria-hidden="true">&#9733;</span>
+        `).join("");
+      }
+
+      function stockClass(stock){
+        const labels = {
+          out: window.PPS_I18N?.t("product.stock.out") || "Out of stock",
+          low: window.PPS_I18N?.t("product.stock.low") || "Almost out of stock",
+          in: window.PPS_I18N?.t("product.stock.in") || "In stock"
+        };
+        if(stock <= 0) return { cls:"out", label: labels.out };
+        if(stock <= 10) return { cls:"low", label: labels.low };
+        return { cls:"in", label: labels.in };
+      }
+
+      function getBulkTierPriceCents(product, qty){
+        if((product?.category || "") === "Garment Bags"){
+          return PPS.getTieredPriceCents(product, qty);
+        }
+        const base = Math.max(0, Number(product?.priceCents) || 0);
+        if(qty >= 20) return Math.max(0, base - 300);
+        if(qty >= 15) return Math.max(0, base - 200);
+        if(qty >= 10) return Math.max(0, base - 100);
+        return base;
+      }
+
+      const RECENT_KEY = "pps_recently_viewed_v1";
+      function readRecentSlugs(){
+        try{
+          const raw = localStorage.getItem(RECENT_KEY);
+          const arr = JSON.parse(raw || "[]");
+          return Array.isArray(arr) ? arr.map(String).filter(Boolean) : [];
+        }catch(_err){
+          return [];
+        }
+      }
+      function writeRecentSlugs(slugs){
+        try{
+          localStorage.setItem(RECENT_KEY, JSON.stringify(slugs.slice(0, 10)));
+        }catch(_err){
+          // ignore
+        }
+      }
+      function rememberRecent(slug){
+        const s = String(slug || "");
+        if(!s) return;
+        const prev = readRecentSlugs().filter(x=>x !== s);
+        prev.unshift(s);
+        writeRecentSlugs(prev);
+      }
+
+      function extractSpecsFromName(name){
+        const text = String(name || "");
+        const specs = [];
+        const sizeMatch = text.match(/(\d+(?:\.\d+)?)\s*\"\s*x\s*(\d+(?:\.\d+)?)\s*\"\s*x\s*(\d+(?:\.\d+)?)\s*\"/i);
+        if(sizeMatch){
+          specs.push({ label: "Size", value: `${sizeMatch[1]}" x ${sizeMatch[2]}" x ${sizeMatch[3]}"` });
+        }
+        const paren = text.match(/\(([^)]+)\)/);
+        if(paren && paren[1]){
+          specs.push({ label: "Variant", value: paren[1].trim() });
+        }
+        return specs;
+      }
+
+      function parseDimensions(name){
+        const text = String(name || "");
+        const three = text.match(/(\d+(?:\.\d+)?)\s*\"\s*x\s*(\d+(?:\.\d+)?)\s*\"\s*x\s*(\d+(?:\.\d+)?)\s*\"/i);
+        if(three){
+          return {
+            width: Number(three[1]),
+            gusset: Number(three[2]),
+            length: Number(three[3])
+          };
+        }
+        const two = text.match(/(\d+(?:\.\d+)?)\s*\"\s*x\s*(\d+(?:\.\d+)?)\s*\"/i);
+        if(two){
+          return {
+            width: Number(two[1]),
+            gusset: 0,
+            length: Number(two[2])
+          };
+        }
+        return null;
+      }
+
+      function extractGauge(text){
+        const m = String(text || "").match(/(\d+(?:\.\d+)?)\s*G/i);
+        if(!m) return null;
+        return Number(m[1]);
+      }
+
+      function thicknessSpec(name, category){
+        const lower = String(name || "").toLowerCase();
+        if(category === "Garment Bags" || category === "Polybags"){
+          if(lower.includes("extra heavy")) return { tier:"Extra Heavy", mil: 1.5 };
+          if(lower.includes("heavy")) return { tier:"Heavy", mil: 1.2 };
+          if(lower.includes("eco")) return { tier:"ECO", mil: 0.9 };
+          return { tier:"Standard", mil: 1.0 };
+        }
+        return null;
+      }
+
+      function materialSpec(product){
+        const category = String(product?.category || "");
+        if(category === "Garment Bags" || category === "Polybags"){
+          return {
+            composition: "LDPE, 100% virgin",
+            finish: "Clear",
+            recycle: "#4 LDPE"
+          };
+        }
+        if(category === "Hangers"){
+          return {
+            composition: "Steel wire core with PVC coating",
+            finish: "Smooth coated",
+            recycle: "Mixed materials"
+          };
+        }
+        return {
+          composition: "Commercial-grade material",
+          finish: "Standard",
+          recycle: "Check local guidelines"
+        };
+      }
+
+      function estimateWeightLbs(dim, thickness){
+        if(!dim) return null;
+        const area = Math.max(0, Number(dim.width) || 0) * Math.max(0, Number(dim.length) || 0);
+        const base = 10;
+        const thicknessFactor = thickness?.mil ? thickness.mil / 1.0 : 1;
+        const raw = base + (area / 100) * thicknessFactor;
+        return Math.round(raw * 10) / 10;
+      }
+
+      function buildSpecsTable(product, dim, thickness){
+        const material = materialSpec(product);
+        const gauge = extractGauge(product?.name || product?.description || "");
+        const weight = estimateWeightLbs(dim, thickness);
+        const pack = String(product?.category || "") === "Hangers"
+          ? (window.PPS_I18N?.t("pack.hangers_500") || "500 pcs / box")
+          : "1 roll / box";
+        const rows = [
+          { label:"Size", value: dim ? `${dim.width}" x ${dim.length}"${dim.gusset ? ` x ${dim.gusset}"` : ""}` : "See size chart" },
+          thickness ? { label:"Thickness (mil)", value: `${thickness.mil} (${thickness.tier})` } : null,
+          gauge ? { label:"Wire gauge", value: `${gauge}G` } : null,
+          { label:"Material", value: material.composition },
+          { label:"Finish", value: material.finish },
+          { label:"Recycle code", value: material.recycle },
+          { label:"Pack", value: pack },
+          { label:"Est. shipping weight", value: weight ? `${weight} lb` : "Varies by size" }
+        ].filter(Boolean);
+        return `
+          <table class="spec-table">
+            <tbody>
+              ${rows.map(row=>`
+                <tr>
+                  <th>${row.label}</th>
+                  <td>${row.value}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+          <div class="spec-note">Specifications shown are typical; confirm final specs on your quote.</div>
+        `;
+      }
+
+      function buildSizeChart(products, category){
+        const same = products.filter(item => item.category === category);
+        const rows = same.map(item => {
+          const dim = parseDimensions(item.name);
+          if(!dim) return null;
+          return {
+            name: item.name,
+            width: dim.width,
+            gusset: dim.gusset,
+            length: dim.length
+          };
+        }).filter(Boolean);
+        if(!rows.length){
+          return `<div class="empty-note">Size chart will appear for this category shortly.</div>`;
+        }
+        return `
+          <table class="size-chart">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Width</th>
+                <th>Length</th>
+                <th>Gusset</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows.slice(0, 8).map(r=>`
+                <tr>
+                  <td>${r.name}</td>
+                  <td>${r.width}"</td>
+                  <td>${r.length}"</td>
+                  <td>${r.gusset ? `${r.gusset}"` : "-"}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        `;
+      }
+
+      function buildDiagram(dim){
+        if(!dim){
+          return `<div class="empty-note">Dimensional diagram will appear when size data is available.</div>`;
+        }
+        const width = dim.width || 0;
+        const length = dim.length || 0;
+        const gusset = dim.gusset || 0;
+        return `
+          <div class="diagram-wrap">
+            <svg viewBox="0 0 260 220" role="img" aria-label="Dimensional diagram">
+              <defs>
+                <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                  <path d="M0,0 L8,4 L0,8 z" fill="currentColor"></path>
+                </marker>
+              </defs>
+              <rect x="55" y="30" width="150" height="160" rx="10" ry="10" fill="none" stroke="currentColor" stroke-width="2"></rect>
+              <line x1="55" y1="200" x2="205" y2="200" stroke="currentColor" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"></line>
+              <line x1="30" y1="30" x2="30" y2="190" stroke="currentColor" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"></line>
+              ${gusset ? `<line x1="205" y1="30" x2="235" y2="40" stroke="currentColor" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"></line>` : ""}
+              <text x="130" y="214" text-anchor="middle">${width}" width</text>
+              <text x="16" y="115" text-anchor="middle" transform="rotate(-90 16 115)">${length}" length</text>
+              ${gusset ? `<text x="238" y="45" text-anchor="start">${gusset}" gusset</text>` : ""}
+            </svg>
+          </div>
+        `;
+      }
+
+      function buildCerts(product){
+        const cat = String(product?.category || "");
+        const certs = [
+          "Documentation available on request",
+          "REACH and RoHS statements",
+          "CA Prop 65 statement",
+          "Recyclable packaging guidance"
+        ];
+        const safety = [
+          "Keep plastic bags away from children",
+          "Not intended for food contact unless specified",
+          "Store away from heat and direct sunlight",
+          cat === "Hangers" ? "Wire products: avoid bending under load" : "Dispose responsibly after use"
+        ];
+        return `
+          <div class="cert-grid">
+            <div>
+              <div class="cert-title">Material certifications</div>
+              <ul class="cert-list">
+                ${certs.map(c=>`<li>${c}</li>`).join("")}
+              </ul>
+            </div>
+            <div>
+              <div class="cert-title">Safety information</div>
+              <ul class="cert-list">
+                ${safety.map(s=>`<li>${s}</li>`).join("")}
+              </ul>
+            </div>
+          </div>
+        `;
+      }
+
+      function pickRelatedByCategory(products, category, excludeSlug, max=3){
+        return products.filter(p => p.category === category && p.slug !== excludeSlug && p.stock > 0).slice(0, max);
+      }
+
+      function pickFirstByCategory(products, category, excludeSlug){
+        return products.find(p => p.category === category && p.slug !== excludeSlug && p.stock > 0);
+      }
+
+      function renderMiniCard(item, withQty=false){
+        const compareCents = PPS.getComparePriceCents?.(item) ?? ((Number(item.priceCents) || 0) + 1000);
+        const memberCents = Number(item.priceCents) || 0;
+        const label = item.stock <= 0 ? "Out of stock" : item.stock <= 10 ? "Almost out of stock" : "In stock";
+        return `
+          <div class="card mini-card">
+            <a href="./product.html?slug=${encodeURIComponent(item.slug)}">
+              <img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async" width="320" height="170">
+            </a>
+            <div class="card-body">
+              <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(item.slug)}">${item.name}</a>
+              <div class="member-pricing">
+                <div>
+                  <div class="market-label">Market price</div>
+                  <span class="compare-price">${PPS.money(compareCents,item.currency)}</span>
+                </div>
+                <div>
+                  <div class="member-label">Power Poly Member Price</div>
+                  <span class="price">${PPS.money(memberCents,item.currency)}</span>
+                </div>
+              </div>
+              <div class="stock ${item.stock<=0 ? "out" : item.stock<=10 ? "low" : "in"}"><span class="dot"></span>${label}</div>
+              <div class="mini-actions">
+                <button class="btn btn-primary" ${item.stock<=0 ? "disabled" : ""} data-add-id="${item.id}">Add</button>
+                ${withQty ? `<input class="input mini-qty" type="number" min="1" value="1" aria-label="Quantity for ${item.name}">` : ""}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      function renderFrequentlyBought(products, product){
+        const map = {
+          "Garment Bags": ["Hangers", "Polybags"],
+          "Polybags": ["Hangers", "Garment Bags"],
+          "Hangers": ["Garment Bags", "Polybags"]
+        };
+        const targetCats = map[product.category] || [];
+        const picks = targetCats.map(cat => pickFirstByCategory(products, cat, product.slug)).filter(Boolean).slice(0, 3);
+        const container = document.getElementById("bundleGrid");
+        if(!container){
+          return [];
+        }
+        if(!picks.length){
+          container.innerHTML = `<div class="empty-note">Bundles coming soon for this category.</div>`;
+          return [];
+        }
+        container.innerHTML = picks.map(p => renderMiniCard(p, true)).join("");
+        return picks;
+      }
+
+      function renderAlsoBought(products, product){
+        const otherCats = products.filter(p => p.category !== product.category && p.slug !== product.slug && p.stock > 0);
+        const picks = otherCats.slice(0, 4);
+        const container = document.getElementById("alsoBoughtGrid");
+        if(!container) return;
+        container.innerHTML = picks.length
+          ? picks.map(p => renderMiniCard(p)).join("")
+          : `<div class="empty-note">More recommendations coming soon.</div>`;
+      }
+
+      function renderCompare(products, product){
+        const list = pickRelatedByCategory(products, product.category, product.slug, 6);
+        const container = document.getElementById("compareList");
+        const table = document.getElementById("compareTable");
+        if(!container || !table) return;
+        if(!list.length){
+          container.innerHTML = `<div class="empty-note">No similar products available to compare.</div>`;
+          return;
+        }
+        container.innerHTML = list.map(item => `
+          <label class="compare-item">
+            <input type="checkbox" value="${item.slug}">
+            <span>${item.name}</span>
+          </label>
+        `).join("");
+
+        function renderTable(){
+          const selectedSlugs = Array.from(container.querySelectorAll("input:checked")).map(i=>i.value);
+          const selected = list.filter(p => selectedSlugs.includes(p.slug));
+          if(!selected.length){
+            table.innerHTML = `<div class="empty-note">Select up to 3 products to compare.</div>`;
+            return;
+          }
+          const rows = selected.map(item => {
+            const dim = parseDimensions(item.name);
+            const thickness = thicknessSpec(item.name, item.category);
+            const pack = item.category === "Hangers" ? (window.PPS_I18N?.t("pack.hangers_500") || "500 pcs / box") : "1 roll / box";
+            return `
+              <tr>
+                <td>${item.name}</td>
+                <td>${dim ? `${dim.width}" x ${dim.length}"${dim.gusset ? ` x ${dim.gusset}"` : ""}` : "-"}</td>
+                <td>${thickness ? `${thickness.mil} mil` : "-"}</td>
+                <td>${pack}</td>
+                <td>${PPS.money(item.priceCents, item.currency)}</td>
+                <td>${item.stock}</td>
+              </tr>
+            `;
+          }).join("");
+          table.innerHTML = `
+            <table class="compare-table">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Size</th>
+                  <th>Thickness</th>
+                  <th>Pack</th>
+                  <th>Price</th>
+                  <th>Stock</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          `;
+        }
+
+        container.addEventListener("change", (e)=>{
+          const checked = container.querySelectorAll("input:checked");
+          if(checked.length > 3){
+            e.target.checked = false;
+          }
+          renderTable();
+        });
+        renderTable();
+      }
+
+      function qualityBadgesHtml(category){
+        const cat = String(category || "");
+        if(cat === "Hangers"){
+          const pack = window.PPS_I18N?.t("pack.hangers_500") || "500 pcs / box";
+          const label = window.PPS_I18N?.t("pack.label") || "Pack";
+          return `
+            <div class="feature-badges" aria-label="${label}">
+              <span class="feature-pill">${pack}</span>
+            </div>
+          `;
+        }
+        if(cat !== "Garment Bags" && cat !== "Polybags") return "";
+        return `
+          <div class="feature-badges" aria-label="Product features">
+            <span class="feature-pill">100% Korean-made</span>
+            <span class="feature-pill">100% virgin material</span>
+            <span class="feature-pill">Easy-tear perforation</span>
+          </div>
+        `;
+      }
+
+      function addBusinessDays(date, days){
+        const d = new Date(date.getTime());
+        let left = Math.max(0, Number(days) || 0);
+        while(left > 0){
+          d.setDate(d.getDate() + 1);
+          const day = d.getDay();
+          if(day !== 0 && day !== 6){
+            left -= 1;
+          }
+        }
+        return d;
+      }
+      function formatShortDate(d){
+        try{
+          return new Intl.DateTimeFormat(undefined, { month:"short", day:"numeric" }).format(d);
+        }catch(_err){
+          return d.toDateString();
+        }
+      }
+
+      function getReviewStoreKey(){
+        return `pps_reviews_v2_${p.id}`;
+      }
+
+      function getLocalReviews(){
+        try{
+          const raw = localStorage.getItem(getReviewStoreKey());
+          const parsed = JSON.parse(raw || "[]");
+          return Array.isArray(parsed) ? parsed : [];
+        }catch(_err){
+          return [];
+        }
+      }
+
+      function setLocalReviews(list){
+        try{
+          localStorage.setItem(getReviewStoreKey(), JSON.stringify(list));
+        }catch(_err){
+          // ignore
+        }
+      }
+
+      function normalizeReview(r){
+        return {
+          id: String(r?.id || `rv_${Date.now()}_${Math.random().toString(16).slice(2)}`),
+          name: String(r?.name || ""),
+          rating: Math.max(1, Math.min(5, Number(r?.rating) || 5)),
+          comment: String(r?.comment || ""),
+          createdAt: r?.createdAt || new Date().toISOString(),
+          verified: Boolean(r?.verified),
+          helpful: Number(r?.helpful || 0),
+          media: Array.isArray(r?.media) ? r.media.filter(Boolean) : []
+        };
+      }
+
+      function mergeReviews(remote, local){
+        const map = new Map();
+        remote.forEach(r=> map.set(String(r.id || r.createdAt || r.comment), normalizeReview(r)));
+        local.forEach(r=> map.set(String(r.id || r.createdAt || r.comment), normalizeReview(r)));
+        return Array.from(map.values());
+      }
+
+      function getHelpfulnessKey(reviewId){
+        return `pps_review_helpful_${p.id}_${reviewId}`;
+      }
+
+      function hasMarkedHelpful(reviewId){
+        try{
+          return localStorage.getItem(getHelpfulnessKey(reviewId)) === "1";
+        }catch(_err){
+          return false;
+        }
+      }
+
+      function markHelpful(reviewId){
+        try{
+          localStorage.setItem(getHelpfulnessKey(reviewId), "1");
+        }catch(_err){
+          // ignore
+        }
+      }
+
+      let lastReviews = [];
+
+      async function loadReviews(){
+        const status = document.getElementById("reviewsStatus");
+        const list = document.getElementById("reviewsList");
+        const headerAvg = document.getElementById("reviewsHeader");
+        const reviewsTotal = document.getElementById("reviewsTotal");
+        const breakdown = document.getElementById("ratingBreakdown");
+        const filterSelect = document.getElementById("reviewsFilter");
+        const verifiedOnly = document.getElementById("reviewsVerifiedOnly");
+        try{
+          const data = await PPS.fetchReviews(p.id);
+          const { reviews=[], average=0, count=0 } = data;
+          const localReviews = getLocalReviews();
+          const merged = mergeReviews(reviews, localReviews);
+          lastReviews = merged.slice();
+          const averageRating = merged.length
+            ? (merged.reduce((sum, r)=> sum + Number(r.rating || 0), 0) / merged.length)
+            : average;
+          const totalCount = merged.length || count || 0;
+          const countTemplate = window.PPS_I18N?.t("product.reviews.count") || "{{count}} reviews";
+          const countLabel = totalCount > 0
+            ? countTemplate.replace("{{count}}", String(totalCount))
+            : (window.PPS_I18N?.t("product.reviews.none") || "No reviews yet");
+          headerAvg.innerHTML = `${renderStars(averageRating)} <span class="review-meta">(${averageRating.toFixed(1)} / 5 - ${countLabel})</span>`;
+          if(reviewsTotal) reviewsTotal.textContent = `${totalCount} reviews`;
+
+          if(merged.length === 0){
+            const none = window.PPS_I18N?.t("product.reviews.none_desc") || "No reviews yet. Be the first to rate this product.";
+            list.innerHTML = `<div class="card" style="padding:10px;">${none}</div>`;
+            return;
+          }
+
+          const byStar = [5,4,3,2,1].map(star=>{
+            const count = merged.filter(r=> Number(r.rating) === star).length;
+            const pct = totalCount ? Math.round((count / totalCount) * 100) : 0;
+            return { star, count, pct };
+          });
+          if(breakdown){
+            breakdown.innerHTML = byStar.map(row=>`
+              <div class="rating-row">
+                <span class="rating-label">${row.star} stars</span>
+                <div class="rating-bar"><span style="width:${row.pct}%"></span></div>
+                <span class="rating-value">${row.pct}%</span>
+              </div>
+            `).join("");
+          }
+
+          let filtered = merged.slice();
+          if(verifiedOnly?.checked){
+            filtered = filtered.filter(r=> r.verified);
+          }
+          const filterVal = String(filterSelect?.value || "recent");
+          if(filterVal === "helpful"){
+            filtered.sort((a,b)=> (b.helpful || 0) - (a.helpful || 0));
+          }else if(filterVal === "verified"){
+            filtered.sort((a,b)=> (b.verified === a.verified ? 0 : b.verified ? 1 : -1));
+          }else{
+            filtered.sort((a,b)=> new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+          }
+
+          list.innerHTML = filtered.map(r=>{
+            const mediaHtml = (r.media || []).length
+              ? `<div class="review-media">
+                  ${(r.media || []).map(m=>{
+                    if(m.type === "video"){
+                      return `<video controls src="${m.src}"></video>`;
+                    }
+                    return `<img src="${m.src}" alt="Review media">`;
+                  }).join("")}
+                </div>`
+              : "";
+            const verified = r.verified ? `<span class="verified-pill">Verified purchase</span>` : "";
+            const helpfulActive = hasMarkedHelpful(r.id) ? "active" : "";
+            return `
+            <div class="card" style="padding:12px;">
+              <div style="display:flex; justify-content:space-between; gap:8px; align-items:center;">
+                <div style="font-weight:800; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                  <span>${r.name || (window.PPS_I18N?.t("product.reviews.anonymous") || "Anonymous")}</span>
+                  ${verified}
+                </div>
+                <div>${renderStars(r.rating)}</div>
+              </div>
+              <div style="color:var(--muted); font-size:13px; margin-top:6px;">${new Date(r.createdAt).toLocaleString()}</div>
+              <div style="margin-top:10px;">${(r.comment || "").replace(/</g,"&lt;")}</div>
+              ${mediaHtml}
+              <div class="review-actions">
+                <button class="btn btn-outline btn-sm review-helpful ${helpfulActive}" type="button" data-review-id="${r.id}">Helpful (${r.helpful || 0})</button>
+              </div>
+            </div>
+          `;}).join("");
+        }catch(err){
+          status.textContent = window.PPS_I18N?.t("product.reviews.load_failed") || "Unable to load reviews right now.";
+          status.style.display = "block";
+        }
+      }
+
+      const lang = window.PPS_I18N?.getLang?.() || "en";
+      const displayName = lang === "es"
+        ? (window.PPS_I18N?.autoTranslate?.(p.name || "", "es") || p.name)
+        : p.name;
+      const displayCategory = categoryLabel(p.category || "");
+      const desc = lang === "fr"
+        ? (p.description_fr || p.description)
+        : lang === "ko"
+          ? (p.description_ko || p.description)
+          : lang === "hi"
+            ? (p.description_hi || p.description)
+            : lang === "ta"
+              ? (p.description_ta || p.description)
+              : lang === "es"
+                ? (window.PPS_I18N?.autoTranslate?.(p.description_es || p.description || "", "es") || (p.description_es || p.description || ""))
+                : p.description;
+      const compareCents = PPS.getComparePriceCents?.(p) ?? ((Number(p.priceCents) || 0) + 1000);
+      const memberCents = Number(p.priceCents) || 0;
+      const savingsCents = Math.max(0, compareCents - memberCents);
+      const isMember = Boolean(PPS.getSession?.());
+      const bannerTemplate = window.PPS_I18N?.t("member.banner") || "Log in to save {{amount}} with Power Poly Member Pricing";
+      const bannerText = bannerTemplate.replace("{{amount}}", PPS.money(savingsCents, p.currency));
+      const galleryImages = Array.from(new Set([
+        p.image,
+        ...(Array.isArray(p.images) ? p.images : []),
+        p.image2,
+        p.image3
+      ].filter(Boolean)));
+      const galleryMain = galleryImages[0] || "./assets/poly%20logo%20without%20background.png";
+      const galleryThumbs = galleryImages.length > 1
+        ? `<div class="product-gallery-thumbs" id="galleryThumbs">
+            ${galleryImages.map((src, idx)=>`
+              <button type="button" class="thumb ${idx===0 ? "active" : ""}" data-index="${idx}" aria-label="View image ${idx+1}">
+                <img src="${src}" alt="" loading="lazy" decoding="async" width="120" height="86">
+              </button>
+            `).join("")}
+          </div>`
+        : "";
+
+      wrap.innerHTML = `
+        <section class="hero fade-in" style="margin-bottom:16px;">
+          <nav class="breadcrumbs" aria-label="Breadcrumb">
+            <a href="./index.html">Home</a>
+            <span class="crumb-sep" aria-hidden="true">/</span>
+            <a href="./products.html?cat=${encodeURIComponent(p.category || "")}">${displayCategory || "Products"}</a>
+            <span class="crumb-sep" aria-hidden="true">/</span>
+            <span aria-current="page">${displayName}</span>
+          </nav>
+          <p style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);" data-i18n="product.kicker">Product detail</p>
+          <h1 style="margin:4px 0 6px;">${displayName}</h1>
+          <p style="margin:0; color:var(--muted);">${window.PPS_I18N?.t("product.category") || "Category:"} ${displayCategory || "N/A"}</p>
+          <div class="trust-inline">
+            <span class="trust-badge">Money-back guarantee</span>
+            <span class="trust-badge">Seller verified</span>
+            <span class="trust-badge">Secure checkout</span>
+          </div>
+        </section>
+        <section class="print-sheet" id="printSheet" aria-hidden="true">
+          <div class="print-sheet-header">
+            <div>
+              <h1 style="margin:0;">${displayName}</h1>
+              <div class="print-sheet-meta">${displayCategory} \u00B7 ${PPS.money(memberCents, p.currency)}</div>
+            </div>
+            <div class="print-sheet-logo">Power Poly Supplies</div>
+          </div>
+          <div class="print-sheet-body">
+            <div class="print-sheet-desc">${desc || ""}</div>
+            <div class="print-sheet-grid">
+              <div>
+                <h3 class="print-sheet-title">Key specifications</h3>
+                <div id="printSpecTable"></div>
+              </div>
+              <div>
+                <h3 class="print-sheet-title">Compatibility</h3>
+                <ul class="print-sheet-list">
+                  <li>Works with standard delivery workflows and route handling.</li>
+                  <li>Compatible with hangers and polybag inserts.</li>
+                  <li>Recommended for dry cleaners, retailers, and uniform services.</li>
+                </ul>
+                <div class="print-sheet-note">Request a quote: sales@powerpolysupplies.com</div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <div class="grid product-detail-grid" style="grid-template-columns: 1.1fr .9fr; gap:24px;">
+          <div class="card fade-in">
+            <div class="product-gallery">
+              <div class="product-gallery-main">
+                <img id="mainImg" src="${galleryMain}" alt="${displayName}" width="900" height="640" decoding="async">
+              </div>
+              ${galleryThumbs}
+            </div>
+          </div>
+          <div class="card fade-in" style="padding:18px;">
+            <h2 style="margin:0;">${displayName}</h2>
+            <p style="color:var(--muted); margin-top:8px;">${displayCategory}</p>
+              <div class="member-pricing">
+                <div>
+                  <div class="market-label" data-i18n="market.price.label">Market price</div>
+                  <span class="compare-price">${PPS.money(compareCents, p.currency)}</span>
+                </div>
+                <div>
+                  <div class="member-label" data-i18n="member.price.label">Power Poly Member Price</div>
+                  <span class="price" style="font-size:22px;">${PPS.money(memberCents,p.currency)}</span>
+                </div>
+              ${favoriteButton(p.id)}
+              ${wishlistButton(p.id)}
+              </div>
+            ${!isMember && savingsCents > 0 ? `<a class="member-banner" href="./login.html">${bannerText}</a>` : ""}
+            ${(()=>{ const s = stockClass(p.stock); return `<div class="stock ${s.cls}"><span class="dot"></span>${s.label}</div>`; })()}
+            ${p.stock > 0 && p.stock <= 15 ? `<div class="stock-urgency">Only <strong>${p.stock}</strong> boxes left — order soon.</div>` : ""}
+            ${qualityBadgesHtml(p.category)}
+            <div class="trust-inline" style="margin-top:10px;">
+              <span class="trust-badge">SSL secured</span>
+              <span class="trust-badge">Square verified</span>
+            </div>
+            <div class="stock-realtime" id="stockRealtime">Live stock: -- boxes</div>
+            <div class="restock-note" id="restockNote"></div>
+
+            ${(()=>{
+              const specs = extractSpecsFromName(displayName);
+              if(String(p?.category || "") === "Hangers"){
+                specs.push({
+                  label: window.PPS_I18N?.t("spec.pack") || "Pack",
+                  value: window.PPS_I18N?.t("pack.hangers_500") || "500 pcs / box"
+                });
+              }
+              if(!specs.length) return "";
+              return `
+                <div class="specs">
+                  <div class="specs-title">Quick specs</div>
+                  <ul class="specs-list">
+                    ${specs.map(s=>`<li><span class="check">✓</span><span><strong>${s.label}:</strong> ${s.value}</span></li>`).join("")}
+                  </ul>
+                </div>
+              `;
+            })()}
+            <p style="margin-top:14px; color:var(--text); line-height:1.5;">${desc || ""}</p>
+
+            <div class="pricing-tiers">
+              <div class="pricing-tiers-header" data-i18n="product.bulk">Bulk pricing</div>
+              <div class="pricing-tiers-grid">
+                ${renderTier(getBulkTierPriceCents(p, 10), p.currency, 10, p.stock)}
+                ${renderTier(getBulkTierPriceCents(p, 15), p.currency, 15, p.stock)}
+                ${renderTier(getBulkTierPriceCents(p, 20), p.currency, 20, p.stock)}
+              </div>
+            </div>
+
+            <div class="qty-row" style="margin-top:16px;">
+              <div class="qty-stepper" aria-label="Quantity selector">
+                <button class="qty-btn" type="button" id="qtyMinus" aria-label="Decrease quantity">-</button>
+                <input class="qty-input" id="qty" inputmode="numeric" pattern="[0-9]*" value="1" aria-label="Quantity">
+                <button class="qty-btn" type="button" id="qtyPlus" aria-label="Increase quantity">+</button>
+              </div>
+              <div class="qty-meta">
+                <div class="qty-total" id="qtyTotal"></div>
+                <div class="qty-note" id="qtyNote"></div>
+              </div>
+            </div>
+            <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="btn btn-primary" ${p.stock<=0 ? "disabled" : ""} id="add">${window.PPS_I18N?.t("product.add") || "Add to cart"}</button>
+              <a class="btn" href="./cart.html">${window.PPS_I18N?.t("product.go_cart") || "Go to cart"}</a>
+              <a class="btn btn-outline" href="./contact.html">${window.PPS_I18N?.t("product.bulk_quote") || "Bulk quote"}</a>
+              ${p.stock<=0 ? `<button class="btn btn-outline" type="button" id="notifyBtn">Notify me</button>` : ""}
+              ${p.stock<=0 ? `<button class="btn btn-primary" type="button" id="preorderBtn">Preorder</button>` : ""}
+            </div>
+
+            <div class="delivery-estimate" id="deliveryEstimate" aria-live="polite"></div>
+            <div class="stock-live" id="stockLive">Stock updated just now.</div>
+            <div class="urgency-row">
+              <span class="urgency-pill" id="viewingNow">-- people viewing now</span>
+            </div>
+            <details class="product-section-accordion section-card-accordion" id="buyingToolsAccordion">
+              <summary><span>Buying tools</span></summary>
+              <div class="product-section-panel">
+                <div class="product-utility-grid">
+                  <div class="utility-card">
+                    <div class="utility-title">Shipping calculator</div>
+                    <div class="utility-desc">Estimate delivery by postal code.</div>
+                    <form id="shippingCalcForm" class="utility-form">
+                      <label>
+                        <span>Postal code</span>
+                        <input class="input" name="postal" placeholder="e.g., M5V 2T6" autocomplete="postal-code">
+                      </label>
+                      <button class="btn btn-outline btn-sm" type="submit">Calculate</button>
+                    </form>
+                    <div class="utility-output" id="shippingCalcOutput">Enter a postal code to see delivery estimate.</div>
+                  </div>
+                  <div class="utility-card">
+                    <div class="utility-title">Stock by location</div>
+                    <div class="utility-desc">Live inventory snapshot by warehouse.</div>
+                    <ul class="utility-list" id="stockLocationList"></ul>
+                  </div>
+                  <div class="utility-card">
+                    <div class="utility-title">Bulk discount calculator</div>
+                    <div class="utility-desc">See total price and savings instantly.</div>
+                    <form id="bulkDiscountForm" class="utility-form">
+                      <label>
+                        <span>Quantity (boxes)</span>
+                        <input class="input" name="qty" type="number" min="1" step="1" value="12">
+                      </label>
+                      <label>
+                        <span>Base price / box</span>
+                        <input class="input" name="price" type="number" min="0" step="0.01" value="${(memberCents / 100).toFixed(2)}">
+                      </label>
+                      <button class="btn btn-outline btn-sm" type="submit">Update</button>
+                    </form>
+                    <div class="utility-output" id="bulkDiscountOutput">Total: ${PPS.money(memberCents * 12, p.currency)}.</div>
+                  </div>
+                </div>
+              </div>
+            </details>
+
+            <details class="product-section-accordion section-card-accordion" id="shareAlertsAccordion">
+              <summary><span>Share & alerts</span></summary>
+              <div class="product-section-panel">
+                <div class="product-utility-grid">
+                  <div class="utility-card">
+                    <div class="utility-title">Product actions</div>
+                    <div class="utility-desc">Share, print, or request a quote.</div>
+                    <button class="share-btn" type="button" id="shareBtn" aria-label="${window.PPS_I18N?.t("product.share") || "Share"}">
+                      <span class="share-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" width="16" height="16" focusable="false" aria-hidden="true">
+                          <path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M12 4v12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                          <path d="M7.5 8.5 12 4l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </span>
+                      <span data-i18n="product.share">Share</span>
+                    </button>
+                    <div id="shareMsg" style="color:var(--muted); font-size:12px; margin-top:6px;"></div>
+                    <div class="utility-actions">
+                      <button class="btn btn-primary btn-sm" type="button" id="printProductBtn">Print product sheet</button>
+                      <a class="btn btn-outline btn-sm" href="./contact.html">Request quote</a>
+                    </div>
+                    <div class="utility-social">
+                      <a class="social-btn" id="shareLinkedIn" target="_blank" rel="noopener">LinkedIn</a>
+                      <a class="social-btn" id="shareFacebook" target="_blank" rel="noopener">Facebook</a>
+                      <a class="social-btn" id="shareX" target="_blank" rel="noopener">X</a>
+                      <a class="social-btn" id="shareInstagram" target="_blank" rel="noopener">Instagram</a>
+                    </div>
+                    <form id="emailProductForm" class="utility-form">
+                      <label>
+                        <span>Email to colleague</span>
+                        <input class="input" name="email" type="email" placeholder="colleague@company.com" required>
+                      </label>
+                      <button class="btn btn-outline btn-sm" type="submit">Send email</button>
+                    </form>
+                    <div class="utility-output" id="emailProductOutput">We will open your email client with a pre-filled message.</div>
+                  </div>
+                  <div class="utility-card">
+                    <div class="utility-title">Product alerts</div>
+                    <div class="utility-desc">Get notified for back-in-stock and price drops.</div>
+                    <form id="productAlertForm" class="utility-form">
+                      <label>
+                        <span>Email</span>
+                        <input class="input" name="alertEmail" type="email" placeholder="you@company.com" required>
+                      </label>
+                      <label class="pref-item">
+                        <input type="checkbox" name="alertStock" checked>
+                        <span>Back in stock</span>
+                      </label>
+                      <label class="pref-item">
+                        <input type="checkbox" name="alertPrice" checked>
+                        <span>Price drop alerts</span>
+                      </label>
+                      <button class="btn btn-outline btn-sm" type="submit">Save alerts</button>
+                    </form>
+                    <div class="utility-output" id="productAlertOutput">Alerts are saved to this browser.</div>
+                  </div>
+                </div>
+              </div>
+            </details>
+
+            <details class="product-section-accordion" id="reviewsAccordion">
+              <summary><span>Reviews</span></summary>
+              <div class="product-section-panel">
+            <div class="reviews-section">
+              <div class="reviews-topline">
+                <div class="reviews-header" id="reviewsHeader">${renderStars(0)} <span class="review-meta">(${window.PPS_I18N?.t("product.reviews.none") || "No reviews yet"})</span></div>
+                <div class="reviews-total" id="reviewsTotal">0 reviews</div>
+              </div>
+              <div class="reviews-controls">
+                <label class="filter-field">
+                  <div class="filter-label">Sort</div>
+                  <select class="input" id="reviewsFilter">
+                    <option value="recent">Most recent</option>
+                    <option value="helpful">Most helpful</option>
+                    <option value="verified">Verified purchase</option>
+                  </select>
+                </label>
+                <label class="filter-chip">
+                  <input type="checkbox" id="reviewsVerifiedOnly">
+                  <span>Verified only</span>
+                </label>
+              </div>
+              <div class="rating-breakdown" id="ratingBreakdown"></div>
+              <div id="reviewsStatus" style="display:none; color:var(--muted); font-size:13px; margin-bottom:8px;"></div>
+              <div id="reviewsList" class="grid" style="gap:10px;"></div>
+
+              <form id="reviewForm" class="grid" style="gap:10px; margin-top:12px;">
+                <div style="font-weight:800;" data-i18n="product.reviews.rate">Rate this product</div>
+                <div class="star-input" id="starInput" aria-label="Select rating out of 5">
+                  ${[1,2,3,4,5].map(val=>`<button type="button" data-val="${val}" class="star-btn">&#9733;</button>`).join("")}
+                </div>
+                <input class="input" name="name" placeholder="Your name (optional)" data-i18n-placeholder="product.reviews.name">
+                <textarea class="input" name="comment" placeholder="Share your feedback" style="min-height:90px;" data-i18n-placeholder="product.reviews.comment"></textarea>
+                <div class="review-media-upload">
+                  <label class="filter-label">Add photos or videos</label>
+                  <input class="input" type="file" id="reviewMedia" accept="image/*,video/*" multiple>
+                  <div class="review-media-hint">Files are stored locally in this browser. Video previews are session-only.</div>
+                  <div class="review-media-preview" id="reviewMediaPreview"></div>
+                </div>
+                <button class="btn btn-primary" type="submit" data-i18n="product.reviews.submit">Submit review</button>
+                <div id="reviewMsg" style="color:var(--muted); font-size:13px;"></div>
+              </form>
+            </div>
+              </div>
+            </details>
+          </div>
+        </div>
+        <details class="product-section-accordion" id="qaAccordion">
+          <summary><span>Questions & answers</span></summary>
+          <div class="product-section-panel">
+        <div class="card fade-in" style="margin-top:18px; padding:18px;">
+          <div class="section-head">
+            <h3 style="margin:0;">Questions & answers</h3>
+            <p class="muted">Ask about sizing, thickness, shipping, or compatibility.</p>
+          </div>
+          <div id="qaList" class="grid" style="gap:10px;"></div>
+          <form id="qaForm" class="grid" style="gap:10px; margin-top:12px;">
+            <input class="input" name="question" placeholder="Ask a question">
+            <textarea class="input" name="answer" placeholder="Optional: share an answer" style="min-height:80px;"></textarea>
+            <button class="btn btn-outline" type="submit">Post question</button>
+            <div id="qaMsg" style="color:var(--muted); font-size:13px;"></div>
+          </form>
+        </div>
+          </div>
+        </details>
+        <details class="product-section-accordion" id="faqAccordion">
+          <summary><span>FAQ</span></summary>
+          <div class="product-section-panel">
+        <div class="card fade-in" style="margin-top:18px; padding:18px;">
+          <div class="section-head">
+            <h3 style="margin:0;">FAQ</h3>
+            <p class="muted">Fast answers for common questions.</p>
+          </div>
+          <div class="spec-accordion">
+            <details open>
+              <summary>What size should I order?</summary>
+              <div class="spec-accordion-body">Match garment width + 4-6 inches and length + 4-8 inches. Use gusseted bags for bulky items.</div>
+            </details>
+            <details>
+              <summary>Heavy vs Extra Heavy — which is right?</summary>
+              <div class="spec-accordion-body">Heavy is for daily in-store use. Extra Heavy is best for delivery routes or sharp edges.</div>
+            </details>
+            <details>
+              <summary>Can I get a bulk discount?</summary>
+              <div class="spec-accordion-body">Yes. Bulk tiers apply at 10+, 15+, and 20+ boxes. Request a custom quote for larger volume.</div>
+            </details>
+            <details>
+              <summary>Do you offer samples?</summary>
+              <div class="spec-accordion-body">Yes. Use the sample request tool or contact our team for a quick pack.</div>
+            </details>
+          </div>
+        </div>
+          </div>
+        </details>
+        <div class="grid grid-2" style="margin-top:18px; gap:18px;">
+          <details class="product-section-accordion section-card-accordion" id="specsAccordion">
+            <summary><span>Specifications</span></summary>
+            <div class="product-section-panel">
+          <div class="card fade-in" style="padding:18px;">
+            <div class="section-head">
+              <h3 style="margin:0;">Specifications</h3>
+              <p class="muted">Detailed materials, thickness, and packing data.</p>
+            </div>
+            <div id="specTable"></div>
+            <div class="spec-accordion">
+              <details open>
+                <summary>Material composition</summary>
+                <div class="spec-accordion-body">
+                  Premium virgin film with high clarity and consistent seals. Ask for recycled options if preferred.
+                </div>
+              </details>
+              <details>
+                <summary>Packaging & handling</summary>
+                <div class="spec-accordion-body">
+                  Bulk-ready cartons, barcoded cases, and pallet-ready for route deliveries.
+                </div>
+              </details>
+              <details>
+                <summary>Compatibility & use-cases</summary>
+                <div class="spec-accordion-body">
+                  Compatible with standard dry cleaning hangers and route-ready packaging.
+                </div>
+              </details>
+            </div>
+          </div>
+            </div>
+          </details>
+          <details class="product-section-accordion section-card-accordion" id="dimensionsAccordion">
+            <summary><span>Dimensions</span></summary>
+            <div class="product-section-panel">
+          <div class="card fade-in" style="padding:18px;">
+            <div class="section-head">
+              <h3 style="margin:0;">Dimensions</h3>
+              <p class="muted">Size chart and diagram for quick sizing.</p>
+            </div>
+            <div id="dimensionDiagram"></div>
+            <div id="sizeChart" style="margin-top:14px;"></div>
+          </div>
+            </div>
+          </details>
+        </div>
+        <details class="product-section-accordion" id="certsAccordion">
+          <summary><span>Certifications</span></summary>
+          <div class="product-section-panel">
+        <div class="card fade-in" style="margin-top:18px; padding:18px;">
+          <div class="section-head">
+            <h3 style="margin:0;">Certifications & safety</h3>
+            <p class="muted">Request documentation or safety statements anytime.</p>
+          </div>
+          <div id="certInfo"></div>
+        </div>
+          </div>
+        </details>
+        <details class="product-section-accordion related-extra" id="bundleAccordion">
+          <summary><span>Frequently bought together</span></summary>
+          <div class="product-section-panel">
+            <div class="card fade-in" style="margin-top:18px; padding:18px;">
+              <div class="section-head">
+                <h3 style="margin:0;">Frequently bought together</h3>
+                <p class="muted">Bundle your order with compatible supplies.</p>
+              </div>
+              <div id="bundleGrid" class="grid grid-3" style="margin-top:12px;"></div>
+              <div class="bundle-actions">
+                <button class="btn btn-primary" type="button" id="addBundleBtn">Add bundle to cart</button>
+                <span class="muted" id="bundleMsg"></span>
+              </div>
+            </div>
+          </div>
+        </details>
+        <details class="product-section-accordion related-extra" id="compareAccordion">
+          <summary><span>Compare similar products</span></summary>
+          <div class="product-section-panel">
+            <div class="card fade-in" style="margin-top:18px; padding:18px;">
+              <div class="section-head">
+                <h3 style="margin:0;">Compare similar products</h3>
+                <p class="muted">Select up to three items to compare.</p>
+              </div>
+              <div id="compareList" class="compare-list"></div>
+              <div id="compareTable" style="margin-top:14px;"></div>
+            </div>
+          </div>
+        </details>
+        <details class="product-section-accordion related-extra" id="alsoBoughtAccordion">
+          <summary><span>Customers also bought</span></summary>
+          <div class="product-section-panel">
+            <div class="card fade-in" style="margin-top:18px; padding:18px;">
+              <div class="section-head">
+                <h3 style="margin:0;">Customers also bought</h3>
+                <p class="muted">Other essentials frequently ordered together.</p>
+              </div>
+              <div id="alsoBoughtGrid" class="grid grid-4" style="margin-top:12px;"></div>
+            </div>
+          </div>
+        </details>
+        <div class="card fade-in" style="margin-top:18px; padding:18px;">
+          <div class="related-header" style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+            <h3 style="margin:0;" data-i18n="product.related.title">You may also like</h3>
+            <a class="btn btn-outline" href="./products.html" data-i18n="product.related.browse">Browse all</a>
+          </div>
+          <div id="relatedGrid" class="grid grid-4" style="margin-top:12px;"></div>
+        </div>
+        <div class="card fade-in" style="margin-top:18px; padding:18px;">
+          <div class="related-header" style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+            <h3 style="margin:0;">Recently viewed</h3>
+            <a class="btn btn-outline" href="./products.html">Browse all</a>
+          </div>
+          <div id="recentGrid" class="grid grid-4" style="margin-top:12px;"></div>
+        </div>
+        <div class="footer">&copy; <span id="y"></span> <span data-i18n="footer.short">Power Poly Supplies. Power your packaging.</span></div>
+        <div class="sticky-add" id="stickyAdd" aria-hidden="true">
+          <div class="sticky-add-inner">
+            <div class="sticky-meta">
+              <div class="sticky-title">${displayName}</div>
+              <div class="sticky-price">${PPS.money(memberCents, p.currency)}</div>
+            </div>
+            <button class="btn btn-primary btn-sm" type="button" id="stickyAddBtn">Add to cart</button>
+            <a class="btn btn-outline btn-sm" href="./cart.html">Cart</a>
+          </div>
+        </div>
+      `;
+
+      const sectionAccordions = Array.from(document.querySelectorAll(".product-section-accordion"));
+      const extraRelatedAccordions = Array.from(document.querySelectorAll(".related-extra"));
+      const applyMobileRelatedSectionLimit = ()=>{
+        const mobile = window.matchMedia("(max-width: 860px)").matches;
+        extraRelatedAccordions.forEach((el)=>{
+          el.style.display = mobile ? "none" : "";
+        });
+      };
+      const applySectionAccordionMode = ()=>{
+        const mobile = window.matchMedia("(max-width: 860px)").matches;
+        sectionAccordions.forEach((el)=>{
+          el.open = !mobile;
+        });
+      };
+      applySectionAccordionMode();
+      applyMobileRelatedSectionLimit();
+      window.addEventListener("resize", applySectionAccordionMode);
+      window.addEventListener("resize", applyMobileRelatedSectionLimit);
+
+      // Product structured data (Schema.org)
+      try{
+        const productUrl = window.location.href;
+        const imageUrl = p.image ? new URL(p.image, window.location.href).href : undefined;
+        const scriptId = "productJsonLd";
+        document.getElementById(scriptId)?.remove?.();
+        const ld = {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "BreadcrumbList",
+              "itemListElement": [
+                { "@type":"ListItem", "position":1, "name":"Home", "item": new URL("./index.html", productUrl).href },
+                { "@type":"ListItem", "position":2, "name": String(displayCategory || "Products"), "item": new URL(`./products.html?cat=${encodeURIComponent(p.category || "")}`, productUrl).href },
+                { "@type":"ListItem", "position":3, "name": String(displayName || ""), "item": productUrl }
+              ]
+            },
+            {
+              "@type": "Product",
+              "name": String(displayName || ""),
+              "category": String(displayCategory || ""),
+              "image": imageUrl ? [imageUrl] : undefined,
+              "description": String(desc || ""),
+              "sku": String(p.id || ""),
+              "brand": { "@type":"Brand", "name":"Power Poly Supplies" },
+              "offers": {
+                "@type": "Offer",
+                "priceCurrency": String(PPS.getCurrency?.() || p.currency || "CAD"),
+                "price": ((Number(PPS.convertCents?.(memberCents, p.currency, PPS.getCurrency?.()) ?? memberCents) || 0) / 100).toFixed(2),
+                "availability": (Number(p.stock) || 0) <= 0 ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
+                "url": productUrl
+              }
+            }
+          ]
+        };
+        const s = document.createElement("script");
+        s.id = scriptId;
+        s.type = "application/ld+json";
+        s.textContent = JSON.stringify(ld);
+        document.head.appendChild(s);
+        const faqId = "productFaqJsonLd";
+        document.getElementById(faqId)?.remove?.();
+        const faqLd = {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "What size should I order?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Match garment width plus 4-6 inches and length plus 4-8 inches. Use gusseted bags for bulky items."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Heavy vs Extra Heavy - which is right?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Heavy works for daily in-store use. Extra Heavy is best for delivery routes or sharp edges."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Can I get a bulk discount?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Bulk tiers apply at 10+, 15+, and 20+ boxes. Request a custom quote for larger volume."
+              }
+            }
+          ]
+        };
+        const faqScript = document.createElement("script");
+        faqScript.id = faqId;
+        faqScript.type = "application/ld+json";
+        faqScript.textContent = JSON.stringify(faqLd);
+        document.head.appendChild(faqScript);
+      }catch(_err){
+        // ignore
+      }
+
+      window.PPS_I18N?.applyTranslations?.();
+      document.getElementById("y").textContent = new Date().getFullYear();
+      document.querySelectorAll(".fade-in").forEach(el => el.classList.add("show"));
+      if(window.injectFooter) window.injectFooter();
+
+      // Gallery thumbnails
+      const mainImg = document.getElementById("mainImg");
+      const thumbs = document.getElementById("galleryThumbs");
+      let galleryIndex = 0;
+      const galleryList = galleryImages.slice();
+      function setGalleryIndex(next){
+        if(!galleryList.length || !mainImg) return;
+        galleryIndex = (next + galleryList.length) % galleryList.length;
+        mainImg.src = galleryList[galleryIndex];
+        if(thumbs){
+          thumbs.querySelectorAll("button.thumb").forEach((b, idx)=> b.classList.toggle("active", idx === galleryIndex));
+        }
+      }
+      if(mainImg && thumbs){
+        const handleThumbSelect = (e)=>{
+          const target = e.target instanceof Element ? e.target : null;
+          const btn = target?.closest?.("button.thumb");
+          if(!btn) return;
+          const rawIdx = Number(btn.getAttribute("data-index"));
+          const idx = Number.isFinite(rawIdx) ? rawIdx : 0;
+          setGalleryIndex(idx >= 0 ? idx : 0);
+          window.PPS_ANALYTICS?.record?.("product_gallery_click", { id: p.id, index: galleryIndex });
+        };
+        thumbs.addEventListener("click", handleThumbSelect);
+        thumbs.addEventListener("pointerup", handleThumbSelect);
+        thumbs.addEventListener("touchend", handleThumbSelect, { passive:true });
+      }
+      if(mainImg && galleryList.length > 1){
+        let touchStartX = 0;
+        let touchEndX = 0;
+        mainImg.addEventListener("touchstart", (e)=>{
+          touchStartX = e.touches[0]?.clientX || 0;
+        }, { passive:true });
+        mainImg.addEventListener("touchend", (e)=>{
+          touchEndX = e.changedTouches[0]?.clientX || 0;
+          const delta = touchEndX - touchStartX;
+          if(Math.abs(delta) < 40) return;
+          setGalleryIndex(delta < 0 ? galleryIndex + 1 : galleryIndex - 1);
+        });
+      }
+
+      // Quantity + live price
+      const qtyInput = document.getElementById("qty");
+      const qtyMinus = document.getElementById("qtyMinus");
+      const qtyPlus = document.getElementById("qtyPlus");
+      const qtyTotal = document.getElementById("qtyTotal");
+      const qtyNote = document.getElementById("qtyNote");
+      function clampQty(val){
+        const n = Math.max(1, Math.floor(Number(val) || 1));
+        if(Number.isFinite(p.stock) && p.stock > 0){
+          return Math.min(n, p.stock);
+        }
+        return n;
+      }
+      function updateQtyPricing(){
+        if(!qtyInput || !qtyTotal || !qtyNote) return;
+        const qty = clampQty(qtyInput.value);
+        qtyInput.value = String(qty);
+        const unit = getBulkTierPriceCents(p, qty);
+        const total = unit * qty;
+        qtyTotal.textContent = `Total: ${PPS.money(total, p.currency)}`;
+        const tierMsg = qty >= 20 ? "20+ pricing applied" : qty >= 15 ? "15+ pricing applied" : qty >= 10 ? "10+ pricing applied" : "Standard pricing";
+        qtyNote.textContent = `${PPS.money(unit, p.currency)} / box \u00B7 ${tierMsg}`;
+      }
+      function setQty(val){
+        if(!qtyInput) return;
+        qtyInput.value = String(clampQty(val));
+        updateQtyPricing();
+      }
+      if(qtyInput){
+        qtyInput.addEventListener("input", updateQtyPricing);
+        qtyInput.addEventListener("blur", ()=> setQty(qtyInput.value));
+        updateQtyPricing();
+      }
+      if(qtyMinus) qtyMinus.addEventListener("click", ()=> setQty((Number(qtyInput?.value) || 1) - 1));
+      if(qtyPlus) qtyPlus.addEventListener("click", ()=> setQty((Number(qtyInput?.value) || 1) + 1));
+
+      document.getElementById("add").onclick = ()=>{
+        if(p.stock<=0) return;
+        const qty = clampQty(qtyInput?.value);
+        PPS.addToCart(p, qty);
+        window.PPS_ANALYTICS?.record?.("funnel_add_to_cart", { id: p.id, qty });
+      };
+
+      const stickyAdd = document.getElementById("stickyAdd");
+      const stickyAddBtn = document.getElementById("stickyAddBtn");
+      if(stickyAdd && stickyAddBtn){
+        const mobileSticky = window.matchMedia("(max-width: 860px)").matches;
+        stickyAddBtn.addEventListener("click", ()=>{
+          document.getElementById("add")?.click?.();
+        });
+        const primaryCta = document.getElementById("add");
+        if(primaryCta && "IntersectionObserver" in window && !mobileSticky){
+          const io = new IntersectionObserver((entries)=>{
+            entries.forEach((entry)=>{
+              const visible = entry.isIntersecting;
+              stickyAdd.classList.toggle("show", !visible);
+              stickyAdd.setAttribute("aria-hidden", visible ? "true" : "false");
+            });
+          }, { threshold: 0.2 });
+          io.observe(primaryCta);
+        }
+        if(mobileSticky){
+          stickyAdd.classList.add("show");
+          stickyAdd.setAttribute("aria-hidden", "false");
+        }
+      }
+
+      // Estimated delivery (business days)
+      const deliveryEl = document.getElementById("deliveryEstimate");
+      if(deliveryEl){
+        const start = addBusinessDays(new Date(), 2);
+        const end = addBusinessDays(new Date(), 5);
+        deliveryEl.textContent = `Estimated delivery: ${formatShortDate(start)} – ${formatShortDate(end)} (business days)`;
+      }
+      const viewingNow = document.getElementById("viewingNow");
+      if(viewingNow){
+        const base = Math.max(4, Math.min(48, Math.round((Number(p.stock) || 20) / 3)));
+        const current = base + Math.floor(Math.random() * 6);
+        viewingNow.textContent = `${current} people viewing this now`;
+        setInterval(()=>{
+          const next = Math.max(3, current + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 3));
+          viewingNow.textContent = `${next} people viewing this now`;
+        }, 12000);
+      }
+      const stockLive = document.getElementById("stockLive");
+      if(stockLive){
+        const updatedAt = new Date();
+        stockLive.textContent = `Stock updated ${formatShortDate(updatedAt)}.`;
+      }
+      const stockRealtime = document.getElementById("stockRealtime");
+      const restockNote = document.getElementById("restockNote");
+      if(stockRealtime){
+        let current = Math.max(0, Number(p.stock) || 0);
+        stockRealtime.textContent = `Live stock: ${current} boxes`;
+        if(current > 0){
+          setInterval(()=>{
+            const drift = Math.random() > 0.6 ? -1 : 0;
+            current = Math.max(0, current + drift);
+            stockRealtime.textContent = `Live stock: ${current} boxes`;
+          }, 8000);
+        }
+      }
+      if(restockNote){
+        if(Number(p.stock) <= 0){
+          const restock = new Date(Date.now() + 12 * 24 * 60 * 60 * 1000);
+          restockNote.textContent = `Expected restock: ${formatShortDate(restock)}. Preorder available.`;
+        }else{
+          restockNote.textContent = "";
+        }
+      }
+
+      const notifyBtn = document.getElementById("notifyBtn");
+      if(notifyBtn){
+        notifyBtn.addEventListener("click", ()=>{
+          const email = prompt("Enter email for back-in-stock alerts:");
+          if(!email) return;
+          const key = "pps_product_alerts_v1";
+          const alerts = (()=>{ try{ return JSON.parse(localStorage.getItem(key) || "{}"); }catch(_err){ return {}; }})();
+          alerts[p.id] = { email, backInStock: true, priceDrop: false, createdAt: Date.now() };
+          try{ localStorage.setItem(key, JSON.stringify(alerts)); }catch(_err){}
+          alert("Saved. We'll notify you when it's back in stock.");
+        });
+      }
+      const preorderBtn = document.getElementById("preorderBtn");
+      if(preorderBtn){
+        preorderBtn.addEventListener("click", ()=>{
+          const qty = clampQty(qtyInput?.value);
+          try{ localStorage.setItem("pps_preorder_last", JSON.stringify({ id: p.id, qty, createdAt: Date.now() })); }catch(_err){}
+          alert("Preorder requested. Our team will confirm availability.");
+        });
+      }
+
+      // Engagement timing
+      const startTime = Date.now();
+      window.addEventListener("beforeunload", ()=>{
+        const seconds = Math.round((Date.now() - startTime) / 1000);
+        window.PPS_ANALYTICS?.record?.("product_time_on_page", { id: p.id, seconds });
+      });
+
+      // Shipping calculator by postal code
+      const shippingForm = document.getElementById("shippingCalcForm");
+      const shippingOutput = document.getElementById("shippingCalcOutput");
+      if(shippingForm && shippingOutput){
+        shippingForm.addEventListener("submit", (event)=>{
+          event.preventDefault();
+          const raw = String(shippingForm.postal?.value || "").trim().toUpperCase();
+          const first = raw.charAt(0);
+          const regionMap = {
+            M: { region:"GTA / Toronto", days:"1-2", cost:12 },
+            L: { region:"Ontario (non-GTA)", days:"2-4", cost:16 },
+            K: { region:"Eastern Ontario", days:"2-4", cost:18 },
+            G: { region:"Quebec", days:"3-5", cost:20 },
+            H: { region:"Montreal", days:"3-4", cost:18 },
+            V: { region:"British Columbia", days:"4-6", cost:26 },
+            T: { region:"Alberta", days:"4-6", cost:24 },
+            S: { region:"Saskatchewan", days:"4-6", cost:25 },
+            R: { region:"Manitoba", days:"4-6", cost:25 },
+            B: { region:"Nova Scotia", days:"4-6", cost:24 },
+            E: { region:"New Brunswick", days:"4-6", cost:24 },
+            A: { region:"Newfoundland", days:"5-7", cost:28 },
+            C: { region:"PEI", days:"4-6", cost:24 }
+          };
+          const data = regionMap[first] || { region:"Canada", days:"4-7", cost:26 };
+          if(!raw){
+            shippingOutput.textContent = "Enter a postal code to see delivery estimate.";
+            return;
+          }
+          shippingOutput.textContent = `${data.region}: ${data.days} business days \u00B7 Est. $${data.cost} shipping.`;
+        });
+      }
+
+      // Stock availability by location
+      const stockList = document.getElementById("stockLocationList");
+      if(stockList){
+        const total = Math.max(0, Number(p.stock) || 0);
+        const locations = [
+          { name:"Toronto, ON", weight: 0.35 },
+          { name:"Mississauga, ON", weight: 0.25 },
+          { name:"Brampton, ON", weight: 0.2 },
+          { name:"Vancouver, BC", weight: 0.2 }
+        ];
+        let remaining = total;
+        const rows = locations.map((loc, idx)=>{
+          const qty = idx === locations.length - 1 ? remaining : Math.max(0, Math.round(total * loc.weight));
+          remaining = Math.max(0, remaining - qty);
+          return `<li><span>${loc.name}</span><strong>${qty} boxes</strong></li>`;
+        });
+        stockList.innerHTML = rows.join("");
+      }
+
+      // Bulk discount calculator
+      const bulkForm = document.getElementById("bulkDiscountForm");
+      const bulkOutput = document.getElementById("bulkDiscountOutput");
+      if(bulkForm && bulkOutput){
+        const calc = ()=>{
+          const qty = Math.max(1, Math.floor(Number(bulkForm.qty?.value) || 1));
+          const basePrice = Math.max(0, Number(bulkForm.price?.value) || (memberCents / 100));
+          const tierCents = getBulkTierPriceCents(p, qty);
+          const unit = tierCents / 100;
+          const total = unit * qty;
+          const baseTotal = basePrice * qty;
+          const savings = Math.max(0, baseTotal - total);
+          bulkOutput.textContent = `Total: ${PPS.money(Math.round(total * 100), p.currency)} \u00B7 Savings: ${PPS.money(Math.round(savings * 100), p.currency)}.`;
+        };
+        ["input","change","submit"].forEach((evt)=> bulkForm.addEventListener(evt, (e)=>{
+          if(evt === "submit") e.preventDefault();
+          calc();
+        }));
+        calc();
+      }
+
+      // Recently viewed
+      rememberRecent(p.slug);
+      const recentGrid = document.getElementById("recentGrid");
+      if(recentGrid){
+        const recentSlugs = readRecentSlugs().filter(s=>s !== p.slug);
+        const recent = recentSlugs
+          .map(slug => products.find(x=>String(x.slug) === slug))
+          .filter(Boolean)
+          .slice(0, 4);
+        if(!recent.length){
+          recentGrid.innerHTML = `<div style="color:var(--muted); font-size:13px;">No recently viewed products yet.</div>`;
+        }else{
+          recentGrid.innerHTML = recent.map(item=>{
+            const compareCents = PPS.getComparePriceCents?.(item) ?? ((Number(item.priceCents) || 0) + 1000);
+            const memberCents = Number(item.priceCents) || 0;
+            const s = item.stock<=0 ? "out" : item.stock<=10 ? "low" : "in";
+            const label = item.stock<=0
+              ? (window.PPS_I18N?.t("product.stock.out") || "Out of stock")
+              : item.stock<=10
+                ? (window.PPS_I18N?.t("product.stock.low") || "Almost out of stock")
+                : (window.PPS_I18N?.t("product.stock.in") || "In stock");
+            return `
+              <div class="card">
+                <a href="./product.html?slug=${encodeURIComponent(item.slug)}">
+                  <img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async" width="400" height="190">
+                </a>
+                <div class="card-body">
+                  <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(item.slug)}">${item.name}</a>
+                  <div class="member-pricing">
+                    <div>
+                      <div class="market-label" data-i18n="market.price.label">Market price</div>
+                      <span class="compare-price">${PPS.money(compareCents,item.currency)}</span>
+                    </div>
+                    <div>
+                      <div class="member-label" data-i18n="member.price.label">Power Poly Member Price</div>
+                      <span class="price">${PPS.money(memberCents,item.currency)}</span>
+                    </div>
+                  </div>
+                  <div class="stock ${s}"><span class="dot"></span>${label}</div>
+                </div>
+              </div>
+            `;
+          }).join("");
+          window.PPS_I18N?.applyTranslations?.();
+        }
+      }
+      const shareBtn = document.getElementById("shareBtn");
+      const shareMsg = document.getElementById("shareMsg");
+      const shareData = {
+        title: displayName,
+        text: `${displayName} - Power Poly Supplies`,
+        url: window.location.href
+      };
+      const shareLinkedIn = document.getElementById("shareLinkedIn");
+      const shareFacebook = document.getElementById("shareFacebook");
+      const shareX = document.getElementById("shareX");
+      const shareInstagram = document.getElementById("shareInstagram");
+      if(shareLinkedIn){
+        shareLinkedIn.href = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareData.url)}`;
+      }
+      if(shareFacebook){
+        shareFacebook.href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareData.url)}`;
+      }
+      if(shareX){
+        const text = encodeURIComponent(`${displayName} - Power Poly Supplies`);
+        shareX.href = `https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(shareData.url)}`;
+      }
+      if(shareInstagram){
+        shareInstagram.href = "https://www.instagram.com/";
+        shareInstagram.addEventListener("click", ()=>{
+          if(!navigator.clipboard?.writeText) return;
+          navigator.clipboard.writeText(shareData.url).then(()=>{
+            setShareMsg("Link copied. Paste it into Instagram.");
+          }).catch(()=>{});
+        });
+      }
+
+      function setShareMsg(text){
+        if(!shareMsg) return;
+        shareMsg.textContent = text || "";
+      }
+
+      if(shareBtn){
+        shareBtn.addEventListener("click", async ()=>{
+          if(navigator.share){
+            try{
+              await navigator.share(shareData);
+              setShareMsg(window.PPS_I18N?.t("product.share.sent") || "Thanks for sharing.");
+              return;
+            }catch(err){
+              if(err && err.name === "AbortError") return;
+              setShareMsg(window.PPS_I18N?.t("product.share.fail") || "Unable to share right now.");
+              return;
+            }
+          }
+          if(navigator.clipboard?.writeText){
+            try{
+              await navigator.clipboard.writeText(shareData.url);
+              setShareMsg(window.PPS_I18N?.t("product.share.copied") || "Link copied to clipboard.");
+              return;
+            }catch(err){
+              // fall through to manual copy message
+            }
+          }
+          setShareMsg(window.PPS_I18N?.t("product.share.manual") || "Copy the URL from the address bar.");
+        });
+      }
+
+      const printBtn = document.getElementById("printProductBtn");
+      if(printBtn){
+        printBtn.addEventListener("click", ()=> window.print());
+      }
+
+      const emailForm = document.getElementById("emailProductForm");
+      const emailOutput = document.getElementById("emailProductOutput");
+      if(emailForm && emailOutput){
+        emailForm.addEventListener("submit", (event)=>{
+          event.preventDefault();
+          const to = String(emailForm.email?.value || "").trim();
+          if(!to){
+            emailOutput.textContent = "Add a colleague email to continue.";
+            return;
+          }
+          const subject = encodeURIComponent(`Product recommendation: ${displayName}`);
+          const body = encodeURIComponent(`Hi,\n\nSharing this product from Power Poly Supplies:\n${displayName}\n${window.location.href}\n\nLet me know your thoughts.`);
+          window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+          emailOutput.textContent = "Opening your email client...";
+        });
+      }
+
+      const alertForm = document.getElementById("productAlertForm");
+      const alertOutput = document.getElementById("productAlertOutput");
+      if(alertForm && alertOutput){
+        alertForm.addEventListener("submit", (event)=>{
+          event.preventDefault();
+          const email = String(alertForm.alertEmail?.value || "").trim();
+          if(!email){
+            alertOutput.textContent = "Add an email to save alerts.";
+            return;
+          }
+          const key = "pps_product_alerts_v1";
+          const alerts = (()=>{ try{ return JSON.parse(localStorage.getItem(key) || "{}"); }catch(_err){ return {}; }})();
+          alerts[p.id] = {
+            email,
+            backInStock: Boolean(alertForm.alertStock?.checked),
+            priceDrop: Boolean(alertForm.alertPrice?.checked),
+            createdAt: Date.now()
+          };
+          try{ localStorage.setItem(key, JSON.stringify(alerts)); }catch(_err){}
+          alertOutput.textContent = "Alerts saved. We'll notify you for updates.";
+        });
+      }
+
+      document.querySelectorAll("[data-bulk-qty]").forEach((btn)=>{
+        btn.addEventListener("click", ()=>{
+          if(p.stock<=0) return;
+          const qty = Number(btn.dataset.bulkQty) || 1;
+          PPS.addToCart(p, qty);
+          const original = btn.innerHTML;
+          const addedLabel = window.PPS_I18N?.t("product.added_qty") || "Added {{qty}}";
+          btn.innerHTML = addedLabel.replace("{{qty}}", qty);
+          btn.disabled = true;
+          setTimeout(()=>{
+            btn.innerHTML = original;
+            btn.disabled = false;
+          }, 800);
+        });
+      });
+
+      // Reviews interactions
+      const starButtons = Array.from(document.querySelectorAll(".star-btn"));
+      const starInput = document.getElementById("starInput");
+      const reviewForm = document.getElementById("reviewForm");
+      const reviewMsg = document.getElementById("reviewMsg");
+      const reviewsFilter = document.getElementById("reviewsFilter");
+      const reviewsVerifiedOnly = document.getElementById("reviewsVerifiedOnly");
+      const reviewMediaInput = document.getElementById("reviewMedia");
+      const reviewMediaPreview = document.getElementById("reviewMediaPreview");
+      let selectedRating = 5;
+      let pendingMedia = [];
+
+      function paintStars(val){
+        starButtons.forEach(btn=>{
+          const v = Number(btn.dataset.val);
+          if(v <= val){
+            btn.classList.add("active");
+          }else{
+            btn.classList.remove("active");
+          }
+        });
+      }
+      paintStars(selectedRating);
+
+      starInput.addEventListener("click",(e)=>{
+        if(e.target.matches(".star-btn")){
+          selectedRating = Number(e.target.dataset.val) || 5;
+          paintStars(selectedRating);
+        }
+      });
+
+      if(reviewMediaInput){
+        reviewMediaInput.addEventListener("change", ()=>{
+          const files = Array.from(reviewMediaInput.files || []);
+          pendingMedia = files.slice(0, 6).map(file=>{
+            return {
+              file,
+              type: file.type.startsWith("video") ? "video" : "image",
+              src: URL.createObjectURL(file)
+            };
+          });
+          if(reviewMediaPreview){
+            reviewMediaPreview.innerHTML = pendingMedia.map(m=>{
+              if(m.type === "video"){
+                return `<video src="${m.src}" controls></video>`;
+              }
+              return `<img src="${m.src}" alt="Preview">`;
+            }).join("");
+          }
+        });
+      }
+
+      reviewForm.addEventListener("submit", async (e)=>{
+        e.preventDefault();
+        reviewMsg.textContent = window.PPS_I18N?.t("product.reviews.submitting") || "Submitting review...";
+        try{
+          const payload = {
+            rating: selectedRating,
+            name: e.target.name.value.trim(),
+            comment: e.target.comment.value.trim(),
+            verified: Boolean(PPS.getSession?.()),
+            media: pendingMedia.map(m=>({ type: m.type, src: m.src }))
+          };
+          await PPS.submitReview(p.id, {
+            rating: payload.rating,
+            name: payload.name,
+            comment: payload.comment
+          });
+          const local = getLocalReviews();
+          local.unshift(normalizeReview(payload));
+          setLocalReviews(local);
+          reviewMsg.textContent = window.PPS_I18N?.t("product.reviews.thanks") || "Thanks! Your review was added.";
+          e.target.reset();
+          selectedRating = 5;
+          paintStars(selectedRating);
+          pendingMedia = [];
+          if(reviewMediaPreview) reviewMediaPreview.innerHTML = "";
+          loadReviews();
+        }catch(err){
+          const fallback = {
+            rating: selectedRating,
+            name: e.target.name.value.trim(),
+            comment: e.target.comment.value.trim(),
+            verified: Boolean(PPS.getSession?.()),
+            media: pendingMedia.map(m=>({ type: m.type, src: m.src }))
+          };
+          const local = getLocalReviews();
+          local.unshift(normalizeReview(fallback));
+          setLocalReviews(local);
+          reviewMsg.textContent = err.message || "Review saved locally. We'll sync when available.";
+          e.target.reset();
+          selectedRating = 5;
+          paintStars(selectedRating);
+          pendingMedia = [];
+          if(reviewMediaPreview) reviewMediaPreview.innerHTML = "";
+          loadReviews();
+        }
+      });
+
+      if(reviewsFilter){
+        reviewsFilter.addEventListener("change", loadReviews);
+      }
+      if(reviewsVerifiedOnly){
+        reviewsVerifiedOnly.addEventListener("change", loadReviews);
+      }
+
+      document.addEventListener("click", (e)=>{
+        const btn = e.target.closest(".review-helpful");
+        if(!btn) return;
+        const reviewId = btn.getAttribute("data-review-id");
+        if(!reviewId || hasMarkedHelpful(reviewId)) return;
+        const base = lastReviews.find(r=> String(r.id) === String(reviewId));
+        const local = getLocalReviews();
+        const next = local.some(r=> String(r.id) === String(reviewId))
+          ? local.map(r=> String(r.id) === String(reviewId) ? { ...r, helpful: Number(r.helpful || 0) + 1 } : r)
+          : [normalizeReview({ ...base, helpful: (base?.helpful || 0) + 1 }), ...local];
+        setLocalReviews(next);
+        markHelpful(reviewId);
+        loadReviews();
+      });
+
+      // Q&A interactions
+      const qaList = document.getElementById("qaList");
+      const qaForm = document.getElementById("qaForm");
+      const qaMsg = document.getElementById("qaMsg");
+      const qaKey = `pps_qna_${p.id}`;
+      function readQna(){
+        try{
+          const raw = localStorage.getItem(qaKey);
+          const parsed = JSON.parse(raw || "[]");
+          return Array.isArray(parsed) ? parsed : [];
+        }catch(_err){
+          return [];
+        }
+      }
+      function writeQna(list){
+        try{
+          localStorage.setItem(qaKey, JSON.stringify(list));
+        }catch(_err){
+          // ignore
+        }
+      }
+      function renderQna(){
+        if(!qaList) return;
+        const items = readQna();
+        if(!items.length){
+          qaList.innerHTML = `<div class="card" style="padding:12px;">No questions yet. Ask the first one.</div>`;
+          return;
+        }
+        qaList.innerHTML = items.map(item=>`
+          <div class="card" style="padding:12px;">
+            <div style="font-weight:800;">Q: ${item.question}</div>
+            ${item.answer ? `<div style="margin-top:8px; color:var(--muted);">A: ${item.answer}</div>` : ""}
+            <div style="margin-top:8px; color:var(--muted); font-size:12px;">${new Date(item.createdAt).toLocaleString()}</div>
+          </div>
+        `).join("");
+      }
+      if(qaForm){
+        qaForm.addEventListener("submit", (e)=>{
+          e.preventDefault();
+          const question = String(e.target.question.value || "").trim();
+          const answer = String(e.target.answer.value || "").trim();
+          if(!question){
+            qaMsg.textContent = "Please enter a question.";
+            return;
+          }
+          const items = readQna();
+          items.unshift({ question, answer, createdAt: new Date().toISOString() });
+          writeQna(items);
+          qaMsg.textContent = "Question posted.";
+          e.target.reset();
+          renderQna();
+          setTimeout(()=>{ qaMsg.textContent = ""; }, 1200);
+        });
+      }
+
+      renderQna();
+      loadReviews();
+      renderRelated(products);
+
+      const dim = parseDimensions(displayName);
+      const thickness = thicknessSpec(displayName, p.category);
+      const specTable = document.getElementById("specTable");
+      if(specTable){
+        specTable.innerHTML = buildSpecsTable(p, dim, thickness);
+      }
+      const printSpec = document.getElementById("printSpecTable");
+      if(printSpec && specTable){
+        printSpec.innerHTML = specTable.innerHTML;
+      }
+      const sizeChart = document.getElementById("sizeChart");
+      if(sizeChart){
+        sizeChart.innerHTML = buildSizeChart(products, p.category);
+      }
+      const diagram = document.getElementById("dimensionDiagram");
+      if(diagram){
+        diagram.innerHTML = buildDiagram(dim);
+      }
+      const certInfo = document.getElementById("certInfo");
+      if(certInfo){
+        certInfo.innerHTML = buildCerts(p);
+      }
+      renderCompare(products, p);
+      renderAlsoBought(products, p);
+
+      const bundleItems = renderFrequentlyBought(products, p);
+      const bundleBtn = document.getElementById("addBundleBtn");
+      const bundleMsg = document.getElementById("bundleMsg");
+      if(bundleBtn){
+        bundleBtn.addEventListener("click", ()=>{
+          const cards = Array.from(document.querySelectorAll("#bundleGrid .mini-card"));
+          const items = cards.map((card, idx)=>{
+            const button = card.querySelector("[data-add-id]");
+            const qtyInput = card.querySelector(".mini-qty");
+            const prod = bundleItems[idx];
+            return prod ? {
+              id: prod.id,
+              name: prod.name,
+              priceCents: prod.priceCents,
+              currency: prod.currency,
+              qty: Math.max(1, Number(qtyInput?.value) || 1)
+            } : null;
+          }).filter(Boolean);
+          if(!items.length) return;
+          PPS.addItemsToCart(items);
+          if(bundleMsg) bundleMsg.textContent = "Bundle added to cart.";
+          setTimeout(()=>{ if(bundleMsg) bundleMsg.textContent = ""; }, 1200);
+        });
+      }
+      document.querySelectorAll("[data-add-id]").forEach(btn=>{
+        btn.addEventListener("click", (e)=>{
+          const id = btn.getAttribute("data-add-id");
+          const prod = bundleItems.find(p => p.id === id) || products.find(p => p.id === id);
+          const qtyInput = e.target.closest(".mini-card")?.querySelector(".mini-qty");
+          const qty = Math.max(1, Number(qtyInput?.value) || 1);
+          if(!prod) return;
+          PPS.addToCart(prod, qty);
+        });
+      });
+    })();
+
+    function renderTier(priceCents, currency, qty, stock){
+      const price = Math.max(0, priceCents);
+      const labelTpl = window.PPS_I18N?.t("product.bulk_label") || "{{qty}}+ boxes";
+      const label = labelTpl.replace("{{qty}}", qty);
+      const display = PPS.money(price, currency);
+      const disabled = stock <= 0 ? "disabled" : "";
+      return `
+        <button class="pricing-tier" type="button" data-bulk-qty="${qty}" ${disabled}>
+          <strong>${label}</strong>
+          <span>${display}</span>
+        </button>
+      `;
+    }
+
+    function renderRelated(productsArg){
+      const grid = document.getElementById("relatedGrid");
+      if(!grid) return;
+      const products = Array.isArray(productsArg) && productsArg.length
+        ? productsArg
+        : (window._products || []);
+      const currentSlug = qs("slug");
+      const current = products.find(x=>x.slug===currentSlug);
+      const sameCat = current ? products.filter(x=>x.category===current.category && x.slug!==current.slug) : [];
+      const others = products.filter(x=>x.slug!==currentSlug && !sameCat.includes(x));
+      const picks = [...sameCat, ...others].slice(0,4);
+
+      if(picks.length === 0){
+        const more = window.PPS_I18N?.t("product.related.more") || "More products coming soon.";
+        grid.innerHTML = `<div class="card" style="padding:14px;">${more}</div>`;
+        return;
+      }
+
+      grid.innerHTML = picks.map(item=>{
+        const lang = window.PPS_I18N?.getLang?.() || "en";
+        const displayName = lang === "es"
+          ? (window.PPS_I18N?.autoTranslate?.(item.name || "", "es") || item.name)
+          : item.name;
+        const s = item.stock<=0 ? "out" : item.stock<=10 ? "low" : "in";
+        const label = item.stock<=0
+          ? (window.PPS_I18N?.t("product.stock.out") || "Out of stock")
+          : item.stock<=10
+            ? (window.PPS_I18N?.t("product.stock.low") || "Almost out of stock")
+            : (window.PPS_I18N?.t("product.stock.in") || "In stock");
+        const compareCents = PPS.getComparePriceCents?.(item) ?? ((Number(item.priceCents) || 0) + 1000);
+        const memberCents = Number(item.priceCents) || 0;
+        const savingsCents = Math.max(0, compareCents - memberCents);
+        const isMember = Boolean(PPS.getSession?.());
+        const bannerTemplate = window.PPS_I18N?.t("member.banner") || "Log in to save {{amount}} with Power Poly Member Pricing";
+        const bannerText = bannerTemplate.replace("{{amount}}", PPS.money(savingsCents, item.currency));
+        return `
+          <div class="card fade-in">
+            <a href="./product.html?slug=${encodeURIComponent(item.slug)}">
+              <img src="${item.image}" alt="${displayName}" loading="lazy" decoding="async" width="400" height="190">
+            </a>
+            <div class="card-body">
+              <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(item.slug)}">${displayName}</a>
+              <div class="card-meta">${categoryLabel(item.category || "")}</div>
+              <div class="member-pricing">
+                <div>
+                  <div class="market-label" data-i18n="market.price.label">Market price</div>
+                  <span class="compare-price">${PPS.money(compareCents, item.currency)}</span>
+                </div>
+                <div>
+                  <div class="member-label" data-i18n="member.price.label">Power Poly Member Price</div>
+                  <span class="price">${PPS.money(memberCents,item.currency)}</span>
+                </div>
+                ${favoriteButton(item.id)}
+                ${wishlistButton(item.id)}
+              </div>
+              ${!isMember && savingsCents > 0 ? `<a class="member-banner" href="./login.html">${bannerText}</a>` : ""}
+              <div class="stock ${s}"><span class="dot"></span>${label}</div>
+              <div style="margin-top:12px; display:flex; gap:10px;">
+                <a class="btn" href="./product.html?slug=${encodeURIComponent(item.slug)}">${window.PPS_I18N?.t("product.view") || "View"}</a>
+                <button class="btn btn-primary" ${item.stock<=0 ? "disabled" : ""} onclick="addRelated('${item.id}')">${window.PPS_I18N?.t("product.add") || "Add"}</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      document.querySelectorAll(".fade-in").forEach(el => el.classList.add("show"));
+
+      window.addRelated = (id)=>{
+        const prod = products.find(x=>x.id===id);
+        if(!prod || prod.stock<=0) return;
+        PPS.addToCart(prod);
+      };
+    }
+</script>
+</body>
+</html>
+
+
+

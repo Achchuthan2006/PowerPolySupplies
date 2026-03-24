@@ -1,0 +1,20 @@
+{
+  "name": "Power Poly Supplies",
+  "short_name": "PowerPoly",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#fcf5ee",
+  "theme_color": "#ff7a1a",
+  "icons": [
+    {
+      "src": "./assets/poly%20logo%20without%20background.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./assets/poly%20logo%20without%20background.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

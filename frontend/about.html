@@ -1,0 +1,358 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content"/>
+  <title>About Us | Power Poly Supplies</title>
+  <link rel="stylesheet" href="./css/styles.css"/>
+  <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
+</head>
+<body>
+  <header class="site-header">
+    <div class="promo-strip">
+      <div class="container promo-inner">
+        <div><strong data-i18n="brand.name">Power Poly Supplies</strong> | <span data-i18n="brand.tagline">Power your packaging</span></div>
+        <div style="font-weight:700;" data-i18n="promo.right">Bulk stock | Fast shipping | Canada-wide</div>
+      </div>
+    </div>
+    <div class="navbar">
+      <div class="container navbar-inner">
+        <a class="brand" href="./index.html">
+          <img src="./assets/poly%20logo%20without%20background.png" alt="Power Poly Supplies" width="62" height="62" decoding="async">
+          <div class="brand-text">
+            <span class="brand-title" data-i18n="brand.name">Power Poly Supplies</span>
+            <span class="brand-tagline" data-i18n="brand.tagline">Power your packaging</span>
+          </div>
+        </a>
+        <button class="menu-btn" id="menuBtn" aria-label="Open menu" data-i18n="nav.menu">Menu</button>
+        <nav class="navlinks" id="navLinks">
+          <a href="./index.html" data-i18n="nav.home">Home</a>
+          <a href="./specials.html" data-i18n="nav.specials">Special Offers</a>
+          <div class="dropdown">
+            <button class="dropbtn" type="button"><span data-i18n="nav.shop">Shop by Category</span> <span class="caret" aria-hidden="true"></span></button>
+            <div class="dropdown-menu">
+              <a href="./products.html?cat=Garment%20Bags" data-i18n="nav.garment">Garment Cover Bags</a>
+              <a href="./products.html?cat=Polybags" data-i18n="nav.polybags">Polybags</a>
+              <a href="./products.html?cat=Hangers" data-i18n="nav.hangers">Hangers</a>
+            </div>
+          </div>
+          <a href="./about.html" data-i18n="nav.about">About Us</a>
+          <a href="./contact.html"><span class="nav-icon phone-icon" aria-hidden="true"></span><span data-i18n="nav.contact">Contact</span></a>
+          <a href="./feedback.html"><span class="nav-icon pen-icon" aria-hidden="true"></span><span data-i18n="nav.feedback">Feedback</span></a>
+          <a href="./login.html"><span class="nav-icon user-icon" aria-hidden="true"></span><span data-i18n="nav.account">Account</span></a>
+          <a href="./cart.html"><span class="nav-icon cart-icon" aria-hidden="true"></span><span data-i18n="nav.cart">Cart</span> <span class="badge" data-cart-badge>0</span></a>
+          <form class="search-bar nav-search" action="./products.html" method="get" role="search">
+            <input type="search" name="q" placeholder="Search" aria-label="Search products" data-i18n-placeholder="nav.search_placeholder">
+            <button type="submit" data-i18n="nav.search_button">Search</button>
+          </form>
+
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <div class="container page about-page">
+    <section class="hero hero-split fade-in about-hero">
+      <div class="hero-content">
+        <p class="about-kicker" data-i18n="about.kicker">About</p>
+        <h1 data-i18n="about.title">About Power Poly Supplies</h1>
+        <p>
+          <span data-i18n="about.subtitle">We supply garment packaging and hanger products built for daily business use. Reliable supply, bulk-friendly ordering, and consistent quality.</span>
+        </p>
+
+        <div class="hero-callouts" aria-label="What you can expect">
+          <span class="callout-pill"><span class="callout-icon ship-icon" aria-hidden="true"></span>Canada-wide supply</span>
+          <span class="callout-pill pulse delay-1"><span class="callout-icon lock-icon" aria-hidden="true"></span>Dependable stock</span>
+          <span class="callout-pill pulse delay-2"><span class="callout-icon leaf-icon" aria-hidden="true"></span>Consistent quality</span>
+        </div>
+
+        <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
+          <a class="btn btn-primary" href="./products.html">Browse Products</a>
+          <a class="btn btn-outline" href="./contact.html">Contact Sales</a>
+        </div>
+      </div>
+
+      <div class="hero-media" aria-hidden="true">
+        <div class="hero-collage about-collage">
+          <div class="hero-shot hero-shot-1">
+            <img src="./assets/powerpolyboxesinventory.webp" alt="" loading="lazy" decoding="async" width="640" height="480">
+          </div>
+          <div class="hero-shot hero-shot-2">
+            <img src="./assets/powerpolyhangerbox.webp" alt="" loading="lazy" decoding="async" width="640" height="480">
+          </div>
+          <div class="hero-shot hero-shot-3">
+            <img src="./assets/clearpolyroll%20in%20the%20box.webp" alt="" loading="lazy" decoding="async" width="640" height="480">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <nav class="card fade-in about-subnav" aria-label="About page sections">
+      <a class="about-subnav-link" href="#about">About</a>
+      <a class="about-subnav-link" href="#story">Our story</a>
+      <a class="about-subnav-link" href="#team">Team</a>
+      <a class="about-subnav-link" href="#why">Why Power Poly</a>
+      <a class="about-subnav-link" href="#sectors">Sectors we serve</a>
+      <a class="about-subnav-link" href="#quality">Quality promise</a>
+      <a class="about-subnav-link" href="#guarantees">Guarantees</a>
+    </nav>
+
+    <section class="card fade-in about-section" id="about">
+      <div class="about-section-head">
+        <h2 style="margin:0;">What we do</h2>
+        <div class="about-section-sub">Packaging and hanger supply, built for everyday business operations.</div>
+      </div>
+
+      <div class="grid grid-3">
+        <div class="about-mini-card">
+          <div class="about-mini-title" data-i18n="about.card.sell.title">What we sell</div>
+          <div class="about-mini-desc" data-i18n="about.card.sell.desc">Plastic garment cover bags for dry cleaning, poly bags, and professional-grade hangers (strut, capped, suit, shirt).</div>
+        </div>
+        <div class="about-mini-card">
+          <div class="about-mini-title" data-i18n="about.card.serve.title">Who we serve</div>
+          <div class="about-mini-desc" data-i18n="about.card.serve.desc">Dry cleaners, laundromats, retailers, warehouses, uniform suppliers, and distributors across Canada.</div>
+        </div>
+        <div class="about-mini-card">
+          <div class="about-mini-title" data-i18n="about.card.why.title">Why choose us</div>
+          <div class="about-mini-desc" data-i18n="about.card.why.desc">Clear pricing, dependable stock, and fast response. No unnecessary fluff. Just supply done right.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card fade-in about-section" id="story">
+      <div class="about-section-head">
+        <h2 style="margin:0;">Our story</h2>
+        <div class="about-section-sub">A supplier should feel predictable: clear specs, consistent stock, and help when you need it.</div>
+      </div>
+
+      <div class="about-story-grid">
+        <div class="about-story-copy">
+          <p class="about-story-lead">
+            Power Poly Supplies is built around one simple idea: <b>business packaging should never slow your workflow</b>.
+            When your team is processing garments all day, you need supplies that are reliable, easy to reorder, and consistent order after order.
+          </p>
+          <ul class="about-list" aria-label="How we build trust">
+            <li><b>Clarity first</b>: we focus on the details that matter (size, thickness, use-case).</li>
+            <li><b>Repeatability</b>: product selection and specs designed to stay consistent across reorders.</li>
+            <li><b>Real support</b>: fast replies from people who know the products and can recommend a better fit.</li>
+          </ul>
+          <div class="about-cta-row">
+            <a class="btn btn-primary btn-sm" href="./resources.html">See buying guides</a>
+            <a class="btn btn-outline btn-sm" href="./contact.html">Talk to a specialist</a>
+          </div>
+        </div>
+
+        <div class="about-timeline" aria-label="How we work">
+          <div class="about-timeline-title">How we work (simple, reliable)</div>
+          <div class="timeline-item">
+            <div class="timeline-dot" aria-hidden="true"></div>
+            <div>
+              <div class="timeline-head">Source for consistency</div>
+              <div class="timeline-sub">We prioritize stable specs and business-ready presentation.</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot" aria-hidden="true"></div>
+            <div>
+              <div class="timeline-head">Check what matters</div>
+              <div class="timeline-sub">Sizing, clarity, perforation and finish—so your packaging looks professional.</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot" aria-hidden="true"></div>
+            <div>
+              <div class="timeline-head">Ship fast, communicate clearly</div>
+              <div class="timeline-sub">No guessing: you know what’s happening and when to expect it.</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot" aria-hidden="true"></div>
+            <div>
+              <div class="timeline-head">Support after delivery</div>
+              <div class="timeline-sub">If a size or style isn’t right, we help you swap to a better fit.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card fade-in about-section" id="team">
+      <div class="about-team-layout">
+      <div class="about-section-head">
+        <h2 style="margin:0;">Meet the team</h2>
+        <div class="about-section-sub">A more personal experience: real people, fast replies, and product help you can trust.</div>
+      </div>
+
+      <div class="about-team-grid">
+        <div class="about-team-card">
+          <div class="team-avatar" aria-hidden="true">A</div>
+          <div class="team-body">
+            <div class="team-name">Angel</div>
+            <div class="team-role">Sales Representative</div>
+            <div class="team-desc">Bulk quotes, reorder planning, and matching packaging to your workflow.</div>
+          </div>
+        </div>
+        <div class="about-team-card">
+          <div class="team-avatar" aria-hidden="true">AN</div>
+          <div class="team-body">
+            <div class="team-name">Andrew</div>
+            <div class="team-role">Sales Associate</div>
+            <div class="team-desc">Fast answers on sizes, thickness, and which products fit your use-case.</div>
+          </div>
+        </div>
+        <div class="about-team-card">
+          <div class="team-avatar" aria-hidden="true">AC</div>
+          <div class="team-body">
+            <div class="team-name">Achchu</div>
+            <div class="team-role">Sales Associate</div>
+            <div class="team-desc">Helps customers choose the right hanger type and packaging combinations.</div>
+          </div>
+        </div>
+        <div class="about-team-card">
+          <div class="team-avatar" aria-hidden="true">OPS</div>
+          <div class="team-body">
+            <div class="team-name">Operations</div>
+            <div class="team-role">Fulfillment & accuracy</div>
+            <div class="team-desc">Careful packing, clean presentation, and consistent delivery-ready shipments.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="about-trust-badges" aria-label="Trust signals">
+        <div class="trust-pill"><span class="trust-icon" aria-hidden="true">&#9889;</span>Fast response</div>
+        <div class="trust-pill"><span class="trust-icon" aria-hidden="true">&#9989;</span>Clear specs</div>
+        <div class="trust-pill"><span class="trust-icon" aria-hidden="true">&#129534;</span>Business-ready invoicing</div>
+        <div class="trust-pill"><span class="trust-icon" aria-hidden="true">&#128274;</span>Secure checkout</div>
+      </div>
+      </div>
+    </section>
+
+    <section class="grid grid-2">
+      <section class="card fade-in about-section" id="why">
+        <div class="about-section-head">
+          <h2 style="margin:0;">Why Power Poly</h2>
+          <div class="about-section-sub">Built for people who need supplies on time, every time.</div>
+        </div>
+        <ul class="about-list" aria-label="Why choose Power Poly">
+          <li>Bulk-friendly ordering and straightforward pricing.</li>
+          <li>Quick replies during business hours (no ticket maze).</li>
+          <li>Products selected for consistency across repeat orders.</li>
+          <li>Help choosing sizes, styles, and quantities for your workflow.</li>
+        </ul>
+        <div class="about-cta-row">
+          <a class="btn btn-primary btn-sm" href="./products.html">Shop categories</a>
+          <a class="btn btn-outline btn-sm" href="./resources.html">Read guides</a>
+        </div>
+      </section>
+
+      <section class="card fade-in about-section" id="quality">
+        <div class="about-section-head">
+          <h2 style="margin:0;">Quality promise</h2>
+          <div class="about-section-sub">Simple checks that keep your packaging looking professional.</div>
+        </div>
+        <ul class="about-list" aria-label="Quality promise">
+          <li>Consistent product specs so you can reorder with confidence.</li>
+          <li>Clean presentation: strong, neat, and business-ready.</li>
+          <li>We highlight what matters (size, thickness, quantity, use-case).</li>
+          <li>Fast help if you need to swap to a better fit.</li>
+        </ul>
+        <div class="about-cta-row">
+          <a class="btn btn-primary btn-sm" href="./contact.html">Ask a question</a>
+          <a class="btn btn-outline btn-sm" href="./products.html?cat=Hangers">Shop hangers</a>
+        </div>
+      </section>
+    </section>
+
+    <section class="card fade-in about-section" id="guarantees">
+      <div class="about-section-head">
+        <h2 style="margin:0;">Guarantees & quality checks</h2>
+        <div class="about-section-sub">Trust is earned in the details: how items look, how they perform, and how consistent reorders feel.</div>
+      </div>
+
+      <div class="about-guarantee-grid">
+        <div class="about-mini-card about-mini-card--shine">
+          <div class="about-mini-title">Quality promise (practical)</div>
+          <div class="about-mini-desc">If something isn’t the right fit, we help you adjust to the better size/style—so your next order is easier.</div>
+          <ul class="about-list" aria-label="Guarantees">
+            <li><b>Spec consistency focus</b> for repeat orders.</li>
+            <li><b>Packaging presentation</b> that looks clean and professional.</li>
+            <li><b>Fast help</b> when you need to switch to a better fit.</li>
+          </ul>
+        </div>
+
+        <div class="about-mini-card about-mini-card--shine">
+          <div class="about-mini-title">Documentation & compliance</div>
+          <div class="about-mini-desc">When available from manufacturers, we can share product specs and supporting documents.</div>
+          <ul class="about-list" aria-label="Documentation & compliance">
+            <li><b>Specs</b>: size, thickness, quantity, and use-case guidance.</li>
+            <li><b>Origin/material notes</b> where applicable (ex: virgin material, country of manufacture).</li>
+            <li><b>Certificates</b> available on request when provided by the manufacturer.</li>
+            <li><b>Secure payments</b> via Square for online checkout.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="card fade-in about-section" id="sectors">
+      <div class="about-section-head">
+        <h2 style="margin:0;">Sectors we serve</h2>
+        <div class="about-section-sub">If you package garments daily, we’re built for you.</div>
+      </div>
+
+      <div class="grid grid-3">
+        <div class="about-sector">
+          <div class="about-sector-title">Dry cleaners</div>
+          <div class="about-sector-desc">Garment cover bags + hangers that keep clothes protected and presentable.</div>
+        </div>
+        <div class="about-sector">
+          <div class="about-sector-title">Laundromats</div>
+          <div class="about-sector-desc">Easy-reorder supplies for busy counter service and daily volume.</div>
+        </div>
+        <div class="about-sector">
+          <div class="about-sector-title">Retail & boutiques</div>
+          <div class="about-sector-desc">Clean packaging for customers picking up ready-to-wear and altered items.</div>
+        </div>
+        <div class="about-sector">
+          <div class="about-sector-title">Warehouses</div>
+          <div class="about-sector-desc">Bulk packaging and protective poly for storage, sorting, and shipment.</div>
+        </div>
+        <div class="about-sector">
+          <div class="about-sector-title">Uniform suppliers</div>
+          <div class="about-sector-desc">Repeat orders with consistent specs for ongoing contracts and programs.</div>
+        </div>
+        <div class="about-sector">
+          <div class="about-sector-title">Distributors</div>
+          <div class="about-sector-desc">Reliable supply for customers that expect steady, predictable availability.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card fade-in about-section about-band">
+      <div class="about-band-left">
+        <h2 style="margin:0;">Ready to stock up?</h2>
+        <div class="about-section-sub" style="margin-top:6px;">Tell us what you use now and we'll help you match sizes and quantities.</div>
+      </div>
+      <div class="about-band-right">
+        <a class="btn btn-primary" href="./contact.html">Get help</a>
+        <a class="btn btn-outline" href="./products.html">Browse products</a>
+      </div>
+    </section>
+
+    <div class="footer">&copy; <span id="y"></span> <span data-i18n="footer.short">Power Poly Supplies. Power your packaging.</span></div>
+  </div>
+
+  <script src="./config.min.js"></script>
+
+  <script src="./js/store.min.js"></script>
+  <script src="./js/notifications.min.js"></script>
+  <script src="./js/i18n.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    document.getElementById("y").textContent = new Date().getFullYear();
+    PPS.updateCartBadge();
+  </script>
+</body>
+</html>
+
+
+

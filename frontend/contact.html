@@ -1,0 +1,233 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content"/>
+  <title>Contact | Power Poly Supplies</title>
+  <meta name="description" content="Contact Power Poly Supplies for bulk quotes, product questions, and support. Fast replies during business hours.">
+  <link rel="stylesheet" href="./css/styles.css"/>
+  <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
+</head>
+<body class="contact-page">
+  <header class="site-header">
+    <div class="promo-strip">
+      <div class="container promo-inner">
+        <div><strong data-i18n="brand.name">Power Poly Supplies</strong> | <span data-i18n="brand.tagline">Power your packaging</span></div>
+        <div style="font-weight:700;" data-i18n="promo.right">Bulk stock | Fast shipping | Canada-wide</div>
+      </div>
+    </div>
+    <div class="navbar">
+      <div class="container navbar-inner">
+        <a class="brand" href="./index.html">
+          <img src="./assets/poly%20logo%20without%20background.png" alt="Power Poly Supplies" width="62" height="62" decoding="async">
+          <div class="brand-text">
+            <span class="brand-title" data-i18n="brand.name">Power Poly Supplies</span>
+            <span class="brand-tagline" data-i18n="brand.tagline">Power your packaging</span>
+          </div>
+        </a>
+        <button class="menu-btn" id="menuBtn" aria-label="Open menu" data-i18n="nav.menu">Menu</button>
+        <nav class="navlinks" id="navLinks">
+          <a href="./index.html" data-i18n="nav.home">Home</a>
+          <a href="./specials.html" data-i18n="nav.specials">Special Offers</a>
+          <div class="dropdown">
+            <button class="dropbtn" type="button"><span data-i18n="nav.shop">Shop by Category</span> <span class="caret" aria-hidden="true"></span></button>
+            <div class="dropdown-menu">
+              <a href="./products.html?cat=Garment%20Bags" data-i18n="nav.garment">Garment Cover Bags</a>
+              <a href="./products.html?cat=Polybags" data-i18n="nav.polybags">Polybags</a>
+              <a href="./products.html?cat=Hangers" data-i18n="nav.hangers">Hangers</a>
+            </div>
+          </div>
+          <a href="./about.html" data-i18n="nav.about">About Us</a>
+          <a href="./contact.html"><span class="nav-icon phone-icon" aria-hidden="true"></span><span data-i18n="nav.contact">Contact</span></a>
+          <a href="./feedback.html"><span class="nav-icon pen-icon" aria-hidden="true"></span><span data-i18n="nav.feedback">Feedback</span></a>
+          <a href="./login.html"><span class="nav-icon user-icon" aria-hidden="true"></span><span data-i18n="nav.account">Account</span></a>
+          <a href="./cart.html"><span class="nav-icon cart-icon" aria-hidden="true"></span><span data-i18n="nav.cart">Cart</span> <span class="badge" data-cart-badge>0</span></a>
+          <form class="search-bar nav-search" action="./products.html" method="get" role="search">
+            <input type="search" name="q" placeholder="Search" aria-label="Search products" data-i18n-placeholder="nav.search_placeholder">
+            <button type="submit" data-i18n="nav.search_button">Search</button>
+          </form>
+
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <div class="container page">
+    <section class="hero fade-in">
+      <p style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);" data-i18n="contact.kicker">Contact</p>
+      <h1 data-i18n="contact.title">Contact Us</h1>
+      <p data-i18n="contact.subtitle">Need bulk pricing, product info, or help placing an order? Send us a message.</p>
+    </section>
+
+    <section class="grid contact-grid" style="grid-template-columns: 1.1fr .9fr; gap:16px; margin-top:16px;">
+      <div class="card fade-in" style="padding:18px;">
+        <h2 style="margin:0 0 10px;" data-i18n="contact.form.title">Send a message</h2>
+
+        <form id="contactForm" class="grid" style="gap:10px;">
+          <label class="input-label" for="contactName">Full Name</label>
+          <input required class="input" id="contactName" name="name" autocomplete="name" placeholder="Enter your full name" data-i18n-placeholder="contact.form.name" aria-label="Full name">
+          <label class="input-label" for="contactEmail">Email</label>
+          <input required class="input" id="contactEmail" type="email" name="email" autocomplete="email" inputmode="email" placeholder="name@company.com" data-i18n-placeholder="contact.form.email" aria-label="Email address">
+          <label class="input-label" for="contactPhone">Phone (optional)</label>
+          <input class="input" id="contactPhone" type="tel" name="phone" autocomplete="tel" inputmode="tel" placeholder="Best number to reach you" data-i18n-placeholder="contact.form.phone" aria-label="Phone number">
+          <label class="input-label" for="contactOrderType">Order Type</label>
+          <select class="input" id="contactOrderType" name="orderType" autocomplete="organization-title" aria-label="Order type">
+            <option value="bulk_quote">Bulk Quote</option>
+            <option value="new_customer">New Customer</option>
+            <option value="returning_customer">Returning Customer</option>
+          </select>
+          <div>
+            <label class="input-label" for="contactAttachment">Attach bulk order list (CSV, Excel)</label>
+            <input class="input" id="contactAttachment" type="file" name="attachment" accept=".csv,.xlsx,.xls">
+          </div>
+          <label class="input-label" for="contactMessage">Message</label>
+          <textarea required class="input" id="contactMessage" name="message" autocomplete="on" placeholder="Tell us what you need and expected quantity" data-i18n-placeholder="contact.form.message" style="min-height:120px;" aria-label="Message"></textarea>
+
+          <button class="btn btn-primary" type="submit" data-i18n="contact.form.send">Send Message</button>
+          <div style="font-size:12px; color:var(--muted); font-weight:800;">We respond within 2 hours during business hours.</div>
+          <div id="status" style="font-size:13px; color:var(--muted);"></div>
+        </form>
+      </div>
+
+      <div class="card fade-in" style="padding:18px;">
+        <h2 style="margin:0 0 10px;" data-i18n="contact.business.title">Business Info</h2>
+        <p style="margin:0; color:var(--muted); line-height:1.6;">
+          <span data-i18n="contact.business.desc">Email us for orders, quotes, and product questions. Include your order details for faster support.</span>
+        </p>
+
+        <div style="margin-top:14px;">
+          <div style="font-weight:800;" data-i18n="contact.business.email">Email</div>
+          <div style="color:var(--muted);"><a href="mailto:powerpolysupplies@gmail.com" style="color:inherit; text-decoration:none;">powerpolysupplies@gmail.com</a></div>
+        </div>
+
+          <div style="margin-top:12px;">
+            <div style="font-weight:800;" data-i18n="contact.business.sales_rep">Sales Representative</div>
+            <div style="color:var(--muted); display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+              <span class="nav-icon phone-icon" aria-hidden="true"></span>
+              Angel
+              <span style="color:var(--border);">|</span>
+              <a href="tel:+16475238645" style="color:inherit; text-decoration:none;">647-523-8645</a>
+            </div>
+          </div>
+
+          <div style="margin-top:10px;">
+            <div style="font-weight:800;" data-i18n="contact.business.sales_assoc">Sales Associate</div>
+            <div style="color:var(--muted); display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+              <span class="nav-icon phone-icon" aria-hidden="true"></span>
+              Andrew
+              <span style="color:var(--border);">|</span>
+              <a href="tel:+14374256638" style="color:inherit; text-decoration:none;">437-425-6638</a>
+            </div>
+          </div>
+
+          <div style="margin-top:10px;">
+            <div style="font-weight:800;" data-i18n="contact.business.sales_assoc">Sales Associate</div>
+            <div style="color:var(--muted); display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+              <span class="nav-icon phone-icon" aria-hidden="true"></span>
+              Achchu
+              <span style="color:var(--border);">|</span>
+              <a href="tel:+16475704878" style="color:inherit; text-decoration:none;">647-570-4878</a>
+            </div>
+          </div>
+
+        <div style="margin-top:12px;">
+          <div style="font-weight:800;" data-i18n="contact.business.hours">Hours</div>
+          <div style="color:var(--muted);" data-i18n="contact.business.hours.week">Mon-Fri | 9:00 AM - 6:00 PM</div>
+          <div style="color:var(--muted); margin-top:4px;" data-i18n="contact.business.hours.wed">Wednesday delivery | 9:00 AM - 10:00 PM</div>
+          <div style="color:var(--muted); margin-top:4px;" data-i18n="contact.business.hours.sat">Saturday delivery | 9:00 AM - 10:00 PM</div>
+        </div>
+
+        <div style="margin-top:12px;">
+          <div style="font-weight:800;" data-i18n="contact.business.address">Address</div>
+          <div style="color:var(--muted);">15725 Weston Rd, Kettleby, ON L7B 0L4</div>
+        </div>
+
+        <div style="margin-top:12px;">
+          <div style="font-weight:800;" data-i18n="contact.business.location">Location</div>
+          <div class="pps-map" style="margin-top:8px;">
+            <iframe
+              title="Google Maps location"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              allowfullscreen
+              src="https://www.google.com/maps?q=15725%20Weston%20Rd%2C%20Kettleby%2C%20ON%20L7B%200L4&output=embed"></iframe>
+          </div>
+          <div style="margin-top:8px; display:flex; gap:10px; flex-wrap:wrap;">
+            <a class="btn btn-outline btn-sm" target="_blank" rel="noopener" href="https://www.google.com/maps?q=15725%20Weston%20Rd%2C%20Kettleby%2C%20ON%20L7B%200L4" data-i18n="contact.map.open">Open in Google Maps</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer">&copy; <span id="y"></span> <span data-i18n="footer.short">Power Poly Supplies. Power your packaging.</span></div>
+  </div>
+
+  <script src="./config.min.js"></script>
+
+  <script src="./js/store.min.js"></script>
+  <script src="./js/notifications.min.js"></script>
+  <script src="./js/i18n.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    document.getElementById("y").textContent = new Date().getFullYear();
+    PPS.updateCartBadge();
+
+    document.getElementById("contactForm").addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      const status = document.getElementById("status");
+      status.textContent = window.PPS_I18N?.t("contact.status.sending") || "Sending...";
+
+      const form = e.target;
+      const file = form.attachment?.files?.[0] || null;
+      const MAX_BYTES = 2 * 1024 * 1024;
+      const arrayBufferToBase64 = (buffer)=>{
+        let binary = "";
+        const bytes = new Uint8Array(buffer);
+        const chunkSize = 0x8000;
+        for(let i=0; i<bytes.length; i+=chunkSize){
+          binary += String.fromCharCode(...bytes.subarray(i, i+chunkSize));
+        }
+        return btoa(binary);
+      };
+      const payload = {
+        name: form.name.value.trim(),
+        email: form.email.value.trim(),
+        phone: form.phone.value.trim(),
+        orderType: form.orderType?.value || "",
+        message: form.message.value.trim()
+      };
+      if(file){
+        if(file.size > MAX_BYTES){
+          status.textContent = "Attachment too large (max 2MB). Please upload a smaller file or paste the list into your message.";
+          return;
+        }
+        const buf = await file.arrayBuffer();
+        payload.attachment = {
+          name: file.name,
+          type: file.type || "application/octet-stream",
+          base64: arrayBufferToBase64(buf)
+        };
+      }
+
+      try{
+        const res = await fetch(`${PPS.API_BASE}/api/contact`,{
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json().catch(()=> ({}));
+        if(res.ok && data.ok){
+          window.location.href = "./thank-you.html?type=contact";
+        }else{
+          status.textContent = data?.message || (window.PPS_I18N?.t("contact.status.failed") || "Failed to send. Check backend/email settings.");
+        }
+      }catch(err){
+        status.textContent = window.PPS_I18N?.t("contact.status.unreachable") || "Server unreachable. Please try again.";
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+

@@ -1,0 +1,685 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content"/>
+  <title>My Account | Power Poly Supplies</title>
+  <meta name="description" content="Your Power Poly Supplies account dashboard: orders, favorites, quick reorder, and profile."/>
+  <link rel="stylesheet" href="./css/styles.css"/>
+  <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
+</head>
+<body>
+  <header class="site-header">
+    <div class="promo-strip">
+      <div class="container promo-inner">
+        <div><strong data-i18n="brand.name">Power Poly Supplies</strong> | <span data-i18n="brand.tagline">Power your packaging</span></div>
+        <div style="font-weight:700;" data-i18n="promo.right">Bulk stock | Fast shipping | Canada-wide</div>
+      </div>
+    </div>
+    <div class="navbar">
+      <div class="container navbar-inner">
+        <a class="brand" href="./index.html">
+          <img src="./assets/poly%20logo%20without%20background.png" alt="Power Poly Supplies" width="62" height="62" decoding="async">
+          <div class="brand-text">
+            <span class="brand-title" data-i18n="brand.name">Power Poly Supplies</span>
+            <span class="brand-tagline" data-i18n="brand.tagline">Power your packaging</span>
+          </div>
+        </a>
+        <button class="menu-btn" id="menuBtn" aria-label="Open menu" data-i18n="nav.menu">Menu</button>
+        <nav class="navlinks" id="navLinks">
+          <a href="./index.html" data-i18n="nav.home">Home</a>
+          <a href="./specials.html" data-i18n="nav.specials">Special Offers</a>
+          <div class="dropdown">
+            <button class="dropbtn" type="button"><span data-i18n="nav.shop">Shop by Category</span> <span class="caret" aria-hidden="true"></span></button>
+            <div class="dropdown-menu">
+              <a href="./products.html?cat=Garment%20Bags" data-i18n="nav.garment">Garment Cover Bags</a>
+              <a href="./products.html?cat=Polybags" data-i18n="nav.polybags">Polybags</a>
+              <a href="./products.html?cat=Hangers" data-i18n="nav.hangers">Hangers</a>
+            </div>
+          </div>
+          <a href="./about.html" data-i18n="nav.about">About Us</a>
+          <a href="./contact.html"><span class="nav-icon phone-icon" aria-hidden="true"></span><span data-i18n="nav.contact">Contact</span></a>
+          <a href="./feedback.html"><span class="nav-icon pen-icon" aria-hidden="true"></span><span data-i18n="nav.feedback">Feedback</span></a>
+          <a href="./account.html" aria-current="page"><span class="nav-icon user-icon" aria-hidden="true"></span><span data-i18n="nav.my_account">My Account</span></a>
+          <a href="./cart.html"><span class="nav-icon cart-icon" aria-hidden="true"></span><span data-i18n="nav.cart">Cart</span> <span class="badge" data-cart-badge>0</span></a>
+          <form class="search-bar nav-search" action="./products.html" method="get" role="search">
+            <input type="search" name="q" placeholder="Search" aria-label="Search products" data-i18n-placeholder="nav.search_placeholder">
+            <button type="submit" data-i18n="nav.search_button">Search</button>
+          </form>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <div class="container page">
+    <section class="hero fade-in">
+      <p style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);" data-i18n="account.kicker">Account</p>
+      <h1 data-i18n="account.title">Your dashboard</h1>
+      <p data-i18n="account.subtitle">Track orders, reorder fast, and see your member savings.</p>
+    </section>
+
+    <div class="account-layout" style="margin-top:16px;">
+      <aside class="account-sidebar card fade-in">
+        <div class="account-sidebar-header">
+          <div id="accountName" style="font-weight:900;"></div>
+          <div class="verified-badge" id="accountBadge" style="display:none;">
+            <span class="tick">&#10003;</span>
+            <span data-i18n="account.verified">Verified Power Poly Member</span>
+          </div>
+          <div id="accountProvince" style="color:var(--muted); font-size:13px;"></div>
+        </div>
+        <nav class="account-nav" aria-label="Account navigation">
+          <a href="#dashboard" class="active">Dashboard</a>
+          <a href="#wishlists">Wishlists</a>
+          <a href="#addresses">Addresses</a>
+          <a href="#payments">Payment methods</a>
+          <a href="#rewards">Rewards</a>
+          <a href="#activity">Activity</a>
+          <a href="#notifications">Notifications <span class="badge" id="notifCountBadge" style="display:none;">0</span></a>
+          <a href="#orders">Orders <span class="badge" id="ordersCountBadge">0</span></a>
+          <a href="#invoices"><span data-i18n="account.invoices.nav">Invoices</span> <span class="badge" id="invoicesCountBadge">0</span></a>
+          <a href="#favorites">Favorites <span class="badge" id="favoritesCountBadge">0</span></a>
+          <a href="#reorder">Quick Reorder</a>
+          <a href="#recommendations">Recommendations</a>
+          <a href="#templates" data-i18n="account.templates.nav">Order templates</a>
+          <a href="#business">Business</a>
+          <a href="#profile">Profile</a>
+        </nav>
+        <div class="account-sidebar-footer">
+          <button class="btn btn-outline" type="button" id="logoutBtn" data-i18n="account.logout">Log out</button>
+        </div>
+      </aside>
+
+      <main class="account-content">
+        <div id="accountMsg" class="account-msg" role="status" aria-live="polite"></div>
+        <section id="dashboard" class="card fade-in" style="padding:18px;">
+          <div class="dashboard-head">
+            <div>
+              <div class="dashboard-kicker">Welcome back</div>
+              <div class="dashboard-sub" id="dashboardSub">Loading your account...</div>
+            </div>
+            <div class="dashboard-actions">
+              <a class="btn btn-outline" href="./products.html">Browse products</a>
+              <a class="btn btn-primary" href="./cart.html">Go to cart</a>
+            </div>
+          </div>
+          <div class="account-highlight" style="margin-top:10px;">
+            <span class="verified-badge" id="dashboardBadge" style="display:none;">
+              <span class="tick">&#10003;</span>
+              <span data-i18n="account.verified">Verified Power Poly Member</span>
+            </span>
+          </div>
+
+          <div class="dashboard-stats" id="dashboardStats"></div>
+          <div class="dashboard-insights" id="dashboardInsights"></div>
+          <div id="milestonesBody" style="margin-top:14px;"></div>
+          <div id="analyticsBody" style="margin-top:14px;"></div>
+        </section>
+
+        <section id="orders" style="margin-top:16px;">
+          <div class="card fade-in" style="padding:14px;">
+            <div class="order-filters">
+              <input class="input" type="search" id="orderSearch" placeholder="Search orders... (order id, product name)">
+              <select class="input" id="orderStatus">
+                <option value="">All status</option>
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+                <option value="fulfilled">Fulfilled</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+              <select class="input" id="orderRange">
+                <option value="all">All time</option>
+                <option value="30">Last 30 days</option>
+                <option value="90">Last 3 months</option>
+                <option value="180">Last 6 months</option>
+                <option value="365">Last year</option>
+              </select>
+              <button class="btn btn-outline btn-sm" type="button" id="exportOrders">Export CSV</button>
+              <span class="order-live">Live updates <span id="ordersUpdatedAt">--</span></span>
+            </div>
+          </div>
+
+          <div id="ordersMsg" style="font-size:13px; color:var(--muted); margin:10px 0 8px;"></div>
+          <div id="ordersGrid" class="grid" style="gap:12px;"></div>
+        </section>
+
+        <section id="invoices" style="margin-top:16px;">
+          <div class="card fade-in" style="padding:18px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
+              <div>
+                <h2 style="margin:0;" data-i18n="account.invoices.title">Invoices</h2>
+                <div style="color:var(--muted); font-size:13px; margin-top:4px;" data-i18n="account.invoices.subtitle">Download invoices (PDF) for accounting, search by order, and export a date range at once.</div>
+                <div class="feature-badges" style="margin-top:10px;">
+                  <span class="feature-pill" data-i18n="billing.features.auto_email">Invoice will be emailed automatically</span>
+                  <span class="feature-pill" data-i18n="billing.features.receipt">Business receipt provided</span>
+                  <span class="feature-pill" data-i18n="billing.features.tax_invoice">GST/HST invoice included</span>
+                  <span class="feature-pill" data-i18n="billing.features.statements">Monthly statements for business clients</span>
+                  <span class="feature-pill" data-i18n="billing.features.account_billing">Account billing for regular clients</span>
+                </div>
+              </div>
+              <button class="btn btn-primary btn-sm" type="button" id="downloadInvoicesRange" data-i18n="account.invoices.download_range">Download date range (PDF)</button>
+            </div>
+
+            <div class="order-filters" style="margin-top:12px;">
+              <input class="input" type="search" id="invoiceSearch" placeholder="Search invoices... (order id, product name)" data-i18n-placeholder="account.invoices.search_placeholder">
+              <select class="input" id="invoiceStatus">
+                <option value="" data-i18n="account.invoices.status_all">All status</option>
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+                <option value="fulfilled">Fulfilled</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+              <label class="pref-field" style="max-width:220px;">
+                <span style="font-size:13px; color:var(--muted);" data-i18n="account.invoices.from">From</span>
+                <input class="input" type="date" id="invoiceFrom">
+              </label>
+              <label class="pref-field" style="max-width:220px;">
+                <span style="font-size:13px; color:var(--muted);" data-i18n="account.invoices.to">To</span>
+                <input class="input" type="date" id="invoiceTo">
+              </label>
+            </div>
+
+            <div id="invoicesMsg" style="font-size:13px; color:var(--muted); margin:10px 0 8px;"></div>
+            <div id="invoicesList" class="grid" style="gap:12px;"></div>
+          </div>
+        </section>
+
+        <section id="wishlists" style="margin-top:16px;">
+          <div class="card fade-in" style="padding:18px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
+              <div>
+                <h2 style="margin:0;">Wishlists</h2>
+                <div style="color:var(--muted); font-size:13px; margin-top:4px;">Create lists for future purchases, seasonal needs, or items you're considering. Enable price alerts per item.</div>
+              </div>
+              <a class="btn btn-outline btn-sm" href="./products.html">Browse products</a>
+            </div>
+
+            <div class="wishlist-tools" style="margin-top:12px;">
+              <select class="input" id="wishlistSelect" aria-label="Select wishlist" style="max-width:260px;"></select>
+              <input class="input" id="wishlistRename" placeholder="Rename wishlist" style="max-width:260px;">
+              <button class="btn btn-outline btn-sm" type="button" id="wishlistRenameBtn">Rename</button>
+              <button class="btn btn-outline btn-sm" type="button" id="wishlistDelete">Delete</button>
+            </div>
+
+            <div class="wishlist-tools" style="margin-top:10px;">
+              <input class="input" id="wishlistName" placeholder="New wishlist name" style="max-width:260px;">
+              <button class="btn btn-primary btn-sm" type="button" id="wishlistCreate">Create</button>
+            </div>
+
+            <div id="wishlistsMsg" style="font-size:13px; color:var(--muted); margin:10px 0 8px;"></div>
+            <div id="wishlistItems" class="wishlist-list"></div>
+
+            <div style="margin-top:14px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+                <div style="font-weight:1000;">You might need these soon</div>
+                <div style="color:var(--muted); font-size:13px;">Based on your reorder patterns</div>
+              </div>
+              <div id="wishlistSoonMsg" style="font-size:13px; color:var(--muted); margin:10px 0 8px;"></div>
+              <div id="wishlistSoon" class="grid grid-3"></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="addresses" style="margin-top:16px;">
+          <div class="card fade-in" style="padding:18px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
+              <div>
+                <h2 style="margin:0;">Addresses</h2>
+                <div style="color:var(--muted); font-size:13px; margin-top:4px;">Save multiple delivery locations (main store, warehouse, branch) for faster checkout.</div>
+              </div>
+              <a class="btn btn-outline btn-sm" href="./checkout.html">Go to checkout</a>
+            </div>
+
+            <div id="addressesGrid" style="margin-top:12px;"></div>
+
+            <details style="margin-top:14px;">
+              <summary>Add / edit address</summary>
+              <form id="addAddressForm" class="grid" style="gap:10px; margin-top:10px;">
+                <div class="grid addr-row addr-row-2" style="grid-template-columns: 1fr 1fr; gap:10px;">
+                  <input class="input" name="label" placeholder="Label (e.g., Main Store)" required>
+                  <input class="input" name="name" placeholder="Recipient / Attn" required>
+                </div>
+                <input class="input" name="line1" placeholder="Address line 1" required>
+                <input class="input" name="line2" placeholder="Address line 2 (optional)">
+                <div class="grid addr-row addr-row-3" style="grid-template-columns: 1fr 170px 170px; gap:10px;">
+                  <input class="input" name="city" placeholder="City" required>
+                  <select class="input" name="province" required>
+                    <option value="">Select province/territory</option>
+                    <option value="ON">Ontario</option>
+                    <option value="NS">Nova Scotia</option>
+                    <option value="NB">New Brunswick</option>
+                    <option value="NL">Newfoundland and Labrador</option>
+                    <option value="PE">Prince Edward Island</option>
+                    <option value="AB">Alberta</option>
+                    <option value="BC">British Columbia</option>
+                    <option value="SK">Saskatchewan</option>
+                    <option value="MB">Manitoba</option>
+                    <option value="QC">Quebec</option>
+                    <option value="YT">Yukon</option>
+                    <option value="NT">Northwest Territories</option>
+                    <option value="NU">Nunavut</option>
+                  </select>
+                  <input class="input" name="postal" placeholder="Postal code" required>
+                </div>
+                <input class="input" name="country" placeholder="Country" value="Canada">
+
+                <label class="pref-item" style="display:flex; gap:10px; align-items:center;">
+                  <input type="checkbox" name="makeDefault">
+                  <span>Set as default delivery address</span>
+                </label>
+
+                <div class="addr-actions" style="margin-top:2px; display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
+                  <button class="btn btn-primary btn-sm" type="submit">Save address</button>
+                  <button class="btn btn-outline btn-sm" type="button" id="addrCancelEdit">Cancel</button>
+                </div>
+                <div style="color:var(--muted); font-size:13px;">Saved per account in this browser.</div>
+              </form>
+            </details>
+          </div>
+        </section>
+
+        <section id="payments" style="margin-top:16px;">
+          <div class="card fade-in" style="padding:18px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
+              <div>
+                <h2 style="margin:0;">Payment methods</h2>
+                <div style="color:var(--muted); font-size:13px; margin-top:4px;">Cards are tokenized and saved with Square. We never store full card numbers.</div>
+              </div>
+            </div>
+
+            <div id="paymentMethodsMsg" style="font-size:13px; color:var(--muted); margin:10px 0 8px;"></div>
+            <div id="paymentMethodsList" class="pm-list"></div>
+
+            <details style="margin-top:14px;">
+              <summary>Add a card</summary>
+              <div style="margin-top:10px;">
+                <div id="pmSetupMsg" style="color:var(--muted); font-size:13px; margin-bottom:10px;"></div>
+                <div class="pm-grid">
+                  <label class="pref-field">
+                    <span style="font-size:13px; color:var(--muted);">Name on card</span>
+                    <input class="input" id="pmCardholder" placeholder="Full name">
+                  </label>
+                </div>
+                <div id="squareCard" class="pm-card-slot" style="margin-top:10px;"></div>
+                <div style="margin-top:12px; display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
+                  <button class="btn btn-primary btn-sm" type="button" id="pmSaveCard">Save card</button>
+                </div>
+              </div>
+            </details>
+          </div>
+        </section>
+
+        <section id="rewards" style="margin-top:16px;">
+          <div class="card fade-in" style="padding:18px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+              <div>
+                <h2 style="margin:0;">Rewards</h2>
+                <div style="color:var(--muted); font-size:13px; margin-top:4px;">Earn 1 point per $1 spent. Redeem points for discounts or free items.</div>
+              </div>
+              <a class="btn btn-outline btn-sm" href="./products.html">Shop to earn more</a>
+            </div>
+
+            <div id="rewardsBody" style="margin-top:12px;"></div>
+
+            <details class="milestone-prefs" style="margin-top:14px;">
+              <summary>Milestones settings</summary>
+              <form id="milestonesPrefsForm" style="margin-top:10px;">
+                <label class="pref-item">
+                  <input type="checkbox" name="showMilestones">
+                  <span>Show customer milestones on your dashboard</span>
+                </label>
+                <div style="margin-top:10px; display:flex; justify-content:flex-end;">
+                  <button class="btn btn-primary btn-sm" type="submit">Save</button>
+                </div>
+              </form>
+            </details>
+          </div>
+        </section>
+
+        <section id="activity" style="margin-top:16px;">
+          <div class="card fade-in" style="padding:18px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+              <div>
+                <h2 style="margin:0;">Account activity</h2>
+                <div id="activityIpHint" style="color:var(--muted); font-size:13px; margin-top:4px;">IP address is shown when available.</div>
+              </div>
+              <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <select class="input" id="activityType" style="max-width:260px;">
+                  <option value="">All activity</option>
+                  <option value="login">Logins</option>
+                  <option value="logout">Logouts</option>
+                  <option value="order_placed">Order placements</option>
+                  <option value="password_change">Password changes</option>
+                  <option value="profile_update">Profile updates</option>
+                </select>
+                <button class="btn btn-outline btn-sm" type="button" id="activityClear">Clear</button>
+              </div>
+            </div>
+            <div id="activityMsg" style="font-size:13px; color:var(--muted); margin:10px 0 8px;"></div>
+            <div id="activityList" class="activity-list"></div>
+          </div>
+        </section>
+
+        <section id="notifications" style="margin-top:16px;">
+          <div class="card fade-in" style="padding:18px;">
+            <div class="notif-head">
+              <h2 style="margin:0;">Notifications</h2>
+              <div class="notif-actions">
+                <button class="btn btn-outline btn-sm" type="button" id="notifMarkAllRead">Mark all read</button>
+                <button class="btn btn-outline btn-sm" type="button" id="notifClearRead">Clear read</button>
+                <button class="btn btn-outline btn-sm" type="button" id="notifClearAll">Clear all</button>
+              </div>
+            </div>
+
+            <div class="notif-filters" style="margin-top:10px;">
+              <button class="pill active" type="button" data-notif-tab="all">All</button>
+              <button class="pill" type="button" data-notif-tab="unread">Unread</button>
+              <select class="input" id="notifTypeFilter" style="max-width:260px;">
+                <option value="">All types</option>
+                <option value="order_update">Order updates</option>
+                <option value="back_in_stock">Back in stock</option>
+                <option value="member_deal">Member-only deals</option>
+                <option value="low_stock">Low stock</option>
+                <option value="price_drop">Price drops</option>
+              </select>
+            </div>
+
+            <div id="notificationsMsg" style="font-size:13px; color:var(--muted); margin:10px 0 8px;"></div>
+            <div id="notificationsList" class="notif-list"></div>
+
+            <details class="notif-prefs" style="margin-top:14px;">
+              <summary>Preferences</summary>
+              <form id="notifPrefsForm" class="notif-prefs-form" style="margin-top:10px;">
+                <div class="prefs-grid">
+                  <label class="pref-item"><input type="checkbox" name="orderUpdates"> <span>Order updates</span></label>
+                  <label class="pref-item"><input type="checkbox" name="backInStock"> <span>Back-in-stock alerts</span></label>
+                  <label class="pref-item"><input type="checkbox" name="memberDeals"> <span>Member-only deals</span></label>
+                  <label class="pref-item"><input type="checkbox" name="lowStock"> <span>Low stock warnings (frequent items)</span></label>
+                  <label class="pref-item"><input type="checkbox" name="priceDrops"> <span>Price drop alerts</span></label>
+                  <label class="pref-item"><input type="checkbox" name="browserNotifications"> <span>Browser notifications (when this site is open)</span></label>
+                </div>
+                <div id="notifBrowserStatus" style="margin-top:8px; font-size:13px; color:var(--muted);"></div>
+ 
+                <div class="prefs-grid" style="margin-top:10px;">
+                  <label class="pref-field">
+                    <span style="font-size:13px; color:var(--muted);">Low stock threshold</span>
+                    <input class="input" type="number" min="0" step="1" name="lowStockThreshold" placeholder="20">
+                  </label>
+                  <label class="pref-field">
+                    <span style="font-size:13px; color:var(--muted);">Price drop minimum (%)</span>
+                    <input class="input" type="number" min="0" max="90" step="1" name="priceDropPercent" placeholder="5">
+                  </label>
+                </div>
+
+                <div style="margin-top:12px;">
+                  <div style="font-weight:900;">Watchlist</div>
+                  <div id="notifWatchHint" style="font-size:13px; color:var(--muted); margin-top:4px;"></div>
+                  <div id="notifWatchlist" class="notif-watchlist" style="margin-top:8px;"></div>
+                </div>
+
+                <div style="margin-top:12px; display:flex; gap:10px; justify-content:flex-end;">
+                  <button class="btn btn-primary btn-sm" type="submit">Save preferences</button>
+                </div>
+              </form>
+            </details>
+          </div>
+        </section>
+
+        <section id="favorites" style="margin-top:16px;">
+          <div class="card fade-in" style="padding:18px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+              <h2 style="margin:0;" data-i18n="account.favorites.title">Favorites</h2>
+              <a class="btn btn-outline btn-sm" href="./products.html">Browse products</a>
+            </div>
+            <div id="favoritesMsg" style="font-size:13px; color:var(--muted); margin:10px 0 8px;"></div>
+            <div id="favoritesGrid" class="grid grid-4"></div>
+            <div id="favoritesSuggestions" style="margin-top:12px;"></div>
+          </div>
+        </section>
+
+        <section id="reorder" style="margin-top:16px;">
+          <div class="card fade-in" style="padding:18px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+              <h2 style="margin:0;">Frequently ordered</h2>
+              <a class="btn btn-outline btn-sm" href="./products.html">Browse all</a>
+            </div>
+            <div style="color:var(--muted); font-size:13px; margin-top:6px;">Quick reorder with your typical quantity and a predicted reorder window.</div>
+            <div id="frequentMsg" style="font-size:13px; color:var(--muted); margin:10px 0 8px;"></div>
+            <div id="frequentGrid" class="grid grid-3"></div>
+          </div>
+        </section>
+
+        <section id="recommendations" style="margin-top:16px;">
+          <div class="card fade-in" style="padding:18px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+              <h2 style="margin:0;">Recommended based on your orders</h2>
+              <a class="btn btn-outline btn-sm" href="./products.html">Browse all</a>
+            </div>
+            <div style="color:var(--muted); font-size:13px; margin-top:6px;">Items other customers add to similar orders.</div>
+            <div id="orderRecsMsg" style="font-size:13px; color:var(--muted); margin:10px 0 8px;"></div>
+            <div id="orderRecsGrid" class="grid grid-3"></div>
+          </div>
+        </section>
+
+        <section id="business" style="margin-top:16px;">
+          <div class="card fade-in" style="padding:18px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
+              <div>
+                <h2 style="margin:0;">Business account</h2>
+                <div style="color:var(--muted); font-size:13px; margin-top:4px;">Save business details for invoices and statements.</div>
+              </div>
+              <button class="btn btn-outline btn-sm" type="button" id="downloadStatement">Download monthly statement</button>
+            </div>
+            <form id="businessForm" class="grid" style="gap:10px; margin-top:12px;">
+              <input class="input" name="company" placeholder="Company name">
+              <input class="input" name="taxId" placeholder="GST/HST number (optional)">
+              <input class="input" type="email" name="billingEmail" placeholder="Billing email">
+              <label class="pref-item">
+                <input type="checkbox" name="invoiceByEmail">
+                <span>Email invoices automatically</span>
+              </label>
+              <div style="display:flex; gap:10px; justify-content:flex-end;">
+                <button class="btn btn-primary btn-sm" type="submit">Save business profile</button>
+              </div>
+              <div id="businessMsg" style="font-size:13px; color:var(--muted);"></div>
+            </form>
+
+            <div class="business-grid" style="margin-top:14px;">
+              <div class="business-card">
+                <div class="business-title">Account tiers & volume discounts</div>
+                <div class="business-desc">Choose a tier to unlock contract pricing.</div>
+                <form id="businessTierForm" class="business-form">
+                  <label>
+                    <span>Tier</span>
+                    <select class="input" name="tier">
+                      <option value="starter">Starter (0-99 cases)</option>
+                      <option value="growth">Growth (100-299 cases)</option>
+                      <option value="enterprise">Enterprise (300+ cases)</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Monthly volume (cases)</span>
+                    <input class="input" name="volume" type="number" min="0" step="1" value="120">
+                  </label>
+                  <label class="pref-item">
+                    <input type="checkbox" name="contractPricing">
+                    <span>Enable contract pricing</span>
+                  </label>
+                  <button class="btn btn-outline btn-sm" type="submit">Save tier</button>
+                </form>
+                <div class="business-output" id="businessTierOutput">Tier discounts will appear here.</div>
+              </div>
+
+              <div class="business-card">
+                <div class="business-title">Request for Quote (RFQ)</div>
+                <div class="business-desc">Submit a bulk quote request for larger quantities.</div>
+                <form id="rfqForm" class="business-form">
+                  <textarea class="input" name="items" placeholder="List items, sizes, quantities" rows="4"></textarea>
+                  <button class="btn btn-primary btn-sm" type="submit">Submit RFQ</button>
+                </form>
+                <div class="business-output" id="rfqOutput">No RFQ submitted yet.</div>
+              </div>
+
+              <div class="business-card">
+                <div class="business-title">Net payment terms</div>
+                <div class="business-desc">Request net terms for recurring orders.</div>
+                <form id="netTermsForm" class="business-form">
+                  <label>
+                    <span>Preferred terms</span>
+                    <select class="input" name="terms">
+                      <option value="net15">Net 15</option>
+                      <option value="net30">Net 30</option>
+                      <option value="net45">Net 45</option>
+                    </select>
+                  </label>
+                  <label class="pref-item">
+                    <input type="checkbox" name="requestTerms">
+                    <span>Request net terms review</span>
+                  </label>
+                  <button class="btn btn-outline btn-sm" type="submit">Save request</button>
+                </form>
+                <div class="business-output" id="netTermsOutput">Terms request status will show here.</div>
+              </div>
+
+              <div class="business-card">
+                <div class="business-title">Purchase order upload</div>
+                <div class="business-desc">Attach a PO for faster processing.</div>
+                <form id="poUploadForm" class="business-form">
+                  <input class="input" type="file" name="poFile" id="poFile" accept=".pdf,.png,.jpg,.jpeg">
+                  <button class="btn btn-outline btn-sm" type="submit">Upload PO</button>
+                </form>
+                <div class="business-output" id="poUploadOutput">No PO uploaded.</div>
+              </div>
+
+              <div class="business-card">
+                <div class="business-title">Team approvals</div>
+                <div class="business-desc">Add approvers for spend limits.</div>
+                <form id="approvalForm" class="business-form">
+                  <label>
+                    <span>Approver email</span>
+                    <input class="input" name="approverEmail" type="email" placeholder="team@company.com">
+                  </label>
+                  <label>
+                    <span>Spend limit</span>
+                    <input class="input" name="approverLimit" type="number" min="0" step="1" value="1000">
+                  </label>
+                  <button class="btn btn-outline btn-sm" type="submit">Add approver</button>
+                </form>
+                <div class="business-list" id="approvalList"></div>
+              </div>
+
+              <div class="business-card">
+                <div class="business-title">Bulk order templates</div>
+                <div class="business-desc">Save recurring bulk order lists.</div>
+                <form id="bulkTemplateForm" class="business-form">
+                  <input class="input" name="templateName" placeholder="Template name">
+                  <textarea class="input" name="templateItems" rows="3" placeholder="Item + quantity"></textarea>
+                  <button class="btn btn-outline btn-sm" type="submit">Save template</button>
+                </form>
+                <div class="business-list" id="bulkTemplateList"></div>
+              </div>
+
+              <div class="business-card">
+                <div class="business-title">CSV upload for large orders</div>
+                <div class="business-desc">Upload a CSV to populate an order.</div>
+                <form id="csvUploadForm" class="business-form">
+                  <input class="input" type="file" name="csvFile" id="csvFile" accept=".csv">
+                  <button class="btn btn-outline btn-sm" type="submit">Upload CSV</button>
+                </form>
+                <div class="business-output" id="csvUploadOutput">Upload a CSV to preview.</div>
+              </div>
+
+              <div class="business-card">
+                <div class="business-title">Account representative</div>
+                <div class="business-desc">Choose a dedicated rep for priority support.</div>
+                <form id="repAssignForm" class="business-form">
+                  <label>
+                    <span>Preferred rep</span>
+                    <select class="input" name="rep">
+                      <option value="angel">Angel (Sales)</option>
+                      <option value="andrew">Andrew (Product guidance)</option>
+                      <option value="achchu">Achchu (Orders)</option>
+                    </select>
+                  </label>
+                  <button class="btn btn-outline btn-sm" type="submit">Assign rep</button>
+                </form>
+                <div class="business-output" id="repAssignOutput">No rep assigned yet.</div>
+              </div>
+
+              <div class="business-card">
+                <div class="business-title">Credit application</div>
+                <div class="business-desc">Apply for credit and net terms.</div>
+                <form id="creditAppForm" class="business-form">
+                  <input class="input" name="legalName" placeholder="Legal business name">
+                  <input class="input" name="years" type="number" min="0" step="1" placeholder="Years in business">
+                  <input class="input" name="annualSpend" type="number" min="0" step="1" placeholder="Annual spend estimate">
+                  <button class="btn btn-primary btn-sm" type="submit">Submit application</button>
+                </form>
+                <div class="business-output" id="creditAppOutput">No application submitted.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="templates" style="margin-top:16px;">
+          <div class="card fade-in" style="padding:18px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+              <div>
+                <h2 style="margin:0;" data-i18n="account.templates.title">Order templates</h2>
+                <div style="color:var(--muted); font-size:13px; margin-top:4px;" data-i18n="account.templates.subtitle">Save “Weekly Stock” or “Monthly Bulk Order” and reorder in one click.</div>
+              </div>
+              <a class="btn btn-outline btn-sm" href="./cart.html" data-i18n="account.templates.view_cart">View cart</a>
+            </div>
+
+            <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+              <input class="input" id="templateName" placeholder="Template name (e.g., Weekly Stock)" data-i18n-placeholder="account.templates.name_placeholder" style="max-width:320px;">
+              <button class="btn btn-primary btn-sm" type="button" id="templateSaveFromCart" data-i18n="account.templates.save_cart">Save current cart as template</button>
+            </div>
+
+            <div id="templatesMsg" style="font-size:13px; color:var(--muted); margin:10px 0 8px;"></div>
+            <div id="templatesList" class="grid grid-3"></div>
+
+            <div style="margin-top:16px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+                <div style="font-weight:1000;" data-i18n="account.combos.title">Your usual combinations</div>
+                <div style="color:var(--muted); font-size:13px;" data-i18n="account.combos.subtitle">Based on your order history</div>
+              </div>
+              <div id="combosMsg" style="font-size:13px; color:var(--muted); margin:10px 0 8px;"></div>
+              <div id="combosGrid" class="grid grid-3"></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="profile" style="margin-top:16px;">
+          <div class="card fade-in" style="padding:18px;">
+            <h2 style="margin:0 0 10px;">Profile</h2>
+            <div id="profileGrid" class="profile-grid"></div>
+            <div id="profileActions" style="margin-top:12px;"></div>
+            <div style="margin-top:10px; color:var(--muted); font-size:13px;">Changes are saved to this device (browser) for faster checkout.</div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="footer">&copy; <span id="y"></span> <span data-i18n="footer.short">Power Poly Supplies. Power your packaging.</span></div>
+  </div>
+
+  <script src="./config.min.js"></script>
+  <script src="./js/store.min.js"></script>
+  <script src="./js/i18n.js"></script>
+  <script src="./js/ui.js"></script>
+  <script src="./js/activity.min.js"></script>
+  <script src="./js/notifications.min.js"></script>
+  <script src="./js/wishlists.min.js"></script>
+  <script src="./js/payment-methods.min.js"></script>
+  <script src="./js/account.min.js" defer></script>
+</body>
+</html>
+
+
+
+
