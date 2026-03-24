@@ -230,10 +230,10 @@ const recaptchaSecretKey = recaptchaSecretMeta.value;
 const squareEnvRaw = String(process.env.SQUARE_ENV || "").trim().toLowerCase();
 const squareEnvMode = squareEnvRaw === "sandbox" ? "sandbox" : (squareEnvRaw === "production" ? "production" : "auto");
 const squareClientSandbox = squareAccessTokenSandbox
-  ? new SquareClient({ accessToken: squareAccessTokenSandbox, environment: SquareEnvironment.Sandbox })
+  ? new SquareClient({ token: squareAccessTokenSandbox, environment: SquareEnvironment.Sandbox })
   : null;
 const squareClientProduction = squareAccessTokenProduction
-  ? new SquareClient({ accessToken: squareAccessTokenProduction, environment: SquareEnvironment.Production })
+  ? new SquareClient({ token: squareAccessTokenProduction, environment: SquareEnvironment.Production })
   : null;
 const directSquareAccessToken = readEnvFirst("SQUARE_ACCESS_TOKEN");
 const directSquareLocationId = readEnvFirst("SQUARE_LOCATION_ID");
@@ -241,7 +241,7 @@ const directSquareEnv = String(process.env.SQUARE_ENV || "sandbox").trim().toLow
   ? SquareEnvironment.Production
   : SquareEnvironment.Sandbox;
 const directSquareClient = directSquareAccessToken
-  ? new SquareClient({ accessToken: directSquareAccessToken, environment: directSquareEnv })
+  ? new SquareClient({ token: directSquareAccessToken, environment: directSquareEnv })
   : null;
 
 function getSquareClientCandidates({ requireLocationId = false } = {}){
