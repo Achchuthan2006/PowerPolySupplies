@@ -135,7 +135,7 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
 
 const PORT = process.env.PORT || 5000;
-const HOST = process.env.HOST || "0.0.0.0";
+const HOST = process.env.RENDER ? "0.0.0.0" : (process.env.HOST || "0.0.0.0");
 
 function readEnvFirst(...names){
   for(const name of names){
