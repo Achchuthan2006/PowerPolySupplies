@@ -4,7 +4,7 @@ export default function HomePage() {
   return (
     <>
       <section className="hero fade-in show">
-        <img className="hero-logo" src="/assets/poly logo without background.png" alt="Power Poly Supplies logo" />
+        <img className="hero-logo" src="/assets/poly logo without background.webp" alt="Power Poly Supplies logo" width="1280" height="1165" />
         <p style={{ margin: 0, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', color: 'var(--muted)' }}>
           Power your packaging
         </p>

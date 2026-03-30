@@ -2,10 +2,18 @@ function setupNavbar(){
   const menuBtn = document.getElementById("menuBtn");
   const navLinks = document.getElementById("navLinks");
   const dropdowns = Array.from(document.querySelectorAll(".dropdown"));
+  const setMenuExpanded = (expanded)=>{
+    if(menuBtn){
+      menuBtn.setAttribute("aria-expanded", expanded ? "true" : "false");
+    }
+  };
 
   if(menuBtn && navLinks){
+    menuBtn.setAttribute("aria-controls", navLinks.id || "navLinks");
+    setMenuExpanded(navLinks.classList.contains("open"));
     menuBtn.addEventListener("click", ()=>{
       navLinks.classList.toggle("open");
+      setMenuExpanded(navLinks.classList.contains("open"));
     });
   }
   if(navLinks){
@@ -13,6 +21,7 @@ function setupNavbar(){
       const link = event.target.closest("a");
       if(link && navLinks.classList.contains("open")){
         navLinks.classList.remove("open");
+        setMenuExpanded(false);
       }
     });
 
@@ -38,6 +47,7 @@ function setupNavbar(){
       if(!(target instanceof Node)) return;
       if(navLinks.contains(target) || menuBtn.contains(target)) return;
       navLinks.classList.remove("open");
+      setMenuExpanded(false);
       dropdowns.forEach(d=> d.classList.remove("open"));
     });
   }
@@ -46,6 +56,14 @@ function setupNavbar(){
   dropdowns.forEach((dropdown)=>{
     const dropBtn = dropdown.querySelector(".dropbtn");
     if(!dropBtn) return;
+    const dropdownMenu = dropdown.querySelector(".dropdown-menu");
+    if(dropdownMenu && !dropdownMenu.id){
+      dropdownMenu.id = `ppsDropdown${Math.random().toString(36).slice(2, 9)}`;
+    }
+    if(dropdownMenu){
+      dropBtn.setAttribute("aria-controls", dropdownMenu.id);
+    }
+    dropBtn.setAttribute("aria-expanded", dropdown.classList.contains("open") ? "true" : "false");
     dropBtn.addEventListener("click", (event)=>{
       // If the dropdown trigger is a link (ex: About Us), let clicking the label navigate.
       // Only toggle when clicking the caret.
@@ -54,7 +72,86 @@ function setupNavbar(){
       if(isLink && !caretClicked) return;
       event.preventDefault();
       dropdown.classList.toggle("open");
+      dropBtn.setAttribute("aria-expanded", dropdown.classList.contains("open") ? "true" : "false");
     });
+    dropBtn.addEventListener("keydown", (event)=>{
+      if(event.key === "Escape"){
+        dropdown.classList.remove("open");
+        dropBtn.setAttribute("aria-expanded", "false");
+        dropBtn.focus();
+      }
+    });
+  });
+
+  document.addEventListener("keydown", (event)=>{
+    if(event.key !== "Escape") return;
+    if(navLinks?.classList.contains("open")){
+      navLinks.classList.remove("open");
+      setMenuExpanded(false);
+      menuBtn?.focus?.();
+    }
+    dropdowns.forEach((dropdown)=>{
+      dropdown.classList.remove("open");
+      dropdown.querySelector(".dropbtn")?.setAttribute("aria-expanded", "false");
+    });
+  });
+}
+
+function ensureMainLandmark(){
+  if(document.querySelector("main,[role='main']")) return;
+  const mainCandidate = document.querySelector(".page, #wrap, #app, .app-shell");
+  if(!mainCandidate) return;
+  if(!mainCandidate.id){
+    mainCandidate.id = "main-content";
+  }
+  mainCandidate.setAttribute("role", "main");
+  mainCandidate.setAttribute("tabindex", "-1");
+}
+
+function injectSkipLink(){
+  if(document.querySelector(".skip-link")) return;
+  const target = document.querySelector("main,[role='main'],#main-content,.page,#wrap");
+  if(!target) return;
+  if(!target.id){
+    target.id = "main-content";
+  }
+  const link = document.createElement("a");
+  link.className = "skip-link";
+  link.href = `#${target.id}`;
+  link.textContent = "Skip to main content";
+  document.body.insertAdjacentElement("afterbegin", link);
+}
+
+function markCurrentNavLink(){
+  const current = getPageName();
+  document.querySelectorAll(".navlinks a[href]").forEach((link)=>{
+    const href = String(link.getAttribute("href") || "").toLowerCase();
+    if(!href || href.startsWith("http") || href.startsWith("mailto:") || href.startsWith("tel:")) return;
+    const linkPage = href.split("?")[0].split("/").pop() || "index.html";
+    if(linkPage === current || (current === "index.html" && (href === "./index.html" || href === "/"))){
+      link.setAttribute("aria-current", "page");
+    }else{
+      link.removeAttribute("aria-current");
+    }
+  });
+}
+
+function enhanceAccessibility(){
+  if(!document.documentElement.getAttribute("lang")){
+    document.documentElement.setAttribute("lang", "en");
+  }
+  ensureMainLandmark();
+  injectSkipLink();
+  markCurrentNavLink();
+
+  document.querySelectorAll(".status, #status, #loginStatus, #signupStatus, #oauthStatus, #reviewsStatus").forEach((el)=>{
+    if(!el.getAttribute("role")) el.setAttribute("role", "status");
+    if(!el.getAttribute("aria-live")) el.setAttribute("aria-live", "polite");
+  });
+
+  document.querySelectorAll("button[title]:not([aria-label])").forEach((btn)=>{
+    const label = String(btn.getAttribute("title") || "").trim();
+    if(label) btn.setAttribute("aria-label", label);
   });
 }
 
@@ -125,6 +222,27 @@ function setupStickyHeader(){
 
 const PPS_SITE_URL = "https://www.powerpolysupplies.com";
 const PPS_DEFAULT_OG_IMAGE = `${PPS_SITE_URL}/assets/poly%20logo%20without%20background.png`;
+const PPS_IMAGE_SOURCE_MAP = {
+  "/assets/poly logo without background.png": "./assets/poly%20logo%20without%20background.webp",
+  "/assets/logo.jpg": "./assets/logo.webp",
+  "/assets/suit hanger white.jpg": "./assets/suit%20hanger%20white.webp",
+  "/assets/suit hanger white.png": "./assets/suit%20hanger%20white.webp"
+};
+const PPS_IMAGE_DIMENSIONS = {
+  "/assets/poly logo without background.webp": { width:1280, height:1165 },
+  "/assets/logo.webp": { width:1600, height:1600 },
+  "/assets/powerpolyboxesinventory.webp": { width:960, height:960 },
+  "/assets/polybag clear.webp": { width:1024, height:1024 },
+  "/assets/poly_bag_clear.webp": { width:1000, height:1000 },
+  "/assets/strut hangers.webp": { width:500, height:500 },
+  "/assets/powerpolyhangerbox.webp": { width:305, height:238 },
+  "/assets/clearpolyroll in the box.webp": { width:1024, height:1024 },
+  "/assets/welovecaped hanger.webp": { width:493, height:493 },
+  "/assets/dress hanger.webp": { width:823, height:823 },
+  "/assets/shirt hanger pic.webp": { width:493, height:493 },
+  "/assets/cape hangers.webp": { width:758, height:633 },
+  "/assets/suit hanger white.webp": { width:1184, height:864 }
+};
 
 function getSitePathname(){
   const path = String(window.location.pathname || "").trim();
@@ -143,6 +261,27 @@ function absoluteSiteUrl(value){
   }catch(_err){
     return PPS_SITE_URL;
   }
+}
+
+function normalizeAssetPathKey(value){
+  try{
+    const url = new URL(String(value || "").trim(), window.location.href);
+    return decodeURIComponent(url.pathname).replace(/\\/g, "/").toLowerCase();
+  }catch(_err){
+    const raw = String(value || "").trim();
+    if(!raw) return "";
+    return decodeURIComponent(raw.split("?")[0]).replace(/\\/g, "/").replace(/^\./, "").toLowerCase();
+  }
+}
+
+function getOptimizedImageSrc(value){
+  const key = normalizeAssetPathKey(value);
+  return PPS_IMAGE_SOURCE_MAP[key] || value;
+}
+
+function getImageDimensions(value){
+  const key = normalizeAssetPathKey(value);
+  return PPS_IMAGE_DIMENSIONS[key] || null;
 }
 
 function ensureMetaTag(selector, attrs){
@@ -226,6 +365,26 @@ function getCategoryLandingPath(category){
     "Hangers": "./hangers.html"
   };
   return map[String(category || "").trim()] || "./products.html";
+}
+
+function remapLegacyCategoryLinks(root){
+  const scope = (root && root.querySelectorAll) ? root : document;
+  scope.querySelectorAll('a[href*="./products.html?cat="]').forEach((link)=>{
+    const rawHref = String(link.getAttribute("href") || "").trim();
+    if(!rawHref) return;
+    try{
+      const parsed = new URL(rawHref, window.location.href);
+      const category = parsed.searchParams.get("cat");
+      const query = trimText(parsed.searchParams.get("q"));
+      if(!category || query) return;
+      const landingPath = getCategoryLandingPath(category);
+      if(landingPath && landingPath !== "./products.html"){
+        link.setAttribute("href", landingPath);
+      }
+    }catch(_err){
+      // ignore malformed links
+    }
+  });
 }
 
 function getCategorySeo(category){
@@ -495,6 +654,21 @@ function getStaticSeoConfig(){
       description: "Customer feedback page.",
       canonical: "./feedback.html",
       robots: "noindex,follow"
+    },
+    "legal-privacy.html": {
+      title: "Privacy Policy | Power Poly Supplies Canada",
+      description: "Read the Power Poly Supplies privacy policy for details on how we handle contact information, order processing, and customer communications in Canada.",
+      canonical: "./legal-privacy.html"
+    },
+    "legal-shipping.html": {
+      title: "Shipping & Returns | Power Poly Supplies Canada",
+      description: "Review shipping coverage, delivery expectations, and return guidance for Power Poly Supplies wholesale orders across Canada.",
+      canonical: "./legal-shipping.html"
+    },
+    "legal-terms.html": {
+      title: "Terms & Conditions | Power Poly Supplies Canada",
+      description: "Review the standard purchasing terms and conditions for Power Poly Supplies wholesale garment bags, poly bags, and hangers in Canada.",
+      canonical: "./legal-terms.html"
     }
   };
   return map[page] || null;
@@ -530,8 +704,32 @@ function optimizeImageElement(img){
 
   const rawSrc = String(img.getAttribute("src") || "").trim();
   if(!rawSrc || rawSrc.startsWith("data:") || rawSrc.startsWith("blob:")) return;
+  const optimizedSrc = getOptimizedImageSrc(rawSrc);
+  if(optimizedSrc && optimizedSrc !== rawSrc){
+    img.setAttribute("src", optimizedSrc);
+  }
+  const effectiveSrc = String(img.getAttribute("src") || optimizedSrc || rawSrc).trim();
+  const dimensions = getImageDimensions(effectiveSrc);
+  if(dimensions){
+    if(!img.getAttribute("width")){
+      img.setAttribute("width", String(dimensions.width));
+    }
+    if(!img.getAttribute("height")){
+      img.setAttribute("height", String(dimensions.height));
+    }
+  }
+  if(!img.style.aspectRatio){
+    const widthAttr = Number(img.getAttribute("width") || 0);
+    const heightAttr = Number(img.getAttribute("height") || 0);
+    if(widthAttr > 0 && heightAttr > 0){
+      img.style.aspectRatio = `${widthAttr} / ${heightAttr}`;
+      if(!img.style.height){
+        img.style.height = "auto";
+      }
+    }
+  }
 
-  const srcNoQuery = rawSrc.split("?")[0].toLowerCase();
+  const srcNoQuery = effectiveSrc.split("?")[0].toLowerCase();
   const isSvg = srcNoQuery.endsWith(".svg");
   const isRaster = /\.(png|jpe?g|webp|avif)$/i.test(srcNoQuery);
 
@@ -563,7 +761,7 @@ function optimizeImageElement(img){
 
   if(isRaster && !isSvg && !img.hasAttribute("srcset")){
     // Single-source responsive hint: lets browser pair sizes with DPR while staying backward-compatible.
-    img.setAttribute("srcset", `${rawSrc} 480w, ${rawSrc} 768w, ${rawSrc} 1024w`);
+    img.setAttribute("srcset", `${effectiveSrc} 480w, ${effectiveSrc} 768w, ${effectiveSrc} 1024w`);
   }
 
   img.dataset.ppsImgOptimized = "1";
@@ -986,7 +1184,7 @@ function injectMiniCartPreview(){
       <div class="mini-cart-items">
         ${items.map(item=>`
           <div class="mini-cart-item">
-            <img src="${item.image}" alt="">
+            <img src="${item.image}" alt="" loading="lazy" decoding="async" width="60" height="60">
             <div>
               <div class="mini-cart-name">${item.name}</div>
               <div class="mini-cart-qty">Qty: ${item.qty}</div>
@@ -1201,7 +1399,7 @@ async function renderFooterRecentProducts(){
   }
   grid.innerHTML = picks.map(item=>`
     <a class="footer-recent-card" href="./product.html?slug=${encodeURIComponent(item.slug)}">
-      <img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async">
+      <img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async" width="320" height="240">
       <span>${item.name}</span>
     </a>
   `).join("");
@@ -1465,7 +1663,7 @@ function setupSearch(){
       }else if(btn.matches("button[data-cat]")){
         const cat = btn.getAttribute("data-cat");
         if(cat){
-          window.location.href = `./products.html?cat=${encodeURIComponent(cat)}`;
+          window.location.href = getCategoryLandingPath(cat);
         }
       }
     });
@@ -2251,7 +2449,7 @@ function injectHelpWidget(){
       ],
       match: (q)=> /hanger|hangers|shirt hanger|suit hanger|dress hanger|strut|capped|caped|cape|wire|500/i.test(q),
       answerKey: "help.chat.answer.hangers",
-      answer: () => `Most of our hanger SKUs are packed <b>500 pieces per box</b> (case pack) - check the product page for the exact pack size.<br><br><b>Quick pick:</b> <b>Shirt</b> for tops, <b>Suit</b> for jackets, <b>Strut</b> for daily all-purpose strength, and <b>Capped/Cape</b> when you want extra shoulder stability and premium presentation.<br><a href="./products.html?cat=Hangers">Browse hangers</a>`
+      answer: () => `Most of our hanger SKUs are packed <b>500 pieces per box</b> (case pack) - check the product page for the exact pack size.<br><br><b>Quick pick:</b> <b>Shirt</b> for tops, <b>Suit</b> for jackets, <b>Strut</b> for daily all-purpose strength, and <b>Capped/Cape</b> when you want extra shoulder stability and premium presentation.<br><a href="./hangers.html">Browse hangers</a>`
     },
     {
       id: "usage",
@@ -2584,7 +2782,7 @@ function showAuthModal(options = {}){
       <div class="pps-auth-layout">
         <div class="pps-auth-left" aria-hidden="true">
           <div class="pps-auth-brand">
-            <img src="./assets/poly%20logo%20without%20background.png" alt="Power Poly Supplies" decoding="async">
+            <img src="./assets/poly%20logo%20without%20background.png" alt="Power Poly Supplies" decoding="async" width="1280" height="1165">
             <div>PowerPolySupplies.com</div>
           </div>
            <div class="pps-auth-kicker">Canada-wide B2B sourcing</div>
@@ -3285,6 +3483,15 @@ function setupPageTransitionProgress(){
   }
 }
 
+function runWhenIdle(task, timeout = 900){
+  if(typeof task !== "function") return;
+  if("requestIdleCallback" in window){
+    window.requestIdleCallback(()=> task(), { timeout });
+    return;
+  }
+  window.setTimeout(task, 80);
+}
+
 function suppressVercelOverlays(){
   const selectors = [
     "[data-vercel-toolbar]",
@@ -3445,56 +3652,60 @@ setupPageTransitionProgress();
 window.addEventListener("DOMContentLoaded", ()=>{
   suppressVercelOverlays();
   suppressCartEmailPopup();
-  try{
-    if("serviceWorker" in navigator){
-      navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(()=>{});
-    }
-  }catch{
-    // ignore
-  }
-  try{
-    if(!document.querySelector('link[rel="manifest"]')){
-      const link = document.createElement("link");
-      link.rel = "manifest";
-      link.href = "./manifest.webmanifest";
-      document.head.appendChild(link);
-    }
-    if(!document.querySelector('meta[name="theme-color"]')){
-      const meta = document.createElement("meta");
-      meta.name = "theme-color";
-      meta.content = "#ff7a1a";
-      document.head.appendChild(meta);
-    }
-  }catch{
-    // ignore
-  }
   decoratePromoTagline();
+  enhanceAccessibility();
   applyAutoSeo();
   setupNavbar();
   setupFadeIn();
   setupStickyHeader();
-  setupAnalytics();
-  setupJourneyTracking();
   setupImageOptimization();
-  syncAccountLink();
-  setupAuthModalTriggers();
-  injectResourcesDropdown();
-  injectAboutDropdown();
-  injectLangSwitcher();
-  injectCurrencySwitcher();
-  injectNotificationsBell();
-  injectMiniCartPreview();
-  setupSearch();
-  setupCountUp();
-  injectBottomNav();
-  setupBottomNavSearch();
-  setupInteractiveTools();
-  injectFooter();
-  injectHelpWidget();
-  setupRetentionSignals();
-  scheduleLanguagePrompt();
-  enforceAvailableCategoryCopy();
-  window.addEventListener("pps:lang", ()=> setTimeout(enforceAvailableCategoryCopy, 0));
+  remapLegacyCategoryLinks();
+  runWhenIdle(()=>{
+    try{
+      if("serviceWorker" in navigator){
+        navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(()=>{});
+      }
+    }catch{
+      // ignore
+    }
+    try{
+      if(!document.querySelector('link[rel="manifest"]')){
+        const link = document.createElement("link");
+        link.rel = "manifest";
+        link.href = "./manifest.webmanifest";
+        document.head.appendChild(link);
+      }
+      if(!document.querySelector('meta[name="theme-color"]')){
+        const meta = document.createElement("meta");
+        meta.name = "theme-color";
+        meta.content = "#ff7a1a";
+        document.head.appendChild(meta);
+      }
+    }catch{
+      // ignore
+    }
+    syncAccountLink();
+    setupSearch();
+    injectFooter();
+    setupAnalytics();
+    setupJourneyTracking();
+    setupAuthModalTriggers();
+    injectResourcesDropdown();
+    injectAboutDropdown();
+    injectLangSwitcher();
+    injectCurrencySwitcher();
+    injectNotificationsBell();
+    injectMiniCartPreview();
+    setupCountUp();
+    injectBottomNav();
+    setupBottomNavSearch();
+    setupInteractiveTools();
+    injectHelpWidget();
+    setupRetentionSignals();
+    scheduleLanguagePrompt();
+    enforceAvailableCategoryCopy();
+    window.addEventListener("pps:lang", ()=> setTimeout(enforceAvailableCategoryCopy, 0));
+  });
 });
 
 // Expose to pages that render footers dynamically after load

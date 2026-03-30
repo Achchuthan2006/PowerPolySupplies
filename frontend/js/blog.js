@@ -284,7 +284,7 @@
           </div>
         </div>
         <div class="blog-featured-media" aria-hidden="true">
-          <img src="${imgSrc}" alt="${String(imgAlt).replace(/\"/g, "&quot;")}" loading="lazy" decoding="async">
+          <img src="${imgSrc}" alt="${String(imgAlt).replace(/\"/g, "&quot;")}" loading="lazy" decoding="async" width="960" height="960">
         </div>
       </div>
     `;
@@ -304,7 +304,7 @@
       if (imgSrc) {
         const thumb = document.createElement("div");
         thumb.className = "blog-card-thumb";
-        thumb.innerHTML = `<img src="${imgSrc}" alt="" loading="lazy" decoding="async">`;
+        thumb.innerHTML = `<img src="${imgSrc}" alt="" loading="lazy" decoding="async" width="320" height="240">`;
         card.insertAdjacentElement("afterbegin", thumb);
       }
 

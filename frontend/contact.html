@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content"/>
@@ -86,7 +86,7 @@
 
           <button class="btn btn-primary" type="submit" data-i18n="contact.form.send">Send Message</button>
           <div style="font-size:12px; color:var(--muted); font-weight:800;">We respond within 2 hours during business hours.</div>
-          <div id="status" style="font-size:13px; color:var(--muted);"></div>
+          <div id="status" role="status" aria-live="polite" style="font-size:13px; color:var(--muted);"></div>
         </form>
       </div>
 
@@ -171,7 +171,6 @@
   <script src="./config.min.js"></script>
 
   <script src="./js/store.min.js"></script>
-  <script src="./js/notifications.min.js"></script>
   <script src="./js/i18n.js"></script>
   <script src="./js/ui.js"></script>
   <script>
@@ -234,4 +233,3 @@
   </script>
 </body>
 </html>
-

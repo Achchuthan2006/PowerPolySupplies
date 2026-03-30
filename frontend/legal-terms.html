@@ -1,9 +1,11 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content"/>
-  <title>Terms & Conditions | Power Poly Supplies</title>
+  <title>Terms & Conditions | Power Poly Supplies Canada</title>
+  <meta name="description" content="Read the standard purchasing terms and conditions for Power Poly Supplies wholesale garment bags, poly bags, hangers, and related B2B orders in Canada."/>
+  <link rel="canonical" href="https://www.powerpolysupplies.com/legal-terms.html"/>
   <link rel="stylesheet" href="./css/styles.css"/>
   <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
 </head>
@@ -91,18 +93,15 @@
     <div class="footer">&copy; <span id="y"></span> <span data-i18n="footer.short">Power Poly Supplies. Power your packaging.</span></div>
   </div>
 
-  <script src="./config.min.js"></script>
-
-  <script src="./js/store.min.js"></script>
-  <script src="./js/notifications.min.js"></script>
-  <script src="./js/i18n.js"></script>
-  <script src="./js/ui.js"></script>
+  <script src="./config.min.js" defer></script>
+  <script src="./js/store.min.js" defer></script>
+  <script src="./js/i18n.js" defer></script>
+  <script src="./js/ui.js" defer></script>
   <script>
-    document.getElementById("y").textContent = new Date().getFullYear();
-    PPS.updateCartBadge();
+    window.addEventListener("DOMContentLoaded", ()=>{
+      document.getElementById("y").textContent = new Date().getFullYear();
+      PPS.updateCartBadge();
+    });
   </script>
 </body>
 </html>
-
-
-

@@ -1,11 +1,12 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content"/>
   <title>Product Details | Power Poly Supplies</title>
   <meta name="description" content="View wholesale garment bag, poly bag, and hanger product details from Power Poly Supplies in Canada.">
   <link rel="canonical" href="https://www.powerpolysupplies.com/product.html"/>
+  <link rel="preload" as="fetch" href="./data/products.json" crossorigin="anonymous"/>
   <link rel="stylesheet" href="./css/styles.css"/>
   <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
 </head>
@@ -58,7 +59,6 @@
   <script src="./config.min.js"></script>
 
   <script src="./js/store.min.js"></script>
-  <script src="./js/notifications.min.js"></script>
   <script src="./js/i18n.js"></script>
   <script src="./js/ui.js"></script>
   <script>
@@ -88,7 +88,7 @@
 
     function favoriteButton(productId){
       const active = PPS.isFavorite(productId);
-      return `<button class="favorite-btn ${active ? "active" : ""}" type="button" data-fav-id="${productId}" aria-pressed="${active ? "true" : "false"}" title="${favoriteTitle(active)}">${heartIcon}</button>`;
+      return `<button class="favorite-btn ${active ? "active" : ""}" type="button" data-fav-id="${productId}" aria-pressed="${active ? "true" : "false"}" aria-label="${favoriteTitle(active)}" title="${favoriteTitle(active)}">${heartIcon}</button>`;
     }
 
     function wishlistTitle(active){
@@ -97,7 +97,7 @@
 
     function wishlistButton(productId){
       const active = PPS.isInAnyWishlist?.(productId);
-      return `<button class="wishlist-btn ${active ? "active" : ""}" type="button" data-wl-id="${productId}" aria-pressed="${active ? "true" : "false"}" title="${wishlistTitle(active)}">${bookmarkIcon}</button>`;
+      return `<button class="wishlist-btn ${active ? "active" : ""}" type="button" data-wl-id="${productId}" aria-pressed="${active ? "true" : "false"}" aria-label="${wishlistTitle(active)}" title="${wishlistTitle(active)}">${bookmarkIcon}</button>`;
     }
 
     function syncWishlistButton(btn){
@@ -106,6 +106,7 @@
       btn.classList.toggle("active", !!active);
       btn.setAttribute("aria-pressed", active ? "true" : "false");
       btn.title = wishlistTitle(active);
+      btn.setAttribute("aria-label", wishlistTitle(active));
     }
 
     function syncFavoriteButton(btn){
@@ -114,6 +115,7 @@
       btn.classList.toggle("active", active);
       btn.setAttribute("aria-pressed", active ? "true" : "false");
       btn.title = favoriteTitle(active);
+      btn.setAttribute("aria-label", favoriteTitle(active));
     }
 
     document.addEventListener("click", (e)=>{
@@ -162,6 +164,19 @@
       if(!p){
         wrap.innerHTML = `<p>${window.PPS_I18N?.t("product.not_found") || "Product not found."}</p>`;
         return;
+      }
+
+      try{
+        const preloadHref = String(p.image || "").trim();
+        if(preloadHref && !document.head.querySelector(`link[rel="preload"][href="${preloadHref}"]`)){
+          const preload = document.createElement("link");
+          preload.rel = "preload";
+          preload.as = "image";
+          preload.href = preloadHref;
+          document.head.appendChild(preload);
+        }
+      }catch(_err){
+        // ignore
       }
 
       function renderStars(value){
@@ -735,9 +750,9 @@
               ? `<div class="review-media">
                   ${(r.media || []).map(m=>{
                     if(m.type === "video"){
-                      return `<video controls src="${m.src}"></video>`;
+                      return `<video controls src="${m.src}" width="120" height="90" playsinline></video>`;
                     }
-                    return `<img src="${m.src}" alt="Review media">`;
+                    return `<img src="${m.src}" alt="Review media" width="120" height="90" loading="lazy" decoding="async">`;
                   }).join("")}
                 </div>`
               : "";
@@ -856,7 +871,7 @@
           <div class="card fade-in">
             <div class="product-gallery">
               <div class="product-gallery-main">
-                <img id="mainImg" src="${galleryMain}" alt="${displayName}" width="900" height="640" decoding="async">
+                <img id="mainImg" src="${galleryMain}" alt="${displayName}" width="900" height="640" decoding="async" loading="eager" fetchpriority="high">
               </div>
               ${galleryThumbs}
             </div>
@@ -1844,9 +1859,9 @@
           if(reviewMediaPreview){
             reviewMediaPreview.innerHTML = pendingMedia.map(m=>{
               if(m.type === "video"){
-                return `<video src="${m.src}" controls></video>`;
+                return `<video src="${m.src}" controls width="110" height="80" playsinline></video>`;
               }
-              return `<img src="${m.src}" alt="Preview">`;
+              return `<img src="${m.src}" alt="Preview" width="110" height="80" loading="lazy" decoding="async">`;
             }).join("");
           }
         });

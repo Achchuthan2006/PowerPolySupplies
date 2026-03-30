@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content"/>
@@ -194,7 +194,7 @@
         <h2 style="margin:10px 0 0;">New: We Love Caped hangers for stable drape</h2>
         <p class="blog-post-sub">Caped profiles help garments sit cleanly and reduce slipping in transport - especially capes, gowns, and long garments that need stability.</p>
         <div class="blog-media-row">
-          <img class="resource-media" src="./assets/welovecaped%20hanger.webp" alt="We Love Caped hangers" loading="lazy" decoding="async">
+          <img class="resource-media" src="./assets/welovecaped%20hanger.webp" alt="We Love Caped hangers" loading="lazy" decoding="async" width="493" height="493">
           <div>
             <h3 style="margin-top:0;">Where these shine</h3>
             <ul class="blog-bullets">
@@ -258,7 +258,7 @@
         <h2 style="margin:10px 0 0;">Garment bag sizing: a 60-second cheat sheet</h2>
         <p class="blog-post-sub">Sizing doesn't need to be complicated. Choose a safe width for shoulders, then pick length based on your longest common garments.</p>
         <div class="blog-media-row">
-          <img class="resource-media" src="./assets/polybag%20clear.webp" alt="Clear poly bag packaging" loading="lazy" decoding="async">
+          <img class="resource-media" src="./assets/polybag%20clear.webp" alt="Clear poly bag packaging" loading="lazy" decoding="async" width="1024" height="1024">
           <div>
             <h3 style="margin-top:0;">Quick sizing rules</h3>
             <ul class="blog-bullets">
@@ -305,7 +305,7 @@
         <h2 style="margin:10px 0 0;">Clear film matters: what "clean clarity" really looks like</h2>
         <p class="blog-post-sub">Customers notice packaging quality immediately. Clear, low-odor film and consistent sizing helps presentation feel premium without extra effort.</p>
         <div class="blog-media-row">
-          <img class="resource-media" src="./assets/polybag%20clear.webp" alt="Clear poly bags" loading="lazy" decoding="async">
+          <img class="resource-media" src="./assets/polybag%20clear.webp" alt="Clear poly bags" loading="lazy" decoding="async" width="1024" height="1024">
           <div>
             <h3 style="margin-top:0;">What to check before a bulk reorder</h3>
             <ul class="blog-bullets">
@@ -389,15 +389,16 @@
     <div class="footer">&copy; <span id="y"></span> <span data-i18n="footer.short">Power Poly Supplies. Power your packaging.</span></div>
   </div>
 
-  <script src="./config.min.js"></script>
-  <script src="./js/store.min.js"></script>
-  <script src="./js/notifications.min.js"></script>
-  <script src="./js/i18n.js"></script>
-  <script src="./js/ui.js"></script>
-  <script src="./js/blog.min.js"></script>
+  <script src="./config.min.js" defer></script>
+  <script src="./js/store.min.js" defer></script>
+  <script src="./js/i18n.js" defer></script>
+  <script src="./js/ui.js" defer></script>
+  <script src="./js/blog.min.js" defer></script>
   <script>
-    document.getElementById("y").textContent = new Date().getFullYear();
-    PPS.updateCartBadge();
+    window.addEventListener("DOMContentLoaded", ()=>{
+      document.getElementById("y").textContent = new Date().getFullYear();
+      PPS.updateCartBadge();
+    });
   </script>
 </body>
 </html>

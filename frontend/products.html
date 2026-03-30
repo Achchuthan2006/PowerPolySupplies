@@ -1,11 +1,12 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content"/>
   <title>Dry Cleaning Supplies Canada | Browse Garment Bags, Poly Bags & Hangers</title>
   <meta name="description" content="Browse wholesale dry cleaning supplies in Canada, including garment bags, poly bags, and hangers for commercial garment operations, retailers, and laundromats.">
   <link rel="canonical" href="https://www.powerpolysupplies.com/products.html"/>
+  <link rel="preload" as="fetch" href="./data/products.json" crossorigin="anonymous"/>
   <link rel="stylesheet" href="./css/styles.css"/>
   <style>
     .top-category-pills{
@@ -516,7 +517,7 @@
 
     function favoriteButton(productId){
       const active = PPS.isFavorite(productId);
-      return `<button class="favorite-btn ${active ? "active" : ""}" type="button" data-fav-id="${productId}" aria-pressed="${active ? "true" : "false"}" title="${favoriteTitle(active)}">${heartIcon}</button>`;
+      return `<button class="favorite-btn ${active ? "active" : ""}" type="button" data-fav-id="${productId}" aria-pressed="${active ? "true" : "false"}" aria-label="${favoriteTitle(active)}" title="${favoriteTitle(active)}">${heartIcon}</button>`;
     }
 
     function wishlistTitle(active){
@@ -525,7 +526,7 @@
 
     function wishlistButton(productId){
       const active = PPS.isInAnyWishlist?.(productId);
-      return `<button class="wishlist-btn ${active ? "active" : ""}" type="button" data-wl-id="${productId}" aria-pressed="${active ? "true" : "false"}" title="${wishlistTitle(active)}">${heartIcon}</button>`;
+      return `<button class="wishlist-btn ${active ? "active" : ""}" type="button" data-wl-id="${productId}" aria-pressed="${active ? "true" : "false"}" aria-label="${wishlistTitle(active)}" title="${wishlistTitle(active)}">${heartIcon}</button>`;
     }
 
     function syncWishlistButton(btn){
@@ -534,6 +535,7 @@
       btn.classList.toggle("active", !!active);
       btn.setAttribute("aria-pressed", active ? "true" : "false");
       btn.title = wishlistTitle(active);
+      btn.setAttribute("aria-label", wishlistTitle(active));
     }
 
     function syncFavoriteButton(btn){
@@ -542,6 +544,7 @@
       btn.classList.toggle("active", active);
       btn.setAttribute("aria-pressed", active ? "true" : "false");
       btn.title = favoriteTitle(active);
+      btn.setAttribute("aria-label", favoriteTitle(active));
     }
 
     document.addEventListener("click", (e)=>{
@@ -1437,7 +1440,7 @@
           const safeValue = String(p.name || "").replace(/"/g, "&quot;");
           return `
           <button type="button" data-value="${safeValue}">
-            <img class="suggestion-thumb" src="${p.image}" alt="">
+            <img class="suggestion-thumb" src="${p.image}" alt="" loading="lazy" decoding="async" width="44" height="34">
             <span class="suggestion-text">
               <span class="suggestion-title">${p.name}</span>
               <span class="suggestion-meta">${p.category}</span>
@@ -1876,7 +1879,7 @@
         const material = materialLabelForProduct(product);
         body.innerHTML = `
           <div class="quick-grid">
-            <img src="${product.image}" alt="${product.name}" loading="lazy" decoding="async">
+            <img src="${product.image}" alt="${product.name}" loading="lazy" decoding="async" width="400" height="240">
             <div>
               <h3 style="margin:0;">${product.name}</h3>
               <div class="card-meta">${categoryLabel(product.category)}</div>

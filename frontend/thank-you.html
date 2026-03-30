@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content"/>
@@ -154,28 +154,30 @@
     <div class="footer">&copy; <span id="y"></span> <span data-i18n="footer.short">Power Poly Supplies. Power your packaging.</span></div>
   </div>
 
-  <script src="./config.min.js"></script>
+  <script src="./config.min.js" defer></script>
 
-  <script src="./js/store.min.js"></script>
-  <script src="./js/notifications.min.js"></script>
-  <script src="./js/i18n.js"></script>
-  <script src="./js/ui.js"></script>
+  <script src="./js/store.min.js" defer></script>
+  <script src="./js/i18n.js" defer></script>
+  <script src="./js/ui.js" defer></script>
   <script>
-    document.getElementById("y").textContent = new Date().getFullYear();
-    PPS.updateCartBadge();
-    const type = new URLSearchParams(location.search).get("type");
-    if(type === "contact"){
-      document.title = "Thank You | Power Poly Supplies";
-      const title = document.getElementById("thankTitle");
-      const subtitle = document.getElementById("thankSubtitle");
-      const kicker = document.getElementById("thankKicker");
-      if(kicker) kicker.textContent = "Thank you";
-      if(title) title.textContent = "Message received";
-      if(subtitle) subtitle.textContent = "Thanks — we’ll reply within 2 hours during business hours.";
-    }
+    window.addEventListener("DOMContentLoaded", ()=>{
+      document.getElementById("y").textContent = new Date().getFullYear();
+      PPS.updateCartBadge();
+      const type = new URLSearchParams(location.search).get("type");
+      if(type === "contact"){
+        document.title = "Thank You | Power Poly Supplies";
+        const title = document.getElementById("thankTitle");
+        const subtitle = document.getElementById("thankSubtitle");
+        const kicker = document.getElementById("thankKicker");
+        if(kicker) kicker.textContent = "Thank you";
+        if(title) title.textContent = "Message received";
+        if(subtitle) subtitle.textContent = "Thanks — we’ll reply within 2 hours during business hours.";
+      }
+    });
   </script>
 </body>
 </html>
+
 
 
 

@@ -1,12 +1,13 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content"/>
   <title>Dry Cleaning Supplies Canada | Garment Bags, Poly Bags & Hangers | Power Poly Supplies</title>
   <meta name="description" content="Power Poly Supplies is a Canadian wholesale supplier of garment bags, poly bags, and hangers for dry cleaners, laundromats, retailers, and uniform programs across Ontario and the GTA.">
   <link rel="canonical" href="https://www.powerpolysupplies.com/index.html"/>
-  <link rel="preload" as="image" href="./assets/poly%20logo%20without%20background.png"/>
+  <link rel="preload" as="image" href="./assets/poly%20logo%20without%20background.webp"/>
+  <link rel="preload" as="fetch" href="./data/products.json" crossorigin="anonymous"/>
   <link rel="stylesheet" href="./css/styles.css"/>
   <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
 </head>
@@ -21,7 +22,7 @@
     <div class="navbar">
       <div class="container navbar-inner">
         <a class="brand" href="./index.html">
-          <img src="./assets/poly%20logo%20without%20background.png" alt="Power Poly Supplies" width="62" height="62" decoding="async"/>
+          <img src="./assets/poly%20logo%20without%20background.webp" alt="Power Poly Supplies" width="62" height="62" decoding="async"/>
           <div class="brand-text">
             <span class="brand-title" data-i18n="brand.name">Power Poly Supplies</span>
             <span class="brand-tagline" data-i18n="brand.tagline">Power your packaging</span>
@@ -59,7 +60,7 @@
       <div class="hero-carousel-track" id="heroCarouselTrack">
         <article class="hero hero-split hero-no-media hero-slide active" data-hero-slide>
           <div class="hero-content">
-            <img class="hero-logo" src="./assets/poly%20logo%20without%20background.png" alt="Power Poly Supplies logo" width="110" height="110" decoding="async" fetchpriority="high">
+            <img class="hero-logo" src="./assets/poly%20logo%20without%20background.webp" alt="Power Poly Supplies logo" width="110" height="110" decoding="async" fetchpriority="high">
             <p style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);" data-i18n="index.hero.kicker">Power your packaging</p>
             <h1 data-i18n="index.hero.title">Power Poly Supplies</h1>
             <p>
@@ -251,21 +252,21 @@
       </div>
       <div class="category-tiles" style="margin-top:12px;">
         <a class="category-tile" href="./garment-bags.html">
-          <img src="./assets/powerpolyboxesinventory.webp" alt="Garment bags" loading="lazy" decoding="async">
+          <img src="./assets/powerpolyboxesinventory.webp" alt="Garment bags" loading="lazy" decoding="async" width="960" height="960">
           <div class="category-tile-overlay">
             <div class="category-tile-title">Garment bags</div>
             <div class="category-tile-meta">Clear + tinted options</div>
           </div>
         </a>
         <a class="category-tile" href="./polybags.html">
-          <img src="./assets/polybag%20clear.webp" alt="Polybags" loading="lazy" decoding="async">
+          <img src="./assets/polybag%20clear.webp" alt="Polybags" loading="lazy" decoding="async" width="1024" height="1024">
           <div class="category-tile-overlay">
             <div class="category-tile-title">Polybags</div>
             <div class="category-tile-meta">Daily shipping essentials</div>
           </div>
         </a>
         <a class="category-tile" href="./hangers.html">
-          <img src="./assets/Strut%20Hangers.webp" alt="Hangers" loading="lazy" decoding="async">
+          <img src="./assets/Strut%20Hangers.webp" alt="Hangers" loading="lazy" decoding="async" width="500" height="500">
           <div class="category-tile-overlay">
             <div class="category-tile-title">Hangers</div>
             <div class="category-tile-meta">Strut, capped, suit</div>
@@ -368,15 +369,15 @@
       </div>
       <div class="ugc-grid" style="margin-top:12px;">
         <div class="ugc-card">
-          <img src="./assets/powerpolyboxesinventory.webp" alt="Bulk garment bag inventory for wholesale ordering" loading="lazy" decoding="async">
+          <img src="./assets/powerpolyboxesinventory.webp" alt="Bulk garment bag inventory for wholesale ordering" loading="lazy" decoding="async" width="960" height="960">
           <div class="ugc-caption">Start with everyday garment bag sizes for shirts, suits, coats, and dresses.</div>
         </div>
         <div class="ugc-card">
-          <img src="./assets/Strut%20Hangers.webp" alt="Wholesale hangers for dry cleaners and retailers" loading="lazy" decoding="async">
+          <img src="./assets/Strut%20Hangers.webp" alt="Wholesale hangers for dry cleaners and retailers" loading="lazy" decoding="async" width="500" height="500">
           <div class="ugc-caption">Use shirt, suit, and strut hanger mixes to keep garment handling consistent.</div>
         </div>
         <div class="ugc-card">
-          <img src="./assets/polybag%20clear.webp" alt="Clear poly bags for garment packaging in Canada" loading="lazy" decoding="async">
+          <img src="./assets/polybag%20clear.webp" alt="Clear poly bags for garment packaging in Canada" loading="lazy" decoding="async" width="1024" height="1024">
           <div class="ugc-caption">Choose heavier film only where route handling or garment weight demands it.</div>
         </div>
       </div>
@@ -972,7 +973,6 @@
   <script src="./config.min.js"></script>
 
   <script src="./js/store.min.js"></script>
-  <script src="./js/notifications.min.js"></script>
   <script src="./js/i18n.js"></script>
   <script src="./js/ui.js"></script>
   <script>

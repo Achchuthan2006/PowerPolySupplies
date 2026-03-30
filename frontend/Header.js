@@ -19,7 +19,7 @@ export default function Header() {
       <div className="navbar">
         <div className="container navbar-inner">
           <Link href="/" className="brand">
-            <img src="/assets/poly logo without background.png" alt="Power Poly Supplies" />
+            <img src="/assets/poly logo without background.webp" alt="Power Poly Supplies" width="1280" height="1165" />
             <div className="brand-text">
               <span className="brand-title">Power Poly Supplies</span>
               <span className="brand-tagline">Power your packaging</span>
