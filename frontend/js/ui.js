@@ -739,17 +739,16 @@ function optimizeImageElement(img){
 
   const inHeader = !!img.closest(".site-header");
   const inHero = !!img.closest(".hero-carousel");
-  const rect = img.getBoundingClientRect();
-  const viewportH = Math.max(1, window.innerHeight || 1);
-  const nearViewport = rect.top <= viewportH * 1.15;
-  const shouldLazy = !inHeader && !inHero && !nearViewport;
+  const priorityHint = String(img.getAttribute("fetchpriority") || "").toLowerCase();
+  const shouldEager = inHeader || inHero || priorityHint === "high" || img.classList.contains("hero-logo");
+  const shouldLazy = !shouldEager;
 
   if(!img.hasAttribute("loading")){
     img.setAttribute("loading", shouldLazy ? "lazy" : "eager");
   }
 
   if(!img.hasAttribute("fetchpriority")){
-    img.setAttribute("fetchpriority", shouldLazy ? "low" : "auto");
+    img.setAttribute("fetchpriority", shouldLazy ? "low" : (inHero ? "high" : "auto"));
   }
 
   if(isRaster && !isSvg && !img.hasAttribute("sizes")){
@@ -3528,6 +3527,7 @@ function suppressVercelOverlays(){
   if(typeof MutationObserver !== "undefined"){
     const observer = new MutationObserver(()=> removeMatches());
     observer.observe(document.documentElement || document.body, { childList:true, subtree:true });
+    setTimeout(()=> observer.disconnect(), 12000);
   }
 }
 
@@ -3581,6 +3581,7 @@ function suppressCartEmailPopup(){
   if(typeof MutationObserver !== "undefined"){
     const observer = new MutationObserver(()=> removeMatches());
     observer.observe(document.documentElement || document.body, { childList:true, subtree:true });
+    setTimeout(()=> observer.disconnect(), 6000);
   }
 }
 
@@ -3650,8 +3651,6 @@ handleOauthReturn();
 setupPageTransitionProgress();
 
 window.addEventListener("DOMContentLoaded", ()=>{
-  suppressVercelOverlays();
-  suppressCartEmailPopup();
   decoratePromoTagline();
   enhanceAccessibility();
   applyAutoSeo();
@@ -3661,6 +3660,8 @@ window.addEventListener("DOMContentLoaded", ()=>{
   setupImageOptimization();
   remapLegacyCategoryLinks();
   runWhenIdle(()=>{
+    suppressVercelOverlays();
+    suppressCartEmailPopup();
     try{
       if("serviceWorker" in navigator){
         navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(()=>{});

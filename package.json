@@ -3,12 +3,17 @@
     "validate:products": "python scripts/validate_products.py",
     "optimize:images": "python scripts/optimize_images.py",
     "optimize:images:write": "python scripts/optimize_images.py --write",
-    "convert:images:webp": "node scripts/convert_images_to_webp.js"
+    "convert:images:webp": "node scripts/convert_images_to_webp.js",
+    "build:styles": "node scripts/build_styles.js",
+    "minify:frontend": "node scripts/minify_frontend.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.89.0"
   },
   "devDependencies": {
-    "sharp": "^0.34.5"
+    "esbuild": "^0.27.4",
+    "html-minifier-terser": "^7.2.0",
+    "sharp": "^0.34.5",
+    "terser": "^5.46.1"
   }
 }

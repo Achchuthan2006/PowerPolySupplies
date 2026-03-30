@@ -3024,6 +3024,306 @@ function normalizePaymentMethodRow(row){
   };
 }
 
+function normalizeAccountEmail(value){
+  return String(value || "").trim().toLowerCase();
+}
+
+function parseJsonArray(value){
+  return Array.isArray(value) ? value : [];
+}
+
+function isUuidLike(value){
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value || "").trim());
+}
+
+function normalizeAddressInput(row = {}){
+  const rawId = String(row.id || "").trim();
+  return {
+    id: isUuidLike(rawId) ? rawId : crypto.randomUUID(),
+    label: String(row.label || "").trim().slice(0, 80),
+    name: String(row.name || "").trim().slice(0, 120),
+    line1: String(row.line1 || row.address1 || "").trim().slice(0, 160),
+    line2: String(row.line2 || row.address2 || "").trim().slice(0, 160),
+    city: String(row.city || "").trim().slice(0, 80),
+    province: String(row.province || "").trim().slice(0, 32).toUpperCase(),
+    postal: String(row.postal || "").trim().slice(0, 24).toUpperCase(),
+    country: String(row.country || "Canada").trim().slice(0, 80) || "Canada",
+    phone: String(row.phone || "").trim().slice(0, 40),
+    delivery_notes: String(row.delivery_notes || row.deliveryNotes || "").trim().slice(0, 500),
+    is_default: !!row.is_default || !!row.isDefault
+  };
+}
+
+function normalizeTemplateInput(row = {}){
+  const rawId = String(row.id || "").trim();
+  return {
+    id: isUuidLike(rawId) ? rawId : crypto.randomUUID(),
+    name: String(row.name || "Template").trim().slice(0, 120) || "Template",
+    items: parseJsonArray(row.items)
+      .map((item)=>({
+        product_id: String(item?.product_id || item?.productId || item?.id || "").trim(),
+        qty: Math.max(1, Math.round(Number(item?.qty) || 1)),
+        name: String(item?.name || "").trim().slice(0, 160)
+      }))
+      .filter((item)=> item.product_id)
+      .slice(0, 40)
+  };
+}
+
+function normalizeWishlistPayload(payload = {}){
+  const lists = parseJsonArray(payload.lists)
+    .map((list)=>{
+      const rawId = String(list?.id || "").trim();
+      return {
+        id: isUuidLike(rawId) ? rawId : crypto.randomUUID(),
+        name: String(list?.name || "Wishlist").trim().slice(0, 120) || "Wishlist",
+        createdAt: String(list?.createdAt || "").trim(),
+        items: parseJsonArray(list?.items)
+          .map((item)=>({
+            product_id: String(item?.product_id || item?.productId || item?.id || "").trim(),
+            price_alert_enabled: !!item?.price_alert_enabled || !!item?.priceAlertEnabled,
+            addedAt: String(item?.addedAt || item?.created_at || "").trim()
+          }))
+          .filter((item)=> item.product_id)
+          .slice(0, 100)
+      };
+    })
+    .filter((list)=> list.name);
+
+  return {
+    lists: lists.length ? lists : [{
+      id: crypto.randomUUID(),
+      name: "Wishlist",
+      createdAt: "",
+      items: []
+    }]
+  };
+}
+
+async function listCustomerAddresses(email){
+  const lower = normalizeAccountEmail(email);
+  if(!lower || !supabase) return [];
+  const { data, error } = await supabase
+    .from("customer_addresses")
+    .select("*")
+    .eq("customer_email", lower)
+    .order("is_default", { ascending: false })
+    .order("created_at", { ascending: true });
+  if(error) throw error;
+  return (data || []).map((row)=>({
+    id: row.id,
+    label: row.label || "",
+    name: row.name || "",
+    line1: row.line1 || "",
+    line2: row.line2 || "",
+    city: row.city || "",
+    province: row.province || "",
+    postal: row.postal || "",
+    country: row.country || "Canada",
+    phone: row.phone || "",
+    deliveryNotes: row.delivery_notes || "",
+    isDefault: !!row.is_default
+  }));
+}
+
+async function replaceCustomerAddresses(email, rows){
+  const lower = normalizeAccountEmail(email);
+  if(!lower || !supabase) return [];
+  const normalized = parseJsonArray(rows).map(normalizeAddressInput).filter((row)=> row.label && row.name && row.line1 && row.city && row.province && row.postal);
+  const firstDefaultId = normalized.find((row)=> row.is_default)?.id || normalized[0]?.id || "";
+  const payload = normalized.map((row)=>({
+    ...row,
+    customer_email: lower,
+    is_default: firstDefaultId ? row.id === firstDefaultId : false
+  }));
+
+  const { error: deleteErr } = await supabase.from("customer_addresses").delete().eq("customer_email", lower);
+  if(deleteErr) throw deleteErr;
+  if(payload.length){
+    const { error: insertErr } = await supabase.from("customer_addresses").insert(payload);
+    if(insertErr) throw insertErr;
+  }
+  return listCustomerAddresses(lower);
+}
+
+async function listFavorites(email){
+  const lower = normalizeAccountEmail(email);
+  if(!lower || !supabase) return [];
+  const { data, error } = await supabase
+    .from("favorites")
+    .select("product_id")
+    .eq("customer_email", lower)
+    .order("created_at", { ascending: true });
+  if(error) throw error;
+  return (data || []).map((row)=> String(row.product_id || "")).filter(Boolean);
+}
+
+async function replaceFavorites(email, ids){
+  const lower = normalizeAccountEmail(email);
+  if(!lower || !supabase) return [];
+  const uniqueIds = Array.from(new Set(parseJsonArray(ids).map((id)=> String(id || "").trim()).filter(Boolean))).slice(0, 200);
+  const { error: deleteErr } = await supabase.from("favorites").delete().eq("customer_email", lower);
+  if(deleteErr) throw deleteErr;
+  if(uniqueIds.length){
+    const payload = uniqueIds.map((product_id)=>({ customer_email: lower, product_id }));
+    const { error: insertErr } = await supabase.from("favorites").insert(payload);
+    if(insertErr) throw insertErr;
+  }
+  return uniqueIds;
+}
+
+async function listOrderTemplates(email){
+  const lower = normalizeAccountEmail(email);
+  if(!lower || !supabase) return [];
+  const { data: templates, error: templatesErr } = await supabase
+    .from("order_templates")
+    .select("*")
+    .eq("customer_email", lower)
+    .order("updated_at", { ascending: false });
+  if(templatesErr) throw templatesErr;
+  const templateIds = (templates || []).map((row)=> row.id);
+  let items = [];
+  if(templateIds.length){
+    const { data, error } = await supabase
+      .from("order_template_items")
+      .select("*")
+      .in("template_id", templateIds)
+      .order("created_at", { ascending: true });
+    if(error) throw error;
+    items = data || [];
+  }
+  const itemsByTemplate = new Map();
+  items.forEach((row)=>{
+    const key = String(row.template_id || "");
+    const list = itemsByTemplate.get(key) || [];
+    list.push({
+      id: row.product_id || "",
+      productId: row.product_id || "",
+      name: row.item_snapshot?.name || row.product_name || "",
+      qty: Math.max(1, Number(row.qty) || 1)
+    });
+    itemsByTemplate.set(key, list);
+  });
+  return (templates || []).map((row)=>({
+    id: row.id,
+    name: row.name || "Template",
+    createdAt: row.created_at || "",
+    updatedAt: row.updated_at || "",
+    items: itemsByTemplate.get(String(row.id || "")) || []
+  }));
+}
+
+async function replaceOrderTemplates(email, rows){
+  const lower = normalizeAccountEmail(email);
+  if(!lower || !supabase) return [];
+  const normalized = parseJsonArray(rows).map(normalizeTemplateInput).filter((row)=> row.name);
+  const existing = await listOrderTemplates(lower);
+  const existingIds = existing.map((row)=> row.id);
+  if(existingIds.length){
+    await supabase.from("order_template_items").delete().in("template_id", existingIds);
+  }
+  const { error: deleteErr } = await supabase.from("order_templates").delete().eq("customer_email", lower);
+  if(deleteErr) throw deleteErr;
+  if(normalized.length){
+    const templatesPayload = normalized.map((row)=>({
+      id: row.id,
+      customer_email: lower,
+      name: row.name
+    }));
+    const itemsPayload = normalized.flatMap((row)=>
+      row.items.map((item)=>({
+        template_id: row.id,
+        product_id: item.product_id,
+        qty: item.qty,
+        product_name: item.name || "",
+        item_snapshot: { name: item.name || "" }
+      }))
+    );
+    const { error: insertTemplatesErr } = await supabase.from("order_templates").insert(templatesPayload);
+    if(insertTemplatesErr) throw insertTemplatesErr;
+    if(itemsPayload.length){
+      const { error: insertItemsErr } = await supabase.from("order_template_items").insert(itemsPayload);
+      if(insertItemsErr) throw insertItemsErr;
+    }
+  }
+  return listOrderTemplates(lower);
+}
+
+async function listWishlists(email){
+  const lower = normalizeAccountEmail(email);
+  if(!lower || !supabase) return { lists: [] };
+  const { data: lists, error: listsErr } = await supabase
+    .from("wishlists")
+    .select("*")
+    .eq("customer_email", lower)
+    .order("created_at", { ascending: true });
+  if(listsErr) throw listsErr;
+  const listIds = (lists || []).map((row)=> row.id);
+  let items = [];
+  if(listIds.length){
+    const { data, error } = await supabase
+      .from("wishlist_items")
+      .select("*")
+      .in("wishlist_id", listIds)
+      .order("created_at", { ascending: true });
+    if(error) throw error;
+    items = data || [];
+  }
+  const itemsByList = new Map();
+  items.forEach((row)=>{
+    const key = String(row.wishlist_id || "");
+    const list = itemsByList.get(key) || [];
+    list.push({
+      productId: row.product_id || "",
+      addedAt: row.created_at || "",
+      priceAlertEnabled: !!row.price_alert_enabled
+    });
+    itemsByList.set(key, list);
+  });
+  return {
+    lists: (lists || []).map((row)=>({
+      id: row.id,
+      name: row.name || "Wishlist",
+      createdAt: row.created_at || "",
+      items: itemsByList.get(String(row.id || "")) || []
+    }))
+  };
+}
+
+async function replaceWishlists(email, payload){
+  const lower = normalizeAccountEmail(email);
+  if(!lower || !supabase) return { lists: [] };
+  const normalized = normalizeWishlistPayload(payload).lists;
+  const existing = await listWishlists(lower);
+  const existingIds = existing.lists.map((row)=> row.id);
+  if(existingIds.length){
+    await supabase.from("wishlist_items").delete().in("wishlist_id", existingIds);
+  }
+  const { error: deleteErr } = await supabase.from("wishlists").delete().eq("customer_email", lower);
+  if(deleteErr) throw deleteErr;
+  if(normalized.length){
+    const listsPayload = normalized.map((row)=>({
+      id: row.id,
+      customer_email: lower,
+      name: row.name
+    }));
+    const itemsPayload = normalized.flatMap((row)=>
+      row.items.map((item)=>({
+        wishlist_id: row.id,
+        product_id: item.product_id,
+        price_alert_enabled: item.price_alert_enabled
+      }))
+    );
+    const { error: insertListsErr } = await supabase.from("wishlists").insert(listsPayload);
+    if(insertListsErr) throw insertListsErr;
+    if(itemsPayload.length){
+      const { error: insertItemsErr } = await supabase.from("wishlist_items").insert(itemsPayload);
+      if(insertItemsErr) throw insertItemsErr;
+    }
+  }
+  return listWishlists(lower);
+}
+
 async function getOrCreateSquareCustomerId(email){
   const lower = String(email || "").trim().toLowerCase();
   if(!lower) return "";
@@ -3213,6 +3513,102 @@ app.delete("/api/account/payment-methods/:id", async (req,res)=>{
     res.json({ ok:true });
   }catch(err){
     res.status(500).json({ ok:false, message:"Unable to remove card." });
+  }
+});
+
+app.get("/api/account/addresses", async (req,res)=>{
+  const session = getSessionFromRequest(req);
+  if(!session) return res.status(401).json({ ok:false, message:"Unauthorized" });
+  if(!requireSupabase(res)) return;
+  try{
+    const addresses = await listCustomerAddresses(session.email);
+    res.json({ ok:true, addresses });
+  }catch(err){
+    res.status(500).json({ ok:false, message:"Unable to load addresses." });
+  }
+});
+
+app.put("/api/account/addresses", async (req,res)=>{
+  const session = getSessionFromRequest(req);
+  if(!session) return res.status(401).json({ ok:false, message:"Unauthorized" });
+  if(!requireSupabase(res)) return;
+  try{
+    const addresses = await replaceCustomerAddresses(session.email, req.body?.addresses);
+    res.json({ ok:true, addresses });
+  }catch(err){
+    res.status(500).json({ ok:false, message:"Unable to save addresses." });
+  }
+});
+
+app.get("/api/account/favorites", async (req,res)=>{
+  const session = getSessionFromRequest(req);
+  if(!session) return res.status(401).json({ ok:false, message:"Unauthorized" });
+  if(!requireSupabase(res)) return;
+  try{
+    const productIds = await listFavorites(session.email);
+    res.json({ ok:true, productIds });
+  }catch(err){
+    res.status(500).json({ ok:false, message:"Unable to load favorites." });
+  }
+});
+
+app.put("/api/account/favorites", async (req,res)=>{
+  const session = getSessionFromRequest(req);
+  if(!session) return res.status(401).json({ ok:false, message:"Unauthorized" });
+  if(!requireSupabase(res)) return;
+  try{
+    const productIds = await replaceFavorites(session.email, req.body?.productIds);
+    res.json({ ok:true, productIds });
+  }catch(err){
+    res.status(500).json({ ok:false, message:"Unable to save favorites." });
+  }
+});
+
+app.get("/api/account/wishlists", async (req,res)=>{
+  const session = getSessionFromRequest(req);
+  if(!session) return res.status(401).json({ ok:false, message:"Unauthorized" });
+  if(!requireSupabase(res)) return;
+  try{
+    const data = await listWishlists(session.email);
+    res.json({ ok:true, ...data });
+  }catch(err){
+    res.status(500).json({ ok:false, message:"Unable to load wishlists." });
+  }
+});
+
+app.put("/api/account/wishlists", async (req,res)=>{
+  const session = getSessionFromRequest(req);
+  if(!session) return res.status(401).json({ ok:false, message:"Unauthorized" });
+  if(!requireSupabase(res)) return;
+  try{
+    const data = await replaceWishlists(session.email, req.body || {});
+    res.json({ ok:true, ...data });
+  }catch(err){
+    res.status(500).json({ ok:false, message:"Unable to save wishlists." });
+  }
+});
+
+app.get("/api/account/order-templates", async (req,res)=>{
+  const session = getSessionFromRequest(req);
+  if(!session) return res.status(401).json({ ok:false, message:"Unauthorized" });
+  if(!requireSupabase(res)) return;
+  try{
+    const templates = await listOrderTemplates(session.email);
+    res.json({ ok:true, templates });
+  }catch(err){
+    res.status(500).json({ ok:false, message:"Unable to load templates." });
+  }
+});
+
+app.put("/api/account/order-templates", async (req,res)=>{
+  const session = getSessionFromRequest(req);
+  if(!session) return res.status(401).json({ ok:false, message:"Unauthorized" });
+  if(!requireSupabase(res)) return;
+  try{
+    const templates = await replaceOrderTemplates(session.email, req.body?.templates);
+    res.json({ ok:true, templates });
+  }catch(err){
+    res.status(500).json({ ok:false, message:"Unable to save templates." });
   }
 });
 
