@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content"/>
-  <title>Product | Power Poly Supplies</title>
-  <meta name="description" content="Product details, bulk pricing tiers, and availability for Power Poly Supplies.">
+  <title>Product Details | Power Poly Supplies</title>
+  <meta name="description" content="View wholesale garment bag, poly bag, and hanger product details from Power Poly Supplies in Canada.">
+  <link rel="canonical" href="https://www.powerpolysupplies.com/product.html"/>
   <link rel="stylesheet" href="./css/styles.css"/>
   <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
 </head>
@@ -32,9 +33,9 @@
           <div class="dropdown">
             <button class="dropbtn" type="button"><span data-i18n="nav.shop">Shop by Category</span> <span class="caret" aria-hidden="true"></span></button>
             <div class="dropdown-menu">
-              <a href="./products.html?cat=Garment%20Bags" data-i18n="nav.garment">Garment Cover Bags</a>
-              <a href="./products.html?cat=Polybags" data-i18n="nav.polybags">Polybags</a>
-              <a href="./products.html?cat=Hangers" data-i18n="nav.hangers">Hangers</a>
+              <a href="./garment-bags.html" data-i18n="nav.garment">Garment Cover Bags</a>
+              <a href="./polybags.html" data-i18n="nav.polybags">Polybags</a>
+              <a href="./hangers.html" data-i18n="nav.hangers">Hangers</a>
             </div>
           </div>
           <a href="./about.html" data-i18n="nav.about">About Us</a>
@@ -781,6 +782,7 @@
               : lang === "es"
                 ? (window.PPS_I18N?.autoTranslate?.(p.description_es || p.description || "", "es") || (p.description_es || p.description || ""))
                 : p.description;
+      const seoSummary = window.PPS_SEO?.getProductSummary?.(p) || desc || "";
       const compareCents = PPS.getComparePriceCents?.(p) ?? ((Number(p.priceCents) || 0) + 1000);
       const memberCents = Number(p.priceCents) || 0;
       const savingsCents = Math.max(0, compareCents - memberCents);
@@ -794,6 +796,7 @@
         p.image3
       ].filter(Boolean)));
       const galleryMain = galleryImages[0] || "./assets/poly%20logo%20without%20background.png";
+      const categoryLandingPath = window.PPS_SEO?.getCategoryLandingPath?.(p.category) || `./products.html?cat=${encodeURIComponent(p.category || "")}`;
       const galleryThumbs = galleryImages.length > 1
         ? `<div class="product-gallery-thumbs" id="galleryThumbs">
             ${galleryImages.map((src, idx)=>`
@@ -809,7 +812,7 @@
           <nav class="breadcrumbs" aria-label="Breadcrumb">
             <a href="./index.html">Home</a>
             <span class="crumb-sep" aria-hidden="true">/</span>
-            <a href="./products.html?cat=${encodeURIComponent(p.category || "")}">${displayCategory || "Products"}</a>
+            <a href="${categoryLandingPath}">${displayCategory || "Products"}</a>
             <span class="crumb-sep" aria-hidden="true">/</span>
             <span aria-current="page">${displayName}</span>
           </nav>
@@ -817,8 +820,8 @@
           <h1 style="margin:4px 0 6px;">${displayName}</h1>
           <p style="margin:0; color:var(--muted);">${window.PPS_I18N?.t("product.category") || "Category:"} ${displayCategory || "N/A"}</p>
           <div class="trust-inline">
-            <span class="trust-badge">Money-back guarantee</span>
-            <span class="trust-badge">Seller verified</span>
+            <span class="trust-badge">Commercial supply</span>
+            <span class="trust-badge">Bulk quote support</span>
             <span class="trust-badge">Secure checkout</span>
           </div>
         </section>
@@ -831,7 +834,7 @@
             <div class="print-sheet-logo">Power Poly Supplies</div>
           </div>
           <div class="print-sheet-body">
-            <div class="print-sheet-desc">${desc || ""}</div>
+            <div class="print-sheet-desc">${seoSummary || ""}</div>
             <div class="print-sheet-grid">
               <div>
                 <h3 class="print-sheet-title">Key specifications</h3>
@@ -902,7 +905,7 @@
                 </div>
               `;
             })()}
-            <p style="margin-top:14px; color:var(--text); line-height:1.5;">${desc || ""}</p>
+            <p style="margin-top:14px; color:var(--text); line-height:1.5;">${seoSummary || ""}</p>
 
             <div class="pricing-tiers">
               <div class="pricing-tiers-header" data-i18n="product.bulk">Bulk pricing</div>
@@ -1292,7 +1295,7 @@
               "@type": "BreadcrumbList",
               "itemListElement": [
                 { "@type":"ListItem", "position":1, "name":"Home", "item": new URL("./index.html", productUrl).href },
-                { "@type":"ListItem", "position":2, "name": String(displayCategory || "Products"), "item": new URL(`./products.html?cat=${encodeURIComponent(p.category || "")}`, productUrl).href },
+                { "@type":"ListItem", "position":2, "name": String(displayCategory || "Products"), "item": new URL(categoryLandingPath, productUrl).href },
                 { "@type":"ListItem", "position":3, "name": String(displayName || ""), "item": productUrl }
               ]
             },
@@ -1301,7 +1304,7 @@
               "name": String(displayName || ""),
               "category": String(displayCategory || ""),
               "image": imageUrl ? [imageUrl] : undefined,
-              "description": String(desc || ""),
+              "description": String(seoSummary || ""),
               "sku": String(p.id || ""),
               "brand": { "@type":"Brand", "name":"Power Poly Supplies" },
               "offers": {
@@ -1358,6 +1361,17 @@
         document.head.appendChild(faqScript);
       }catch(_err){
         // ignore
+      }
+
+      if(window.PPS_SEO?.applyPageSeo){
+        const categorySeo = window.PPS_SEO.getCategorySeo?.(p.category);
+        window.PPS_SEO.applyPageSeo({
+          title: `${displayName} | ${categorySeo?.shortName || displayCategory || "Product"} | Power Poly Supplies`,
+          description: seoSummary,
+          canonical: `./product.html?slug=${encodeURIComponent(p.slug || "")}`,
+          image: galleryMain,
+          type: "product"
+        });
       }
 
       window.PPS_I18N?.applyTranslations?.();
@@ -2118,6 +2132,3 @@
 </script>
 </body>
 </html>
-
-
-

@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content"/>
-  <title>Products | Power Poly Supplies</title>
-  <meta name="description" content="Browse Power Poly Supplies products: garment cover bags, hangers, polybags, and more. Filter by category, stock, and price.">
+  <title>Dry Cleaning Supplies Canada | Browse Garment Bags, Poly Bags & Hangers</title>
+  <meta name="description" content="Browse wholesale dry cleaning supplies in Canada, including garment bags, poly bags, and hangers for commercial garment operations, retailers, and laundromats.">
+  <link rel="canonical" href="https://www.powerpolysupplies.com/products.html"/>
   <link rel="stylesheet" href="./css/styles.css"/>
   <style>
     .top-category-pills{
@@ -75,9 +76,9 @@
           <div class="dropdown">
             <button class="dropbtn" type="button"><span data-i18n="nav.shop">Shop by Category</span> <span class="caret" aria-hidden="true"></span></button>
             <div class="dropdown-menu">
-              <a href="./products.html?cat=Garment%20Bags" data-i18n="nav.garment">Garment Cover Bags</a>
-              <a href="./products.html?cat=Polybags" data-i18n="nav.polybags">Polybags</a>
-              <a href="./products.html?cat=Hangers" data-i18n="nav.hangers">Hangers</a>
+              <a href="./garment-bags.html" data-i18n="nav.garment">Garment Cover Bags</a>
+              <a href="./polybags.html" data-i18n="nav.polybags">Polybags</a>
+              <a href="./hangers.html" data-i18n="nav.hangers">Hangers</a>
             </div>
           </div>
           <a href="./about.html" data-i18n="nav.about">About Us</a>
@@ -99,8 +100,8 @@
     <section class="hero fade-in">
       <nav class="breadcrumbs" aria-label="Breadcrumb" id="productBreadcrumbs"></nav>
       <p style="margin:0; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);" data-i18n="products.kicker">Catalog</p>
-      <h1 data-i18n="products.title">Products built for daily use</h1>
-      <p data-i18n="products.subtitle">Choose garment cover bags, hangers, and polybags. Bulk-friendly pricing with dependable stock.</p>
+      <h1 data-i18n="products.title">Wholesale dry cleaning supplies in Canada</h1>
+      <p data-i18n="products.subtitle">Browse garment bags, poly bags, and hangers for dry cleaners, laundromats, retailers, and uniform programs. Use the filters to narrow by category, size, thickness, and stock.</p>
       <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:12px; color:var(--muted); font-size:13px;">
         <span data-i18n="products.filter_hint">Filter by category to jump in.</span>
         <span>|</span>
@@ -461,8 +462,8 @@
     function trustBadges(){
       return `
         <div class="trust-inline">
-          <span class="trust-badge">Money-back guarantee</span>
-          <span class="trust-badge">Seller verified</span>
+          <span class="trust-badge">Commercial supply</span>
+          <span class="trust-badge">Bulk quote support</span>
         </div>
       `;
     }
@@ -707,6 +708,38 @@
           url.searchParams.set(key, String(value));
         }
         window.history.replaceState({}, "", url.toString());
+      }
+
+      function updateProductsSeo(catList, query){
+        if(!window.PPS_SEO?.applyPageSeo) return;
+        const activeCategory = catList.length === 1 ? catList[0] : "";
+        const categorySeo = activeCategory ? window.PPS_SEO.getCategorySeo?.(activeCategory) : null;
+        const url = new URL(window.location.href);
+        const filterKeys = ["stock", "sort", "th", "size", "mat", "rating", "use", "refine", "min", "max"];
+        const hasExtraFilters = filterKeys.some((key)=> String(url.searchParams.get(key) || "").trim());
+        if(categorySeo && !query && !hasExtraFilters){
+          window.PPS_SEO.applyPageSeo({
+            title: categorySeo.title,
+            description: categorySeo.description,
+            canonical: categorySeo.path
+          });
+          return;
+        }
+        if(query){
+          const cleanQuery = query.replace(/"/g, "").trim();
+          const categoryLabelText = catList.length ? `${catList.map(categoryLabel).join(", ")} | ` : "";
+          window.PPS_SEO.applyPageSeo({
+            title: `${cleanQuery} | ${categoryLabelText}Products | Power Poly Supplies`,
+            description: `Search Power Poly Supplies for ${cleanQuery}${catList.length ? ` within ${catList.map(categoryLabel).join(", ")}` : ""}. Find wholesale dry cleaning supplies in Canada, including garment bags, poly bags, and hangers.`,
+            canonical: `.${url.pathname}${url.search}`
+          });
+          return;
+        }
+        window.PPS_SEO.applyPageSeo({
+          title: "Dry Cleaning Supplies Canada | Browse Garment Bags, Poly Bags & Hangers",
+          description: "Browse wholesale dry cleaning supplies in Canada, including garment bags, poly bags, and hangers for commercial garment operations, retailers, and laundromats.",
+          canonical: "./products.html"
+        });
       }
 
       function normalizeCategoryToken(value){
@@ -1129,6 +1162,7 @@
         renderRelatedSearches();
         renderCategoryRefine();
         renderRecent(products);
+        updateProductsSeo(catList, query);
         syncCompareCheckboxes();
         updateCompareBar();
         document.querySelectorAll(".fade-in").forEach(el => el.classList.add("show"));
@@ -1917,6 +1951,3 @@
   </script>
 </body>
 </html>
-
-
-

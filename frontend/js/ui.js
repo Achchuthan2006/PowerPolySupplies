@@ -123,6 +123,407 @@ function setupStickyHeader(){
   onScroll();
 }
 
+const PPS_SITE_URL = "https://www.powerpolysupplies.com";
+const PPS_DEFAULT_OG_IMAGE = `${PPS_SITE_URL}/assets/poly%20logo%20without%20background.png`;
+
+function getSitePathname(){
+  const path = String(window.location.pathname || "").trim();
+  return path.startsWith("/") ? path : `/${path}`;
+}
+
+function getPageName(){
+  const pathname = getSitePathname();
+  const parts = pathname.split("/").filter(Boolean);
+  return parts.length ? parts[parts.length - 1].toLowerCase() : "index.html";
+}
+
+function absoluteSiteUrl(value){
+  try{
+    return new URL(value || "./index.html", PPS_SITE_URL).href;
+  }catch(_err){
+    return PPS_SITE_URL;
+  }
+}
+
+function ensureMetaTag(selector, attrs){
+  let el = document.head.querySelector(selector);
+  if(!el){
+    el = document.createElement("meta");
+    Object.entries(attrs || {}).forEach(([key, val])=>{
+      el.setAttribute(key, val);
+    });
+    document.head.appendChild(el);
+  }
+  return el;
+}
+
+function setMetaContent(name, content, isProperty=false){
+  const selector = isProperty
+    ? `meta[property="${name}"]`
+    : `meta[name="${name}"]`;
+  const attrs = isProperty ? { property:name } : { name };
+  const el = ensureMetaTag(selector, attrs);
+  el.setAttribute("content", String(content || ""));
+}
+
+function setCanonicalHref(href){
+  let el = document.head.querySelector('link[rel="canonical"]');
+  if(!el){
+    el = document.createElement("link");
+    el.setAttribute("rel", "canonical");
+    document.head.appendChild(el);
+  }
+  el.setAttribute("href", String(href || PPS_SITE_URL));
+}
+
+function replaceJsonLdScript(id, payload){
+  if(!id || !payload) return;
+  document.getElementById(id)?.remove?.();
+  const script = document.createElement("script");
+  script.id = id;
+  script.type = "application/ld+json";
+  script.textContent = JSON.stringify(payload);
+  document.head.appendChild(script);
+}
+
+function trimText(value){
+  return String(value || "").replace(/\s+/g, " ").trim();
+}
+
+function parseProductDimensions(name){
+  const text = String(name || "");
+  const three = text.match(/(\d+(?:\.\d+)?)\s*"\s*x\s*(\d+(?:\.\d+)?)\s*"\s*x\s*(\d+(?:\.\d+)?)\s*"/i);
+  if(three){
+    return {
+      width: Number(three[1]),
+      gusset: Number(three[2]),
+      length: Number(three[3])
+    };
+  }
+  const two = text.match(/(\d+(?:\.\d+)?)\s*"\s*x\s*(\d+(?:\.\d+)?)\s*"/i);
+  if(two){
+    return {
+      width: Number(two[1]),
+      gusset: 0,
+      length: Number(two[2])
+    };
+  }
+  return null;
+}
+
+function getThicknessLabel(product){
+  const lower = String(product?.name || "").toLowerCase();
+  if(lower.includes("extra heavy")) return "extra heavy";
+  if(lower.includes("heavy")) return "heavy";
+  if(lower.includes("eco")) return "eco";
+  return "";
+}
+
+function getCategoryLandingPath(category){
+  const map = {
+    "Garment Bags": "./garment-bags.html",
+    "Polybags": "./polybags.html",
+    "Hangers": "./hangers.html"
+  };
+  return map[String(category || "").trim()] || "./products.html";
+}
+
+function getCategorySeo(category){
+  const key = String(category || "").trim();
+  const map = {
+    "Garment Bags": {
+      path: "./garment-bags.html",
+      shortName: "Garment Bags",
+      title: "Wholesale Garment Bags Canada | Dry Cleaning Garment Covers | Power Poly Supplies",
+      description: "Shop wholesale garment bags in Canada for dry cleaners, laundromats, retailers, and uniform programs. Clear dry cleaning garment covers with bulk ordering and Ontario service.",
+      heading: "Wholesale garment bags for Canadian garment businesses"
+    },
+    "Polybags": {
+      path: "./polybags.html",
+      shortName: "Poly Bags",
+      title: "Poly Bags for Dry Cleaners Canada | Wholesale Polybags Toronto | Power Poly Supplies",
+      description: "Source wholesale poly bags for dry cleaners, laundromats, and retailers in Canada. Clear poly bags and film with dependable stock, bulk pricing, and Toronto/GTA service.",
+      heading: "Wholesale poly bags for dry cleaners and retailers in Canada"
+    },
+    "Hangers": {
+      path: "./hangers.html",
+      shortName: "Hangers",
+      title: "Hanger Supplier Canada | Wholesale Hangers Toronto | Power Poly Supplies",
+      description: "Buy wholesale hangers in Canada for dry cleaners, uniform shops, laundromats, and retailers. Strut, suit, shirt, and caped hangers with bulk-ready supply.",
+      heading: "Wholesale hanger supplier for Canada and the GTA"
+    }
+  };
+  return map[key] || null;
+}
+
+function getProductSummary(product){
+  if(!product) return "";
+  const category = String(product.category || "").trim();
+  const dims = parseProductDimensions(product.name);
+  const thickness = getThicknessLabel(product);
+  if(category === "Garment Bags"){
+    const sizeBits = [];
+    if(dims?.width) sizeBits.push(`${dims.width}" wide`);
+    if(dims?.length) sizeBits.push(`${dims.length}" long`);
+    if(dims?.gusset) sizeBits.push(`${dims.gusset}" gusset`);
+    const sizeText = sizeBits.length ? `${sizeBits.join(", ")}.` : "";
+    const thicknessText = thickness ? `${thickness.charAt(0).toUpperCase()}${thickness.slice(1)} film for daily commercial use.` : "Commercial-grade film for daily dry cleaning use.";
+    return trimText(`${product.name}. Wholesale dry cleaning garment covers for Canada. ${sizeText} ${thicknessText} Built for dry cleaners, laundromats, retailers, and uniform programs.`).slice(0, 300);
+  }
+  if(category === "Polybags"){
+    const sizeText = dims?.width && dims?.length ? `${dims.width}" x ${dims.length}" clear poly bag.` : "Clear wholesale poly bag.";
+    return trimText(`${product.name}. ${sizeText} Designed for garment protection, sorting, and pickup orders at dry cleaners, retailers, and commercial garment operations across Canada.`).slice(0, 300);
+  }
+  if(category === "Hangers"){
+    return trimText(`${product.name}. Wholesale commercial hanger for dry cleaners, laundromats, retailers, and uniform programs in Canada. Built for consistent garment presentation, handling, and repeat ordering.`).slice(0, 300);
+  }
+  return trimText(product.description || "").slice(0, 300);
+}
+
+function buildOrganizationJsonLd(){
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Power Poly Supplies",
+    "url": PPS_SITE_URL,
+    "logo": absoluteSiteUrl("./assets/poly%20logo%20without%20background.png"),
+    "email": "powerpolysupplies@gmail.com",
+    "telephone": "+1-647-523-8645",
+    "sameAs": [
+      "https://www.instagram.com/powerpolysupplies/",
+      "https://www.threads.com/@powerpolysupplies?xmt=AQF0fdKod0xz4ngLncLsvNOIzYM0YhviIUzqV5AnbhzgHkA"
+    ]
+  };
+}
+
+function buildLocalBusinessJsonLd(){
+  return {
+    "@context": "https://schema.org",
+    "@type": "Store",
+    "name": "Power Poly Supplies",
+    "url": PPS_SITE_URL,
+    "image": absoluteSiteUrl("./assets/poly%20logo%20without%20background.png"),
+    "telephone": "+1-647-523-8645",
+    "email": "powerpolysupplies@gmail.com",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "15725 Weston Rd",
+      "addressLocality": "Kettleby",
+      "addressRegion": "ON",
+      "postalCode": "L7B 0L4",
+      "addressCountry": "CA"
+    },
+    "areaServed": [
+      { "@type": "Country", "name": "Canada" },
+      { "@type": "AdministrativeArea", "name": "Ontario" },
+      { "@type": "Place", "name": "Toronto GTA" }
+    ],
+    "openingHoursSpecification": [
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+        "opens": "09:00",
+        "closes": "18:00"
+      }
+    ]
+  };
+}
+
+function applyPageSeo(config){
+  if(!config) return;
+  const title = trimText(config.title);
+  const description = trimText(config.description);
+  const canonical = absoluteSiteUrl(config.canonical || `.${getSitePathname()}`);
+  const image = absoluteSiteUrl(config.image || PPS_DEFAULT_OG_IMAGE);
+  const robots = trimText(config.robots || "index,follow");
+  const type = trimText(config.type || "website");
+
+  if(title) document.title = title;
+  if(description) setMetaContent("description", description);
+  setCanonicalHref(canonical);
+  setMetaContent("robots", robots);
+  setMetaContent("og:type", type, true);
+  setMetaContent("og:site_name", "Power Poly Supplies", true);
+  setMetaContent("og:title", title || document.title, true);
+  setMetaContent("og:description", description, true);
+  setMetaContent("og:url", canonical, true);
+  setMetaContent("og:image", image, true);
+  setMetaContent("twitter:card", "summary_large_image");
+  setMetaContent("twitter:title", title || document.title);
+  setMetaContent("twitter:description", description);
+  setMetaContent("twitter:image", image);
+}
+
+function getStaticSeoConfig(){
+  const page = getPageName();
+  const map = {
+    "index.html": {
+      title: "Dry Cleaning Supplies Canada | Garment Bags, Poly Bags & Hangers | Power Poly Supplies",
+      description: "Power Poly Supplies is a Canadian wholesale supplier of garment bags, poly bags, and hangers for dry cleaners, laundromats, retailers, and uniform programs across Ontario and the GTA.",
+      canonical: "./index.html"
+    },
+    "about.html": {
+      title: "About Power Poly Supplies | Dry Cleaning Supplies Supplier in Ontario",
+      description: "Learn about Power Poly Supplies, a Canadian wholesale supplier of garment bags, poly bags, and hangers serving dry cleaners, laundromats, retailers, and uniform programs in Ontario and across Canada.",
+      canonical: "./about.html"
+    },
+    "contact.html": {
+      title: "Contact Power Poly Supplies | Wholesale Dry Cleaning Supplies Canada",
+      description: "Contact Power Poly Supplies for bulk quotes, reorder support, and product guidance on garment bags, poly bags, and hangers in Canada, with service across Ontario and the Toronto GTA.",
+      canonical: "./contact.html"
+    },
+    "products.html": {
+      title: "Dry Cleaning Supplies Canada | Browse Garment Bags, Poly Bags & Hangers",
+      description: "Browse wholesale dry cleaning supplies in Canada, including garment bags, poly bags, and hangers for commercial garment operations, retailers, and laundromats.",
+      canonical: "./products.html"
+    },
+    "specials.html": {
+      title: "Wholesale Packaging Specials | Power Poly Supplies Canada",
+      description: "See current wholesale specials on garment bags, poly bags, and hangers for dry cleaners, laundromats, and retailers across Canada.",
+      canonical: "./specials.html"
+    },
+    "resources.html": {
+      title: "Dry Cleaning Supply Guides | Garment Bag Sizing & Packaging Tips Canada",
+      description: "Read practical buying guides for garment bags, poly bags, hangers, and dry cleaning supply planning for Canadian dry cleaners, laundromats, retailers, and uniform shops.",
+      canonical: "./resources.html"
+    },
+    "industries.html": {
+      title: "Industries We Serve | Dry Cleaning Supplies for Canada",
+      description: "Explore packaging and hanger supply solutions for dry cleaners, laundromats, retail garment operations, healthcare, uniform programs, and commercial laundry teams in Canada.",
+      canonical: "./industries.html"
+    },
+    "blog.html": {
+      title: "Packaging Tips & Dry Cleaning Supply News | Power Poly Supplies",
+      description: "Read packaging tips, dry cleaning supply updates, and operational guidance for Canadian dry cleaners, laundromats, retailers, and commercial garment businesses.",
+      canonical: "./blog.html"
+    },
+    "industry-dry-cleaners.html": {
+      title: "Dry Cleaning Supplies for Dry Cleaners in Canada | Power Poly Supplies",
+      description: "Wholesale garment bags, poly bags, and hangers for dry cleaners in Canada, with practical reorder guidance for Ontario and Toronto/GTA garment businesses.",
+      canonical: "./industry-dry-cleaners.html"
+    },
+    "industry-laundromats.html": {
+      title: "Laundromat Packaging Supplies Canada | Power Poly Supplies",
+      description: "Commercial garment bags, poly bags, and hanger supply for laundromats and wash-and-fold businesses in Canada, with bulk ordering support.",
+      canonical: "./industry-laundromats.html"
+    },
+    "industry-retail.html": {
+      title: "Retail Garment Packaging Supplies Canada | Power Poly Supplies",
+      description: "Wholesale garment packaging and hanger supply for retailers, boutiques, and garment fulfillment teams across Canada.",
+      canonical: "./industry-retail.html"
+    },
+    "industry-uniform.html": {
+      title: "Uniform Service Packaging Supplies Canada | Power Poly Supplies",
+      description: "Reliable garment bags, poly bags, and hangers for uniform shops and commercial garment programs in Canada, with bulk-friendly supply and reorder support.",
+      canonical: "./industry-uniform.html"
+    },
+    "industry-commercial-laundry.html": {
+      title: "Commercial Laundry Packaging Supplies Canada | Power Poly Supplies",
+      description: "Packaging and hanger supply for commercial laundry facilities in Canada, including garment bags, poly bags, and repeat-order planning.",
+      canonical: "./industry-commercial-laundry.html"
+    },
+    "industry-healthcare.html": {
+      title: "Healthcare Garment Packaging Supplies Canada | Power Poly Supplies",
+      description: "Commercial garment packaging and hanger supply for healthcare, clinic, and care-facility garment handling programs in Canada.",
+      canonical: "./industry-healthcare.html"
+    },
+    "garment-bags.html": getCategorySeo("Garment Bags"),
+    "polybags.html": getCategorySeo("Polybags"),
+    "hangers.html": getCategorySeo("Hangers"),
+    "404.html": {
+      title: "Page Not Found | Power Poly Supplies",
+      description: "The page you requested could not be found. Browse garment bags, poly bags, and hangers or contact Power Poly Supplies for help.",
+      canonical: "./404.html",
+      robots: "noindex,follow"
+    },
+    "account.html": {
+      title: "My Account | Power Poly Supplies",
+      description: "Manage your account at Power Poly Supplies.",
+      canonical: "./account.html",
+      robots: "noindex,nofollow"
+    },
+    "admin.html": {
+      title: "Admin | Power Poly Supplies",
+      description: "Administrative page.",
+      canonical: "./admin.html",
+      robots: "noindex,nofollow"
+    },
+    "admin-messages.html": {
+      title: "Admin Messages | Power Poly Supplies",
+      description: "Administrative page.",
+      canonical: "./admin-messages.html",
+      robots: "noindex,nofollow"
+    },
+    "cart.html": {
+      title: "Cart | Power Poly Supplies",
+      description: "Review your cart.",
+      canonical: "./cart.html",
+      robots: "noindex,follow"
+    },
+    "checkout.html": {
+      title: "Checkout | Power Poly Supplies",
+      description: "Secure checkout.",
+      canonical: "./checkout.html",
+      robots: "noindex,nofollow"
+    },
+    "login.html": {
+      title: "Sign In | Power Poly Supplies",
+      description: "Sign in to your Power Poly Supplies account.",
+      canonical: "./login.html",
+      robots: "noindex,nofollow"
+    },
+    "signup.html": {
+      title: "Create Account | Power Poly Supplies",
+      description: "Create a Power Poly Supplies account.",
+      canonical: "./signup.html",
+      robots: "noindex,nofollow"
+    },
+    "thank-you.html": {
+      title: "Thank You | Power Poly Supplies",
+      description: "Thank you for contacting Power Poly Supplies.",
+      canonical: "./thank-you.html",
+      robots: "noindex,nofollow"
+    },
+    "offline.html": {
+      title: "Offline | Power Poly Supplies",
+      description: "Offline page.",
+      canonical: "./offline.html",
+      robots: "noindex,nofollow"
+    },
+    "feedback.html": {
+      title: "Customer Feedback | Power Poly Supplies",
+      description: "Customer feedback page.",
+      canonical: "./feedback.html",
+      robots: "noindex,follow"
+    }
+  };
+  return map[page] || null;
+}
+
+function applyAutoSeo(){
+  const config = getStaticSeoConfig();
+  if(config) applyPageSeo(config);
+
+  const page = getPageName();
+  const isIndexable = !String(config?.robots || "index,follow").includes("noindex");
+  if(isIndexable){
+    replaceJsonLdScript("ppsOrgJsonLd", buildOrganizationJsonLd());
+    if(["index.html", "about.html", "contact.html"].includes(page)){
+      replaceJsonLdScript("ppsLocalBusinessJsonLd", buildLocalBusinessJsonLd());
+    }
+  }
+}
+
+window.PPS_SEO = {
+  siteUrl: PPS_SITE_URL,
+  absoluteSiteUrl,
+  applyPageSeo,
+  applyAutoSeo,
+  getCategoryLandingPath,
+  getCategorySeo,
+  getProductSummary
+};
+
 function optimizeImageElement(img){
   if(!(img instanceof HTMLImageElement)) return;
   if(img.dataset.ppsImgOptimized === "1") return;
@@ -614,11 +1015,16 @@ function injectFooter(){
         <div class="footer-brand">
           <span data-i18n="brand.name">Power Poly Supplies</span>
           <span style="color:#ffb25c; font-size:12px;" data-i18n="brand.tagline">Power your packaging</span>
-          <div class="footer-meta" data-i18n="footer.meta">Bulk stock | Fast shipping | Canada-wide</div>
+          <div class="footer-meta">Wholesale garment bags, poly bags, and hangers for Ontario, Toronto/GTA, and customers across Canada.</div>
           <div class="footer-essential">
             <a href="tel:+16475238645">647-523-8645</a>
             <span>|</span>
             <a href="mailto:powerpolysupplies@gmail.com">powerpolysupplies@gmail.com</a>
+          </div>
+          <div class="footer-essential" style="margin-top:8px;">
+            <span>Mon-Fri 9:00 AM - 6:00 PM</span>
+            <span>|</span>
+            <span>15725 Weston Rd, Kettleby, ON L7B 0L4</span>
           </div>
         </div>
         <details class="footer-section footer-section-shop" open>
@@ -628,10 +1034,10 @@ function injectFooter(){
           </summary>
           <ul>
             <li><a href="./products.html" data-i18n="footer.all_products">All products</a></li>
+            <li><a href="./garment-bags.html">Garment bags</a></li>
+            <li><a href="./polybags.html">Poly bags</a></li>
+            <li><a href="./hangers.html">Hangers</a></li>
             <li><a href="./specials.html" data-i18n="footer.special_offers">Special offers</a></li>
-            <li><a href="./about.html" data-i18n="footer.about">About us</a></li>
-            <li><a href="./contact.html" data-i18n="footer.contact">Contact</a></li>
-            <li><a href="./feedback.html" data-i18n="footer.feedback">Feedback</a></li>
           </ul>
         </details>
         <details class="footer-section footer-section-support" open>
@@ -671,6 +1077,12 @@ function injectFooter(){
               </span>
               <span data-i18n="footer.address">Address:</span> 15725 Weston Rd, Kettleby, ON L7B 0L4
             </div>
+            <div class="footer-contact-row">
+              <span class="footer-inline-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M3 5h18v2H3zm2 4h14l-1 10H6zm4-6h6v2H9z"/></svg>
+              </span>
+              Service area: Ontario, Toronto/GTA, and shipping across Canada
+            </div>
           </div>
         </details>
         <details class="footer-section footer-section-connect" open>
@@ -681,9 +1093,6 @@ function injectFooter(){
           <div class="footer-social">
             <a class="footer-icon" aria-label="Instagram" href="https://www.instagram.com/powerpolysupplies/" title="Instagram" target="_blank" rel="noopener">
               <svg viewBox="0 0 24 24"><path d="M7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4zm10 2H7a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm-5 3.5A4.5 4.5 0 1 1 7.5 13 4.5 4.5 0 0 1 12 8.5zm0 2A2.5 2.5 0 1 0 14.5 13 2.5 2.5 0 0 0 12 10.5zm4.75-4.25a1 1 0 1 1-1 1 1 1 0 0 1 1-1z"/></svg>
-            </a>
-            <a class="footer-icon" aria-label="Facebook" href="#" title="Facebook">
-              <svg viewBox="0 0 24 24"><path d="M13 10.5V8.75c0-.66.44-1 .98-1H15V5h-2c-2 0-3 1.4-3 3.1V10.5H8v2.5h2v6h3v-6h2.1l.4-2.5H13z"/></svg>
             </a>
             <a class="footer-icon" aria-label="Email" href="mailto:powerpolysupplies@gmail.com" title="Email">
               <svg viewBox="0 0 24 24"><path d="M4 6h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1zm0 2.2V17h16V8.2l-7.6 4.53a1.5 1.5 0 0 1-1.54 0zM19.2 7H4.8l7.2 4.28z"/></svg>
@@ -702,6 +1111,10 @@ function injectFooter(){
             <span class="footer-caret" aria-hidden="true"></span>
           </summary>
           <ul>
+            <li><a href="./about.html" data-i18n="footer.about">About us</a></li>
+            <li><a href="./contact.html" data-i18n="footer.contact">Contact</a></li>
+            <li><a href="./resources.html">Resources</a></li>
+            <li><a href="./industries.html">Industries</a></li>
             <li><a href="./legal-shipping.html" data-i18n="footer.shipping">Shipping & Returns</a></li>
             <li><a href="./legal-privacy.html" data-i18n="footer.privacy">Privacy Policy</a></li>
             <li><a href="./legal-terms.html" data-i18n="footer.terms">Terms & Conditions</a></li>
@@ -714,7 +1127,7 @@ function injectFooter(){
         <div class="footer-bottom">
           <span data-i18n="footer.rights">(C) {{year}} Power Poly Supplies. All rights reserved.</span>
           <span class="footer-trust">
-            <span class="guarantee-badge" title="Satisfaction guarantee">Money-back guarantee</span>
+            <span class="guarantee-badge" title="Secure Square checkout">Secure Square checkout</span>
             <span class="payment-icons" aria-label="Payment methods">
               <span class="pay-badge" aria-hidden="true">VISA</span>
               <span class="pay-badge" aria-hidden="true">Mastercard</span>
@@ -3056,6 +3469,7 @@ window.addEventListener("DOMContentLoaded", ()=>{
     // ignore
   }
   decoratePromoTagline();
+  applyAutoSeo();
   setupNavbar();
   setupFadeIn();
   setupStickyHeader();
