@@ -2,18 +2,10 @@ function setupNavbar(){
   const menuBtn = document.getElementById("menuBtn");
   const navLinks = document.getElementById("navLinks");
   const dropdowns = Array.from(document.querySelectorAll(".dropdown"));
-  const setMenuExpanded = (expanded)=>{
-    if(menuBtn){
-      menuBtn.setAttribute("aria-expanded", expanded ? "true" : "false");
-    }
-  };
 
   if(menuBtn && navLinks){
-    menuBtn.setAttribute("aria-controls", navLinks.id || "navLinks");
-    setMenuExpanded(navLinks.classList.contains("open"));
     menuBtn.addEventListener("click", ()=>{
       navLinks.classList.toggle("open");
-      setMenuExpanded(navLinks.classList.contains("open"));
     });
   }
   if(navLinks){
@@ -21,7 +13,6 @@ function setupNavbar(){
       const link = event.target.closest("a");
       if(link && navLinks.classList.contains("open")){
         navLinks.classList.remove("open");
-        setMenuExpanded(false);
       }
     });
 
@@ -47,7 +38,6 @@ function setupNavbar(){
       if(!(target instanceof Node)) return;
       if(navLinks.contains(target) || menuBtn.contains(target)) return;
       navLinks.classList.remove("open");
-      setMenuExpanded(false);
       dropdowns.forEach(d=> d.classList.remove("open"));
     });
   }
@@ -56,14 +46,6 @@ function setupNavbar(){
   dropdowns.forEach((dropdown)=>{
     const dropBtn = dropdown.querySelector(".dropbtn");
     if(!dropBtn) return;
-    const dropdownMenu = dropdown.querySelector(".dropdown-menu");
-    if(dropdownMenu && !dropdownMenu.id){
-      dropdownMenu.id = `ppsDropdown${Math.random().toString(36).slice(2, 9)}`;
-    }
-    if(dropdownMenu){
-      dropBtn.setAttribute("aria-controls", dropdownMenu.id);
-    }
-    dropBtn.setAttribute("aria-expanded", dropdown.classList.contains("open") ? "true" : "false");
     dropBtn.addEventListener("click", (event)=>{
       // If the dropdown trigger is a link (ex: About Us), let clicking the label navigate.
       // Only toggle when clicking the caret.
@@ -72,86 +54,7 @@ function setupNavbar(){
       if(isLink && !caretClicked) return;
       event.preventDefault();
       dropdown.classList.toggle("open");
-      dropBtn.setAttribute("aria-expanded", dropdown.classList.contains("open") ? "true" : "false");
     });
-    dropBtn.addEventListener("keydown", (event)=>{
-      if(event.key === "Escape"){
-        dropdown.classList.remove("open");
-        dropBtn.setAttribute("aria-expanded", "false");
-        dropBtn.focus();
-      }
-    });
-  });
-
-  document.addEventListener("keydown", (event)=>{
-    if(event.key !== "Escape") return;
-    if(navLinks?.classList.contains("open")){
-      navLinks.classList.remove("open");
-      setMenuExpanded(false);
-      menuBtn?.focus?.();
-    }
-    dropdowns.forEach((dropdown)=>{
-      dropdown.classList.remove("open");
-      dropdown.querySelector(".dropbtn")?.setAttribute("aria-expanded", "false");
-    });
-  });
-}
-
-function ensureMainLandmark(){
-  if(document.querySelector("main,[role='main']")) return;
-  const mainCandidate = document.querySelector(".page, #wrap, #app, .app-shell");
-  if(!mainCandidate) return;
-  if(!mainCandidate.id){
-    mainCandidate.id = "main-content";
-  }
-  mainCandidate.setAttribute("role", "main");
-  mainCandidate.setAttribute("tabindex", "-1");
-}
-
-function injectSkipLink(){
-  if(document.querySelector(".skip-link")) return;
-  const target = document.querySelector("main,[role='main'],#main-content,.page,#wrap");
-  if(!target) return;
-  if(!target.id){
-    target.id = "main-content";
-  }
-  const link = document.createElement("a");
-  link.className = "skip-link";
-  link.href = `#${target.id}`;
-  link.textContent = "Skip to main content";
-  document.body.insertAdjacentElement("afterbegin", link);
-}
-
-function markCurrentNavLink(){
-  const current = getPageName();
-  document.querySelectorAll(".navlinks a[href]").forEach((link)=>{
-    const href = String(link.getAttribute("href") || "").toLowerCase();
-    if(!href || href.startsWith("http") || href.startsWith("mailto:") || href.startsWith("tel:")) return;
-    const linkPage = href.split("?")[0].split("/").pop() || "index.html";
-    if(linkPage === current || (current === "index.html" && (href === "./index.html" || href === "/"))){
-      link.setAttribute("aria-current", "page");
-    }else{
-      link.removeAttribute("aria-current");
-    }
-  });
-}
-
-function enhanceAccessibility(){
-  if(!document.documentElement.getAttribute("lang")){
-    document.documentElement.setAttribute("lang", "en");
-  }
-  ensureMainLandmark();
-  injectSkipLink();
-  markCurrentNavLink();
-
-  document.querySelectorAll(".status, #status, #loginStatus, #signupStatus, #oauthStatus, #reviewsStatus").forEach((el)=>{
-    if(!el.getAttribute("role")) el.setAttribute("role", "status");
-    if(!el.getAttribute("aria-live")) el.setAttribute("aria-live", "polite");
-  });
-
-  document.querySelectorAll("button[title]:not([aria-label])").forEach((btn)=>{
-    const label = String(btn.getAttribute("title") || "").trim();
-    if(label) btn.setAttribute("aria-label", label);
   });
 }
 
@@ -162,7 +65,7 @@ function decoratePromoTagline(){
   const bolt = document.createElement("span");
   bolt.className = "promo-bolt";
   bolt.setAttribute("aria-hidden", "true");
-  bolt.textContent = " ⚡";
+  bolt.textContent = " ?";
   el.insertAdjacentElement("afterend", bolt);
 }
 
@@ -220,516 +123,14 @@ function setupStickyHeader(){
   onScroll();
 }
 
-const PPS_SITE_URL = "https://www.powerpolysupplies.com";
-const PPS_DEFAULT_OG_IMAGE = `${PPS_SITE_URL}/assets/poly%20logo%20without%20background.png`;
-const PPS_IMAGE_SOURCE_MAP = {
-  "/assets/poly logo without background.png": "./assets/poly%20logo%20without%20background.webp",
-  "/assets/logo.jpg": "./assets/logo.webp",
-  "/assets/suit hanger white.jpg": "./assets/suit%20hanger%20white.webp",
-  "/assets/suit hanger white.png": "./assets/suit%20hanger%20white.webp"
-};
-const PPS_IMAGE_DIMENSIONS = {
-  "/assets/poly logo without background.webp": { width:1280, height:1165 },
-  "/assets/logo.webp": { width:1600, height:1600 },
-  "/assets/powerpolyboxesinventory.webp": { width:960, height:960 },
-  "/assets/polybag clear.webp": { width:1024, height:1024 },
-  "/assets/poly_bag_clear.webp": { width:1000, height:1000 },
-  "/assets/strut hangers.webp": { width:500, height:500 },
-  "/assets/powerpolyhangerbox.webp": { width:305, height:238 },
-  "/assets/clearpolyroll in the box.webp": { width:1024, height:1024 },
-  "/assets/welovecaped hanger.webp": { width:493, height:493 },
-  "/assets/dress hanger.webp": { width:823, height:823 },
-  "/assets/shirt hanger pic.webp": { width:493, height:493 },
-  "/assets/cape hangers.webp": { width:758, height:633 },
-  "/assets/suit hanger white.webp": { width:1184, height:864 }
-};
-
-function getSitePathname(){
-  const path = String(window.location.pathname || "").trim();
-  return path.startsWith("/") ? path : `/${path}`;
-}
-
-function getPageName(){
-  const pathname = getSitePathname();
-  const parts = pathname.split("/").filter(Boolean);
-  return parts.length ? parts[parts.length - 1].toLowerCase() : "index.html";
-}
-
-function absoluteSiteUrl(value){
-  try{
-    return new URL(value || "./index.html", PPS_SITE_URL).href;
-  }catch(_err){
-    return PPS_SITE_URL;
-  }
-}
-
-function normalizeAssetPathKey(value){
-  try{
-    const url = new URL(String(value || "").trim(), window.location.href);
-    return decodeURIComponent(url.pathname).replace(/\\/g, "/").toLowerCase();
-  }catch(_err){
-    const raw = String(value || "").trim();
-    if(!raw) return "";
-    return decodeURIComponent(raw.split("?")[0]).replace(/\\/g, "/").replace(/^\./, "").toLowerCase();
-  }
-}
-
-function getOptimizedImageSrc(value){
-  const key = normalizeAssetPathKey(value);
-  return PPS_IMAGE_SOURCE_MAP[key] || value;
-}
-
-function getImageDimensions(value){
-  const key = normalizeAssetPathKey(value);
-  return PPS_IMAGE_DIMENSIONS[key] || null;
-}
-
-function ensureMetaTag(selector, attrs){
-  let el = document.head.querySelector(selector);
-  if(!el){
-    el = document.createElement("meta");
-    Object.entries(attrs || {}).forEach(([key, val])=>{
-      el.setAttribute(key, val);
-    });
-    document.head.appendChild(el);
-  }
-  return el;
-}
-
-function setMetaContent(name, content, isProperty=false){
-  const selector = isProperty
-    ? `meta[property="${name}"]`
-    : `meta[name="${name}"]`;
-  const attrs = isProperty ? { property:name } : { name };
-  const el = ensureMetaTag(selector, attrs);
-  el.setAttribute("content", String(content || ""));
-}
-
-function setCanonicalHref(href){
-  let el = document.head.querySelector('link[rel="canonical"]');
-  if(!el){
-    el = document.createElement("link");
-    el.setAttribute("rel", "canonical");
-    document.head.appendChild(el);
-  }
-  el.setAttribute("href", String(href || PPS_SITE_URL));
-}
-
-function replaceJsonLdScript(id, payload){
-  if(!id || !payload) return;
-  document.getElementById(id)?.remove?.();
-  const script = document.createElement("script");
-  script.id = id;
-  script.type = "application/ld+json";
-  script.textContent = JSON.stringify(payload);
-  document.head.appendChild(script);
-}
-
-function trimText(value){
-  return String(value || "").replace(/\s+/g, " ").trim();
-}
-
-function parseProductDimensions(name){
-  const text = String(name || "");
-  const three = text.match(/(\d+(?:\.\d+)?)\s*"\s*x\s*(\d+(?:\.\d+)?)\s*"\s*x\s*(\d+(?:\.\d+)?)\s*"/i);
-  if(three){
-    return {
-      width: Number(three[1]),
-      gusset: Number(three[2]),
-      length: Number(three[3])
-    };
-  }
-  const two = text.match(/(\d+(?:\.\d+)?)\s*"\s*x\s*(\d+(?:\.\d+)?)\s*"/i);
-  if(two){
-    return {
-      width: Number(two[1]),
-      gusset: 0,
-      length: Number(two[2])
-    };
-  }
-  return null;
-}
-
-function getThicknessLabel(product){
-  const lower = String(product?.name || "").toLowerCase();
-  if(lower.includes("extra heavy")) return "extra heavy";
-  if(lower.includes("heavy")) return "heavy";
-  if(lower.includes("eco")) return "eco";
-  return "";
-}
-
-function getCategoryLandingPath(category){
-  const map = {
-    "Garment Bags": "./garment-bags.html",
-    "Polybags": "./polybags.html",
-    "Hangers": "./hangers.html"
-  };
-  return map[String(category || "").trim()] || "./products.html";
-}
-
-function remapLegacyCategoryLinks(root){
-  const scope = (root && root.querySelectorAll) ? root : document;
-  scope.querySelectorAll('a[href*="./products.html?cat="]').forEach((link)=>{
-    const rawHref = String(link.getAttribute("href") || "").trim();
-    if(!rawHref) return;
-    try{
-      const parsed = new URL(rawHref, window.location.href);
-      const category = parsed.searchParams.get("cat");
-      const query = trimText(parsed.searchParams.get("q"));
-      if(!category || query) return;
-      const landingPath = getCategoryLandingPath(category);
-      if(landingPath && landingPath !== "./products.html"){
-        link.setAttribute("href", landingPath);
-      }
-    }catch(_err){
-      // ignore malformed links
-    }
-  });
-}
-
-function getCategorySeo(category){
-  const key = String(category || "").trim();
-  const map = {
-    "Garment Bags": {
-      path: "./garment-bags.html",
-      shortName: "Garment Bags",
-      title: "Wholesale Garment Bags Canada | Dry Cleaning Garment Covers | Power Poly Supplies",
-      description: "Shop wholesale garment bags in Canada for dry cleaners, laundromats, retailers, and uniform programs. Clear dry cleaning garment covers with bulk ordering and Ontario service.",
-      heading: "Wholesale garment bags for Canadian garment businesses"
-    },
-    "Polybags": {
-      path: "./polybags.html",
-      shortName: "Poly Bags",
-      title: "Poly Bags for Dry Cleaners Canada | Wholesale Polybags Toronto | Power Poly Supplies",
-      description: "Source wholesale poly bags for dry cleaners, laundromats, and retailers in Canada. Clear poly bags and film with dependable stock, bulk pricing, and Toronto/GTA service.",
-      heading: "Wholesale poly bags for dry cleaners and retailers in Canada"
-    },
-    "Hangers": {
-      path: "./hangers.html",
-      shortName: "Hangers",
-      title: "Hanger Supplier Canada | Wholesale Hangers Toronto | Power Poly Supplies",
-      description: "Buy wholesale hangers in Canada for dry cleaners, uniform shops, laundromats, and retailers. Strut, suit, shirt, and caped hangers with bulk-ready supply.",
-      heading: "Wholesale hanger supplier for Canada and the GTA"
-    }
-  };
-  return map[key] || null;
-}
-
-function getProductSummary(product){
-  if(!product) return "";
-  const category = String(product.category || "").trim();
-  const dims = parseProductDimensions(product.name);
-  const thickness = getThicknessLabel(product);
-  if(category === "Garment Bags"){
-    const sizeBits = [];
-    if(dims?.width) sizeBits.push(`${dims.width}" wide`);
-    if(dims?.length) sizeBits.push(`${dims.length}" long`);
-    if(dims?.gusset) sizeBits.push(`${dims.gusset}" gusset`);
-    const sizeText = sizeBits.length ? `${sizeBits.join(", ")}.` : "";
-    const thicknessText = thickness ? `${thickness.charAt(0).toUpperCase()}${thickness.slice(1)} film for daily commercial use.` : "Commercial-grade film for daily dry cleaning use.";
-    return trimText(`${product.name}. Wholesale dry cleaning garment covers for Canada. ${sizeText} ${thicknessText} Built for dry cleaners, laundromats, retailers, and uniform programs.`).slice(0, 300);
-  }
-  if(category === "Polybags"){
-    const sizeText = dims?.width && dims?.length ? `${dims.width}" x ${dims.length}" clear poly bag.` : "Clear wholesale poly bag.";
-    return trimText(`${product.name}. ${sizeText} Designed for garment protection, sorting, and pickup orders at dry cleaners, retailers, and commercial garment operations across Canada.`).slice(0, 300);
-  }
-  if(category === "Hangers"){
-    return trimText(`${product.name}. Wholesale commercial hanger for dry cleaners, laundromats, retailers, and uniform programs in Canada. Built for consistent garment presentation, handling, and repeat ordering.`).slice(0, 300);
-  }
-  return trimText(product.description || "").slice(0, 300);
-}
-
-function buildOrganizationJsonLd(){
-  return {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "Power Poly Supplies",
-    "url": PPS_SITE_URL,
-    "logo": absoluteSiteUrl("./assets/poly%20logo%20without%20background.png"),
-    "email": "powerpolysupplies@gmail.com",
-    "telephone": "+1-647-523-8645",
-    "sameAs": [
-      "https://www.instagram.com/powerpolysupplies/",
-      "https://www.threads.com/@powerpolysupplies?xmt=AQF0fdKod0xz4ngLncLsvNOIzYM0YhviIUzqV5AnbhzgHkA"
-    ]
-  };
-}
-
-function buildLocalBusinessJsonLd(){
-  return {
-    "@context": "https://schema.org",
-    "@type": "Store",
-    "name": "Power Poly Supplies",
-    "url": PPS_SITE_URL,
-    "image": absoluteSiteUrl("./assets/poly%20logo%20without%20background.png"),
-    "telephone": "+1-647-523-8645",
-    "email": "powerpolysupplies@gmail.com",
-    "address": {
-      "@type": "PostalAddress",
-      "streetAddress": "15725 Weston Rd",
-      "addressLocality": "Kettleby",
-      "addressRegion": "ON",
-      "postalCode": "L7B 0L4",
-      "addressCountry": "CA"
-    },
-    "areaServed": [
-      { "@type": "Country", "name": "Canada" },
-      { "@type": "AdministrativeArea", "name": "Ontario" },
-      { "@type": "Place", "name": "Toronto GTA" }
-    ],
-    "openingHoursSpecification": [
-      {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-        "opens": "09:00",
-        "closes": "18:00"
-      }
-    ]
-  };
-}
-
-function applyPageSeo(config){
-  if(!config) return;
-  const title = trimText(config.title);
-  const description = trimText(config.description);
-  const canonical = absoluteSiteUrl(config.canonical || `.${getSitePathname()}`);
-  const image = absoluteSiteUrl(config.image || PPS_DEFAULT_OG_IMAGE);
-  const robots = trimText(config.robots || "index,follow");
-  const type = trimText(config.type || "website");
-
-  if(title) document.title = title;
-  if(description) setMetaContent("description", description);
-  setCanonicalHref(canonical);
-  setMetaContent("robots", robots);
-  setMetaContent("og:type", type, true);
-  setMetaContent("og:site_name", "Power Poly Supplies", true);
-  setMetaContent("og:title", title || document.title, true);
-  setMetaContent("og:description", description, true);
-  setMetaContent("og:url", canonical, true);
-  setMetaContent("og:image", image, true);
-  setMetaContent("twitter:card", "summary_large_image");
-  setMetaContent("twitter:title", title || document.title);
-  setMetaContent("twitter:description", description);
-  setMetaContent("twitter:image", image);
-}
-
-function getStaticSeoConfig(){
-  const page = getPageName();
-  const map = {
-    "index.html": {
-      title: "Dry Cleaning Supplies Canada | Garment Bags, Poly Bags & Hangers | Power Poly Supplies",
-      description: "Power Poly Supplies is a Canadian wholesale supplier of garment bags, poly bags, and hangers for dry cleaners, laundromats, retailers, and uniform programs across Ontario and the GTA.",
-      canonical: "./index.html"
-    },
-    "about.html": {
-      title: "About Power Poly Supplies | Dry Cleaning Supplies Supplier in Ontario",
-      description: "Learn about Power Poly Supplies, a Canadian wholesale supplier of garment bags, poly bags, and hangers serving dry cleaners, laundromats, retailers, and uniform programs in Ontario and across Canada.",
-      canonical: "./about.html"
-    },
-    "contact.html": {
-      title: "Contact Power Poly Supplies | Wholesale Dry Cleaning Supplies Canada",
-      description: "Contact Power Poly Supplies for bulk quotes, reorder support, and product guidance on garment bags, poly bags, and hangers in Canada, with service across Ontario and the Toronto GTA.",
-      canonical: "./contact.html"
-    },
-    "products.html": {
-      title: "Dry Cleaning Supplies Canada | Browse Garment Bags, Poly Bags & Hangers",
-      description: "Browse wholesale dry cleaning supplies in Canada, including garment bags, poly bags, and hangers for commercial garment operations, retailers, and laundromats.",
-      canonical: "./products.html"
-    },
-    "specials.html": {
-      title: "Wholesale Packaging Specials | Power Poly Supplies Canada",
-      description: "See current wholesale specials on garment bags, poly bags, and hangers for dry cleaners, laundromats, and retailers across Canada.",
-      canonical: "./specials.html"
-    },
-    "resources.html": {
-      title: "Dry Cleaning Supply Guides | Garment Bag Sizing & Packaging Tips Canada",
-      description: "Read practical buying guides for garment bags, poly bags, hangers, and dry cleaning supply planning for Canadian dry cleaners, laundromats, retailers, and uniform shops.",
-      canonical: "./resources.html"
-    },
-    "industries.html": {
-      title: "Industries We Serve | Dry Cleaning Supplies for Canada",
-      description: "Explore packaging and hanger supply solutions for dry cleaners, laundromats, retail garment operations, healthcare, uniform programs, and commercial laundry teams in Canada.",
-      canonical: "./industries.html"
-    },
-    "blog.html": {
-      title: "Packaging Tips & Dry Cleaning Supply News | Power Poly Supplies",
-      description: "Read packaging tips, dry cleaning supply updates, and operational guidance for Canadian dry cleaners, laundromats, retailers, and commercial garment businesses.",
-      canonical: "./blog.html"
-    },
-    "industry-dry-cleaners.html": {
-      title: "Dry Cleaning Supplies for Dry Cleaners in Canada | Power Poly Supplies",
-      description: "Wholesale garment bags, poly bags, and hangers for dry cleaners in Canada, with practical reorder guidance for Ontario and Toronto/GTA garment businesses.",
-      canonical: "./industry-dry-cleaners.html"
-    },
-    "industry-laundromats.html": {
-      title: "Laundromat Packaging Supplies Canada | Power Poly Supplies",
-      description: "Commercial garment bags, poly bags, and hanger supply for laundromats and wash-and-fold businesses in Canada, with bulk ordering support.",
-      canonical: "./industry-laundromats.html"
-    },
-    "industry-retail.html": {
-      title: "Retail Garment Packaging Supplies Canada | Power Poly Supplies",
-      description: "Wholesale garment packaging and hanger supply for retailers, boutiques, and garment fulfillment teams across Canada.",
-      canonical: "./industry-retail.html"
-    },
-    "industry-uniform.html": {
-      title: "Uniform Service Packaging Supplies Canada | Power Poly Supplies",
-      description: "Reliable garment bags, poly bags, and hangers for uniform shops and commercial garment programs in Canada, with bulk-friendly supply and reorder support.",
-      canonical: "./industry-uniform.html"
-    },
-    "industry-commercial-laundry.html": {
-      title: "Commercial Laundry Packaging Supplies Canada | Power Poly Supplies",
-      description: "Packaging and hanger supply for commercial laundry facilities in Canada, including garment bags, poly bags, and repeat-order planning.",
-      canonical: "./industry-commercial-laundry.html"
-    },
-    "industry-healthcare.html": {
-      title: "Healthcare Garment Packaging Supplies Canada | Power Poly Supplies",
-      description: "Commercial garment packaging and hanger supply for healthcare, clinic, and care-facility garment handling programs in Canada.",
-      canonical: "./industry-healthcare.html"
-    },
-    "garment-bags.html": getCategorySeo("Garment Bags"),
-    "polybags.html": getCategorySeo("Polybags"),
-    "hangers.html": getCategorySeo("Hangers"),
-    "404.html": {
-      title: "Page Not Found | Power Poly Supplies",
-      description: "The page you requested could not be found. Browse garment bags, poly bags, and hangers or contact Power Poly Supplies for help.",
-      canonical: "./404.html",
-      robots: "noindex,follow"
-    },
-    "account.html": {
-      title: "My Account | Power Poly Supplies",
-      description: "Manage your account at Power Poly Supplies.",
-      canonical: "./account.html",
-      robots: "noindex,nofollow"
-    },
-    "admin.html": {
-      title: "Admin | Power Poly Supplies",
-      description: "Administrative page.",
-      canonical: "./admin.html",
-      robots: "noindex,nofollow"
-    },
-    "admin-messages.html": {
-      title: "Admin Messages | Power Poly Supplies",
-      description: "Administrative page.",
-      canonical: "./admin-messages.html",
-      robots: "noindex,nofollow"
-    },
-    "cart.html": {
-      title: "Cart | Power Poly Supplies",
-      description: "Review your cart.",
-      canonical: "./cart.html",
-      robots: "noindex,follow"
-    },
-    "checkout.html": {
-      title: "Checkout | Power Poly Supplies",
-      description: "Secure checkout.",
-      canonical: "./checkout.html",
-      robots: "noindex,nofollow"
-    },
-    "login.html": {
-      title: "Sign In | Power Poly Supplies",
-      description: "Sign in to your Power Poly Supplies account.",
-      canonical: "./login.html",
-      robots: "noindex,nofollow"
-    },
-    "signup.html": {
-      title: "Create Account | Power Poly Supplies",
-      description: "Create a Power Poly Supplies account.",
-      canonical: "./signup.html",
-      robots: "noindex,nofollow"
-    },
-    "thank-you.html": {
-      title: "Thank You | Power Poly Supplies",
-      description: "Thank you for contacting Power Poly Supplies.",
-      canonical: "./thank-you.html",
-      robots: "noindex,nofollow"
-    },
-    "offline.html": {
-      title: "Offline | Power Poly Supplies",
-      description: "Offline page.",
-      canonical: "./offline.html",
-      robots: "noindex,nofollow"
-    },
-    "feedback.html": {
-      title: "Customer Feedback | Power Poly Supplies",
-      description: "Customer feedback page.",
-      canonical: "./feedback.html",
-      robots: "noindex,follow"
-    },
-    "legal-privacy.html": {
-      title: "Privacy Policy | Power Poly Supplies Canada",
-      description: "Read the Power Poly Supplies privacy policy for details on how we handle contact information, order processing, and customer communications in Canada.",
-      canonical: "./legal-privacy.html"
-    },
-    "legal-shipping.html": {
-      title: "Shipping & Returns | Power Poly Supplies Canada",
-      description: "Review shipping coverage, delivery expectations, and return guidance for Power Poly Supplies wholesale orders across Canada.",
-      canonical: "./legal-shipping.html"
-    },
-    "legal-terms.html": {
-      title: "Terms & Conditions | Power Poly Supplies Canada",
-      description: "Review the standard purchasing terms and conditions for Power Poly Supplies wholesale garment bags, poly bags, and hangers in Canada.",
-      canonical: "./legal-terms.html"
-    }
-  };
-  return map[page] || null;
-}
-
-function applyAutoSeo(){
-  const config = getStaticSeoConfig();
-  if(config) applyPageSeo(config);
-
-  const page = getPageName();
-  const isIndexable = !String(config?.robots || "index,follow").includes("noindex");
-  if(isIndexable){
-    replaceJsonLdScript("ppsOrgJsonLd", buildOrganizationJsonLd());
-    if(["index.html", "about.html", "contact.html"].includes(page)){
-      replaceJsonLdScript("ppsLocalBusinessJsonLd", buildLocalBusinessJsonLd());
-    }
-  }
-}
-
-window.PPS_SEO = {
-  siteUrl: PPS_SITE_URL,
-  absoluteSiteUrl,
-  applyPageSeo,
-  applyAutoSeo,
-  getCategoryLandingPath,
-  getCategorySeo,
-  getProductSummary
-};
-
 function optimizeImageElement(img){
   if(!(img instanceof HTMLImageElement)) return;
   if(img.dataset.ppsImgOptimized === "1") return;
 
   const rawSrc = String(img.getAttribute("src") || "").trim();
   if(!rawSrc || rawSrc.startsWith("data:") || rawSrc.startsWith("blob:")) return;
-  const optimizedSrc = getOptimizedImageSrc(rawSrc);
-  if(optimizedSrc && optimizedSrc !== rawSrc){
-    img.setAttribute("src", optimizedSrc);
-  }
-  const effectiveSrc = String(img.getAttribute("src") || optimizedSrc || rawSrc).trim();
-  const dimensions = getImageDimensions(effectiveSrc);
-  if(dimensions){
-    if(!img.getAttribute("width")){
-      img.setAttribute("width", String(dimensions.width));
-    }
-    if(!img.getAttribute("height")){
-      img.setAttribute("height", String(dimensions.height));
-    }
-  }
-  if(!img.style.aspectRatio){
-    const widthAttr = Number(img.getAttribute("width") || 0);
-    const heightAttr = Number(img.getAttribute("height") || 0);
-    if(widthAttr > 0 && heightAttr > 0){
-      img.style.aspectRatio = `${widthAttr} / ${heightAttr}`;
-      if(!img.style.height){
-        img.style.height = "auto";
-      }
-    }
-  }
 
-  const srcNoQuery = effectiveSrc.split("?")[0].toLowerCase();
+  const srcNoQuery = rawSrc.split("?")[0].toLowerCase();
   const isSvg = srcNoQuery.endsWith(".svg");
   const isRaster = /\.(png|jpe?g|webp|avif)$/i.test(srcNoQuery);
 
@@ -739,16 +140,17 @@ function optimizeImageElement(img){
 
   const inHeader = !!img.closest(".site-header");
   const inHero = !!img.closest(".hero-carousel");
-  const priorityHint = String(img.getAttribute("fetchpriority") || "").toLowerCase();
-  const shouldEager = inHeader || inHero || priorityHint === "high" || img.classList.contains("hero-logo");
-  const shouldLazy = !shouldEager;
+  const rect = img.getBoundingClientRect();
+  const viewportH = Math.max(1, window.innerHeight || 1);
+  const nearViewport = rect.top <= viewportH * 1.15;
+  const shouldLazy = !inHeader && !inHero && !nearViewport;
 
   if(!img.hasAttribute("loading")){
     img.setAttribute("loading", shouldLazy ? "lazy" : "eager");
   }
 
   if(!img.hasAttribute("fetchpriority")){
-    img.setAttribute("fetchpriority", shouldLazy ? "low" : (inHero ? "high" : "auto"));
+    img.setAttribute("fetchpriority", shouldLazy ? "low" : "auto");
   }
 
   if(isRaster && !isSvg && !img.hasAttribute("sizes")){
@@ -760,7 +162,7 @@ function optimizeImageElement(img){
 
   if(isRaster && !isSvg && !img.hasAttribute("srcset")){
     // Single-source responsive hint: lets browser pair sizes with DPR while staying backward-compatible.
-    img.setAttribute("srcset", `${effectiveSrc} 480w, ${effectiveSrc} 768w, ${effectiveSrc} 1024w`);
+    img.setAttribute("srcset", `${rawSrc} 480w, ${rawSrc} 768w, ${rawSrc} 1024w`);
   }
 
   img.dataset.ppsImgOptimized = "1";
@@ -892,9 +294,9 @@ function showLanguageModal(){
       <div class="pps-modal-header">
         <div>
           <h2 class="pps-modal-title" id="ppsLangTitle">${window.PPS_I18N?.t("lang.prompt.title") || "Choose your language"}</h2>
-          <p class="pps-modal-subtitle">${window.PPS_I18N?.t("lang.prompt.subtitle") || "Select the language that’s easiest for you. You can change it anytime from the top menu."}</p>
+          <p class="pps-modal-subtitle">${window.PPS_I18N?.t("lang.prompt.subtitle") || "Select the language that�s easiest for you. You can change it anytime from the top menu."}</p>
         </div>
-        <button class="pps-modal-close" type="button" aria-label="${window.PPS_I18N?.t("lang.prompt.close") || "Close"}">×</button>
+        <button class="pps-modal-close" type="button" aria-label="${window.PPS_I18N?.t("lang.prompt.close") || "Close"}">�</button>
       </div>
       <div class="pps-modal-body">
         <div class="pps-modal-row">
@@ -1183,7 +585,7 @@ function injectMiniCartPreview(){
       <div class="mini-cart-items">
         ${items.map(item=>`
           <div class="mini-cart-item">
-            <img src="${item.image}" alt="" loading="lazy" decoding="async" width="60" height="60">
+            <img src="${item.image}" alt="">
             <div>
               <div class="mini-cart-name">${item.name}</div>
               <div class="mini-cart-qty">Qty: ${item.qty}</div>
@@ -1212,16 +614,11 @@ function injectFooter(){
         <div class="footer-brand">
           <span data-i18n="brand.name">Power Poly Supplies</span>
           <span style="color:#ffb25c; font-size:12px;" data-i18n="brand.tagline">Power your packaging</span>
-          <div class="footer-meta">Wholesale garment bags, poly bags, and hangers for Ontario, Toronto/GTA, and customers across Canada.</div>
+          <div class="footer-meta" data-i18n="footer.meta">Bulk stock | Fast shipping | Canada-wide</div>
           <div class="footer-essential">
             <a href="tel:+16475238645">647-523-8645</a>
             <span>|</span>
             <a href="mailto:powerpolysupplies@gmail.com">powerpolysupplies@gmail.com</a>
-          </div>
-          <div class="footer-essential" style="margin-top:8px;">
-            <span>Mon-Fri 9:00 AM - 6:00 PM</span>
-            <span>|</span>
-            <span>15725 Weston Rd, Kettleby, ON L7B 0L4</span>
           </div>
         </div>
         <details class="footer-section footer-section-shop" open>
@@ -1231,10 +628,10 @@ function injectFooter(){
           </summary>
           <ul>
             <li><a href="./products.html" data-i18n="footer.all_products">All products</a></li>
-            <li><a href="./garment-bags.html">Garment bags</a></li>
-            <li><a href="./polybags.html">Poly bags</a></li>
-            <li><a href="./hangers.html">Hangers</a></li>
             <li><a href="./specials.html" data-i18n="footer.special_offers">Special offers</a></li>
+            <li><a href="./about.html" data-i18n="footer.about">About us</a></li>
+            <li><a href="./contact.html" data-i18n="footer.contact">Contact</a></li>
+            <li><a href="./feedback.html" data-i18n="footer.feedback">Feedback</a></li>
           </ul>
         </details>
         <details class="footer-section footer-section-support" open>
@@ -1274,12 +671,6 @@ function injectFooter(){
               </span>
               <span data-i18n="footer.address">Address:</span> 15725 Weston Rd, Kettleby, ON L7B 0L4
             </div>
-            <div class="footer-contact-row">
-              <span class="footer-inline-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24"><path d="M3 5h18v2H3zm2 4h14l-1 10H6zm4-6h6v2H9z"/></svg>
-              </span>
-              Service area: Ontario, Toronto/GTA, and shipping across Canada
-            </div>
           </div>
         </details>
         <details class="footer-section footer-section-connect" open>
@@ -1290,6 +681,9 @@ function injectFooter(){
           <div class="footer-social">
             <a class="footer-icon" aria-label="Instagram" href="https://www.instagram.com/powerpolysupplies/" title="Instagram" target="_blank" rel="noopener">
               <svg viewBox="0 0 24 24"><path d="M7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4zm10 2H7a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm-5 3.5A4.5 4.5 0 1 1 7.5 13 4.5 4.5 0 0 1 12 8.5zm0 2A2.5 2.5 0 1 0 14.5 13 2.5 2.5 0 0 0 12 10.5zm4.75-4.25a1 1 0 1 1-1 1 1 1 0 0 1 1-1z"/></svg>
+            </a>
+            <a class="footer-icon" aria-label="Facebook" href="#" title="Facebook">
+              <svg viewBox="0 0 24 24"><path d="M13 10.5V8.75c0-.66.44-1 .98-1H15V5h-2c-2 0-3 1.4-3 3.1V10.5H8v2.5h2v6h3v-6h2.1l.4-2.5H13z"/></svg>
             </a>
             <a class="footer-icon" aria-label="Email" href="mailto:powerpolysupplies@gmail.com" title="Email">
               <svg viewBox="0 0 24 24"><path d="M4 6h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1zm0 2.2V17h16V8.2l-7.6 4.53a1.5 1.5 0 0 1-1.54 0zM19.2 7H4.8l7.2 4.28z"/></svg>
@@ -1308,10 +702,6 @@ function injectFooter(){
             <span class="footer-caret" aria-hidden="true"></span>
           </summary>
           <ul>
-            <li><a href="./about.html" data-i18n="footer.about">About us</a></li>
-            <li><a href="./contact.html" data-i18n="footer.contact">Contact</a></li>
-            <li><a href="./resources.html">Resources</a></li>
-            <li><a href="./industries.html">Industries</a></li>
             <li><a href="./legal-shipping.html" data-i18n="footer.shipping">Shipping & Returns</a></li>
             <li><a href="./legal-privacy.html" data-i18n="footer.privacy">Privacy Policy</a></li>
             <li><a href="./legal-terms.html" data-i18n="footer.terms">Terms & Conditions</a></li>
@@ -1324,7 +714,7 @@ function injectFooter(){
         <div class="footer-bottom">
           <span data-i18n="footer.rights">(C) {{year}} Power Poly Supplies. All rights reserved.</span>
           <span class="footer-trust">
-            <span class="guarantee-badge" title="Secure Square checkout">Secure Square checkout</span>
+            <span class="guarantee-badge" title="Satisfaction guarantee">Money-back guarantee</span>
             <span class="payment-icons" aria-label="Payment methods">
               <span class="pay-badge" aria-hidden="true">VISA</span>
               <span class="pay-badge" aria-hidden="true">Mastercard</span>
@@ -1398,7 +788,7 @@ async function renderFooterRecentProducts(){
   }
   grid.innerHTML = picks.map(item=>`
     <a class="footer-recent-card" href="./product.html?slug=${encodeURIComponent(item.slug)}">
-      <img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async" width="320" height="240">
+      <img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async">
       <span>${item.name}</span>
     </a>
   `).join("");
@@ -1662,7 +1052,7 @@ function setupSearch(){
       }else if(btn.matches("button[data-cat]")){
         const cat = btn.getAttribute("data-cat");
         if(cat){
-          window.location.href = getCategoryLandingPath(cat);
+          window.location.href = `./products.html?cat=${encodeURIComponent(cat)}`;
         }
       }
     });
@@ -2232,14 +1622,14 @@ function injectHelpWidget(){
       es: {
         fab: "Ayuda",
         title: "Soporte al cliente en vivo",
-        subtitle: "Ahora mismo estamos fuera de línea. Deja un mensaje y nos pondremos en contacto.",
+        subtitle: "Ahora mismo estamos fuera de l�nea. Deja un mensaje y nos pondremos en contacto.",
         name: "Nombre",
         email: "Correo",
         message: "Mensaje",
         send: "Enviar mensaje",
         sending: "Enviando...",
-        sent: "¡Gracias! Nos pondremos en contacto.",
-        error: "No se pudo enviar en este momento. Inténtalo de nuevo."
+        sent: "�Gracias! Nos pondremos en contacto.",
+        error: "No se pudo enviar en este momento. Int�ntalo de nuevo."
       }
     };
     return localized[lang] || null;
@@ -2408,26 +1798,26 @@ function injectHelpWidget(){
       ],
       match: (q)=> /ship|shipping|deliver|delivery|gta|outside|charge|charges|cost|pickup|courier/i.test(q),
       answerKey: "help.chat.answer.shipping",
-      answer: () => `Standard GTA delivery is free. Express and non‑GTA delivery charges are confirmed by our team after we review the order and address.<br><a href="./legal-shipping.html">Read Shipping & Returns</a>`
+      answer: () => `Standard GTA delivery is free. Express and non-GTA delivery charges are confirmed by our team after we review the order and address.<br><a href="./legal-shipping.html">Read Shipping & Returns</a>`
     },
     {
       id: "sizes",
       titleKey: "help.chat.topic.sizes",
       title: "Garment bag sizes",
-      keywords: ["size","sizing","garment bag","cover bag","length","width","measure","measurement","gusset","coat","dress","tailles","mesure","medida","talla","사이즈","측정","माप","आकार","लंबाई","चौड़ाई","அளவு","நீளம்","அகலம்"],
+      keywords: ["size","sizing","garment bag","cover bag","length","width","measure","measurement","gusset","coat","dress","tailles","mesure","medida","talla","???","??","???","????","?????","??????","????","?????","?????"],
       followups: [
         { id:"sizes_shirts", labelKey:"help.chat.followup.sizes_shirts", label:"What size for shirts?" },
         { id:"sizes_coats", labelKey:"help.chat.followup.sizes_coats", label:"What size for coats?" }
       ],
       match: (q)=> /size|sizing|garment bag|cover bag|length|width|measure|gusset|coat|dress/i.test(q),
       answerKey: "help.chat.answer.sizes",
-      answer: () => `Use garment width + 4–6" and garment length + 4–8" as a quick rule. For bulky coats, consider a wider/gusseted bag.<br><a href="./resources.html#guide-garment-bag-sizes">Read the sizing guide</a>`
+      answer: () => `Use garment width + 4�6" and garment length + 4�8" as a quick rule. For bulky coats, consider a wider/gusseted bag.<br><a href="./resources.html#guide-garment-bag-sizes">Read the sizing guide</a>`
     },
     {
       id: "thickness",
       titleKey: "help.chat.topic.thickness",
       title: "Heavy vs Extra Heavy",
-      keywords: ["heavy","extra heavy","thick","thickness","mil","gauge","tear","puncture","sharp","corner","epais","epaisseur","grueso","grosor","두께","मोटाई","தடிமன்","தடிமை"],
+      keywords: ["heavy","extra heavy","thick","thickness","mil","gauge","tear","puncture","sharp","corner","epais","epaisseur","grueso","grosor","??","?????","??????","?????"],
       followups: [
         { id:"thickness_mil", labelKey:"help.chat.followup.thickness_mil", label:"What does mil mean?" },
         { id:"thickness_choice", labelKey:"help.chat.followup.thickness_choice", label:"Which one should I buy?" }
@@ -2448,26 +1838,26 @@ function injectHelpWidget(){
       ],
       match: (q)=> /hanger|hangers|shirt hanger|suit hanger|dress hanger|strut|capped|caped|cape|wire|500/i.test(q),
       answerKey: "help.chat.answer.hangers",
-      answer: () => `Most of our hanger SKUs are packed <b>500 pieces per box</b> (case pack) - check the product page for the exact pack size.<br><br><b>Quick pick:</b> <b>Shirt</b> for tops, <b>Suit</b> for jackets, <b>Strut</b> for daily all-purpose strength, and <b>Capped/Cape</b> when you want extra shoulder stability and premium presentation.<br><a href="./hangers.html">Browse hangers</a>`
+      answer: () => `Most of our hanger SKUs are packed <b>500 pieces per box</b> (case pack) - check the product page for the exact pack size.<br><br><b>Quick pick:</b> <b>Shirt</b> for tops, <b>Suit</b> for jackets, <b>Strut</b> for daily all-purpose strength, and <b>Capped/Cape</b> when you want extra shoulder stability and premium presentation.<br><a href="./products.html?cat=Hangers">Browse hangers</a>`
     },
     {
       id: "usage",
       titleKey: "help.chat.topic.usage",
       title: "Monthly packaging usage",
-      keywords: ["month","monthly","how much","usage","estimate","planning","plan","per day","buffer","waste","consommation","mensuel","uso","mensual","사용량","월간","मासिक","उपयोग","महीना","மாத","பயன்பாடு"],
+      keywords: ["month","monthly","how much","usage","estimate","planning","plan","per day","buffer","waste","consommation","mensuel","uso","mensual","???","??","?????","?????","?????","???","????????"],
       followups: [
         { id:"usage_buffer", labelKey:"help.chat.followup.usage_buffer", label:"What buffer % should I use?" },
         { id:"usage_quote", labelKey:"help.chat.followup.usage_quote", label:"Can you estimate for me?" }
       ],
       match: (q)=> /month|monthly|how much|usage|estimate|planning|plan|per day/i.test(q),
       answerKey: "help.chat.answer.usage",
-      answer: () => `A simple estimate: (garments/day) × (operating days/month), then add a 5–12% buffer for rewraps/tears/rush orders.<br><a href="./resources.html#dry-cleaner-packaging-usage">See the planner</a>`
+      answer: () => `A simple estimate: (garments/day) � (operating days/month), then add a 5�12% buffer for rewraps/tears/rush orders.<br><a href="./resources.html#dry-cleaner-packaging-usage">See the planner</a>`
     },
     {
       id: "pay",
       titleKey: "help.chat.topic.pay",
       title: "Payment options",
-      keywords: ["pay","payment","square","card","invoice","pay later","terms","facture","paiement","pagar","pago","결제","카드","भुगतान","इनवॉइस","पेमेन्ट","பணம்","செலுத்த"],
+      keywords: ["pay","payment","square","card","invoice","pay later","terms","facture","paiement","pagar","pago","??","??","??????","??????","???????","????","???????"],
       followups: [
         { id:"pay_invoice", labelKey:"help.chat.followup.pay_invoice", label:"Can I pay by invoice?" },
         { id:"pay_square", labelKey:"help.chat.followup.pay_square", label:"Is Square secure?" }
@@ -2480,7 +1870,7 @@ function injectHelpWidget(){
       id: "addresses",
       titleKey: "help.chat.topic.addresses",
       title: "Saved delivery addresses",
-      keywords: ["address","addresses","multiple locations","warehouse","branch","default","saved","adresse","direccion","direcciones","주소","지점","पता","முகவரி","களஞ்சியம்"],
+      keywords: ["address","addresses","multiple locations","warehouse","branch","default","saved","adresse","direccion","direcciones","??","??","???","??????","?????????"],
       followups: [
         { id:"addresses_how", labelKey:"help.chat.followup.addresses_how", label:"How do I add an address?" },
         { id:"addresses_default", labelKey:"help.chat.followup.addresses_default", label:"How do I set a default?" }
@@ -2777,11 +2167,11 @@ function showAuthModal(options = {}){
   overlay.id = "ppsAuthModal";
   overlay.innerHTML = `
     <div class="pps-modal pps-auth-modal" role="dialog" aria-modal="true" aria-labelledby="ppsAuthTitle">
-      <button class="pps-auth-close-x" type="button" aria-label="Close">×</button>
+      <button class="pps-auth-close-x" type="button" aria-label="Close">�</button>
       <div class="pps-auth-layout">
         <div class="pps-auth-left" aria-hidden="true">
           <div class="pps-auth-brand">
-            <img src="./assets/poly%20logo%20without%20background.png" alt="Power Poly Supplies" decoding="async" width="1280" height="1165">
+            <img src="./assets/poly%20logo%20without%20background.png" alt="Power Poly Supplies" decoding="async">
             <div>PowerPolySupplies.com</div>
           </div>
            <div class="pps-auth-kicker">Canada-wide B2B sourcing</div>
@@ -3482,15 +2872,6 @@ function setupPageTransitionProgress(){
   }
 }
 
-function runWhenIdle(task, timeout = 900){
-  if(typeof task !== "function") return;
-  if("requestIdleCallback" in window){
-    window.requestIdleCallback(()=> task(), { timeout });
-    return;
-  }
-  window.setTimeout(task, 80);
-}
-
 function suppressVercelOverlays(){
   const selectors = [
     "[data-vercel-toolbar]",
@@ -3527,7 +2908,6 @@ function suppressVercelOverlays(){
   if(typeof MutationObserver !== "undefined"){
     const observer = new MutationObserver(()=> removeMatches());
     observer.observe(document.documentElement || document.body, { childList:true, subtree:true });
-    setTimeout(()=> observer.disconnect(), 12000);
   }
 }
 
@@ -3581,7 +2961,6 @@ function suppressCartEmailPopup(){
   if(typeof MutationObserver !== "undefined"){
     const observer = new MutationObserver(()=> removeMatches());
     observer.observe(document.documentElement || document.body, { childList:true, subtree:true });
-    setTimeout(()=> observer.disconnect(), 6000);
   }
 }
 
@@ -3612,28 +2991,28 @@ function enforceAvailableCategoryCopy(){
       "feedback.quote.twelve": "Gran variedad de fundas y polybags. El equipo hace simple pedir al por mayor."
     },
     ko: {
-      "nav.wraps": "폴리백",
-      "nav.racks": "행거",
-      "index.hero.desc": "대량 의류 커버 백, 폴리백 및 전문가급 옷걸이. 안정적인 재고가 필요한 세탁소, 세탁소 및 소매업체를 위해 제작되었습니다.",
-      "products.subtitle": "의류 커버 백, 행거, 폴리백을 선택하세요. 신뢰할 수 있는 재고를 갖춘 대량 친화적인 가격.",
-      "resources.planner.meta": "월간 커버백, 옷걸이, 폴리백 사용량을 추정하는 간단한 방법.",
-      "feedback.quote.twelve": "의류 커버백과 폴리백 종류가 다양합니다. 대량 주문을 간단하게 만들어줘요."
+      "nav.wraps": "???",
+      "nav.racks": "??",
+      "index.hero.desc": "?? ?? ?? ?, ??? ? ???? ???. ???? ??? ??? ???, ??? ? ????? ?? ???????.",
+      "products.subtitle": "?? ?? ?, ??, ???? ?????. ??? ? ?? ??? ?? ?? ???? ??.",
+      "resources.planner.meta": "?? ???, ???, ??? ???? ???? ??? ??.",
+      "feedback.quote.twelve": "?? ???? ??? ??? ?????. ?? ??? ???? ?????."
     },
     hi: {
-      "nav.wraps": "पॉलीबैग",
-      "nav.racks": "हैंगर्स",
-      "index.hero.desc": "बल्क गारमेंट कवर बैग, पॉली बैग और प्रोफेशनल हैंगर। ड्राई क्लीनर्स, लॉन्ड्रोमैट्स और रिटेलर्स के लिए भरोसेमंद स्टॉक।",
-      "products.subtitle": "गारमेंट कवर बैग, हैंगर और पॉलीबैग चुनें। बल्क-फ्रेंडली कीमतों के साथ भरोसेमंद स्टॉक।",
-      "resources.planner.meta": "मासिक बैग, हैंगर और पॉलीबैग की जरूरत का अनुमान लगाने का आसान तरीका।",
-      "feedback.quote.twelve": "गारमेंट बैग और पॉलीबैग की अच्छी वैरायटी। टीम बल्क ऑर्डरिंग को सरल बनाती है।"
+      "nav.wraps": "???????",
+      "nav.racks": "???????",
+      "index.hero.desc": "???? ??????? ??? ???, ???? ??? ?? ????????? ?????? ????? ????????, ????????????? ?? ???????? ?? ??? ???????? ??????",
+      "products.subtitle": "??????? ??? ???, ????? ?? ??????? ?????? ????-???????? ?????? ?? ??? ???????? ??????",
+      "resources.planner.meta": "????? ???, ????? ?? ??????? ?? ????? ?? ?????? ????? ?? ???? ??????",
+      "feedback.quote.twelve": "??????? ??? ?? ??????? ?? ????? ???????? ??? ???? ???????? ?? ??? ????? ???"
     },
     ta: {
-      "nav.wraps": "பாலிபேக்குகள்",
-      "nav.racks": "ஹேங்கர்கள்",
-      "index.hero.desc": "மொத்த ஆடை கவர் பைகள், பாலி பைகள் மற்றும் தொழில்முறை ஹேங்கர்கள். ட்ரை கிளீனர், லாண்ட்ரோமாட் மற்றும் ரிடெய்லர்களுக்கு நம்பகமான கையிருப்பு.",
-      "products.subtitle": "ஆடை கவர் பைகள், ஹேங்கர்கள், பாலிபேக்குகள். மொத்த விலை மற்றும் நம்பகமான கையிருப்பு.",
-      "resources.planner.meta": "மாதாந்திர பேக்கள், ஹேங்கர்கள், பாலிபேக்குகள் தேவையை கணக்கிடும் எளிய முறை.",
-      "feedback.quote.twelve": "ஆடை கவர் பைகள் மற்றும் பாலிபேக்குகள் நிறைய வகைகள். மொத்த ஆர்டர் செய்வதை சுலபமாக்குகிறார்கள்."
+      "nav.wraps": "?????????????",
+      "nav.racks": "??????????",
+      "index.hero.desc": "????? ??? ???? ?????, ???? ????? ??????? ?????????? ??????????. ???? ???????, ???????????? ??????? ???????????????? ???????? ??????????.",
+      "products.subtitle": "??? ???? ?????, ??????????, ?????????????. ????? ???? ??????? ???????? ??????????.",
+      "resources.planner.meta": "????????? ???????, ??????????, ????????????? ?????? ?????????? ???? ????.",
+      "feedback.quote.twelve": "??? ???? ????? ??????? ????????????? ????? ??????. ????? ?????? ??????? ???????????????????."
     }
   };
   const selected = copyByLang[lang] || copyByLang.en;
@@ -3651,62 +3030,57 @@ handleOauthReturn();
 setupPageTransitionProgress();
 
 window.addEventListener("DOMContentLoaded", ()=>{
+  suppressVercelOverlays();
+  suppressCartEmailPopup();
+  try{
+    if("serviceWorker" in navigator){
+      navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(()=>{});
+    }
+  }catch{
+    // ignore
+  }
+  try{
+    if(!document.querySelector('link[rel="manifest"]')){
+      const link = document.createElement("link");
+      link.rel = "manifest";
+      link.href = "./manifest.webmanifest";
+      document.head.appendChild(link);
+    }
+    if(!document.querySelector('meta[name="theme-color"]')){
+      const meta = document.createElement("meta");
+      meta.name = "theme-color";
+      meta.content = "#ff7a1a";
+      document.head.appendChild(meta);
+    }
+  }catch{
+    // ignore
+  }
   decoratePromoTagline();
-  enhanceAccessibility();
-  applyAutoSeo();
   setupNavbar();
   setupFadeIn();
   setupStickyHeader();
+  setupAnalytics();
+  setupJourneyTracking();
   setupImageOptimization();
-  remapLegacyCategoryLinks();
-  runWhenIdle(()=>{
-    suppressVercelOverlays();
-    suppressCartEmailPopup();
-    try{
-      if("serviceWorker" in navigator){
-        navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(()=>{});
-      }
-    }catch{
-      // ignore
-    }
-    try{
-      if(!document.querySelector('link[rel="manifest"]')){
-        const link = document.createElement("link");
-        link.rel = "manifest";
-        link.href = "./manifest.webmanifest";
-        document.head.appendChild(link);
-      }
-      if(!document.querySelector('meta[name="theme-color"]')){
-        const meta = document.createElement("meta");
-        meta.name = "theme-color";
-        meta.content = "#ff7a1a";
-        document.head.appendChild(meta);
-      }
-    }catch{
-      // ignore
-    }
-    syncAccountLink();
-    setupSearch();
-    injectFooter();
-    setupAnalytics();
-    setupJourneyTracking();
-    setupAuthModalTriggers();
-    injectResourcesDropdown();
-    injectAboutDropdown();
-    injectLangSwitcher();
-    injectCurrencySwitcher();
-    injectNotificationsBell();
-    injectMiniCartPreview();
-    setupCountUp();
-    injectBottomNav();
-    setupBottomNavSearch();
-    setupInteractiveTools();
-    injectHelpWidget();
-    setupRetentionSignals();
-    scheduleLanguagePrompt();
-    enforceAvailableCategoryCopy();
-    window.addEventListener("pps:lang", ()=> setTimeout(enforceAvailableCategoryCopy, 0));
-  });
+  syncAccountLink();
+  setupAuthModalTriggers();
+  injectResourcesDropdown();
+  injectAboutDropdown();
+  injectLangSwitcher();
+  injectCurrencySwitcher();
+  injectNotificationsBell();
+  injectMiniCartPreview();
+  setupSearch();
+  setupCountUp();
+  injectBottomNav();
+  setupBottomNavSearch();
+  setupInteractiveTools();
+  injectFooter();
+  injectHelpWidget();
+  setupRetentionSignals();
+  scheduleLanguagePrompt();
+  enforceAvailableCategoryCopy();
+  window.addEventListener("pps:lang", ()=> setTimeout(enforceAvailableCategoryCopy, 0));
 });
 
 // Expose to pages that render footers dynamically after load
