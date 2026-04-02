@@ -209,65 +209,6 @@
     }
   };
 
-  const ADDRESS_KEY = userKey("addresses");
-  const fetchAccountJson = async (path, options = {}) => {
-    const base = String(window.PPS?.API_BASE || "").trim().replace(/\/+$/, "");
-    if (!base || !session?.token) throw new Error("Unauthorized");
-    const res = await fetch(`${base}${path}`, {
-      ...options,
-      headers: {
-        ...(options.headers || {}),
-        Authorization: `Bearer ${session.token}`
-      }
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok || data?.ok === false) {
-      throw new Error(String(data?.message || `Request failed (${res.status})`));
-    }
-    return data;
-  };
-
-  const readAddresses = () => {
-    const list = readJson(ADDRESS_KEY, []);
-    return Array.isArray(list) ? list : [];
-  };
-
-  const writeAddresses = (list) => {
-    writeJson(ADDRESS_KEY, Array.isArray(list) ? list : []);
-  };
-
-  const syncAddressesToServer = async (list) => {
-    try {
-      const data = await fetchAccountJson("/api/account/addresses", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ addresses: Array.isArray(list) ? list : [] })
-      });
-      const next = Array.isArray(data?.addresses) ? data.addresses : [];
-      writeAddresses(next);
-      const defaultId = next.find((a) => a?.isDefault)?.id || next[0]?.id || "";
-      if (defaultId) setStoredDefaultAddressId(defaultId);
-      return next;
-    } catch {
-      return Array.isArray(list) ? list : [];
-    }
-  };
-
-  const loadAddressesFromServer = async () => {
-    try {
-      const data = await fetchAccountJson("/api/account/addresses");
-      const list = Array.isArray(data?.addresses) ? data.addresses : [];
-      writeAddresses(list);
-      const defaultId = list.find((a) => a?.isDefault)?.id || list[0]?.id || "";
-      if (defaultId) setStoredDefaultAddressId(defaultId);
-      renderAddresses();
-      return list;
-    } catch {
-      renderAddresses();
-      return readAddresses();
-    }
-  };
-
   const DEFAULT_ADDRESS_ID_KEY = userKey("default_address_id_v1");
   const getStoredDefaultAddressId = () => {
     try {
@@ -484,34 +425,6 @@
     writeJson(key, { templates: safe });
   };
 
-  const syncTemplatesToServer = async (templates) => {
-    try {
-      const data = await fetchAccountJson("/api/account/order-templates", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ templates: Array.isArray(templates) ? templates : [] })
-      });
-      const next = Array.isArray(data?.templates) ? data.templates : [];
-      writeTemplates(next);
-      return next;
-    } catch {
-      return Array.isArray(templates) ? templates : [];
-    }
-  };
-
-  const loadTemplatesFromServer = async () => {
-    try {
-      const data = await fetchAccountJson("/api/account/order-templates");
-      const templates = Array.isArray(data?.templates) ? data.templates : [];
-      writeTemplates(templates);
-      renderTemplates();
-      return templates;
-    } catch {
-      renderTemplates();
-      return readTemplates();
-    }
-  };
-
   const makeId = (prefix) => `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}`;
 
   const normalizeTemplateItems = (items) =>
@@ -650,7 +563,7 @@
     toast(tt("account.toast.added_to_cart", "Added to cart."));
   };
 
-  const saveTemplate = async ({ name, items }) => {
+  const saveTemplate = ({ name, items }) => {
     const trimmed = String(name || "").trim();
     const safeName = trimmed || "Order template";
     const normalized = normalizeTemplateItems(items);
@@ -662,7 +575,6 @@
     const templates = readTemplates();
     templates.unshift({ id: makeId("tpl"), name: safeName, createdAt: now, updatedAt: now, items: normalized });
     writeTemplates(templates);
-    await syncTemplatesToServer(templates);
     renderTemplates();
     toast(tt("account.templates.saved", "Template saved."));
   };
@@ -2344,7 +2256,7 @@
 
   function renderAddresses() {
     if (!els.addressesGrid) return;
-    const list = readAddresses();
+    const list = readJson(userKey("addresses"), []);
     if (!Array.isArray(list) || !list.length) {
       els.addressesGrid.innerHTML = `
         <div class="account-empty">
@@ -2528,26 +2440,28 @@
     }
   }
 
-  async function upsertAddress(addr) {
-    const safe = readAddresses();
+  function upsertAddress(addr) {
+    const key = userKey("addresses");
+    const list = readJson(key, []);
+    const safe = Array.isArray(list) ? list : [];
     const idx = safe.findIndex((x) => String(x.id) === String(addr.id));
     if (idx >= 0) safe[idx] = addr;
     else safe.unshift(addr);
-    writeAddresses(safe);
-    await syncAddressesToServer(safe);
+    writeJson(key, safe);
     renderAddresses();
   }
 
-  async function deleteAddress(id) {
-    const safe = readAddresses();
+  function deleteAddress(id) {
+    const key = userKey("addresses");
+    const list = readJson(key, []);
+    const safe = Array.isArray(list) ? list : [];
     const next = safe.filter((x) => String(x.id) !== String(id));
-    writeAddresses(next);
+    writeJson(key, next);
     const defaultId = getStoredDefaultAddressId();
     if (defaultId && String(defaultId) === String(id)) {
       const nextDefault = next[0]?.id ? String(next[0].id) : "";
       setStoredDefaultAddressId(nextDefault);
     }
-    await syncAddressesToServer(next);
     renderAddresses();
   }
 
@@ -2730,8 +2644,8 @@
     const addrEdit = e.target.closest("[data-addr-edit]");
     if (addrEdit && els.addAddressForm) {
       const id = addrEdit.getAttribute("data-addr-edit");
-      const list = readAddresses();
-      const addr = list.find((x) => String(x.id) === String(id));
+      const list = readJson(userKey("addresses"), []);
+      const addr = (Array.isArray(list) ? list : []).find((x) => String(x.id) === String(id));
       if (!addr) return;
       els.addAddressForm.dataset.editId = String(id);
       ["label", "name", "line1", "line2", "city", "province", "postal", "country"].forEach((k) => {
@@ -2750,9 +2664,6 @@
       const id = String(addrDefault.getAttribute("data-addr-default") || "").trim();
       if (!id) return;
       setStoredDefaultAddressId(id);
-      const next = readAddresses().map((addr) => ({ ...addr, isDefault: String(addr?.id) === id }));
-      writeAddresses(next);
-      void syncAddressesToServer(next);
       toast("Default address updated.");
       renderAddresses();
       return;
@@ -2863,7 +2774,6 @@
       const id = tDelete.getAttribute("data-template-delete");
       const next = readTemplates().filter((x) => String(x.id) !== String(id));
       writeTemplates(next);
-      void syncTemplatesToServer(next);
       renderTemplates();
       toast(tt("account.templates.deleted", "Template deleted."));
       return;
@@ -2893,7 +2803,6 @@
       t.name = nextName;
       t.updatedAt = new Date().toISOString();
       writeTemplates(templates);
-      void syncTemplatesToServer(templates);
       state.templateEditingId = "";
       renderTemplates();
       toast(tt("account.templates.renamed", "Template renamed."));
@@ -2945,7 +2854,7 @@
   if (els.downloadInvoicesRangeBtn) els.downloadInvoicesRangeBtn.addEventListener("click", downloadInvoicesRangeFromFilters);
 
   if (els.addAddressForm) {
-    els.addAddressForm.addEventListener("submit", async (e) => {
+    els.addAddressForm.addEventListener("submit", (e) => {
       e.preventDefault();
       const id = els.addAddressForm.dataset.editId || `addr_${Date.now()}`;
       const addr = { id };
@@ -2953,9 +2862,8 @@
         addr[k] = els.addAddressForm.querySelector(`[name=${k}]`)?.value?.trim?.() || "";
       });
       if (!addr.country) addr.country = "Canada";
+      upsertAddress(addr);
       const wantsDefault = Boolean(els.addAddressForm.querySelector('[name="makeDefault"]')?.checked);
-      addr.isDefault = wantsDefault;
-      await upsertAddress(addr);
       const existingDefault = getStoredDefaultAddressId();
       if (wantsDefault || !existingDefault) setStoredDefaultAddressId(id);
       els.addAddressForm.reset();
@@ -3205,10 +3113,6 @@
   renderReports();
   renderBusinessProfile();
   renderBusinessExtras();
-  void loadAddressesFromServer();
-  void loadTemplatesFromServer();
-  void window.PPS?.refreshFavoritesFromAccount?.();
-  void window.PPS?.refreshWishlistsFromAccount?.();
 
   loadProducts();
   loadOrders();

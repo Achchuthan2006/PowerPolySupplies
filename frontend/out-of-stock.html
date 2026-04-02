@@ -1,0 +1,273 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content"/>
+  <title>Coming Soon | Power Poly Supplies</title>
+  <meta name="description" content="This product is currently out of stock. See the expected arrival window, get restock updates, and browse similar ready-to-ship products.">
+  <link rel="stylesheet" href="./css/styles.css"/>
+  <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
+</head>
+<body class="oos-page">
+  <header class="site-header">
+    <div class="promo-strip">
+      <div class="container promo-inner">
+        <div><strong data-i18n="brand.name">Power Poly Supplies</strong> | <span data-i18n="brand.tagline">Power your packaging</span></div>
+        <div style="font-weight:700;" data-i18n="promo.right">Bulk stock | Fast shipping | Canada-wide</div>
+      </div>
+    </div>
+    <div class="navbar">
+      <div class="container navbar-inner">
+        <a class="brand" href="./index.html">
+          <img src="./assets/poly%20logo%20without%20background.png" alt="Power Poly Supplies" width="62" height="62" decoding="async">
+          <div class="brand-text">
+            <span class="brand-title" data-i18n="brand.name">Power Poly Supplies</span>
+            <span class="brand-tagline" data-i18n="brand.tagline">Power your packaging</span>
+          </div>
+        </a>
+        <button class="menu-btn" id="menuBtn" aria-label="Open menu" data-i18n="nav.menu">Menu</button>
+        <nav class="navlinks" id="navLinks">
+          <a href="./index.html" data-i18n="nav.home">Home</a>
+          <a href="./specials.html" data-i18n="nav.specials">Special Offers</a>
+          <div class="dropdown">
+            <button class="dropbtn" type="button"><span data-i18n="nav.shop">Shop by Category</span> <span class="caret" aria-hidden="true"></span></button>
+            <div class="dropdown-menu">
+              <a href="./products.html?cat=Garment%20Bags" data-i18n="nav.garment">Garment Cover Bags</a>
+              <a href="./products.html?cat=Polybags" data-i18n="nav.polybags">Polybags</a>
+              <a href="./products.html?cat=Hangers" data-i18n="nav.hangers">Hangers</a>
+            </div>
+          </div>
+          <a href="./about.html" data-i18n="nav.about">About Us</a>
+          <a href="./contact.html"><span class="nav-icon phone-icon" aria-hidden="true"></span><span data-i18n="nav.contact">Contact</span></a>
+          <a href="./feedback.html"><span class="nav-icon pen-icon" aria-hidden="true"></span><span data-i18n="nav.feedback">Feedback</span></a>
+          <a href="./login.html"><span class="nav-icon user-icon" aria-hidden="true"></span><span data-i18n="nav.account">Account</span></a>
+          <a href="./cart.html"><span class="nav-icon cart-icon" aria-hidden="true"></span><span data-i18n="nav.cart">Cart</span> <span class="badge" data-cart-badge>0</span></a>
+          <form class="search-bar nav-search" action="./products.html" method="get" role="search">
+            <input type="search" name="q" placeholder="Search" aria-label="Search products" data-i18n-placeholder="nav.search_placeholder">
+            <button type="submit" data-i18n="nav.search_button">Search</button>
+          </form>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <div class="page">
+    <section class="oos-hero fade-in">
+      <div class="oos-hero-inner">
+        <div class="oos-copy">
+          <p class="oos-kicker">Arrival update</p>
+          <h1 id="oosTitle">This item is on the next shipment.</h1>
+          <p class="oos-subtitle" id="oosSubtitle">We are sorry, this product is out of stock right now. The next order is already in motion and fresh inventory is coming soon.</p>
+          <div class="oos-actions">
+            <button class="btn btn-primary" type="button" id="oosNotifyBtn">Get restock alert</button>
+            <a class="btn btn-outline" href="#oosAlternatives">See ready-to-ship options</a>
+            <a class="btn" href="./contact.html">Talk to sales</a>
+          </div>
+          <div class="oos-meta">
+            <div class="oos-meta-card">
+              <span class="oos-meta-label">Expected arrival</span>
+              <strong id="oosEta">Coming soon</strong>
+            </div>
+            <div class="oos-meta-card">
+              <span class="oos-meta-label">Shipment status</span>
+              <strong>Booked and moving</strong>
+            </div>
+            <div class="oos-meta-card">
+              <span class="oos-meta-label">Best next step</span>
+              <strong>Grab a restock alert or pick an in-stock alternative</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="oos-visual" aria-hidden="true">
+          <div class="oos-stage">
+            <div class="oos-glow"></div>
+            <div class="oos-route">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <div class="oos-crate oos-crate-a"></div>
+            <div class="oos-crate oos-crate-b"></div>
+            <div class="oos-crate oos-crate-c"></div>
+            <div class="oos-dock-card">
+              <div class="oos-dock-label">Dock timeline</div>
+              <div class="oos-dock-value">Next arrival window</div>
+              <div class="oos-dock-date" id="oosDockDate">Updating...</div>
+            </div>
+            <div class="oos-signal">
+              <div class="oos-signal-core"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="container">
+      <section class="oos-flow fade-in">
+        <div class="oos-flow-card">
+          <span class="oos-step">1</span>
+          <h2>We already have the next order moving</h2>
+          <p>We use this page to reassure customers instead of leaving them on a dead button. If a product shows up here, our next arrival plan is already active.</p>
+        </div>
+        <div class="oos-flow-card">
+          <span class="oos-step">2</span>
+          <h2>We help you keep your workflow going</h2>
+          <p>Choose a close alternative below, or contact us if you want a matching size, thickness, or hanger style for the same job.</p>
+        </div>
+        <div class="oos-flow-card">
+          <span class="oos-step">3</span>
+          <h2>We can hold your interest without losing the order</h2>
+          <p>Save an alert, request a preorder, or ask our team for the nearest ready-to-ship substitute that fits your business.</p>
+        </div>
+      </section>
+
+      <section class="oos-alt-section fade-in" id="oosAlternatives">
+        <div class="oos-section-head">
+          <div>
+            <p class="oos-mini-kicker">Ready now</p>
+            <h2 id="oosAltTitle">Similar products you can order today</h2>
+          </div>
+          <a class="btn btn-outline" id="oosCategoryLink" href="./products.html">Browse full category</a>
+        </div>
+        <div class="grid grid-4" id="oosAlternativesGrid"></div>
+      </section>
+
+      <section class="oos-band fade-in">
+        <div>
+          <p class="oos-mini-kicker">Need help fast?</p>
+          <h2>We can recommend the closest in-stock match.</h2>
+          <p>Tell us what you were trying to order and we will help you keep the same workflow, presentation, and delivery plan.</p>
+        </div>
+        <div class="oos-band-actions">
+          <a class="btn btn-primary" href="./contact.html">Contact sales</a>
+          <a class="btn btn-outline" href="./products.html">Browse all products</a>
+        </div>
+      </section>
+
+      <div class="footer">&copy; <span id="y"></span> <span data-i18n="footer.short">Power Poly Supplies. Power your packaging.</span></div>
+    </div>
+  </div>
+
+  <script src="./config.min.js"></script>
+  <script src="./js/store.min.js"></script>
+  <script src="./js/notifications.min.js"></script>
+  <script src="./js/i18n.js"></script>
+  <script src="./js/ui.js"></script>
+  <script>
+    document.getElementById("y").textContent = new Date().getFullYear();
+    PPS.updateCartBadge();
+
+    function qs(name){ return new URLSearchParams(location.search).get(name); }
+
+    function addBusinessDays(date, days){
+      const d = new Date(date);
+      let remaining = Math.max(0, Number(days) || 0);
+      while(remaining > 0){
+        d.setDate(d.getDate() + 1);
+        const day = d.getDay();
+        if(day !== 0 && day !== 6) remaining -= 1;
+      }
+      return d;
+    }
+
+    function formatShortDate(value){
+      return new Intl.DateTimeFormat(undefined, { month:"short", day:"numeric" }).format(value);
+    }
+
+    function escapeHtml(value){
+      return String(value || "").replace(/[&<>\"']/g, (ch)=>({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        "\"":"&quot;",
+        "'":"&#39;"
+      }[ch]));
+    }
+
+    function categoryLink(category){
+      return category ? `./products.html?cat=${encodeURIComponent(category)}` : "./products.html";
+    }
+
+    function productLink(item){
+      return `./product.html?slug=${encodeURIComponent(item.slug)}`;
+    }
+
+    (async ()=>{
+      const slug = qs("slug");
+      const products = await PPS.loadProducts();
+      const product = products.find((item)=> item.slug === slug) || null;
+
+      const title = document.getElementById("oosTitle");
+      const subtitle = document.getElementById("oosSubtitle");
+      const eta = document.getElementById("oosEta");
+      const dockDate = document.getElementById("oosDockDate");
+      const altTitle = document.getElementById("oosAltTitle");
+      const categoryAnchor = document.getElementById("oosCategoryLink");
+      const notifyBtn = document.getElementById("oosNotifyBtn");
+      const altGrid = document.getElementById("oosAlternativesGrid");
+
+      const baseLead = product?.category === "Hangers" ? 7 : product?.category === "Polybags" ? 9 : 10;
+      const etaStart = addBusinessDays(new Date(), baseLead);
+      const etaEnd = addBusinessDays(new Date(), baseLead + 4);
+      const etaText = `${formatShortDate(etaStart)} - ${formatShortDate(etaEnd)}`;
+
+      eta.textContent = etaText;
+      dockDate.textContent = etaText;
+
+      if(product){
+        document.title = `${product.name} Coming Soon | Power Poly Supplies`;
+        title.textContent = `${product.name} is on the next arrival list.`;
+        subtitle.textContent = `Sorry, ${product.name} is out of stock right now. We already have the next shipment lined up, and fresh inventory is expected in the ${etaText} window.`;
+        altTitle.textContent = `Ready-to-ship alternatives for ${product.category}`;
+        categoryAnchor.href = categoryLink(product.category);
+        categoryAnchor.textContent = `Browse all ${product.category}`;
+
+        notifyBtn.addEventListener("click", ()=>{
+          const email = prompt(`Enter your email for ${product.name} restock updates:`);
+          if(!email) return;
+          const key = "pps_product_alerts_v1";
+          const alerts = (()=>{ try{ return JSON.parse(localStorage.getItem(key) || "{}"); }catch(_err){ return {}; }})();
+          alerts[product.id] = { email, backInStock:true, priceDrop:false, createdAt:Date.now() };
+          try{ localStorage.setItem(key, JSON.stringify(alerts)); }catch(_err){}
+          alert(`Saved. We will notify you when ${product.name} is back in stock.`);
+        });
+
+        const alternatives = products
+          .filter((item)=> item.category === product.category && item.slug !== product.slug && Number(item.stock) > 0)
+          .slice(0, 4);
+
+        altGrid.innerHTML = alternatives.length ? alternatives.map((item)=>{
+          const compareCents = PPS.getComparePriceCents?.(item) ?? ((Number(item.priceCents) || 0) + 1000);
+          return `
+            <div class="card">
+              <a href="${productLink(item)}">
+                <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" loading="lazy" decoding="async" width="400" height="220">
+              </a>
+              <div class="card-body">
+                <a class="card-title" href="${productLink(item)}">${escapeHtml(item.name)}</a>
+                <div class="member-pricing">
+                  <div>
+                    <div class="market-label">Market price</div>
+                    <span class="compare-price">${PPS.money(compareCents, item.currency)}</span>
+                  </div>
+                  <div>
+                    <div class="member-label">Power Poly Member Price</div>
+                    <span class="price">${PPS.money(item.priceCents, item.currency)}</span>
+                  </div>
+                </div>
+                <div class="stock in"><span class="dot"></span>In stock</div>
+              </div>
+            </div>
+          `;
+        }).join("") : `<div class="card" style="padding:22px;">We are lining up the next arrival now. Contact us and we will recommend the nearest available match.</div>`;
+      }else{
+        notifyBtn.addEventListener("click", ()=>{
+          window.location.href = "./contact.html";
+        });
+        altGrid.innerHTML = `<div class="card" style="padding:22px;">Browse our current inventory or contact us for a fast recommendation.</div>`;
+      }
+    })();
+  </script>
+</body>
+</html>

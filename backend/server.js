@@ -263,9 +263,9 @@ function getSquareClientCandidates({ requireLocationId = false } = {}){
     pushCandidate("production", squareClientProduction, squareLocationIdProduction);
     return out;
   }
-  // auto: try sandbox first, then production
-  pushCandidate("sandbox", squareClientSandbox, squareLocationIdSandbox);
+  // auto: prefer production for live traffic, then fall back to sandbox for testing setups.
   pushCandidate("production", squareClientProduction, squareLocationIdProduction);
+  pushCandidate("sandbox", squareClientSandbox, squareLocationIdSandbox);
   return out;
 }
 

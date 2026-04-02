@@ -16,8 +16,8 @@ window.PPS_API_BASE = window.API_BASE_URL;
 
 // Square Web Payments SDK (for saving cards on file).
 // These are safe to expose publicly.
-// Set SQUARE_ENV to "sandbox" while testing.
-window.SQUARE_ENV = "sandbox";
+// Set SQUARE_ENV to "sandbox" only while testing with Square sandbox credentials.
+window.SQUARE_ENV = "production";
 window.SQUARE_APP_ID = "";
 window.SQUARE_LOCATION_ID = "";
 

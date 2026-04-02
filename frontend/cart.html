@@ -1,1 +1,332 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content"/><title>Cart | Power Poly Supplies</title><link rel="stylesheet" href="./css/styles.min.css"/><link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/></head><body><header class="site-header"><div class="promo-strip"><div class="container promo-inner"><div><strong data-i18n="brand.name">Power Poly Supplies</strong> | <span data-i18n="brand.tagline">Power your packaging</span></div><div style="font-weight:700" data-i18n="promo.right">Bulk stock | Fast shipping | Canada-wide</div></div></div><div class="navbar"><div class="container navbar-inner"><a class="brand" href="./index.html"><img src="./assets/poly%20logo%20without%20background.png" alt="Power Poly Supplies" width="62" height="62" decoding="async"><div class="brand-text"><span class="brand-title" data-i18n="brand.name">Power Poly Supplies</span> <span class="brand-tagline" data-i18n="brand.tagline">Power your packaging</span></div></a><button class="menu-btn" id="menuBtn" aria-label="Open menu" data-i18n="nav.menu">Menu</button><nav class="navlinks" id="navLinks"><a href="./index.html" data-i18n="nav.home">Home</a> <a href="./specials.html" data-i18n="nav.specials">Special Offers</a><div class="dropdown"><button class="dropbtn" type="button"><span data-i18n="nav.shop">Shop by Category</span> <span class="caret" aria-hidden="true"></span></button><div class="dropdown-menu"><a href="./products.html?cat=Garment%20Bags" data-i18n="nav.garment">Garment Cover Bags</a> <a href="./products.html?cat=Polybags" data-i18n="nav.polybags">Polybags</a> <a href="./products.html?cat=Hangers" data-i18n="nav.hangers">Hangers</a></div></div><a href="./about.html" data-i18n="nav.about">About Us</a> <a href="./contact.html"><span class="nav-icon phone-icon" aria-hidden="true"></span><span data-i18n="nav.contact">Contact</span></a> <a href="./feedback.html"><span class="nav-icon pen-icon" aria-hidden="true"></span><span data-i18n="nav.feedback">Feedback</span></a> <a href="./login.html"><span class="nav-icon user-icon" aria-hidden="true"></span><span data-i18n="nav.account">Account</span></a> <a href="./cart.html"><span class="nav-icon cart-icon" aria-hidden="true"></span><span data-i18n="nav.cart">Cart</span> <span class="badge" data-cart-badge>0</span></a><form class="search-bar nav-search" action="./products.html" method="get" role="search"><input type="search" name="q" placeholder="Search" aria-label="Search products" data-i18n-placeholder="nav.search_placeholder"> <button type="submit" data-i18n="nav.search_button">Search</button></form></nav></div></div></header><div class="container page"><section class="cart-hero fade-in"><div class="cart-hero-inner"><div class="cart-hero-illustration" aria-hidden="true" data-cart-state="empty"><div class="cart-load-scene" id="cartLoadScene" aria-hidden="true"><div class="cart-load-worker" aria-hidden="true"><span class="cart-load-head"></span> <span class="cart-load-torso"></span> <span class="cart-load-arm"></span></div><div class="cart-load-dolly" aria-hidden="true"><span class="cart-load-dolly-bed"></span> <span class="cart-load-dolly-handle"></span> <span class="cart-load-dolly-wheel left"></span> <span class="cart-load-dolly-wheel right"></span></div><div class="cart-load-boxes" id="cartLoadBoxes" aria-hidden="true"></div></div><svg class="cart-van" viewBox="0 0 240 140" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true"><defs><linearGradient id="ppsVanBody" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff7ed"/><stop offset="1" stop-color="#ffffff"/></linearGradient><linearGradient id="ppsVanAccent" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ff7a1a"/><stop offset="1" stop-color="#d94a1f"/></linearGradient></defs><g class="cart-van-bg" aria-hidden="true"><g class="cart-van-bg-track"><g opacity=".92"><g opacity=".55"><path d="M6 76V46h22v30H6Z" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.06)" stroke-width="2"/><path d="M36 76V34h34v42H36Z" fill="rgba(17,24,39,.04)" stroke="rgba(17,24,39,.06)" stroke-width="2"/><path d="M78 76V42h26v34H78Z" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.06)" stroke-width="2"/><path d="M112 76V28h30v48h-30Z" fill="rgba(17,24,39,.04)" stroke="rgba(17,24,39,.06)" stroke-width="2"/><path d="M150 76V40h28v36h-28Z" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.06)" stroke-width="2"/></g><g opacity=".95"><path d="M18 76V44c0-5 4-9 9-9h12c5 0 9 4 9 9v32H18Z" fill="rgba(17,24,39,.06)" stroke="rgba(17,24,39,.09)" stroke-width="2"/><path d="M62 76V30c0-6 5-11 11-11h18c6 0 11 5 11 11v46H62Z" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.08)" stroke-width="2"/><path d="M118 76V36c0-6 5-11 11-11h12c6 0 11 5 11 11v40h-34Z" fill="rgba(17,24,39,.06)" stroke="rgba(17,24,39,.09)" stroke-width="2"/><path d="M156 76V26c0-6 5-11 11-11h22c6 0 11 5 11 11v50h-44Z" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.08)" stroke-width="2"/><g fill="rgba(240,127,41,.13)"><rect x="26" y="44" width="8" height="8" rx="2"/><rect x="38" y="44" width="8" height="8" rx="2"/><rect x="74" y="36" width="9" height="9" rx="2"/><rect x="88" y="36" width="9" height="9" rx="2"/><rect x="74" y="50" width="9" height="9" rx="2"/><rect x="88" y="50" width="9" height="9" rx="2"/><rect x="128" y="42" width="8" height="8" rx="2"/><rect x="138" y="42" width="8" height="8" rx="2"/><rect x="170" y="34" width="10" height="10" rx="2"/><rect x="184" y="34" width="10" height="10" rx="2"/><rect x="170" y="48" width="10" height="10" rx="2"/><rect x="184" y="48" width="10" height="10" rx="2"/></g></g><g class="cart-van-cn" transform="translate(196 8)" opacity=".98"><path d="M8 0v8" stroke="rgba(17,24,39,.18)" stroke-width="2" stroke-linecap="round"/><path d="M8 8V64" stroke="rgba(17,24,39,.12)" stroke-width="6" stroke-linecap="round"/><ellipse cx="8" cy="26" rx="13" ry="6.5" fill="rgba(255,255,255,.70)" stroke="rgba(240,127,41,.22)" stroke-width="2"/><ellipse cx="8" cy="26" rx="4.5" ry="3.5" fill="rgba(17,24,39,.06)"/><path d="M8 64l-6 8h12l-6-8Z" fill="rgba(17,24,39,.06)" stroke="rgba(17,24,39,.08)" stroke-width="2"/></g></g><g opacity=".92" transform="translate(240 0)"><g opacity=".55"><path d="M6 76V46h22v30H6Z" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.06)" stroke-width="2"/><path d="M36 76V34h34v42H36Z" fill="rgba(17,24,39,.04)" stroke="rgba(17,24,39,.06)" stroke-width="2"/><path d="M78 76V42h26v34H78Z" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.06)" stroke-width="2"/><path d="M112 76V28h30v48h-30Z" fill="rgba(17,24,39,.04)" stroke="rgba(17,24,39,.06)" stroke-width="2"/><path d="M150 76V40h28v36h-28Z" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.06)" stroke-width="2"/></g><g opacity=".95"><path d="M18 76V44c0-5 4-9 9-9h12c5 0 9 4 9 9v32H18Z" fill="rgba(17,24,39,.06)" stroke="rgba(17,24,39,.09)" stroke-width="2"/><path d="M62 76V30c0-6 5-11 11-11h18c6 0 11 5 11 11v46H62Z" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.08)" stroke-width="2"/><path d="M118 76V36c0-6 5-11 11-11h12c6 0 11 5 11 11v40h-34Z" fill="rgba(17,24,39,.06)" stroke="rgba(17,24,39,.09)" stroke-width="2"/><path d="M156 76V26c0-6 5-11 11-11h22c6 0 11 5 11 11v50h-44Z" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.08)" stroke-width="2"/><g fill="rgba(240,127,41,.13)"><rect x="26" y="44" width="8" height="8" rx="2"/><rect x="38" y="44" width="8" height="8" rx="2"/><rect x="74" y="36" width="9" height="9" rx="2"/><rect x="88" y="36" width="9" height="9" rx="2"/><rect x="74" y="50" width="9" height="9" rx="2"/><rect x="88" y="50" width="9" height="9" rx="2"/><rect x="128" y="42" width="8" height="8" rx="2"/><rect x="138" y="42" width="8" height="8" rx="2"/><rect x="170" y="34" width="10" height="10" rx="2"/><rect x="184" y="34" width="10" height="10" rx="2"/><rect x="170" y="48" width="10" height="10" rx="2"/><rect x="184" y="48" width="10" height="10" rx="2"/></g></g><g class="cart-van-cn" transform="translate(196 8)" opacity=".98"><path d="M8 0v8" stroke="rgba(17,24,39,.18)" stroke-width="2" stroke-linecap="round"/><path d="M8 8V64" stroke="rgba(17,24,39,.12)" stroke-width="6" stroke-linecap="round"/><ellipse cx="8" cy="26" rx="13" ry="6.5" fill="rgba(255,255,255,.70)" stroke="rgba(240,127,41,.22)" stroke-width="2"/><ellipse cx="8" cy="26" rx="4.5" ry="3.5" fill="rgba(17,24,39,.06)"/><path d="M8 64l-6 8h12l-6-8Z" fill="rgba(17,24,39,.06)" stroke="rgba(17,24,39,.08)" stroke-width="2"/></g></g></g><path d="M0 126H240" stroke="rgba(17,24,39,.10)" stroke-width="10" stroke-linecap="round" opacity=".55"/><ellipse cx="80" cy="126" rx="22" ry="7" fill="rgba(17,24,39,.06)"/><ellipse cx="170" cy="126" rx="22" ry="7" fill="rgba(17,24,39,.06)"/><g class="cart-van-road" aria-hidden="true"><g class="cart-van-road-track"><path d="M10 126h42" stroke="rgba(255,255,255,.65)" stroke-width="4" stroke-linecap="round"/><path d="M66 126h42" stroke="rgba(255,255,255,.65)" stroke-width="4" stroke-linecap="round"/><path d="M122 126h42" stroke="rgba(255,255,255,.65)" stroke-width="4" stroke-linecap="round"/><path d="M178 126h42" stroke="rgba(255,255,255,.65)" stroke-width="4" stroke-linecap="round"/><g transform="translate(240 0)"><path d="M10 126h42" stroke="rgba(255,255,255,.65)" stroke-width="4" stroke-linecap="round"/><path d="M66 126h42" stroke="rgba(255,255,255,.65)" stroke-width="4" stroke-linecap="round"/><path d="M122 126h42" stroke="rgba(255,255,255,.65)" stroke-width="4" stroke-linecap="round"/><path d="M178 126h42" stroke="rgba(255,255,255,.65)" stroke-width="4" stroke-linecap="round"/></g></g></g></g><g class="cart-van-float"><path class="cart-van-shadow" d="M32 122c22 8 154 8 176 0" fill="none" stroke="rgba(17,24,39,.10)" stroke-width="10" stroke-linecap="round"/><g class="cart-van-lines" fill="none" stroke-linecap="round"><path d="M18 76h22" stroke="rgba(17,24,39,.18)" stroke-width="4"/><path d="M10 92h30" stroke="rgba(17,24,39,.12)" stroke-width="4"/><path d="M22 108h18" stroke="rgba(17,24,39,.10)" stroke-width="4"/></g><path d="M58 48h92c12 0 22 8 28 18l14 26c4 8 2 18-6 24-8 6-18 10-30 10H70c-16 0-28-12-28-28V74c0-14 2-26 16-26Z" fill="url(#ppsVanBody)" stroke="rgba(17,24,39,.14)" stroke-width="2.5"/><path d="M150 48h22c10 0 20 7 25 16l10 20c4 8 2 18-6 24-7 5-16 8-26 8h-30V60c0-6 4-12 5-12Z" fill="url(#ppsVanBody)" stroke="rgba(17,24,39,.14)" stroke-width="2.5"/><path d="M168 58h22c6 0 12 4 14 10l4 10c1 3-1 6-4 6h-40V58Z" fill="rgba(37,99,235,.10)" stroke="rgba(37,99,235,.20)" stroke-width="2"/><path d="M68 56h70" stroke="rgba(255,255,255,.92)" stroke-width="4" stroke-linecap="round" opacity=".22"/><path d="M156 56h26" stroke="rgba(255,255,255,.92)" stroke-width="4" stroke-linecap="round" opacity=".18"/><path d="M124 56v46" stroke="rgba(17,24,39,.10)" stroke-width="2" stroke-linecap="round"/><path d="M132 74h10" stroke="rgba(17,24,39,.18)" stroke-width="2" stroke-linecap="round"/><g class="pps-van-sticker" transform="translate(100 58)" style="filter:drop-shadow(0 10px 16px rgba(17,24,39,.14))"><rect x="0" y="0" width="30" height="30" rx="9" fill="rgba(255,255,255,.92)" stroke="rgba(240,127,41,.45)" stroke-width="1.8"/><image href="./assets/poly%20logo%20without%20background.png" x="5" y="5" width="20" height="20" preserveAspectRatio="xMidYMid meet"/></g><circle cx="200" cy="92" r="9" fill="rgba(255,214,120,.20)"/><circle cx="200" cy="92" r="3.4" fill="rgba(255,214,120,.96)" stroke="rgba(240,127,41,.35)" stroke-width="1"/><path d="M58 86h156" stroke="url(#ppsVanAccent)" stroke-width="8" stroke-linecap="round" opacity=".9"/><g class="cart-van-wheel cart-van-wheel-left" transform="translate(80 112)"><g class="cart-van-wheel-spin"><circle r="14" fill="#111827" opacity=".86"/><circle r="7" fill="rgba(255,255,255,.92)"/><path d="M0-10V10M-10 0H10M-7-7l14 14M-7 7l14-14" stroke="rgba(17,24,39,.35)" stroke-width="2" stroke-linecap="round"/></g></g><g class="cart-van-wheel cart-van-wheel-right" transform="translate(170 112)"><g class="cart-van-wheel-spin"><circle r="14" fill="#111827" opacity=".86"/><circle r="7" fill="rgba(255,255,255,.92)"/><path d="M0-10V10M-10 0H10M-7-7l14 14M-7 7l14-14" stroke="rgba(17,24,39,.35)" stroke-width="2" stroke-linecap="round"/></g></g></g></svg></div><div class="cart-hero-text"><p class="cart-kicker" data-i18n="brand.tagline">Power your packaging</p><h1 class="cart-title" data-i18n="cart.title">Your Cart</h1><p class="cart-subtitle" data-i18n="cart.subtitle">Review items, adjust quantities, and checkout when you're ready.</p><div class="cart-steps" aria-label="Checkout steps"><div class="cart-step active"><span class="cart-step-dot"></span><span data-i18n="cart.step.cart">Cart</span></div><div class="cart-step"><span class="cart-step-dot"></span><span data-i18n="cart.step.checkout">Checkout</span></div><div class="cart-step"><span class="cart-step-dot"></span><span data-i18n="cart.step.confirm">Confirm</span></div></div></div></div></section><div class="cart-shell"><div class="cart-left"><div id="cartList" class="cart-list"></div></div><aside class="cart-right"><div class="card cart-summary"><div class="cart-summary-row"><div class="cart-summary-label" data-i18n="cart.total">Total</div><div id="total" class="cart-summary-total"></div></div><div class="cart-summary-row" id="bulkSavingsRow" style="display:none"><div class="cart-summary-label">Bulk savings</div><div id="bulkSavingsAmount"></div></div><div class="cart-summary-row"><div class="cart-summary-label">Estimated delivery</div><div id="cartEstimate"></div></div><div class="cart-summary-actions"><a class="btn" href="./products.html" data-i18n="cart.continue">Continue shopping</a> <a class="btn btn-primary" href="./checkout.html" id="goCheckout" data-i18n="cart.checkout">Go to checkout</a> <button class="btn btn-outline" type="button" id="reorderBtn" style="display:none">One-click reorder</button></div><div class="cart-trust" aria-label="Checkout reassurance"><span class="cart-trust-pill"><span class="lock-icon" aria-hidden="true"></span><span data-i18n="footer.secure">Secure payments via Square</span></span> <span class="cart-trust-pill"><span class="ship-icon" aria-hidden="true"></span><span data-i18n="promo.right">Bulk stock | Fast shipping | Canada-wide</span></span></div></div><div class="card cart-account"><div class="cart-account-title" data-i18n="cart.account.title">Have an account?</div><div class="cart-account-desc" data-i18n="cart.account.desc">Log in to check out faster and track orders.</div><div class="cart-account-actions"><a class="btn btn-outline" href="./login.html"><span class="nav-icon user-icon" aria-hidden="true"></span><span data-i18n="cart.account.login">Log in</span></a> <a class="btn" href="./login.html" data-i18n="cart.account.create">Create account</a></div></div><div id="crossSellSection" class="card cart-cross-sell"><div class="cart-cross-sell-head"><h3 class="cart-cross-sell-title">Complete your order</h3><p class="cart-cross-sell-desc">Top picks that pair with your cart.</p></div><div id="crossSellGrid" class="grid grid-2 cart-cross-sell-grid"></div></div></aside></div><div class="footer">© <span id="y"></span> <span data-i18n="footer.short">Power Poly Supplies. Power your packaging.</span></div></div><script src="./config.min.js" defer></script><script src="./js/store.min.js" defer></script><script src="./js/i18n.min.js" defer></script><script src="./js/ui.min.js" defer></script><script src="./js/cart.min.js" defer></script><script>window.addEventListener("DOMContentLoaded",()=>{document.getElementById("y").textContent=(new Date).getFullYear()})</script></body></html>
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content"/>
+  <title>Cart | Power Poly Supplies</title>
+  <link rel="stylesheet" href="./css/styles.css"/>
+  <link rel="icon" type="image/png" href="./assets/poly%20logo%20without%20background.png"/>
+</head>
+<body>
+  <header class="site-header">
+    <div class="promo-strip">
+      <div class="container promo-inner">
+        <div><strong data-i18n="brand.name">Power Poly Supplies</strong> | <span data-i18n="brand.tagline">Power your packaging</span></div>
+        <div style="font-weight:700;" data-i18n="promo.right">Bulk stock | Fast shipping | Canada-wide</div>
+      </div>
+    </div>
+    <div class="navbar">
+      <div class="container navbar-inner">
+        <a class="brand" href="./index.html">
+          <img src="./assets/poly%20logo%20without%20background.png" alt="Power Poly Supplies" width="62" height="62" decoding="async">
+          <div class="brand-text">
+            <span class="brand-title" data-i18n="brand.name">Power Poly Supplies</span>
+            <span class="brand-tagline" data-i18n="brand.tagline">Power your packaging</span>
+          </div>
+        </a>
+        <button class="menu-btn" id="menuBtn" aria-label="Open menu" data-i18n="nav.menu">Menu</button>
+        <nav class="navlinks" id="navLinks">
+          <a href="./index.html" data-i18n="nav.home">Home</a>
+          <a href="./specials.html" data-i18n="nav.specials">Special Offers</a>
+          <div class="dropdown">
+            <button class="dropbtn" type="button"><span data-i18n="nav.shop">Shop by Category</span> <span class="caret" aria-hidden="true"></span></button>
+            <div class="dropdown-menu">
+              <a href="./products.html?cat=Garment%20Bags" data-i18n="nav.garment">Garment Cover Bags</a>
+              <a href="./products.html?cat=Polybags" data-i18n="nav.polybags">Polybags</a>
+              <a href="./products.html?cat=Hangers" data-i18n="nav.hangers">Hangers</a>
+            </div>
+          </div>
+          <a href="./about.html" data-i18n="nav.about">About Us</a>
+          <a href="./contact.html"><span class="nav-icon phone-icon" aria-hidden="true"></span><span data-i18n="nav.contact">Contact</span></a>
+          <a href="./feedback.html"><span class="nav-icon pen-icon" aria-hidden="true"></span><span data-i18n="nav.feedback">Feedback</span></a>
+          <a href="./login.html"><span class="nav-icon user-icon" aria-hidden="true"></span><span data-i18n="nav.account">Account</span></a>
+          <a href="./cart.html"><span class="nav-icon cart-icon" aria-hidden="true"></span><span data-i18n="nav.cart">Cart</span> <span class="badge" data-cart-badge>0</span></a>
+          <form class="search-bar nav-search" action="./products.html" method="get" role="search">
+            <input type="search" name="q" placeholder="Search" aria-label="Search products" data-i18n-placeholder="nav.search_placeholder">
+            <button type="submit" data-i18n="nav.search_button">Search</button>
+          </form>
+
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <div class="container page">
+    <section class="cart-hero fade-in">
+      <div class="cart-hero-inner">
+        <div class="cart-hero-illustration" aria-hidden="true" data-cart-state="empty">
+          <div class="cart-load-scene" id="cartLoadScene" aria-hidden="true">
+            <div class="cart-load-worker" aria-hidden="true">
+              <span class="cart-load-head"></span>
+              <span class="cart-load-torso"></span>
+              <span class="cart-load-arm"></span>
+            </div>
+            <div class="cart-load-dolly" aria-hidden="true">
+              <span class="cart-load-dolly-bed"></span>
+              <span class="cart-load-dolly-handle"></span>
+              <span class="cart-load-dolly-wheel left"></span>
+              <span class="cart-load-dolly-wheel right"></span>
+            </div>
+            <div class="cart-load-boxes" id="cartLoadBoxes" aria-hidden="true"></div>
+          </div>
+          <svg class="cart-van" viewBox="0 0 240 140" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+            <defs>
+              <linearGradient id="ppsVanBody" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#fff7ed"/>
+                <stop offset="1" stop-color="#ffffff"/>
+              </linearGradient>
+              <linearGradient id="ppsVanAccent" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#ff7a1a"/>
+                <stop offset="1" stop-color="#d94a1f"/>
+              </linearGradient>
+            </defs>
+
+            <!-- Background (animated) -->
+            <g class="cart-van-bg" aria-hidden="true">
+              <g class="cart-van-bg-track">
+                <!-- skyline A (Toronto-style) -->
+                <g opacity=".92">
+                  <!-- distant layer -->
+                  <g opacity=".55">
+                    <path d="M6 76V46h22v30H6Z" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.06)" stroke-width="2"/>
+                    <path d="M36 76V34h34v42H36Z" fill="rgba(17,24,39,.04)" stroke="rgba(17,24,39,.06)" stroke-width="2"/>
+                    <path d="M78 76V42h26v34H78Z" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.06)" stroke-width="2"/>
+                    <path d="M112 76V28h30v48h-30Z" fill="rgba(17,24,39,.04)" stroke="rgba(17,24,39,.06)" stroke-width="2"/>
+                    <path d="M150 76V40h28v36h-28Z" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.06)" stroke-width="2"/>
+                  </g>
+
+                  <!-- front layer -->
+                  <g opacity=".95">
+                    <path d="M18 76V44c0-5 4-9 9-9h12c5 0 9 4 9 9v32H18Z" fill="rgba(17,24,39,.06)" stroke="rgba(17,24,39,.09)" stroke-width="2"/>
+                    <path d="M62 76V30c0-6 5-11 11-11h18c6 0 11 5 11 11v46H62Z" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.08)" stroke-width="2"/>
+                    <path d="M118 76V36c0-6 5-11 11-11h12c6 0 11 5 11 11v40h-34Z" fill="rgba(17,24,39,.06)" stroke="rgba(17,24,39,.09)" stroke-width="2"/>
+                    <path d="M156 76V26c0-6 5-11 11-11h22c6 0 11 5 11 11v50h-44Z" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.08)" stroke-width="2"/>
+
+                    <!-- windows -->
+                    <g fill="rgba(240,127,41,.13)">
+                      <rect x="26" y="44" width="8" height="8" rx="2"/>
+                      <rect x="38" y="44" width="8" height="8" rx="2"/>
+                      <rect x="74" y="36" width="9" height="9" rx="2"/>
+                      <rect x="88" y="36" width="9" height="9" rx="2"/>
+                      <rect x="74" y="50" width="9" height="9" rx="2"/>
+                      <rect x="88" y="50" width="9" height="9" rx="2"/>
+                      <rect x="128" y="42" width="8" height="8" rx="2"/>
+                      <rect x="138" y="42" width="8" height="8" rx="2"/>
+                      <rect x="170" y="34" width="10" height="10" rx="2"/>
+                      <rect x="184" y="34" width="10" height="10" rx="2"/>
+                      <rect x="170" y="48" width="10" height="10" rx="2"/>
+                      <rect x="184" y="48" width="10" height="10" rx="2"/>
+                    </g>
+                  </g>
+
+                  <!-- CN Tower (more recognizable) -->
+                  <g class="cart-van-cn" transform="translate(196 8)" opacity=".98">
+                    <path d="M8 0v8" stroke="rgba(17,24,39,.18)" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M8 8V64" stroke="rgba(17,24,39,.12)" stroke-width="6" stroke-linecap="round"/>
+                    <ellipse cx="8" cy="26" rx="13" ry="6.5" fill="rgba(255,255,255,.70)" stroke="rgba(240,127,41,.22)" stroke-width="2"/>
+                    <ellipse cx="8" cy="26" rx="4.5" ry="3.5" fill="rgba(17,24,39,.06)"/>
+                    <path d="M8 64l-6 8h12l-6-8Z" fill="rgba(17,24,39,.06)" stroke="rgba(17,24,39,.08)" stroke-width="2"/>
+                  </g>
+                </g>
+
+                <!-- skyline B (repeat for loop) -->
+                <g opacity=".92" transform="translate(240 0)">
+                  <g opacity=".55">
+                    <path d="M6 76V46h22v30H6Z" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.06)" stroke-width="2"/>
+                    <path d="M36 76V34h34v42H36Z" fill="rgba(17,24,39,.04)" stroke="rgba(17,24,39,.06)" stroke-width="2"/>
+                    <path d="M78 76V42h26v34H78Z" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.06)" stroke-width="2"/>
+                    <path d="M112 76V28h30v48h-30Z" fill="rgba(17,24,39,.04)" stroke="rgba(17,24,39,.06)" stroke-width="2"/>
+                    <path d="M150 76V40h28v36h-28Z" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.06)" stroke-width="2"/>
+                  </g>
+                  <g opacity=".95">
+                    <path d="M18 76V44c0-5 4-9 9-9h12c5 0 9 4 9 9v32H18Z" fill="rgba(17,24,39,.06)" stroke="rgba(17,24,39,.09)" stroke-width="2"/>
+                    <path d="M62 76V30c0-6 5-11 11-11h18c6 0 11 5 11 11v46H62Z" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.08)" stroke-width="2"/>
+                    <path d="M118 76V36c0-6 5-11 11-11h12c6 0 11 5 11 11v40h-34Z" fill="rgba(17,24,39,.06)" stroke="rgba(17,24,39,.09)" stroke-width="2"/>
+                    <path d="M156 76V26c0-6 5-11 11-11h22c6 0 11 5 11 11v50h-44Z" fill="rgba(17,24,39,.05)" stroke="rgba(17,24,39,.08)" stroke-width="2"/>
+                    <g fill="rgba(240,127,41,.13)">
+                      <rect x="26" y="44" width="8" height="8" rx="2"/>
+                      <rect x="38" y="44" width="8" height="8" rx="2"/>
+                      <rect x="74" y="36" width="9" height="9" rx="2"/>
+                      <rect x="88" y="36" width="9" height="9" rx="2"/>
+                      <rect x="74" y="50" width="9" height="9" rx="2"/>
+                      <rect x="88" y="50" width="9" height="9" rx="2"/>
+                      <rect x="128" y="42" width="8" height="8" rx="2"/>
+                      <rect x="138" y="42" width="8" height="8" rx="2"/>
+                      <rect x="170" y="34" width="10" height="10" rx="2"/>
+                      <rect x="184" y="34" width="10" height="10" rx="2"/>
+                      <rect x="170" y="48" width="10" height="10" rx="2"/>
+                      <rect x="184" y="48" width="10" height="10" rx="2"/>
+                    </g>
+                  </g>
+                  <g class="cart-van-cn" transform="translate(196 8)" opacity=".98">
+                    <path d="M8 0v8" stroke="rgba(17,24,39,.18)" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M8 8V64" stroke="rgba(17,24,39,.12)" stroke-width="6" stroke-linecap="round"/>
+                    <ellipse cx="8" cy="26" rx="13" ry="6.5" fill="rgba(255,255,255,.70)" stroke="rgba(240,127,41,.22)" stroke-width="2"/>
+                    <ellipse cx="8" cy="26" rx="4.5" ry="3.5" fill="rgba(17,24,39,.06)"/>
+                    <path d="M8 64l-6 8h12l-6-8Z" fill="rgba(17,24,39,.06)" stroke="rgba(17,24,39,.08)" stroke-width="2"/>
+                  </g>
+                </g>
+              </g>
+
+              <!-- road -->
+              <path d="M0 126H240" stroke="rgba(17,24,39,.10)" stroke-width="10" stroke-linecap="round" opacity=".55"/>
+              <ellipse cx="80" cy="126" rx="22" ry="7" fill="rgba(17,24,39,.06)"/>
+              <ellipse cx="170" cy="126" rx="22" ry="7" fill="rgba(17,24,39,.06)"/>
+              <g class="cart-van-road" aria-hidden="true">
+                <g class="cart-van-road-track">
+                  <path d="M10 126h42" stroke="rgba(255,255,255,.65)" stroke-width="4" stroke-linecap="round"/>
+                  <path d="M66 126h42" stroke="rgba(255,255,255,.65)" stroke-width="4" stroke-linecap="round"/>
+                  <path d="M122 126h42" stroke="rgba(255,255,255,.65)" stroke-width="4" stroke-linecap="round"/>
+                  <path d="M178 126h42" stroke="rgba(255,255,255,.65)" stroke-width="4" stroke-linecap="round"/>
+                  <g transform="translate(240 0)">
+                    <path d="M10 126h42" stroke="rgba(255,255,255,.65)" stroke-width="4" stroke-linecap="round"/>
+                    <path d="M66 126h42" stroke="rgba(255,255,255,.65)" stroke-width="4" stroke-linecap="round"/>
+                    <path d="M122 126h42" stroke="rgba(255,255,255,.65)" stroke-width="4" stroke-linecap="round"/>
+                    <path d="M178 126h42" stroke="rgba(255,255,255,.65)" stroke-width="4" stroke-linecap="round"/>
+                  </g>
+                </g>
+              </g>
+            </g>
+
+            <g class="cart-van-float">
+              <path class="cart-van-shadow" d="M32 122c22 8 154 8 176 0" fill="none" stroke="rgba(17,24,39,.10)" stroke-width="10" stroke-linecap="round"/>
+
+              <!-- Motion lines -->
+              <g class="cart-van-lines" fill="none" stroke-linecap="round">
+                <path d="M18 76h22" stroke="rgba(17,24,39,.18)" stroke-width="4"/>
+                <path d="M10 92h30" stroke="rgba(17,24,39,.12)" stroke-width="4"/>
+                <path d="M22 108h18" stroke="rgba(17,24,39,.10)" stroke-width="4"/>
+              </g>
+
+              <!-- Van body -->
+              <path d="M58 48h92c12 0 22 8 28 18l14 26c4 8 2 18-6 24-8 6-18 10-30 10H70c-16 0-28-12-28-28V74c0-14 2-26 16-26Z"
+                fill="url(#ppsVanBody)" stroke="rgba(17,24,39,.14)" stroke-width="2.5" />
+
+              <!-- Cab -->
+              <path d="M150 48h22c10 0 20 7 25 16l10 20c4 8 2 18-6 24-7 5-16 8-26 8h-30V60c0-6 4-12 5-12Z"
+                fill="url(#ppsVanBody)" stroke="rgba(17,24,39,.14)" stroke-width="2.5" />
+
+              <!-- Window -->
+              <path d="M168 58h22c6 0 12 4 14 10l4 10c1 3-1 6-4 6h-40V58Z"
+                fill="rgba(37,99,235,.10)" stroke="rgba(37,99,235,.20)" stroke-width="2" />
+
+              <!-- Subtle highlights -->
+              <path d="M68 56h70" stroke="rgba(255,255,255,.92)" stroke-width="4" stroke-linecap="round" opacity=".22"/>
+              <path d="M156 56h26" stroke="rgba(255,255,255,.92)" stroke-width="4" stroke-linecap="round" opacity=".18"/>
+
+              <!-- Door + handle -->
+              <path d="M124 56v46" stroke="rgba(17,24,39,.10)" stroke-width="2" stroke-linecap="round"/>
+              <path d="M132 74h10" stroke="rgba(17,24,39,.18)" stroke-width="2" stroke-linecap="round"/>
+
+              <!-- Logo sticker -->
+              <g class="pps-van-sticker" transform="translate(100 58)" style="filter: drop-shadow(0 10px 16px rgba(17,24,39,.14));">
+                <rect x="0" y="0" width="30" height="30" rx="9" fill="rgba(255,255,255,.92)" stroke="rgba(240,127,41,.45)" stroke-width="1.8"/>
+                <image href="./assets/poly%20logo%20without%20background.png" x="5" y="5" width="20" height="20" preserveAspectRatio="xMidYMid meet"/>
+              </g>
+
+              <!-- Headlight glow -->
+              <circle cx="200" cy="92" r="9" fill="rgba(255,214,120,.20)"/>
+              <circle cx="200" cy="92" r="3.4" fill="rgba(255,214,120,.96)" stroke="rgba(240,127,41,.35)" stroke-width="1"/>
+
+              <!-- Accent stripe -->
+              <path d="M58 86h156" stroke="url(#ppsVanAccent)" stroke-width="8" stroke-linecap="round" opacity=".9"/>
+
+              <!-- Wheels -->
+              <g class="cart-van-wheel cart-van-wheel-left" transform="translate(80 112)">
+                <g class="cart-van-wheel-spin">
+                  <circle r="14" fill="#111827" opacity=".86"/>
+                  <circle r="7" fill="rgba(255,255,255,.92)"/>
+                  <path d="M0-10V10M-10 0H10M-7-7l14 14M-7 7l14-14" stroke="rgba(17,24,39,.35)" stroke-width="2" stroke-linecap="round"/>
+                </g>
+              </g>
+              <g class="cart-van-wheel cart-van-wheel-right" transform="translate(170 112)">
+                <g class="cart-van-wheel-spin">
+                  <circle r="14" fill="#111827" opacity=".86"/>
+                  <circle r="7" fill="rgba(255,255,255,.92)"/>
+                  <path d="M0-10V10M-10 0H10M-7-7l14 14M-7 7l14-14" stroke="rgba(17,24,39,.35)" stroke-width="2" stroke-linecap="round"/>
+                </g>
+              </g>
+
+            </g>
+          </svg>
+        </div>
+        <div class="cart-hero-text">
+          <p class="cart-kicker" data-i18n="brand.tagline">Power your packaging</p>
+          <h1 class="cart-title" data-i18n="cart.title">Your Cart</h1>
+          <p class="cart-subtitle" data-i18n="cart.subtitle">Review items, adjust quantities, and checkout when you're ready.</p>
+          <div class="cart-steps" aria-label="Checkout steps">
+            <div class="cart-step active"><span class="cart-step-dot"></span><span data-i18n="cart.step.cart">Cart</span></div>
+            <div class="cart-step"><span class="cart-step-dot"></span><span data-i18n="cart.step.checkout">Checkout</span></div>
+            <div class="cart-step"><span class="cart-step-dot"></span><span data-i18n="cart.step.confirm">Confirm</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="cart-shell">
+      <div class="cart-left">
+        <div id="cartList" class="cart-list"></div>
+      </div>
+
+      <aside class="cart-right">
+        <div class="card cart-summary">
+          <div class="cart-summary-row">
+            <div class="cart-summary-label" data-i18n="cart.total">Total</div>
+            <div id="total" class="cart-summary-total"></div>
+          </div>
+          <div class="cart-summary-row" id="bulkSavingsRow" style="display:none;">
+            <div class="cart-summary-label">Bulk savings</div>
+            <div id="bulkSavingsAmount"></div>
+          </div>
+          <div class="cart-summary-row">
+            <div class="cart-summary-label">Estimated delivery</div>
+            <div id="cartEstimate"></div>
+          </div>
+          <div class="cart-summary-actions">
+            <a class="btn" href="./products.html" data-i18n="cart.continue">Continue shopping</a>
+            <a class="btn btn-primary" href="./checkout.html" id="goCheckout" data-i18n="cart.checkout">Go to checkout</a>
+            <button class="btn btn-outline" type="button" id="reorderBtn" style="display:none;">One-click reorder</button>
+          </div>
+          <div class="cart-trust" aria-label="Checkout reassurance">
+            <span class="cart-trust-pill"><span class="lock-icon" aria-hidden="true"></span><span data-i18n="footer.secure">Secure payments via Square</span></span>
+            <span class="cart-trust-pill"><span class="ship-icon" aria-hidden="true"></span><span data-i18n="promo.right">Bulk stock | Fast shipping | Canada-wide</span></span>
+          </div>
+        </div>
+
+        <div class="card cart-account">
+          <div class="cart-account-title" data-i18n="cart.account.title">Have an account?</div>
+          <div class="cart-account-desc" data-i18n="cart.account.desc">Log in to check out faster and track orders.</div>
+          <div class="cart-account-actions">
+            <a class="btn btn-outline" href="./login.html"><span class="nav-icon user-icon" aria-hidden="true"></span><span data-i18n="cart.account.login">Log in</span></a>
+            <a class="btn" href="./login.html" data-i18n="cart.account.create">Create account</a>
+          </div>
+        </div>
+
+        <div id="crossSellSection" class="card cart-cross-sell">
+          <div class="cart-cross-sell-head">
+            <h3 class="cart-cross-sell-title">Complete your order</h3>
+            <p class="cart-cross-sell-desc">Top picks that pair with your cart.</p>
+          </div>
+          <div id="crossSellGrid" class="grid grid-2 cart-cross-sell-grid"></div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="footer">&copy; <span id="y"></span> <span data-i18n="footer.short">Power Poly Supplies. Power your packaging.</span></div>
+  </div>
+
+  <script src="./config.min.js"></script>
+
+  <script src="./js/store.min.js"></script>
+  <script src="./js/notifications.min.js"></script>
+  <script src="./js/i18n.js"></script>
+  <script src="./js/ui.js"></script>
+  <script src="./js/cart.min.js"></script>
+  <script>
+    document.getElementById("y").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
+
+
+

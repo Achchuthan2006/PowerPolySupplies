@@ -1,1 +1,33 @@
-const CACHE_VERSION="pps-v2",CORE_CACHE="pps-core-pps-v2",RUNTIME_CACHE="pps-runtime-pps-v2",CORE_ASSETS=["./","./index.html","./products.html","./product.html","./cart.html","./checkout.html","./account.html","./resources.html","./offline.html","./css/styles.min.css","./js/ui.min.js","./js/store.min.js","./js/i18n.min.js","./js/notifications.min.js","./assets/poly%20logo%20without%20background.png"];function isNavigationRequest(t){return"navigate"===t.mode||"GET"===t.method&&t.headers.get("accept")?.includes("text/html")}self.addEventListener("install",t=>{self.skipWaiting(),t.waitUntil(caches.open(CORE_CACHE).then(t=>t.addAll(CORE_ASSETS)).catch(()=>{}))}),self.addEventListener("activate",t=>{t.waitUntil(Promise.all([self.clients.claim(),caches.keys().then(t=>Promise.all(t.map(t=>[CORE_CACHE,RUNTIME_CACHE].includes(t)?null:caches.delete(t))))]))}),self.addEventListener("notificationclick",t=>{t.notification?.close?.();const e=t.notification?.data?.url||"./account.html#notifications";t.waitUntil(self.clients.matchAll({type:"window",includeUncontrolled:!0}).then(t=>{for(const n of t)try{if(n.url&&"focus"in n)return n.focus(),void n.navigate(e)}catch{}if(self.clients.openWindow)return self.clients.openWindow(e)}))}),self.addEventListener("fetch",t=>{const e=t.request,n=new URL(e.url);n.origin===self.location.origin&&(isNavigationRequest(e)?t.respondWith(fetch(e).then(t=>{const n=t.clone();return caches.open(RUNTIME_CACHE).then(t=>t.put(e,n)).catch(()=>{}),t}).catch(()=>caches.match(e).then(t=>t||caches.match("./offline.html")))):/\.(?:css|js|png|jpg|jpeg|webp|svg|ico)$/i.test(n.pathname)&&t.respondWith(caches.match(e).then(t=>{const n=fetch(e).then(t=>{const n=t.clone();return caches.open(RUNTIME_CACHE).then(t=>t.put(e,n)).catch(()=>{}),t}).catch(()=>t);return t||n})))}),self.addEventListener("push",t=>{try{const e=t.data?.json?.()||{},n=String(e.title||"Power Poly Supplies"),s={body:String(e.body||""),icon:"./assets/poly%20logo%20without%20background.png",badge:"./assets/poly%20logo%20without%20background.png",data:{url:String(e.url||"./account.html#notifications")}};t.waitUntil(self.registration.showNotification(n,s))}catch{}});
+/* Service worker cleanup: unregister old cached versions so the site serves fresh files. */
+
+self.addEventListener("install", (event) => {
+  self.skipWaiting();
+  event.waitUntil(Promise.resolve());
+});
+
+self.addEventListener("activate", (event) => {
+  event.waitUntil((async () => {
+    try {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((key) => caches.delete(key)));
+    } catch {
+      // ignore cache cleanup failures
+    }
+
+    try {
+      await self.clients.claim();
+      const clients = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      for (const client of clients) {
+        client.postMessage({ type: "PPS_SW_DISABLED" });
+      }
+    } catch {
+      // ignore client update failures
+    }
+
+    try {
+      await self.registration.unregister();
+    } catch {
+      // ignore unregister failures
+    }
+  })());
+});

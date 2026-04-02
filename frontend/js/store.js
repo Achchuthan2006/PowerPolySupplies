@@ -486,10 +486,6 @@ function setCart(cart){
 }
 
 function getFavorites(){
-  if(!favoritesSyncStarted && getSession()?.token){
-    favoritesSyncStarted = true;
-    refreshFavoritesFromAccount().catch(()=>{ /* ignore */ });
-  }
   try{
     const raw = JSON.parse(localStorage.getItem(FAVORITES_KEY) || "[]");
     return Array.isArray(raw) ? raw.filter(Boolean) : [];
@@ -502,7 +498,6 @@ function setFavorites(list){
   const unique = Array.from(new Set((list || []).filter(Boolean)));
   localStorage.setItem(FAVORITES_KEY, JSON.stringify(unique));
   window.dispatchEvent(new CustomEvent("pps:favorites", { detail:{ favorites: unique } }));
-  void persistFavoritesToAccount(unique);
 }
 
 function isFavorite(productId){
@@ -608,32 +603,6 @@ function getAccountEmail(){
   return email || "";
 }
 
-function authHeaders(extra = {}){
-  const session = getSession();
-  const headers = { ...extra };
-  if(session?.token){
-    headers.Authorization = `Bearer ${session.token}`;
-  }
-  return headers;
-}
-
-async function fetchAccountJson(path, options = {}){
-  const session = getSession();
-  if(!session?.token) throw new Error("Unauthorized");
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers: authHeaders(options.headers || {})
-  });
-  const data = await res.json().catch(()=> ({}));
-  if(!res.ok || data?.ok === false){
-    throw new Error(String(data?.message || `Request failed (${res.status})`));
-  }
-  return data;
-}
-
-let favoritesSyncStarted = false;
-let wishlistsSyncStarted = false;
-
 function accountKey(email, suffix){
   const e = String(email || "").trim().toLowerCase();
   if(!e) return "";
@@ -656,34 +625,6 @@ function writeJson(key, value){
     return true;
   }catch(err){
     return false;
-  }
-}
-
-async function refreshFavoritesFromAccount(){
-  const session = getSession();
-  if(!session?.token) return getFavorites();
-  const data = await fetchAccountJson("/api/account/favorites");
-  const ids = Array.isArray(data?.productIds) ? data.productIds.map((id)=> String(id || "")).filter(Boolean) : [];
-  try{
-    localStorage.setItem(FAVORITES_KEY, JSON.stringify(ids));
-  }catch(err){
-    // ignore
-  }
-  window.dispatchEvent(new CustomEvent("pps:favorites", { detail:{ favorites: ids } }));
-  return ids;
-}
-
-async function persistFavoritesToAccount(list){
-  if(!getSession()?.token) return;
-  const productIds = Array.from(new Set((list || []).map((id)=> String(id || "")).filter(Boolean)));
-  try{
-    await fetchAccountJson("/api/account/favorites", {
-      method:"PUT",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ productIds })
-    });
-  }catch(err){
-    // keep local fallback
   }
 }
 
@@ -714,37 +655,9 @@ function normalizeWishlists(data){
   return { lists: normalized };
 }
 
-async function refreshWishlistsFromAccount(){
-  const email = getAccountEmail();
-  if(!getSession()?.token || !email) return getWishlists();
-  const data = await fetchAccountJson("/api/account/wishlists");
-  const normalized = normalizeWishlists(data || {});
-  const key = accountKey(email, WISHLISTS_SUFFIX);
-  writeJson(key, normalized);
-  window.dispatchEvent(new CustomEvent("pps:wishlists", { detail:{ email, wishlists: normalized } }));
-  return normalized;
-}
-
-async function persistWishlistsToAccount(data){
-  if(!getSession()?.token) return;
-  try{
-    await fetchAccountJson("/api/account/wishlists", {
-      method:"PUT",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify(data || {})
-    });
-  }catch(err){
-    // keep local fallback
-  }
-}
-
 function getWishlists(){
   const email = getAccountEmail();
   if(!email) return null;
-  if(!wishlistsSyncStarted && getSession()?.token){
-    wishlistsSyncStarted = true;
-    refreshWishlistsFromAccount().catch(()=>{ /* ignore */ });
-  }
   const key = accountKey(email, WISHLISTS_SUFFIX);
   const data = normalizeWishlists(readJson(key, null));
   writeJson(key, data);
@@ -758,7 +671,6 @@ function setWishlists(next){
   const data = normalizeWishlists(next);
   writeJson(key, data);
   window.dispatchEvent(new CustomEvent("pps:wishlists", { detail:{ email, wishlists: data } }));
-  void persistWishlistsToAccount(data);
   return data;
 }
 
@@ -848,4 +760,4 @@ function addItemsToCart(items){
   });
 }
 
-window.PPS = { API_BASE, money, convertCents, getTieredPriceCents, getComparePriceCents, getCurrency, setCurrency, pingBackend, loadProducts, fetchReviews, submitReview, getCart, setCart, updateCartBadge, addToCart, addItemsToCart, getFavorites, isFavorite, toggleFavorite, getSession, setSession, clearSession, refreshFavoritesFromAccount, refreshWishlistsFromAccount, setApiBaseOverride, getWishlists, createWishlist, renameWishlist, deleteWishlist, addToWishlist, removeFromWishlist, isInAnyWishlist };
+window.PPS = { API_BASE, money, convertCents, getTieredPriceCents, getComparePriceCents, getCurrency, setCurrency, pingBackend, loadProducts, fetchReviews, submitReview, getCart, setCart, updateCartBadge, addToCart, addItemsToCart, getFavorites, isFavorite, toggleFavorite, getSession, setSession, clearSession, setApiBaseOverride, getWishlists, createWishlist, renameWishlist, deleteWishlist, addToWishlist, removeFromWishlist, isInAnyWishlist };

@@ -65,8 +65,32 @@ function decoratePromoTagline(){
   const bolt = document.createElement("span");
   bolt.className = "promo-bolt";
   bolt.setAttribute("aria-hidden", "true");
-  bolt.textContent = " ?";
+  bolt.textContent = " ⚡";
   el.insertAdjacentElement("afterend", bolt);
+}
+
+async function disableLegacyServiceWorker(){
+  if(typeof window === "undefined" || !("serviceWorker" in navigator)) return;
+
+  try{
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(registrations.map((registration) => registration.unregister().catch(()=>{})));
+  }catch{
+    // ignore
+  }
+
+  try{
+    if("caches" in window){
+      const keys = await caches.keys();
+      await Promise.all(
+        keys
+          .filter((key) => /^pps-/i.test(key))
+          .map((key) => caches.delete(key).catch(()=>false))
+      );
+    }
+  }catch{
+    // ignore
+  }
 }
 
 function setupFadeIn(){
@@ -294,9 +318,9 @@ function showLanguageModal(){
       <div class="pps-modal-header">
         <div>
           <h2 class="pps-modal-title" id="ppsLangTitle">${window.PPS_I18N?.t("lang.prompt.title") || "Choose your language"}</h2>
-          <p class="pps-modal-subtitle">${window.PPS_I18N?.t("lang.prompt.subtitle") || "Select the language that�s easiest for you. You can change it anytime from the top menu."}</p>
+          <p class="pps-modal-subtitle">${window.PPS_I18N?.t("lang.prompt.subtitle") || "Select the language that’s easiest for you. You can change it anytime from the top menu."}</p>
         </div>
-        <button class="pps-modal-close" type="button" aria-label="${window.PPS_I18N?.t("lang.prompt.close") || "Close"}">�</button>
+        <button class="pps-modal-close" type="button" aria-label="${window.PPS_I18N?.t("lang.prompt.close") || "Close"}">×</button>
       </div>
       <div class="pps-modal-body">
         <div class="pps-modal-row">
@@ -1622,14 +1646,14 @@ function injectHelpWidget(){
       es: {
         fab: "Ayuda",
         title: "Soporte al cliente en vivo",
-        subtitle: "Ahora mismo estamos fuera de l�nea. Deja un mensaje y nos pondremos en contacto.",
+        subtitle: "Ahora mismo estamos fuera de línea. Deja un mensaje y nos pondremos en contacto.",
         name: "Nombre",
         email: "Correo",
         message: "Mensaje",
         send: "Enviar mensaje",
         sending: "Enviando...",
-        sent: "�Gracias! Nos pondremos en contacto.",
-        error: "No se pudo enviar en este momento. Int�ntalo de nuevo."
+        sent: "¡Gracias! Nos pondremos en contacto.",
+        error: "No se pudo enviar en este momento. Inténtalo de nuevo."
       }
     };
     return localized[lang] || null;
@@ -1798,26 +1822,26 @@ function injectHelpWidget(){
       ],
       match: (q)=> /ship|shipping|deliver|delivery|gta|outside|charge|charges|cost|pickup|courier/i.test(q),
       answerKey: "help.chat.answer.shipping",
-      answer: () => `Standard GTA delivery is free. Express and non-GTA delivery charges are confirmed by our team after we review the order and address.<br><a href="./legal-shipping.html">Read Shipping & Returns</a>`
+      answer: () => `Standard GTA delivery is free. Express and non‑GTA delivery charges are confirmed by our team after we review the order and address.<br><a href="./legal-shipping.html">Read Shipping & Returns</a>`
     },
     {
       id: "sizes",
       titleKey: "help.chat.topic.sizes",
       title: "Garment bag sizes",
-      keywords: ["size","sizing","garment bag","cover bag","length","width","measure","measurement","gusset","coat","dress","tailles","mesure","medida","talla","???","??","???","????","?????","??????","????","?????","?????"],
+      keywords: ["size","sizing","garment bag","cover bag","length","width","measure","measurement","gusset","coat","dress","tailles","mesure","medida","talla","사이즈","측정","माप","आकार","लंबाई","चौड़ाई","அளவு","நீளம்","அகலம்"],
       followups: [
         { id:"sizes_shirts", labelKey:"help.chat.followup.sizes_shirts", label:"What size for shirts?" },
         { id:"sizes_coats", labelKey:"help.chat.followup.sizes_coats", label:"What size for coats?" }
       ],
       match: (q)=> /size|sizing|garment bag|cover bag|length|width|measure|gusset|coat|dress/i.test(q),
       answerKey: "help.chat.answer.sizes",
-      answer: () => `Use garment width + 4�6" and garment length + 4�8" as a quick rule. For bulky coats, consider a wider/gusseted bag.<br><a href="./resources.html#guide-garment-bag-sizes">Read the sizing guide</a>`
+      answer: () => `Use garment width + 4–6" and garment length + 4–8" as a quick rule. For bulky coats, consider a wider/gusseted bag.<br><a href="./resources.html#guide-garment-bag-sizes">Read the sizing guide</a>`
     },
     {
       id: "thickness",
       titleKey: "help.chat.topic.thickness",
       title: "Heavy vs Extra Heavy",
-      keywords: ["heavy","extra heavy","thick","thickness","mil","gauge","tear","puncture","sharp","corner","epais","epaisseur","grueso","grosor","??","?????","??????","?????"],
+      keywords: ["heavy","extra heavy","thick","thickness","mil","gauge","tear","puncture","sharp","corner","epais","epaisseur","grueso","grosor","두께","मोटाई","தடிமன்","தடிமை"],
       followups: [
         { id:"thickness_mil", labelKey:"help.chat.followup.thickness_mil", label:"What does mil mean?" },
         { id:"thickness_choice", labelKey:"help.chat.followup.thickness_choice", label:"Which one should I buy?" }
@@ -1844,20 +1868,20 @@ function injectHelpWidget(){
       id: "usage",
       titleKey: "help.chat.topic.usage",
       title: "Monthly packaging usage",
-      keywords: ["month","monthly","how much","usage","estimate","planning","plan","per day","buffer","waste","consommation","mensuel","uso","mensual","???","??","?????","?????","?????","???","????????"],
+      keywords: ["month","monthly","how much","usage","estimate","planning","plan","per day","buffer","waste","consommation","mensuel","uso","mensual","사용량","월간","मासिक","उपयोग","महीना","மாத","பயன்பாடு"],
       followups: [
         { id:"usage_buffer", labelKey:"help.chat.followup.usage_buffer", label:"What buffer % should I use?" },
         { id:"usage_quote", labelKey:"help.chat.followup.usage_quote", label:"Can you estimate for me?" }
       ],
       match: (q)=> /month|monthly|how much|usage|estimate|planning|plan|per day/i.test(q),
       answerKey: "help.chat.answer.usage",
-      answer: () => `A simple estimate: (garments/day) � (operating days/month), then add a 5�12% buffer for rewraps/tears/rush orders.<br><a href="./resources.html#dry-cleaner-packaging-usage">See the planner</a>`
+      answer: () => `A simple estimate: (garments/day) × (operating days/month), then add a 5–12% buffer for rewraps/tears/rush orders.<br><a href="./resources.html#dry-cleaner-packaging-usage">See the planner</a>`
     },
     {
       id: "pay",
       titleKey: "help.chat.topic.pay",
       title: "Payment options",
-      keywords: ["pay","payment","square","card","invoice","pay later","terms","facture","paiement","pagar","pago","??","??","??????","??????","???????","????","???????"],
+      keywords: ["pay","payment","square","card","invoice","pay later","terms","facture","paiement","pagar","pago","결제","카드","भुगतान","इनवॉइस","पेमेन्ट","பணம்","செலுத்த"],
       followups: [
         { id:"pay_invoice", labelKey:"help.chat.followup.pay_invoice", label:"Can I pay by invoice?" },
         { id:"pay_square", labelKey:"help.chat.followup.pay_square", label:"Is Square secure?" }
@@ -1870,7 +1894,7 @@ function injectHelpWidget(){
       id: "addresses",
       titleKey: "help.chat.topic.addresses",
       title: "Saved delivery addresses",
-      keywords: ["address","addresses","multiple locations","warehouse","branch","default","saved","adresse","direccion","direcciones","??","??","???","??????","?????????"],
+      keywords: ["address","addresses","multiple locations","warehouse","branch","default","saved","adresse","direccion","direcciones","주소","지점","पता","முகவரி","களஞ்சியம்"],
       followups: [
         { id:"addresses_how", labelKey:"help.chat.followup.addresses_how", label:"How do I add an address?" },
         { id:"addresses_default", labelKey:"help.chat.followup.addresses_default", label:"How do I set a default?" }
@@ -2167,7 +2191,7 @@ function showAuthModal(options = {}){
   overlay.id = "ppsAuthModal";
   overlay.innerHTML = `
     <div class="pps-modal pps-auth-modal" role="dialog" aria-modal="true" aria-labelledby="ppsAuthTitle">
-      <button class="pps-auth-close-x" type="button" aria-label="Close">�</button>
+      <button class="pps-auth-close-x" type="button" aria-label="Close">×</button>
       <div class="pps-auth-layout">
         <div class="pps-auth-left" aria-hidden="true">
           <div class="pps-auth-brand">
@@ -2991,28 +3015,28 @@ function enforceAvailableCategoryCopy(){
       "feedback.quote.twelve": "Gran variedad de fundas y polybags. El equipo hace simple pedir al por mayor."
     },
     ko: {
-      "nav.wraps": "???",
-      "nav.racks": "??",
-      "index.hero.desc": "?? ?? ?? ?, ??? ? ???? ???. ???? ??? ??? ???, ??? ? ????? ?? ???????.",
-      "products.subtitle": "?? ?? ?, ??, ???? ?????. ??? ? ?? ??? ?? ?? ???? ??.",
-      "resources.planner.meta": "?? ???, ???, ??? ???? ???? ??? ??.",
-      "feedback.quote.twelve": "?? ???? ??? ??? ?????. ?? ??? ???? ?????."
+      "nav.wraps": "폴리백",
+      "nav.racks": "행거",
+      "index.hero.desc": "대량 의류 커버 백, 폴리백 및 전문가급 옷걸이. 안정적인 재고가 필요한 세탁소, 세탁소 및 소매업체를 위해 제작되었습니다.",
+      "products.subtitle": "의류 커버 백, 행거, 폴리백을 선택하세요. 신뢰할 수 있는 재고를 갖춘 대량 친화적인 가격.",
+      "resources.planner.meta": "월간 커버백, 옷걸이, 폴리백 사용량을 추정하는 간단한 방법.",
+      "feedback.quote.twelve": "의류 커버백과 폴리백 종류가 다양합니다. 대량 주문을 간단하게 만들어줘요."
     },
     hi: {
-      "nav.wraps": "???????",
-      "nav.racks": "???????",
-      "index.hero.desc": "???? ??????? ??? ???, ???? ??? ?? ????????? ?????? ????? ????????, ????????????? ?? ???????? ?? ??? ???????? ??????",
-      "products.subtitle": "??????? ??? ???, ????? ?? ??????? ?????? ????-???????? ?????? ?? ??? ???????? ??????",
-      "resources.planner.meta": "????? ???, ????? ?? ??????? ?? ????? ?? ?????? ????? ?? ???? ??????",
-      "feedback.quote.twelve": "??????? ??? ?? ??????? ?? ????? ???????? ??? ???? ???????? ?? ??? ????? ???"
+      "nav.wraps": "पॉलीबैग",
+      "nav.racks": "हैंगर्स",
+      "index.hero.desc": "बल्क गारमेंट कवर बैग, पॉली बैग और प्रोफेशनल हैंगर। ड्राई क्लीनर्स, लॉन्ड्रोमैट्स और रिटेलर्स के लिए भरोसेमंद स्टॉक।",
+      "products.subtitle": "गारमेंट कवर बैग, हैंगर और पॉलीबैग चुनें। बल्क-फ्रेंडली कीमतों के साथ भरोसेमंद स्टॉक।",
+      "resources.planner.meta": "मासिक बैग, हैंगर और पॉलीबैग की जरूरत का अनुमान लगाने का आसान तरीका।",
+      "feedback.quote.twelve": "गारमेंट बैग और पॉलीबैग की अच्छी वैरायटी। टीम बल्क ऑर्डरिंग को सरल बनाती है।"
     },
     ta: {
-      "nav.wraps": "?????????????",
-      "nav.racks": "??????????",
-      "index.hero.desc": "????? ??? ???? ?????, ???? ????? ??????? ?????????? ??????????. ???? ???????, ???????????? ??????? ???????????????? ???????? ??????????.",
-      "products.subtitle": "??? ???? ?????, ??????????, ?????????????. ????? ???? ??????? ???????? ??????????.",
-      "resources.planner.meta": "????????? ???????, ??????????, ????????????? ?????? ?????????? ???? ????.",
-      "feedback.quote.twelve": "??? ???? ????? ??????? ????????????? ????? ??????. ????? ?????? ??????? ???????????????????."
+      "nav.wraps": "பாலிபேக்குகள்",
+      "nav.racks": "ஹேங்கர்கள்",
+      "index.hero.desc": "மொத்த ஆடை கவர் பைகள், பாலி பைகள் மற்றும் தொழில்முறை ஹேங்கர்கள். ட்ரை கிளீனர், லாண்ட்ரோமாட் மற்றும் ரிடெய்லர்களுக்கு நம்பகமான கையிருப்பு.",
+      "products.subtitle": "ஆடை கவர் பைகள், ஹேங்கர்கள், பாலிபேக்குகள். மொத்த விலை மற்றும் நம்பகமான கையிருப்பு.",
+      "resources.planner.meta": "மாதாந்திர பேக்கள், ஹேங்கர்கள், பாலிபேக்குகள் தேவையை கணக்கிடும் எளிய முறை.",
+      "feedback.quote.twelve": "ஆடை கவர் பைகள் மற்றும் பாலிபேக்குகள் நிறைய வகைகள். மொத்த ஆர்டர் செய்வதை சுலபமாக்குகிறார்கள்."
     }
   };
   const selected = copyByLang[lang] || copyByLang.en;
@@ -3032,13 +3056,7 @@ setupPageTransitionProgress();
 window.addEventListener("DOMContentLoaded", ()=>{
   suppressVercelOverlays();
   suppressCartEmailPopup();
-  try{
-    if("serviceWorker" in navigator){
-      navigator.serviceWorker.register("./sw.js", { scope: "./" }).catch(()=>{});
-    }
-  }catch{
-    // ignore
-  }
+  disableLegacyServiceWorker();
   try{
     if(!document.querySelector('link[rel="manifest"]')){
       const link = document.createElement("link");
@@ -3064,10 +3082,7 @@ window.addEventListener("DOMContentLoaded", ()=>{
   setupImageOptimization();
   syncAccountLink();
   setupAuthModalTriggers();
-  injectResourcesDropdown();
-  injectAboutDropdown();
-  injectLangSwitcher();
-  injectCurrencySwitcher();
+  // Keep the header simple and stable instead of injecting extra desktop nav tools.
   injectNotificationsBell();
   injectMiniCartPreview();
   setupSearch();
@@ -3078,7 +3093,6 @@ window.addEventListener("DOMContentLoaded", ()=>{
   injectFooter();
   injectHelpWidget();
   setupRetentionSignals();
-  scheduleLanguagePrompt();
   enforceAvailableCategoryCopy();
   window.addEventListener("pps:lang", ()=> setTimeout(enforceAvailableCategoryCopy, 0));
 });

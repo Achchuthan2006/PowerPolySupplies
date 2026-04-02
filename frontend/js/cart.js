@@ -283,7 +283,7 @@ function render(){
     <div class="card cart-item fade-in" data-cart-item-id="${String(i.id || "")}">
       <div class="cart-item-main">
         <div class="cart-item-thumb" aria-hidden="true">
-          <img src="${image}" alt="" loading="lazy" decoding="async" width="96" height="96">
+          <img src="${image}" alt="" loading="lazy" decoding="async">
         </div>
         <div class="cart-item-info">
           <div class="cart-item-title">${displayName || ""}</div>
