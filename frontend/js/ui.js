@@ -2,17 +2,37 @@ function setupNavbar(){
   const menuBtn = document.getElementById("menuBtn");
   const navLinks = document.getElementById("navLinks");
   const dropdowns = Array.from(document.querySelectorAll(".dropdown"));
+  const syncMobileMenuState = ()=>{
+    if(!navLinks) return;
+    const isOpen = navLinks.classList.contains("open");
+    document.body.classList.toggle("mobile-menu-open", isOpen);
+    document.documentElement.classList.toggle("mobile-menu-open", isOpen);
+    if(menuBtn){
+      menuBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    }
+  };
+  const closeMenu = ()=>{
+    if(!navLinks) return;
+    navLinks.classList.remove("open");
+    dropdowns.forEach((dropdown)=> dropdown.classList.remove("open"));
+    syncMobileMenuState();
+  };
 
   if(menuBtn && navLinks){
     menuBtn.addEventListener("click", ()=>{
       navLinks.classList.toggle("open");
+      if(!navLinks.classList.contains("open")){
+        dropdowns.forEach((dropdown)=> dropdown.classList.remove("open"));
+      }
+      syncMobileMenuState();
     });
+    menuBtn.setAttribute("aria-expanded", "false");
   }
   if(navLinks){
     navLinks.addEventListener("click", (event)=>{
       const link = event.target.closest("a");
-      if(link && navLinks.classList.contains("open")){
-        navLinks.classList.remove("open");
+      if(link && navLinks.classList.contains("open") && !link.closest(".dropdown-menu")){
+        closeMenu();
       }
     });
 
@@ -37,8 +57,15 @@ function setupNavbar(){
       const target = event.target;
       if(!(target instanceof Node)) return;
       if(navLinks.contains(target) || menuBtn.contains(target)) return;
-      navLinks.classList.remove("open");
-      dropdowns.forEach(d=> d.classList.remove("open"));
+      closeMenu();
+    });
+  }
+
+  if(navLinks){
+    window.addEventListener("resize", ()=>{
+      if(window.innerWidth > 860 && navLinks.classList.contains("open")){
+        closeMenu();
+      }
     });
   }
 
@@ -56,6 +83,8 @@ function setupNavbar(){
       dropdown.classList.toggle("open");
     });
   });
+
+  syncMobileMenuState();
 }
 
 function decoratePromoTagline(){

@@ -3197,6 +3197,11 @@ html[lang="fr"] .navlinks a{
 }
 
 @media (max-width: 860px){
+  html.mobile-menu-open,
+  body.mobile-menu-open{
+    overflow:hidden;
+  }
+
   .bottom-nav{
     display:flex;
   }
@@ -7438,13 +7443,15 @@ select.input option:hover{
 
   .navlinks{
     position:fixed;
-    top:72px;
-    right:18px;
-    left:18px;
+    top:max(72px, calc(env(safe-area-inset-top, 0px) + 72px));
+    right:12px;
+    left:12px;
+    width:auto;
+    max-width:none;
     display:none;
     flex-direction:column;
     gap:8px;
-    padding:14px;
+    padding:16px 14px calc(118px + env(safe-area-inset-bottom, 0px));
     border:1px solid rgba(241,223,204,.75);
     border-radius:16px;
     background: rgba(255,250,243,.96);
@@ -7452,10 +7459,8 @@ select.input option:hover{
     backdrop-filter: blur(8px) saturate(1.03);
     -webkit-backdrop-filter: blur(8px) saturate(1.03);
     z-index:200;
-    height: calc(100vh - 96px);
-    max-height: calc(100vh - 96px);
-    height: calc(100dvh - 96px);
-    max-height: calc(100dvh - 96px);
+    height:calc(100dvh - max(92px, calc(env(safe-area-inset-top, 0px) + 92px)));
+    max-height:calc(100dvh - max(92px, calc(env(safe-area-inset-top, 0px) + 92px)));
     overflow-y:auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
@@ -7479,8 +7484,9 @@ select.input option:hover{
     padding:12px 12px;
     border-radius:12px;
     align-items:center;
-    justify-content:center;
-    text-align:center;
+    justify-content:flex-start;
+    text-align:left;
+    line-height:1.2;
   }
   .navlinks .dropbtn{
     width:100%;
@@ -7527,6 +7533,7 @@ select.input option:hover{
     gap:8px;
     justify-content:flex-start;
     align-items:center;
+    flex-wrap:wrap;
   }
 
   .navlinks > form.nav-search{
@@ -8687,6 +8694,13 @@ select.input option:hover{
     flex:0 0 auto;
     padding:10px 14px;
     border-radius:14px;
+  }
+  .navlinks{
+    top:max(78px, calc(env(safe-area-inset-top, 0px) + 78px));
+    right:10px;
+    left:10px;
+    max-height:calc(100dvh - 88px);
+    border-radius:18px;
   }
   .brand img{ height:52px; }
   .brand-title{ font-size:16px; }
