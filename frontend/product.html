@@ -56,6 +56,7 @@
 
   <script src="./config.min.js"></script>
 
+  <script src="./js/security.js"></script>
   <script src="./js/store.min.js"></script>
   <script src="./js/notifications.min.js"></script>
   <script src="./js/i18n.js"></script>
@@ -448,14 +449,39 @@
         return products.find(p => p.category === category && p.slug !== excludeSlug && p.stock > 0);
       }
 
+      function imageCandidates(product){
+        const primary = String(product?.image || "").trim();
+        const extras = Array.isArray(product?.images) ? product.images : [];
+        const name = String(product?.name || "").toLowerCase();
+        const candidates = [primary, ...extras];
+        if(/suit hangers white/i.test(name)){
+          candidates.push(
+            "./assets/suit-hanger-white.jpg",
+            "./assets/suit%20hanger%20white.jpg",
+            "./assets/suit hanger white.jpg",
+            "./assets/suit%20hanger%20white.png",
+            "./assets/suit hanger white.png"
+          );
+        }
+        return Array.from(new Set(candidates.filter(Boolean)));
+      }
+
+      function imageFallbackAttr(srcs){
+        const list = (Array.isArray(srcs) ? srcs : []).map(src => String(src).replace(/"/g, "&quot;"));
+        if(!list.length) return "";
+        return `data-fallback-srcs="${list.join("|")}" onerror="(function(img){var list=(img.dataset.fallbackSrcs||'').split('|').filter(Boolean);var current=img.getAttribute('src')||'';var next=list.find(function(src){return src!==current;});if(next){img.setAttribute('src', next);img.dataset.fallbackSrcs=list.filter(function(src){return src!==next;}).join('|');return;}img.onerror=null;})(this)"`;
+      }
+
       function renderMiniCard(item, withQty=false){
         const compareCents = PPS.getComparePriceCents?.(item) ?? ((Number(item.priceCents) || 0) + 1000);
         const memberCents = Number(item.priceCents) || 0;
         const label = item.stock <= 0 ? "Out of stock" : item.stock <= 10 ? "Almost out of stock" : "In stock";
+        const imageSrcs = imageCandidates(item);
+        const primaryImage = imageSrcs[0] || "./assets/poly%20logo%20without%20background.png";
         return `
           <div class="card mini-card">
             <a href="./product.html?slug=${encodeURIComponent(item.slug)}">
-              <img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async" width="320" height="170">
+              <img src="${primaryImage}" alt="${item.name}" loading="lazy" decoding="async" width="320" height="170" ${imageFallbackAttr(imageSrcs.slice(1))}>
             </a>
             <div class="card-body">
               <a class="card-title" style="text-decoration:none; display:inline-block;" href="./product.html?slug=${encodeURIComponent(item.slug)}">${item.name}</a>
@@ -797,8 +823,7 @@
       const bannerTemplate = window.PPS_I18N?.t("member.banner") || "Log in to save {{amount}} with Power Poly Member Pricing";
       const bannerText = bannerTemplate.replace("{{amount}}", PPS.money(savingsCents, p.currency));
       const galleryImages = Array.from(new Set([
-        p.image,
-        ...(Array.isArray(p.images) ? p.images : []),
+        ...imageCandidates(p),
         p.image2,
         p.image3
       ].filter(Boolean)));
@@ -807,7 +832,7 @@
         ? `<div class="product-gallery-thumbs" id="galleryThumbs">
             ${galleryImages.map((src, idx)=>`
               <button type="button" class="thumb ${idx===0 ? "active" : ""}" data-index="${idx}" aria-label="View image ${idx+1}">
-                <img src="${src}" alt="" loading="lazy" decoding="async" width="120" height="86">
+                <img src="${src}" alt="" loading="lazy" decoding="async" width="120" height="86" ${imageFallbackAttr(galleryImages.filter((candidate)=> candidate !== src))}>
               </button>
             `).join("")}
           </div>`
@@ -862,7 +887,7 @@
           <div class="card fade-in">
             <div class="product-gallery">
               <div class="product-gallery-main">
-                <img id="mainImg" src="${galleryMain}" alt="${displayName}" width="900" height="640" decoding="async">
+                <img id="mainImg" src="${galleryMain}" alt="${displayName}" width="900" height="640" decoding="async" ${imageFallbackAttr(galleryImages.slice(1))}>
               </div>
               ${galleryThumbs}
             </div>
@@ -1847,22 +1872,27 @@
         });
       }
 
-      reviewForm.addEventListener("submit", async (e)=>{
-        e.preventDefault();
-        reviewMsg.textContent = window.PPS_I18N?.t("product.reviews.submitting") || "Submitting review...";
-        try{
-          const payload = {
-            rating: selectedRating,
-            name: e.target.name.value.trim(),
-            comment: e.target.comment.value.trim(),
-            verified: Boolean(PPS.getSession?.()),
-            media: pendingMedia.map(m=>({ type: m.type, src: m.src }))
-          };
-          await PPS.submitReview(p.id, {
-            rating: payload.rating,
-            name: payload.name,
-            comment: payload.comment
-          });
+        reviewForm.addEventListener("submit", async (e)=>{
+          e.preventDefault();
+          reviewMsg.textContent = window.PPS_I18N?.t("product.reviews.submitting") || "Submitting review...";
+          try{
+            const payload = {
+              rating: selectedRating,
+              name: PPSSecurity.sanitizeText(e.target.name.value, { maxLength: 64 }),
+              comment: PPSSecurity.sanitizeText(e.target.comment.value, { maxLength: 500, multiline: true }),
+              verified: Boolean(PPS.getSession?.()),
+              media: pendingMedia.map(m=>({ type: m.type, src: m.src }))
+            };
+            if([payload.name, payload.comment].some(PPSSecurity.containsSuspiciousInput)){
+              throw new Error("Submission blocked due to unsafe input.");
+            }
+            const recaptchaToken = await PPSSecurity.getRecaptchaToken("product_review");
+            await PPS.submitReview(p.id, {
+              rating: payload.rating,
+              name: payload.name,
+              comment: payload.comment,
+              recaptchaToken
+            });
           const local = getLocalReviews();
           local.unshift(normalizeReview(payload));
           setLocalReviews(local);

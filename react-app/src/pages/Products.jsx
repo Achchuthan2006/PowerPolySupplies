@@ -191,6 +191,11 @@ export default function Products() {
                     <span className="dot" />
                     {stockLabel(p.stock)}
                   </div>
+                  {p.stock > 0 && p.stock <= 10 ? (
+                    <p className="stock-note">
+                      {window.PPS_I18N?.t("products.stock.note.low") || "Running low. Contact us if you need larger case quantities."}
+                    </p>
+                  ) : null}
                   <div className="product-actions" style={{ marginTop: "12px", display: "flex", gap: "10px" }}>
                     <Link className="btn btn-outline product-quick-btn" to={`/product?slug=${encodeURIComponent(p.slug)}`}>
                       Quick View
@@ -226,4 +231,3 @@ export default function Products() {
     </>
   );
 }
-

@@ -2,6 +2,10 @@
 
 ### Quick checklist (production)
 - Use HTTPS for both frontend + backend.
+- Terminate SSL/TLS at a reverse proxy such as NGINX.
+- Enable HSTS and CSP in production.
+- Run Node behind NGINX, not directly on the public internet.
+- Use PM2 or an equivalent supervisor for auto-restart.
 - Set `CORS_ORIGINS` to your real site origins (do not leave wildcard).
 - Configure Square webhooks and enable signature verification:
   - `SQUARE_WEBHOOK_SIGNATURE_KEY`
@@ -18,7 +22,8 @@
 Because vulnerability data changes constantly, use tooling regularly:
 - Backend:
   - `cd backend`
-  - `npm audit` (or `npm audit --production`)
+  - `npm run audit:prod`
+  - `npm run deps:outdated`
 - Frontend (if you install deps for build tooling):
   - `npm audit`
 
@@ -35,3 +40,16 @@ If you have Docker installed:
 
 Review findings, then fix and rescan.
 
+### Deployment hardening
+- PM2 ecosystem file:
+  - [backend/ecosystem.config.cjs](/c:/Users/Achch/Downloads/PowerPolySupplies-main/PowerPolySupplies-main/backend/ecosystem.config.cjs)
+- Example NGINX reverse-proxy + TLS config:
+  - [deploy/nginx/powerpolysupplies.conf](/c:/Users/Achch/Downloads/PowerPolySupplies-main/PowerPolySupplies-main/deploy/nginx/powerpolysupplies.conf)
+- End-to-end deployment notes:
+  - [DEPLOYMENT_SECURITY.md](/c:/Users/Achch/Downloads/PowerPolySupplies-main/PowerPolySupplies-main/DEPLOYMENT_SECURITY.md)
+
+### Social login
+- Google and Facebook OAuth are already wired in the backend and login UI.
+- The buttons remain disabled until the backend detects valid provider credentials.
+- Setup guide:
+  - [OAUTH_SETUP.md](/c:/Users/Achch/Downloads/PowerPolySupplies-main/PowerPolySupplies-main/OAUTH_SETUP.md)

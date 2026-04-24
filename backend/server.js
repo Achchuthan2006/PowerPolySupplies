@@ -2,12 +2,15 @@ import express from "express";
 import cors from "cors";
 import compression from "compression";
 import dotenv from "dotenv";
+import helmet from "helmet";
 import nodemailer from "nodemailer";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import crypto from "crypto";
 import https from "https";
+import expressRateLimit from "express-rate-limit";
+import { body, param, validationResult, matchedData } from "express-validator";
 import { createClient } from "@supabase/supabase-js";
 import { appendMessageToSheet, appendOrderToSheet, appendReviewToSheet, appendFeedbackToSheet, syncProductsToSheet, isSheetsConfigured } from "./googleSheets.js";
 import { qboBuildAuthUrl, qboDownloadInvoicePdf, qboHandleCallback, qboIsConfigured, qboStatus, qboUpsertInvoiceForOrder } from "./quickbooks.js";
@@ -23,11 +26,57 @@ if(!process.env.RENDER){
 
 const app = express();
 app.set("trust proxy", 1);
+const NODE_ENV = String(process.env.NODE_ENV || "development").trim().toLowerCase();
+const IS_PRODUCTION = NODE_ENV === "production";
+const CONTENT_SECURITY_POLICY = {
+  useDefaults: true,
+  directives: {
+    defaultSrc: ["'self'"],
+    baseUri: ["'self'"],
+    fontSrc: ["'self'", "https:", "data:"],
+    imgSrc: ["'self'", "https:", "data:", "blob:"],
+    objectSrc: ["'none'"],
+    scriptSrc: ["'self'", "https://www.google.com", "https://www.gstatic.com", "https://web.squarecdn.com"],
+    styleSrc: ["'self'", "'unsafe-inline'", "https:"],
+    connectSrc: ["'self'", "https:", "wss:"],
+    frameSrc: ["'self'", "https://www.google.com", "https://web.squarecdn.com"],
+    frameAncestors: ["'none'"],
+    formAction: ["'self'", "https://checkout.square.site", "https://connect.squareup.com"],
+    upgradeInsecureRequests: IS_PRODUCTION ? [] : null
+  }
+};
+
+function logSecurityEvent(type, details = {}){
+  const payload = {
+    type,
+    at: new Date().toISOString(),
+    ...details
+  };
+  console.warn("[security]", JSON.stringify(payload));
+}
+
+function logApiFailure(req, res, extra = {}){
+  logSecurityEvent("api_failure", {
+    method: req.method,
+    path: req.originalUrl,
+    ip: getClientIp(req),
+    status: res.statusCode,
+    origin: normalizeOrigin(req.headers.origin),
+    ...extra
+  });
+}
 
 function normalizeOrigin(value){
   const raw = String(value || "").trim();
   if(!raw) return "";
   return raw.replace(/\/+$/,"");
+}
+
+function setAdditionalSecurityHeaders(res){
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=(), browsing-topics=()");
+  res.setHeader("X-Permitted-Cross-Domain-Policies", "none");
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
 }
 
 function buildCorsAllowlist(){
@@ -50,58 +99,71 @@ function buildCorsAllowlist(){
     "https://www.powerpolysupplies.com"
   ].forEach(o=>allow.add(o));
 
-  // Local dev convenience (safe because these are non-production origins).
-  // Keep enabled even in hosted environments so you can test a deployed backend from a local frontend.
-  [
-    "http://localhost:3000",
-    "http://localhost:4173",
-    "http://localhost:5000",
-    "http://localhost:5173",
-    "http://localhost:5500",
-    "http://localhost:5501",
-    "http://localhost:8080",
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:4173",
-    "http://127.0.0.1:5000",
-    "http://127.0.0.1:5173",
-    "http://127.0.0.1:5500",
-    "http://127.0.0.1:5501",
-    "http://127.0.0.1:8080"
-  ].forEach(o=>allow.add(o));
+  // Only allow localhost during local development.
+  if(!IS_PRODUCTION){
+    [
+      "http://localhost:3000",
+      "http://localhost:4173",
+      "http://localhost:5000",
+      "http://localhost:5173",
+      "http://localhost:5500",
+      "http://localhost:5501",
+      "http://localhost:8080",
+      "http://127.0.0.1:3000",
+      "http://127.0.0.1:4173",
+      "http://127.0.0.1:5000",
+      "http://127.0.0.1:5173",
+      "http://127.0.0.1:5500",
+      "http://127.0.0.1:5501",
+      "http://127.0.0.1:8080"
+    ].forEach(o=>allow.add(o));
+  }
   return allow;
 }
 
 const corsAllowlist = buildCorsAllowlist();
+function isOriginAllowed(origin){
+  if(!origin) return true;
+  const normalized = normalizeOrigin(origin);
+  const githubPagesOk = /^https:\/\/[a-z0-9-]+\.github\.io$/i.test(normalized);
+  const vercelPreviewOk =
+    String(process.env.ALLOW_VERCEL_PREVIEWS || "").trim().toLowerCase() === "true" &&
+    /^https:\/\/[a-z0-9-]+(?:-[a-z0-9-]+)*\.vercel\.app$/i.test(normalized);
+  return corsAllowlist.has(normalized) || githubPagesOk || vercelPreviewOk;
+}
+
 app.use(cors({
   origin(origin, cb){
-    if(!origin) return cb(null, true); // server-to-server / curl
+    if(isOriginAllowed(origin)) return cb(null, true);
     const normalized = normalizeOrigin(origin);
-    const githubPagesOk = /^https:\/\/[a-z0-9-]+\.github\.io$/i.test(normalized);
-    const vercelPreviewOk =
-      String(process.env.ALLOW_VERCEL_PREVIEWS || "").trim().toLowerCase() === "true" &&
-      /^https:\/\/[a-z0-9-]+(?:-[a-z0-9-]+)*\.vercel\.app$/i.test(normalized);
-    const ok = corsAllowlist.has(normalized) || githubPagesOk || vercelPreviewOk;
-    return cb(null, ok);
+    logSecurityEvent("cors_blocked", { origin: normalized || "unknown" });
+    return cb(Object.assign(new Error("CORS origin denied"), { status: 403, code: "CORS_DENIED" }));
   },
   methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
   allowedHeaders: ["Content-Type","Authorization","X-Admin-Token","X-Requested-With"],
+  credentials: true,
   maxAge: 86400
 }));
 
-app.use((req,res,next)=>{
-  res.setHeader("X-Content-Type-Options", "nosniff");
-  res.setHeader("X-Frame-Options", "DENY");
-  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
-  res.setHeader("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
-  next();
-});
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "same-site" },
+  contentSecurityPolicy: CONTENT_SECURITY_POLICY,
+  hsts: IS_PRODUCTION
+    ? {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true
+      }
+    : false
+}));
 
 app.use(express.json({
-  limit: "250kb",
+  limit: "10kb",
   verify(req, res, buf){
     req.rawBody = buf;
   }
 }));
+app.use(express.urlencoded({ extended: false, limit: "10kb" }));
 
 app.use(compression({
   threshold: 1024,
@@ -110,6 +172,35 @@ app.use(compression({
     return compression.filter(req, res);
   }
 }));
+
+app.use("/api", expressRateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: false,
+  handler(req, res){
+    logSecurityEvent("rate_limit_exceeded", {
+      method: req.method,
+      path: req.originalUrl,
+      ip: getClientIp(req)
+    });
+    return res.status(429).json({
+      ok: false,
+      message: "Too many requests from this IP. Please try again later."
+    });
+  }
+}));
+
+app.use("/api", (req,res,next)=>{
+  setAdditionalSecurityHeaders(res);
+  res.on("finish", ()=>{
+    if(res.statusCode >= 400){
+      logApiFailure(req, res);
+    }
+  });
+  next();
+});
 
 // Serve the static frontend when deployed together (optional).
 const FRONTEND_DIR = path.join(__dirname, "../frontend");
@@ -121,6 +212,7 @@ if(HAS_FRONTEND){
     index: false,
     extensions: ["html"],
     setHeaders(res, filePath){
+      setAdditionalSecurityHeaders(res);
       if(/\.(css|js|mjs|png|jpe?g|webp|svg|ico|woff2?)$/i.test(filePath)){
         res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
       }else if(/\.html$/i.test(filePath)){
@@ -346,7 +438,107 @@ function getClientIp(req){
   return forwardedIp || String(req.ip || req.socket?.remoteAddress || "").trim();
 }
 
-function rateLimit({ windowMs, max, keyPrefix }){
+function sanitizeText(value, { maxLen = 500, keepNewlines = false } = {}){
+  let cleaned = String(value ?? "");
+  cleaned = cleaned.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "");
+  cleaned = keepNewlines
+    ? cleaned.replace(/\r\n/g, "\n").replace(/[^\S\n]+/g, " ").trim()
+    : cleaned.replace(/\s+/g, " ").trim();
+  if(cleaned.length > maxLen) cleaned = cleaned.slice(0, maxLen);
+  return cleaned;
+}
+
+function sanitizeEmail(value){
+  return sanitizeText(String(value || "").toLowerCase(), { maxLen: 254 });
+}
+
+function sanitizePhone(value){
+  return sanitizeText(String(value || "").replace(/[^0-9+\-().\s]/g, ""), { maxLen: 25 });
+}
+
+function validateRequest(req, res, next){
+  const errors = validationResult(req);
+  if(errors.isEmpty()) return next();
+  logSecurityEvent("validation_failed", {
+    method: req.method,
+    path: req.originalUrl,
+    ip: getClientIp(req),
+    errors: errors.array().map((error)=> ({
+      field: error.path,
+      message: error.msg
+    }))
+  });
+  return res.status(400).json({
+    ok: false,
+    message: "Invalid request payload.",
+    errors: errors.array().map((error)=> ({
+      field: error.path,
+      message: error.msg
+    }))
+  });
+}
+
+const orderValidation = [
+  body("customer.name").optional({ values: "falsy" }).isString().customSanitizer((value)=> sanitizeText(value, { maxLen: 100 })).escape(),
+  body("customer.email").exists({ checkFalsy: true }).bail().isEmail().withMessage("Valid customer email is required.").bail().normalizeEmail(),
+  body("customer.phone").optional({ values: "falsy" }).customSanitizer(sanitizePhone).isLength({ max: 25 }),
+  body("customer.address1").optional({ values: "falsy" }).isString().customSanitizer((value)=> sanitizeText(value, { maxLen: 120 })).escape(),
+  body("customer.address2").optional({ values: "falsy" }).isString().customSanitizer((value)=> sanitizeText(value, { maxLen: 120 })).escape(),
+  body("customer.city").optional({ values: "falsy" }).isString().customSanitizer((value)=> sanitizeText(value, { maxLen: 80 })).escape(),
+  body("customer.province").optional({ values: "falsy" }).isString().customSanitizer((value)=> sanitizeText(value, { maxLen: 40 })).escape(),
+  body("customer.postal").optional({ values: "falsy" }).isString().customSanitizer((value)=> sanitizeText(value, { maxLen: 20 })).escape(),
+  body("customer.country").optional({ values: "falsy" }).isString().customSanitizer((value)=> sanitizeText(value, { maxLen: 60 })).escape(),
+  body("customer.deliveryNotes").optional({ values: "falsy" }).isString().customSanitizer((value)=> sanitizeText(value, { maxLen: 250, keepNewlines: true })).escape(),
+  body("items").isArray({ min: 1, max: 100 }).withMessage("At least one order item is required."),
+  body("items.*.id").exists({ checkFalsy: true }).bail().isString().customSanitizer((value)=> sanitizeText(value, { maxLen: 80 })).escape(),
+  body("items.*.qty").exists().bail().isInt({ min: 1, max: 999 }).toInt(),
+  body("items.*.priceCents").optional().isInt({ min: 0, max: 10_000_000 }).toInt(),
+  body("items.*.description").optional({ values: "falsy" }).isString().customSanitizer((value)=> sanitizeText(value, { maxLen: 300, keepNewlines: true })).escape(),
+  body("currency").optional({ values: "falsy" }).isString().isLength({ min: 3, max: 3 }).customSanitizer((value)=> sanitizeText(value.toUpperCase(), { maxLen: 3 })),
+  body("paymentMethod").optional({ values: "falsy" }).isString().customSanitizer((value)=> sanitizeText(value, { maxLen: 40 })).escape(),
+  validateRequest
+];
+
+const contactValidation = [
+  body("name").optional({ values: "falsy" }).isString().customSanitizer((value)=> sanitizeText(value, { maxLen: 100 })).escape(),
+  body("email").exists({ checkFalsy: true }).bail().isEmail().withMessage("Valid email is required.").bail().customSanitizer(sanitizeEmail),
+  body("phone").optional({ values: "falsy" }).customSanitizer(sanitizePhone).isLength({ max: 25 }),
+  body("orderType").optional({ values: "falsy" }).isString().customSanitizer((value)=> sanitizeText(value, { maxLen: 80 })).escape(),
+  body("message").exists({ checkFalsy: true }).bail().isString().isLength({ min: 2, max: 2000 }).withMessage("Message must be between 2 and 2000 characters.").bail().customSanitizer((value)=> sanitizeText(value, { maxLen: 2000, keepNewlines: true })).escape(),
+  body("attachment").optional().custom((value)=>{
+    if(value == null) return true;
+    if(typeof value !== "object" || Array.isArray(value)) throw new Error("Attachment payload is invalid.");
+    return true;
+  }),
+  body("attachment.name").optional({ values: "falsy" }).isString().customSanitizer((value)=> sanitizeText(value, { maxLen: 120 })).escape(),
+  body("attachment.type").optional({ values: "falsy" }).isString().customSanitizer((value)=> sanitizeText(value, { maxLen: 100 })).escape(),
+  body("attachment.base64").optional({ values: "falsy" }).isString().isLength({ max: 8192 }).withMessage("Attachment payload exceeds the secure size limit."),
+  validateRequest
+];
+
+const helpValidation = [
+  body("name").optional({ values: "falsy" }).isString().customSanitizer((value)=> sanitizeText(value, { maxLen: 100 })).escape(),
+  body("email").exists({ checkFalsy: true }).bail().isEmail().withMessage("Valid email is required.").bail().customSanitizer(sanitizeEmail),
+  body("message").exists({ checkFalsy: true }).bail().isString().isLength({ min: 2, max: 2000 }).withMessage("Message must be between 2 and 2000 characters.").bail().customSanitizer((value)=> sanitizeText(value, { maxLen: 2000, keepNewlines: true })).escape(),
+  validateRequest
+];
+
+const feedbackValidation = [
+  body("name").optional({ values: "falsy" }).isString().customSanitizer((value)=> sanitizeText(value, { maxLen: 100 })).escape(),
+  body("email").optional({ values: "falsy" }).isEmail().withMessage("Email must be valid.").bail().customSanitizer(sanitizeEmail),
+  body("message").exists({ checkFalsy: true }).bail().isString().isLength({ min: 2, max: 1500 }).withMessage("Message must be between 2 and 1500 characters.").bail().customSanitizer((value)=> sanitizeText(value, { maxLen: 1500, keepNewlines: true })).escape(),
+  validateRequest
+];
+
+const reviewValidation = [
+  param("id").isString().trim().isLength({ min: 1, max: 80 }).withMessage("Valid product id is required."),
+  body("rating").exists().bail().isInt({ min: 1, max: 5 }).withMessage("Rating must be between 1 and 5.").toInt(),
+  body("name").optional({ values: "falsy" }).isString().customSanitizer((value)=> sanitizeText(value, { maxLen: 64 })).escape(),
+  body("comment").optional({ values: "falsy" }).isString().isLength({ max: 500 }).withMessage("Comment is too long.").bail().customSanitizer((value)=> sanitizeText(value, { maxLen: 500, keepNewlines: true })).escape(),
+  validateRequest
+];
+
+function rateLimit({ windowMs, max, keyPrefix, keyFn }){
   const buckets = new Map();
   const win = Math.max(1000, Number(windowMs) || 60000);
   const cap = Math.max(1, Number(max) || 30);
@@ -354,8 +546,10 @@ function rateLimit({ windowMs, max, keyPrefix }){
 
   return (req,res,next)=>{
     const now = Date.now();
-    const ip = getClientIp(req);
-    const key = `${prefix}${ip}`;
+    const fallbackKey = getClientIp(req);
+    const customKey = typeof keyFn === "function" ? keyFn(req) : "";
+    const baseKey = String(customKey || fallbackKey || "unknown").trim();
+    const key = `${prefix}${baseKey}`;
     const current = buckets.get(key);
     if(!current || now >= current.resetAt){
       buckets.set(key, { count: 1, resetAt: now + win });
@@ -471,6 +665,47 @@ async function verifyRecaptcha(token){
   }catch(err){
     return { ok:false, skipped:false, reason:"network_error", error: String(err?.message || err) };
   }
+}
+
+async function enforceRecaptcha(req, res, next, { action = "", minScore = Number(process.env.RECAPTCHA_MIN_SCORE || 0.5) } = {}){
+  const recaptchaToken = String(req.body?.recaptchaToken || "").trim();
+  const result = await verifyRecaptcha(recaptchaToken);
+  if(!result.ok){
+    logSecurityEvent("recaptcha_failed", {
+      method: req.method,
+      path: req.originalUrl,
+      ip: getClientIp(req),
+      reason: result.reason || "failed"
+    });
+    return res.status(400).json({ ok:false, message:"reCAPTCHA verification failed. Please try again." });
+  }
+
+  const data = result.data || {};
+  const score = Number(data?.score);
+  const actionName = String(data?.action || "").trim();
+  if(action && actionName && actionName !== action){
+    logSecurityEvent("recaptcha_action_mismatch", {
+      method: req.method,
+      path: req.originalUrl,
+      ip: getClientIp(req),
+      expectedAction: action,
+      actualAction: actionName
+    });
+    return res.status(400).json({ ok:false, message:"reCAPTCHA validation failed. Please retry the form." });
+  }
+  if(Number.isFinite(score) && score < minScore){
+    logSecurityEvent("recaptcha_score_low", {
+      method: req.method,
+      path: req.originalUrl,
+      ip: getClientIp(req),
+      score,
+      minScore
+    });
+    return res.status(400).json({ ok:false, message:"Suspicious request blocked. Please try again." });
+  }
+
+  req.recaptcha = result;
+  return next();
 }
 
 async function squareTest(client, label){
@@ -951,6 +1186,111 @@ function getSenderAddress(){
   return `"${COMPANY_NAME}" <${sender}>`;
 }
 
+function getReplyToAddress(fallback = ""){
+  const replyTo = String(process.env.EMAIL_REPLY_TO || "").trim();
+  if(replyTo) return replyTo;
+  const company = String(COMPANY_EMAIL || "").trim();
+  if(company) return company;
+  return String(fallback || process.env.EMAIL_USER || "").trim();
+}
+
+function htmlToPlainText(html){
+  const raw = String(html || "");
+  if(!raw) return "";
+  return raw
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(p|div|h1|h2|h3|h4|h5|h6|li|tr|table)>/gi, "\n")
+    .replace(/<li[^>]*>/gi, "- ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&quot;/gi, "\"")
+    .replace(/&#39;/gi, "'")
+    .replace(/\r/g, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .replace(/[ \t]{2,}/g, " ")
+    .trim();
+}
+
+function getMailFromDomain(){
+  const email = String(process.env.EMAIL_FROM || COMPANY_EMAIL || process.env.EMAIL_USER || "").trim().toLowerCase();
+  const atIndex = email.lastIndexOf("@");
+  return atIndex > 0 ? email.slice(atIndex + 1) : "";
+}
+
+function prepareOutgoingMail(mail){
+  const from = String(mail?.from || getSenderAddress()).trim();
+  const replyTo = String(mail?.replyTo || getReplyToAddress(from)).trim();
+  const to = String(mail?.to || "").trim();
+  const subject = String(mail?.subject || "").trim();
+  const html = String(mail?.html || "").trim();
+  const text = String(mail?.text || "").trim() || htmlToPlainText(html);
+  const mailFromDomain = getMailFromDomain();
+  const messageKey = crypto.createHash("sha1")
+    .update(`${to}|${subject}|${Date.now()}|${Math.random()}`)
+    .digest("hex")
+    .slice(0, 24);
+  const messageId = mailFromDomain ? `<${messageKey}@${mailFromDomain}>` : undefined;
+
+  return {
+    ...mail,
+    from,
+    to,
+    subject,
+    html: html || undefined,
+    text: text || undefined,
+    replyTo: replyTo || undefined,
+    sender: from,
+    envelope: {
+      from: String(process.env.EMAIL_ENVELOPE_FROM || process.env.EMAIL_FROM || COMPANY_EMAIL || process.env.EMAIL_USER || "").trim() || undefined,
+      to
+    },
+    messageId,
+    headers: {
+      "X-Entity-Ref-ID": messageKey,
+      "X-Auto-Response-Suppress": "OOF, AutoReply",
+      ...((mail && mail.headers) || {})
+    }
+  };
+}
+
+function sanitizeAccountEmail(value){
+  return String(value || "").trim().toLowerCase();
+}
+
+function authRateLimitKey(req){
+  const ip = getClientIp(req);
+  const email = sanitizeAccountEmail(req.body?.email);
+  return email ? `${ip}:${email}` : ip;
+}
+
+function isStrongPassword(password, email = "", name = ""){
+  const value = String(password || "");
+  if(value.length < 12 || value.length > 128) return false;
+  if(!/[a-z]/.test(value)) return false;
+  if(!/[A-Z]/.test(value)) return false;
+  if(!/[0-9]/.test(value)) return false;
+  if(!/[^A-Za-z0-9]/.test(value)) return false;
+
+  const lowered = value.toLowerCase();
+  const emailLocal = sanitizeAccountEmail(email).split("@")[0] || "";
+  const nameParts = String(name || "").toLowerCase().split(/\s+/).filter(Boolean);
+  if(emailLocal && emailLocal.length >= 4 && lowered.includes(emailLocal)) return false;
+  if(nameParts.some((part)=> part.length >= 4 && lowered.includes(part))) return false;
+  return true;
+}
+
+function timingSafeStringEqual(a, b){
+  const left = Buffer.from(String(a || ""), "utf8");
+  const right = Buffer.from(String(b || ""), "utf8");
+  if(left.length !== right.length) return false;
+  return crypto.timingSafeEqual(left, right);
+}
+
 function getEmailConfigSummary(){
   const config = buildTransportConfig();
   const sendgridKey = String(process.env.SENDGRID_API_KEY || "").trim();
@@ -1129,8 +1469,9 @@ async function sendEmailSafe(mail){
   if(!transporter) return { ok:false, code:"PPS_SMTP_NOT_CONFIGURED", message:"Email not configured." };
   try{
     const timeoutMs = Math.max(5_000, Number(process.env.EMAIL_SEND_TIMEOUT_MS) || 25_000);
+    const preparedMail = prepareOutgoingMail(mail);
     await Promise.race([
-      transporter.sendMail(mail),
+      transporter.sendMail(preparedMail),
       new Promise((_, reject)=> setTimeout(()=> reject(Object.assign(new Error("SMTP send timeout"), { code: "PPS_SMTP_SEND_TIMEOUT" })), timeoutMs))
     ]);
     return { ok:true };
@@ -1161,15 +1502,21 @@ async function sendEmailSendGrid({ from, to, subject, html, text }){
   const senderNameMatch = String(from || "").match(/^"([^"]+)"\s*<.+>$/);
   const senderName = senderNameMatch ? senderNameMatch[1] : COMPANY_NAME;
 
+  const preparedMail = prepareOutgoingMail({ from, to, subject, html, text });
+
   const payload = {
     personalizations: [{ to: [{ email: toEmail }] }],
     from: { email: senderEmail, name: senderName || COMPANY_NAME },
-    reply_to: { email: senderEmail, name: senderName || COMPANY_NAME },
-    subject: String(subject || ""),
+    reply_to: preparedMail.replyTo ? { email: preparedMail.replyTo, name: senderName || COMPANY_NAME } : { email: senderEmail, name: senderName || COMPANY_NAME },
+    subject: preparedMail.subject,
     content: [
-      { type: "text/plain", value: String(text || "").trim() || " " },
-      { type: "text/html", value: String(html || "").trim() || "<p></p>" }
-    ]
+      { type: "text/plain", value: preparedMail.text || " " },
+      { type: "text/html", value: preparedMail.html || "<p></p>" }
+    ],
+    headers: {
+      "X-Entity-Ref-ID": preparedMail.headers?.["X-Entity-Ref-ID"] || "",
+      "X-Auto-Response-Suppress": "OOF, AutoReply"
+    }
   };
 
   try{
@@ -1414,7 +1761,8 @@ async function deleteVerificationCode(emailKey){
 
 function createSession(email){
   const token = crypto.randomBytes(24).toString("hex");
-  const expiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days
+  const sessionTtlMs = Math.max(60 * 60 * 1000, Number(process.env.SESSION_TTL_MS) || (7 * 24 * 60 * 60 * 1000));
+  const expiresAt = Date.now() + sessionTtlMs;
   authSessions.set(token, { email, expiresAt });
   return { token, expiresAt };
 }
@@ -1434,10 +1782,62 @@ function verifyPassword(password, stored){
   return crypto.timingSafeEqual(storedBuf, derived);
 }
 
+function parseCookies(req){
+  const raw = String(req.headers.cookie || "").trim();
+  if(!raw) return {};
+  return raw.split(";").reduce((acc, part)=>{
+    const [name, ...rest] = String(part || "").split("=");
+    const key = String(name || "").trim();
+    if(!key) return acc;
+    const value = rest.join("=");
+    try{
+      acc[key] = decodeURIComponent(String(value || "").trim());
+    }catch{
+      acc[key] = String(value || "").trim();
+    }
+    return acc;
+  }, {});
+}
+
+function shouldUseSecureCookies(req){
+  const forwardedProto = String(req.headers["x-forwarded-proto"] || "").split(",")[0].trim().toLowerCase();
+  if(forwardedProto === "https") return true;
+  return String(req.protocol || "").toLowerCase() === "https";
+}
+
+function setSessionCookie(req, res, session){
+  if(!session?.token) return;
+  const secure = shouldUseSecureCookies(req);
+  const maxAge = Math.max(60, Math.floor((Number(session.expiresAt || 0) - Date.now()) / 1000));
+  const parts = [
+    `pps_session=${encodeURIComponent(session.token)}`,
+    "Path=/",
+    "HttpOnly",
+    "SameSite=Lax",
+    `Max-Age=${maxAge}`
+  ];
+  if(secure) parts.push("Secure");
+  res.append("Set-Cookie", parts.join("; "));
+}
+
+function clearSessionCookie(req, res){
+  const parts = [
+    "pps_session=",
+    "Path=/",
+    "HttpOnly",
+    "SameSite=Lax",
+    "Max-Age=0"
+  ];
+  if(shouldUseSecureCookies(req)) parts.push("Secure");
+  res.append("Set-Cookie", parts.join("; "));
+}
+
 function getSessionFromRequest(req){
   const header = req.headers.authorization || "";
-  const token = header.startsWith("Bearer ") ? header.slice(7) : "";
-  if(!token) return null;
+  const bearerToken = header.startsWith("Bearer ") ? header.slice(7) : "";
+  const cookieToken = parseCookies(req).pps_session || "";
+  const token = bearerToken || cookieToken;
+  if(!/^[a-f0-9]{48}$/i.test(token)) return null;
   const session = authSessions.get(token);
   if(!session) return null;
   if(Date.now() > session.expiresAt){
@@ -1446,6 +1846,30 @@ function getSessionFromRequest(req){
   }
   return { token, ...session };
 }
+
+function purgeExpiredAuthSessions(){
+  const now = Date.now();
+  for(const [token, session] of authSessions.entries()){
+    if(now > Number(session?.expiresAt || 0)){
+      authSessions.delete(token);
+    }
+  }
+}
+
+function purgeExpiredOauthStates(){
+  const now = Date.now();
+  const ttlMs = 10 * 60 * 1000;
+  for(const [state, entry] of oauthStates.entries()){
+    if(now - Number(entry?.createdAt || 0) > ttlMs){
+      oauthStates.delete(state);
+    }
+  }
+}
+
+setInterval(()=>{
+  purgeExpiredAuthSessions();
+  purgeExpiredOauthStates();
+}, 15 * 60 * 1000).unref?.();
 
 function base64Url(bytes){
   return Buffer.from(bytes)
@@ -1597,6 +2021,12 @@ async function upsertOauthUser({ email, name }){
 
 // Health check
 app.get("/api/health",(req,res)=>{
+  const adminView = (() => {
+    const adminToken = String(process.env.ADMIN_TOKEN || "").trim();
+    if(!adminToken) return !IS_PRODUCTION;
+    const header = String(req.headers["x-admin-token"] || "").trim();
+    return header === adminToken;
+  })();
   const supabaseReady = !!supabase;
   const sheetsReady = isSheetsConfigured();
   const emailSummary = getEmailConfigSummary();
@@ -1605,9 +2035,23 @@ app.get("/api/health",(req,res)=>{
   const emailSendgridConfigured = !!emailSummary?.sendgrid?.configured;
   const emailReady = emailSmtpVerified || emailSendgridConfigured;
   const squareCheckoutCandidates = getSquareClientCandidates({ requireLocationId: true });
-  res.json({
+  const basePayload = {
     ok:true,
     status:"up",
+    ready: {
+      square: !!(squareCheckoutCandidates.length && siteUrl),
+      email: emailReady,
+      supabase: supabaseReady,
+      sheets: sheetsReady
+    }
+  };
+
+  if(!adminView){
+    return res.json(basePayload);
+  }
+
+  res.json({
+    ...basePayload,
     square: {
       configured: !!(squareCheckoutCandidates.length && siteUrl),
       env: squareEnvMode,
@@ -1673,13 +2117,7 @@ app.get("/api/email/health", async (req,res)=>{
 });
 
 app.get("/api/email/diagnose", async (req,res)=>{
-  const adminToken = String(process.env.ADMIN_TOKEN || "").trim();
-  if(adminToken){
-    const header = String(req.headers["x-admin-token"] || "").trim();
-    if(header !== adminToken){
-      return res.status(401).json({ ok:false, message:"Unauthorized" });
-    }
-  }
+  if(!requireAdmin(req, res)) return;
 
   const verification = await verifyEmailTransporter({ force: true });
   const sendgridConfigured = !!verification?.sendgrid?.configured;
@@ -1727,6 +2165,7 @@ app.get("/api/email/diagnose", async (req,res)=>{
 });
 
 app.get("/api/square/diagnose", async (req,res)=>{
+  if(!requireAdmin(req, res)) return;
   if(!requireSquareClientConfigured(res)) return;
   try{
     const prod = await squareTest(squareClientProduction, "production");
@@ -1800,13 +2239,13 @@ app.get("/api/products/:id/reviews", async (req,res)=>{
   }
 });
 
-app.post("/api/products/:id/reviews", async (req,res)=>{
-  const { rating, name, comment } = req.body || {};
+app.post("/api/products/:id/reviews", reviewValidation, (req,res,next)=> enforceRecaptcha(req, res, next, { action:"product_review" }), async (req,res,next)=>{
+  const { rating, name, comment } = matchedData(req, {
+    locations: ["body", "params"],
+    includeOptionals: true
+  });
   const productId = req.params.id;
   const cleanRating = Number(rating);
-  if(!cleanRating || cleanRating < 1 || cleanRating > 5){
-    return res.status(400).json({ ok:false, message:"Rating must be between 1 and 5." });
-  }
 
   const entry = {
     id: "REV-" + Date.now(),
@@ -1821,8 +2260,7 @@ app.post("/api/products/:id/reviews", async (req,res)=>{
     const { error } = await supabase.from("reviews").insert(entry);
     if(error) throw error;
   }catch(err){
-    console.error("Supabase review insert failed", err);
-    return res.status(500).json({ ok:false, message:"Failed to save review." });
+    return next(err);
   }
 
   if(isSheetsConfigured()){
@@ -2017,7 +2455,7 @@ app.get("/api/admin/qbo/invoice-pdf", async (req,res)=>{
 });
 
 // ---- Create pay-later order + reduce stock + email ----
-app.post("/api/order", async (req,res)=>{
+app.post("/api/order", orderValidation, (req,res,next)=> enforceRecaptcha(req, res, next, { action:"order_form" }), async (req,res,next)=>{
   const { customer, items, currency, paymentMethod, shipping, discount } = req.body;
   if(!customer?.email || !items?.length) return res.status(400).json({ ok:false, message:"Missing email or items" });
   if(!requireSupabase(res)) return;
@@ -2356,15 +2794,13 @@ app.post("/api/order", async (req,res)=>{
       console.error("Order async work failed", err);
     });
   }catch(err){
-    console.error("Order error", err);
-    res.status(500).json({ ok:false, message:"Order failed on server" });
+    next(err);
   }
 });
 
 // ---- Contact form -> email ----
-app.post("/api/contact", async (req,res)=>{
+app.post("/api/contact", contactValidation, (req,res,next)=> enforceRecaptcha(req, res, next, { action:"contact_form" }), async (req,res,next)=>{
   const { name, email, phone, message, orderType, attachment } = req.body;
-  if(!email || !message) return res.status(400).json({ ok:false, message:"Email and message required" });
   if(!requireSupabase(res)) return;
 
   try{
@@ -2443,15 +2879,13 @@ app.post("/api/contact", async (req,res)=>{
 
     res.json({ ok:true, emailSent });
   }catch(err){
-    console.error("Contact email failed", err);
-    res.status(500).json({ ok:false, message:"Failed to send email" });
+    next(err);
   }
 });
 
 // ---- Help widget -> help_requests + messages ----
-app.post("/api/help", async (req,res)=>{
+app.post("/api/help", helpValidation, (req,res,next)=> enforceRecaptcha(req, res, next, { action:"help_form" }), async (req,res,next)=>{
   const { name, email, message } = req.body;
-  if(!email || !message) return res.status(400).json({ ok:false, message:"Email and message required" });
   if(!requireSupabase(res)) return;
 
   try{
@@ -2514,13 +2948,17 @@ app.post("/api/help", async (req,res)=>{
 
     res.json({ ok:true, emailSent });
   }catch(err){
-    console.error("Help request failed", err);
-    res.status(500).json({ ok:false, message:"Failed to send help request" });
+    next(err);
   }
 });
 
 // ---- AI chat proxy ----
 const aiChatLimiter = rateLimit({ windowMs: 60_000, max: 40, keyPrefix: "ai:" });
+const authSendCodeLimiter = rateLimit({ windowMs: 15 * 60_000, max: 5, keyPrefix: "auth:send-code:", keyFn: authRateLimitKey });
+const authCheckCodeLimiter = rateLimit({ windowMs: 10 * 60_000, max: 10, keyPrefix: "auth:check-code:", keyFn: authRateLimitKey });
+const authRegisterLimiter = rateLimit({ windowMs: 30 * 60_000, max: 5, keyPrefix: "auth:register:", keyFn: authRateLimitKey });
+const authLoginLimiter = rateLimit({ windowMs: 15 * 60_000, max: 8, keyPrefix: "auth:login:", keyFn: authRateLimitKey });
+const oauthStartLimiter = rateLimit({ windowMs: 10 * 60_000, max: 12, keyPrefix: "auth:oauth-start:" });
 app.post("/api/ai-chat", aiChatLimiter, async (req,res)=>{
   const { messages } = req.body || {};
   if(!Array.isArray(messages) || !messages.length){
@@ -2549,7 +2987,7 @@ app.post("/api/ai-chat", aiChatLimiter, async (req,res)=>{
 });
 
 // ---- Auth: send verification code ----
-app.post("/api/auth/send-code", async (req,res)=>{
+app.post("/api/auth/send-code", authSendCodeLimiter, async (req,res)=>{
   const { email, name } = req.body;
   const emailKey = String(email || "").trim().toLowerCase();
   if(!emailKey) return res.status(400).json({ ok:false, message:"Email required" });
@@ -2582,7 +3020,7 @@ app.post("/api/auth/send-code", async (req,res)=>{
 });
 
 // ---- Auth: check verification code ----
-app.post("/api/auth/check-code", async (req,res)=>{
+app.post("/api/auth/check-code", authCheckCodeLimiter, async (req,res)=>{
   const { email, code } = req.body;
   const emailKey = String(email || "").trim().toLowerCase();
   if(!emailKey || !code) return res.status(400).json({ ok:false, message:"Email and code required" });
@@ -2593,7 +3031,7 @@ app.post("/api/auth/check-code", async (req,res)=>{
     await deleteVerificationCode(emailKey);
     return res.status(400).json({ ok:false, message:"Code expired. Please request a new one." });
   }
-  if(entry.code !== code){
+  if(!timingSafeStringEqual(entry.code, code)){
     return res.status(400).json({ ok:false, message:"Invalid code." });
   }
 
@@ -2601,10 +3039,16 @@ app.post("/api/auth/check-code", async (req,res)=>{
 });
 
 // ---- Auth: register ----
-app.post("/api/auth/register", async (req,res)=>{
+app.post("/api/auth/register", authRegisterLimiter, async (req,res)=>{
   const { email, code, password, name, recaptchaToken } = req.body;
   const emailKey = String(email || "").trim().toLowerCase();
   if(!emailKey || !code || !password) return res.status(400).json({ ok:false, message:"Email, code, and password required" });
+  if(!isStrongPassword(password, emailKey, name)){
+    return res.status(400).json({
+      ok:false,
+      message:"Password must be 12+ characters and include uppercase, lowercase, number, and symbol."
+    });
+  }
 
   const recaptcha = await verifyRecaptcha(recaptchaToken);
   if(!recaptcha.ok){
@@ -2617,7 +3061,7 @@ app.post("/api/auth/register", async (req,res)=>{
     await deleteVerificationCode(emailKey);
     return res.status(400).json({ ok:false, message:"Code expired. Please request a new one." });
   }
-  if(entry.code !== code){
+  if(!timingSafeStringEqual(entry.code, code)){
     return res.status(400).json({ ok:false, message:"Invalid code." });
   }
 
@@ -2664,6 +3108,7 @@ app.post("/api/auth/register", async (req,res)=>{
   await deleteVerificationCode(emailKey);
 
   const session = createSession(lower);
+  setSessionCookie(req, res, session);
   const emailConfigured = !!buildTransportConfig();
   const shouldSendWelcome = emailConfigured;
 
@@ -2705,7 +3150,7 @@ app.post("/api/auth/register", async (req,res)=>{
 });
 
 // ---- Auth: verify code (stub, no persistence) ----
-app.post("/api/auth/verify-code", async (req,res)=>{
+app.post("/api/auth/verify-code", authCheckCodeLimiter, async (req,res)=>{
   const { email, code } = req.body;
   const emailKey = String(email || "").trim().toLowerCase();
   if(!emailKey || !code) return res.status(400).json({ ok:false, message:"Email and code required" });
@@ -2717,12 +3162,13 @@ app.post("/api/auth/verify-code", async (req,res)=>{
       await deleteVerificationCode(emailKey);
       return res.status(400).json({ ok:false, message:"Code expired. Please request a new one." });
     }
-    if(entry.code !== code){
+    if(!timingSafeStringEqual(entry.code, code)){
       return res.status(400).json({ ok:false, message:"Invalid code." });
     }
 
     await deleteVerificationCode(emailKey);
     const session = createSession(emailKey);
+    setSessionCookie(req, res, session);
     res.json({ ok:true, message:"Code verified.", token: session.token, email: emailKey, expiresAt: session.expiresAt });
   }catch(err){
     console.error("Verify code failed", err);
@@ -2731,7 +3177,7 @@ app.post("/api/auth/verify-code", async (req,res)=>{
 });
 
 // ---- Auth: login ----
-app.post("/api/auth/login", async (req,res)=>{
+app.post("/api/auth/login", authLoginLimiter, async (req,res)=>{
   const { email, password } = req.body;
   const emailKey = String(email || "").trim().toLowerCase();
   if(!emailKey || !password) return res.status(400).json({ ok:false, message:"Email and password required" });
@@ -2756,6 +3202,7 @@ app.post("/api/auth/login", async (req,res)=>{
   }
 
   const session = createSession(lower);
+  setSessionCookie(req, res, session);
   supabase.from("users")
     .update({ last_login_at: new Date().toISOString() })
     .eq("email", lower)
@@ -2769,6 +3216,7 @@ app.post("/api/auth/login", async (req,res)=>{
 app.post("/api/auth/logout", (req,res)=>{
   const session = getSessionFromRequest(req);
   if(session) authSessions.delete(session.token);
+  clearSessionCookie(req, res);
   res.json({ ok:true });
 });
 
@@ -2800,7 +3248,7 @@ app.get("/api/auth/oauth/status", (req,res)=>{
 });
 
 // ---- OAuth: Google ----
-app.get("/api/auth/oauth/google/start", (req,res)=>{
+app.get("/api/auth/oauth/google/start", oauthStartLimiter, (req,res)=>{
   const clientId = readEnvFirst("OAUTH_GOOGLE_CLIENT_ID", "GOOGLE_OAUTH_CLIENT_ID");
   const clientSecret = readEnvFirst("OAUTH_GOOGLE_CLIENT_SECRET", "GOOGLE_OAUTH_CLIENT_SECRET");
   const redirectUri = readEnvFirst("OAUTH_GOOGLE_REDIRECT_URI", "GOOGLE_OAUTH_REDIRECT_URI")
@@ -2890,6 +3338,7 @@ app.get("/api/auth/oauth/google/callback", async (req,res)=>{
 
     const user = await upsertOauthUser({ email: userJson.email, name: userJson.name || "" });
     const session = createSession(user.email);
+    setSessionCookie(req, res, session);
     return redirectToFrontend({
       pps_oauth:"1",
       provider:"google",
@@ -2906,7 +3355,7 @@ app.get("/api/auth/oauth/google/callback", async (req,res)=>{
 });
 
 // ---- OAuth: Facebook ----
-app.get("/api/auth/oauth/facebook/start", (req,res)=>{
+app.get("/api/auth/oauth/facebook/start", oauthStartLimiter, (req,res)=>{
   const appId = readEnvFirst("OAUTH_FACEBOOK_APP_ID", "FACEBOOK_APP_ID", "FACEBOOK_OAUTH_APP_ID");
   const appSecret = readEnvFirst("OAUTH_FACEBOOK_APP_SECRET", "FACEBOOK_APP_SECRET", "FACEBOOK_OAUTH_APP_SECRET");
   const redirectUri = readEnvFirst("OAUTH_FACEBOOK_REDIRECT_URI", "FACEBOOK_OAUTH_REDIRECT_URI")
@@ -2989,6 +3438,7 @@ app.get("/api/auth/oauth/facebook/callback", async (req,res)=>{
 
     const user = await upsertOauthUser({ email: profileJson.email, name: profileJson.name || "" });
     const session = createSession(user.email);
+    setSessionCookie(req, res, session);
     return redirectToFrontend({
       pps_oauth:"1",
       provider:"facebook",
@@ -3884,7 +4334,7 @@ function summarizeSquareError(err){
   return { statusCode, message, errors: sanitizedErrors, requestId };
 }
 
-app.post("/api/pay", async (req,res)=>{
+app.post("/api/pay", (req,res,next)=> enforceRecaptcha(req, res, next, { action:"card_payment" }), async (req,res)=>{
   if(!requireDirectSquareConfigured(res)) return;
 
   const token = String(req.body?.token || "").trim();
@@ -4224,9 +4674,9 @@ async function handlePaymentStatus(req,res){
 
 // New Square endpoints (preferred) + safe aliases
 const createPaymentLimiter = rateLimit({ windowMs: 60_000, max: 20, keyPrefix: "pay:" });
-app.post("/api/create-payment", createPaymentLimiter, handleCreatePayment);
-app.post("/create-payment", createPaymentLimiter, handleCreatePayment);
-app.post("/pi/create-payment", createPaymentLimiter, handleCreatePayment);
+app.post("/api/create-payment", createPaymentLimiter, (req,res,next)=> enforceRecaptcha(req, res, next, { action:"checkout_payment" }), handleCreatePayment);
+app.post("/create-payment", createPaymentLimiter, (req,res,next)=> enforceRecaptcha(req, res, next, { action:"checkout_payment" }), handleCreatePayment);
+app.post("/pi/create-payment", createPaymentLimiter, (req,res,next)=> enforceRecaptcha(req, res, next, { action:"checkout_payment" }), handleCreatePayment);
 app.get("/api/create-payment", (req,res)=> res.status(405).json({ ok:false, message:"Use POST /api/create-payment" }));
 app.get("/create-payment", (req,res)=> res.status(405).json({ ok:false, message:"Use POST /create-payment" }));
 app.get("/pi/create-payment", (req,res)=> res.status(405).json({ ok:false, message:"Use POST /pi/create-payment" }));
@@ -4281,7 +4731,7 @@ app.get("/payment-status", handlePaymentStatus);
 app.get("/pi/payment-status", handlePaymentStatus);
 
 // Backward-compat endpoint used by older frontend code
-app.post("/api/square-checkout", async (req,res)=>{
+app.post("/api/square-checkout", (req,res,next)=> enforceRecaptcha(req, res, next, { action:"checkout_payment" }), async (req,res)=>{
   const effectiveSiteUrl = requireSquareConfigured(req, res);
   if(!effectiveSiteUrl) return;
   if(!requireSupabase(res)) return;
@@ -4345,9 +4795,8 @@ app.get("/api/feedback/public", async (req,res)=>{
   }
 });
 
-app.post("/api/feedback", async (req,res)=>{
+app.post("/api/feedback", feedbackValidation, (req,res,next)=> enforceRecaptcha(req, res, next, { action:"feedback_form" }), async (req,res,next)=>{
   const { name, email, message } = req.body;
-  if(!message) return res.status(400).json({ ok:false, message:"Message required" });
   if(!requireSupabase(res)) return;
 
   try{
@@ -4397,9 +4846,45 @@ app.post("/api/feedback", async (req,res)=>{
 
     res.json({ ok:true, emailSent });
   }catch(err){
-    console.error("Feedback email failed", err);
-    res.status(500).json({ ok:false, message:"Failed to send feedback" });
+    next(err);
   }
+});
+
+app.use((err, req, res, next)=>{
+  if(res.headersSent) return next(err);
+
+  if(err?.type === "entity.too.large"){
+    logSecurityEvent("body_limit_exceeded", {
+      method: req.method,
+      path: req.originalUrl,
+      ip: getClientIp(req)
+    });
+    return res.status(413).json({ ok:false, message:"Request payload too large." });
+  }
+
+  if(err?.code === "CORS_DENIED"){
+    return res.status(403).json({ ok:false, message:"Origin not allowed." });
+  }
+
+  const status = Number(err?.status || err?.statusCode || 500);
+  const safeStatus = status >= 400 && status < 600 ? status : 500;
+  logSecurityEvent("unhandled_error", {
+    method: req.method,
+    path: req.originalUrl,
+    ip: getClientIp(req),
+    status: safeStatus,
+    message: String(err?.message || "Unknown error")
+  });
+
+  const message = safeStatus >= 500
+    ? "An unexpected server error occurred."
+    : String(err?.message || "Request failed.");
+
+  return res.status(safeStatus).json({
+    ok: false,
+    message,
+    ...(IS_PRODUCTION ? {} : { debug: String(err?.stack || err?.message || err) })
+  });
 });
 
 app.listen(PORT, HOST, ()=>{

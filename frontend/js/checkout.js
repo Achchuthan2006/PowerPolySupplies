@@ -110,6 +110,12 @@ function getUnitCurrency(item){
   return product?.currency || item.currencyBase || item.currency || "CAD";
 }
 
+function escapeHtml(value){
+  return window.PPSSecurity?.escapeHtml
+    ? window.PPSSecurity.escapeHtml(value)
+    : String(value ?? "");
+}
+
 // Destination-based tax rules (GST/HST)
 const PROVINCE_RATES = {
   ON: { rate: 0.13, label: "HST 13%" },
@@ -399,7 +405,7 @@ function drawSummary(){
               ? (window.PPS_I18N?.autoTranslate?.(i.description_es || i.description || product?.description_es || product?.description || "", "es") || (i.description_es || i.description || product?.description_es || product?.description || ""))
               : (i.description || i.description_fr || i.description_ko || i.description_hi || i.description_ta || i.description_es || product?.description || product?.description_fr || product?.description_ko || product?.description_hi || product?.description_ta || product?.description_es || "");
     const descHtml = desc
-      ? `<div style="color:var(--muted); font-size:12px; margin-top:4px;">${desc}</div>`
+      ? `<div style="color:var(--muted); font-size:12px; margin-top:4px;">${escapeHtml(desc)}</div>`
       : "";
     const unitCents = getUnitBasePrice(i);
     const baseCents = unitCents * i.qty;
@@ -412,7 +418,7 @@ function drawSummary(){
     return `
       <div style="display:flex; justify-content:space-between; gap:10px;">
         <div>
-          <div>${displayName} <span style="color:var(--muted)">x${i.qty}</span></div>
+          <div>${escapeHtml(displayName)} <span style="color:var(--muted)">x${Number(i.qty) || 0}</span></div>
           ${descHtml}
         </div>
         <div style="font-weight:800">${PPS.money(lineTotal, targetCurrency, targetCurrency)}</div>
@@ -518,17 +524,29 @@ formEl.addEventListener("submit", async (e)=>{
 
   const form = e.target;
   const customer = {
-    name: form.name.value.trim(),
-    email: form.email.value.trim(),
-    phone: form.phone.value.trim(),
-    address1: form.address1.value.trim(),
-    address2: form.address2.value.trim(),
-    city: form.city.value.trim(),
-    postal: form.postal?.value?.trim() || "",
+    name: PPSSecurity.sanitizeText(form.name.value, { maxLength: 100 }),
+    email: PPSSecurity.sanitizeEmail(form.email.value),
+    phone: PPSSecurity.sanitizePhone(form.phone.value),
+    address1: PPSSecurity.sanitizeText(form.address1.value, { maxLength: 120 }),
+    address2: PPSSecurity.sanitizeText(form.address2.value, { maxLength: 120 }),
+    city: PPSSecurity.sanitizeText(form.city.value, { maxLength: 80 }),
+    postal: PPSSecurity.sanitizeText(form.postal?.value, { maxLength: 12 }) || "",
     province: provinceSelect.value,
-    deliveryNotes: form.deliveryNotes?.value?.trim() || "",
+    deliveryNotes: PPSSecurity.sanitizeText(form.deliveryNotes?.value, { maxLength: 250, multiline: true }) || "",
     language: window.PPS_I18N?.getLang?.() || "en"
   };
+  if(!customer.name || !customer.email || !customer.address1 || !customer.city || !customer.postal || !customer.province || !PPSSecurity.isValidEmail(customer.email) || !PPSSecurity.isValidPhone(customer.phone)){
+    setStatus(msg, "Enter a valid name, email, phone, address, city, postal code, and province.", "error");
+    setPending(submitBtn, false);
+    setPending(payBtn, false);
+    return;
+  }
+  if(Object.values(customer).some(PPSSecurity.containsSuspiciousInput)){
+    setStatus(msg, "Submission blocked due to unsafe input.", "error");
+    setPending(submitBtn, false);
+    setPending(payBtn, false);
+    return;
+  }
 
   const email = getSessionEmail();
 
@@ -567,7 +585,9 @@ formEl.addEventListener("submit", async (e)=>{
     const controller = new AbortController();
     // Render free instances can take a while to wake up; allow extra time.
     const timeoutId = setTimeout(()=> controller.abort(), 45000);
-    const res = await fetch(`${PPS.API_BASE}/api/order`, {
+    const apiBase = PPSSecurity.ensureSecureApiBase(PPS.API_BASE || window.API_BASE_URL || "");
+    const recaptchaToken = await PPSSecurity.getRecaptchaToken("order_form");
+    const res = await fetch(`${apiBase}/api/order`, {
       method:"POST",
       headers:{ "Content-Type":"application/json" },
       signal: controller.signal,
@@ -577,6 +597,7 @@ formEl.addEventListener("submit", async (e)=>{
         totalCents,
         currency: targetCurrency,
         paymentMethod:"pay_later",
+        recaptchaToken,
         shipping: {
           zone: shipping.zone,
           label: shipping.label,
@@ -653,17 +674,25 @@ document.getElementById("payOnline").addEventListener("click", async ()=>{
 
   try{
     const customer = {
-      name: formEl.name.value.trim(),
-      email: formEl.email.value.trim(),
-      phone: formEl.phone.value.trim(),
-      address1: formEl.address1.value.trim(),
-      address2: formEl.address2.value.trim(),
-      city: formEl.city.value.trim(),
-      postal: formEl.postal?.value?.trim() || "",
+      name: PPSSecurity.sanitizeText(formEl.name.value, { maxLength: 100 }),
+      email: PPSSecurity.sanitizeEmail(formEl.email.value),
+      phone: PPSSecurity.sanitizePhone(formEl.phone.value),
+      address1: PPSSecurity.sanitizeText(formEl.address1.value, { maxLength: 120 }),
+      address2: PPSSecurity.sanitizeText(formEl.address2.value, { maxLength: 120 }),
+      city: PPSSecurity.sanitizeText(formEl.city.value, { maxLength: 80 }),
+      postal: PPSSecurity.sanitizeText(formEl.postal?.value, { maxLength: 12 }) || "",
       province: provinceSelect.value,
-      deliveryNotes: formEl.deliveryNotes?.value?.trim() || "",
+      deliveryNotes: PPSSecurity.sanitizeText(formEl.deliveryNotes?.value, { maxLength: 250, multiline: true }) || "",
       language: window.PPS_I18N?.getLang?.() || "en"
     };
+    if(!customer.name || !customer.email || !customer.address1 || !customer.city || !customer.postal || !customer.province || !PPSSecurity.isValidEmail(customer.email) || !PPSSecurity.isValidPhone(customer.phone)){
+      setStatus(msg, "Enter a valid name, email, phone, address, city, postal code, and province.", "error");
+      return;
+    }
+    if(Object.values(customer).some(PPSSecurity.containsSuspiciousInput)){
+      setStatus(msg, "Submission blocked due to unsafe input.", "error");
+      return;
+    }
     const province = provinceSelect.value;
     const targetCurrency = PPS.getCurrency();
   const subtotal = cart.reduce((sum,i)=>{
@@ -710,20 +739,19 @@ document.getElementById("payOnline").addEventListener("click", async ()=>{
     const itemsWithTax = [...enrichedCart, ...taxLine, ...shippingLine];
 
     function resolveApiBase(){
-      const raw = String(window.API_BASE_URL || window.PPS_API_BASE || PPS.API_BASE || "").trim();
-      const trimmed = raw.replace(/\/+$/,"").replace(/\/api$/i,"");
-      return trimmed || String(PPS.API_BASE || "").trim().replace(/\/+$/,"").replace(/\/api$/i,"");
+      return PPSSecurity.ensureSecureApiBase(window.API_BASE_URL || window.PPS_API_BASE || PPS.API_BASE || "");
     }
 
     async function postCreatePayment(){
       const base = resolveApiBase();
+      const recaptchaToken = await PPSSecurity.getRecaptchaToken("checkout_payment");
       const endpoints = [
         `${base}/api/create-payment`,
         `${base}/create-payment`,
         `${base}/pi/create-payment`,
         `${base}/api/square-checkout`
       ];
-      const payload = JSON.stringify({ items: itemsWithTax, customer });
+      const payload = JSON.stringify({ items: itemsWithTax, customer, recaptchaToken });
       let lastError = null;
       for(const url of endpoints){
         try{

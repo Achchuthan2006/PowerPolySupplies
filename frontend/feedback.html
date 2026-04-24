@@ -277,6 +277,7 @@
 
   <script src="./config.min.js"></script>
 
+  <script src="./js/security.js"></script>
   <script src="./js/store.min.js"></script>
   <script src="./js/notifications.min.js"></script>
   <script src="./js/i18n.js"></script>
@@ -302,15 +303,19 @@
 
     async function sendFeedback(){
       const payload = {
-        name: feedbackName.value.trim(),
-        email: feedbackEmail.value.trim(),
+        name: PPSSecurity.sanitizeText(feedbackName.value, { maxLength: 100 }),
+        email: PPSSecurity.sanitizeEmail(feedbackEmail.value),
         rating: feedbackRating.value ? Number(feedbackRating.value) : undefined,
-        message: feedbackMessage.value.trim()
+        message: PPSSecurity.sanitizeText(feedbackMessage.value, { maxLength: 1500, multiline: true })
       };
 
-      if(!payload.message){
+      if(!payload.message || (payload.email && !PPSSecurity.isValidEmail(payload.email))){
         setFeedbackStatus(window.PPS_I18N?.t("feedback.status.missing") || "Please add your feedback message first.", "error");
         feedbackMessage.classList.add("error");
+        return;
+      }
+      if([payload.name, payload.email, payload.message].some(PPSSecurity.containsSuspiciousInput)){
+        setFeedbackStatus("Submission blocked due to unsafe input.", "error");
         return;
       }
 
@@ -320,10 +325,12 @@
       setFeedbackStatus(window.PPS_I18N?.t("feedback.status.sending") || "Sending your feedback...", "muted");
 
       try{
-        const res = await fetch(`${PPS.API_BASE}/api/feedback`, {
+        const apiBase = PPSSecurity.ensureSecureApiBase(PPS.API_BASE || window.API_BASE_URL || "");
+        const recaptchaToken = await PPSSecurity.getRecaptchaToken("feedback_form");
+        const res = await fetch(`${apiBase}/api/feedback`, {
           method:"POST",
           headers:{ "Content-Type":"application/json" },
-          body: JSON.stringify(payload)
+          body: JSON.stringify({ ...payload, recaptchaToken })
         });
         const data = await res.json().catch(()=> ({}));
         if(!res.ok || !data.ok){

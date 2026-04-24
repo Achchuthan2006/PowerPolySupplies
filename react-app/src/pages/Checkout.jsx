@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import SquareCardCheckout from "../components/SquareCardCheckout.jsx";
+import { containsSuspiciousInput, ensureSecureApiBase, getRecaptchaToken, isValidEmail, isValidPhone, sanitizeEmail, sanitizePhone, sanitizeText } from "../lib/security.js";
 
 const PROVINCE_RATES = {
   ON: { rate: 0.13, label: "HST 13%" },
@@ -191,14 +192,26 @@ export default function Checkout() {
     setPayPending(true);
 
     const customer = {
-      name: form.name.value.trim(),
-      email: form.email.value.trim(),
-      phone: form.phone.value.trim(),
-      address: form.address.value.trim(),
-      postal: form.postal?.value?.trim() || "",
+      name: sanitizeText(form.name.value, { maxLength: 100 }),
+      email: sanitizeEmail(form.email.value),
+      phone: sanitizePhone(form.phone.value),
+      address: sanitizeText(form.address.value, { maxLength: 250, multiline: true }),
+      postal: sanitizeText(form.postal?.value, { maxLength: 12 }),
       province,
       language: lang
     };
+    if (!customer.name || !customer.email || !customer.address || !customer.postal || !province || !isValidEmail(customer.email) || !isValidPhone(customer.phone)) {
+      updateStatus("Enter a valid name, email, phone, address, postal code, and province.", "error");
+      setSubmitPending(false);
+      setPayPending(false);
+      return;
+    }
+    if (Object.values(customer).some((value) => containsSuspiciousInput(value))) {
+      updateStatus("Submission blocked due to unsafe input.", "error");
+      setSubmitPending(false);
+      setPayPending(false);
+      return;
+    }
 
     const subtotalCents = summary.subtotalCents;
     const taxData = calculateTax(subtotalCents, province, lang);
@@ -228,7 +241,9 @@ export default function Checkout() {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 15000);
-      const res = await fetch(`${window.PPS?.API_BASE}/api/order`, {
+      const apiBase = ensureSecureApiBase(window.PPS?.API_BASE || window.API_BASE_URL || "");
+      const recaptchaToken = await getRecaptchaToken("order_form");
+      const res = await fetch(`${apiBase}/api/order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         signal: controller.signal,
@@ -238,6 +253,7 @@ export default function Checkout() {
           totalCents,
           currency: targetCurrency,
           paymentMethod: "pay_later",
+          recaptchaToken,
           shipping: {
             zone: shipping.zone,
             label: shipping.label,
@@ -295,15 +311,16 @@ export default function Checkout() {
         <div className="card fade-in" style={{ padding: "18px" }}>
           <h2 style={{ margin: "0 0 10px" }} data-i18n="checkout.billing.title">Billing & Delivery</h2>
           <form ref={formRef} onSubmit={handleSubmit} className="grid" style={{ gap: "10px" }}>
-            <input className="input" name="name" placeholder="Full Name" data-i18n-placeholder="checkout.form.name" required />
-            <input className="input" type="email" name="email" placeholder="Email" data-i18n-placeholder="checkout.form.email" required />
-            <input className="input" name="phone" placeholder="Phone (optional)" data-i18n-placeholder="checkout.form.phone" />
+            <input className="input" name="name" placeholder="Full Name" data-i18n-placeholder="checkout.form.name" minLength="2" maxLength="100" required />
+            <input className="input" type="email" name="email" placeholder="Email" data-i18n-placeholder="checkout.form.email" autoComplete="email" maxLength="254" required />
+            <input className="input" name="phone" placeholder="Phone (optional)" data-i18n-placeholder="checkout.form.phone" inputMode="tel" maxLength="25" />
             <input
               className="input"
               name="postal"
               placeholder="Postal code"
               value={postal}
               onChange={(event) => setPostal(event.target.value)}
+              maxLength="12"
               required
             />
             <select
@@ -334,8 +351,11 @@ export default function Checkout() {
               placeholder="Address / Delivery instructions"
               data-i18n-placeholder="checkout.form.address"
               style={{ minHeight: "120px" }}
+              minLength="5"
+              maxLength="250"
               required
             />
+            {window.RECAPTCHA_SITE_KEY ? <small style={{ color: "var(--muted)" }}>Protected by reCAPTCHA.</small> : null}
             <button className="btn btn-primary" type="submit" data-i18n="checkout.pay_later" disabled={disabled}>
               {submitPending
                 ? (window.PPS_I18N?.t("checkout.status.submitting_btn") || "Submitting...")

@@ -4,7 +4,14 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "start": "node server.js",
+    "pm2:start": "pm2 start ecosystem.config.cjs --env production",
+    "pm2:restart": "pm2 restart ecosystem.config.cjs --env production",
+    "pm2:logs": "pm2 logs pps-backend",
+    "pm2:save": "pm2 save",
+    "audit:prod": "npm audit --omit=dev",
+    "deps:outdated": "npm outdated"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.89.0",
@@ -12,7 +19,10 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "express-rate-limit": "^8.3.2",
+    "express-validator": "^7.3.2",
     "googleapis": "^140.0.1",
+    "helmet": "^8.1.0",
     "nodemailer": "^6.9.14",
     "square": "^43.0.0"
   }

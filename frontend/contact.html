@@ -65,11 +65,11 @@
 
         <form id="contactForm" class="grid" style="gap:10px;">
           <label class="input-label" for="contactName">Full Name</label>
-          <input required class="input" id="contactName" name="name" autocomplete="name" placeholder="Enter your full name" data-i18n-placeholder="contact.form.name" aria-label="Full name">
+          <input required class="input" id="contactName" name="name" autocomplete="name" placeholder="Enter your full name" data-i18n-placeholder="contact.form.name" aria-label="Full name" minlength="2" maxlength="100">
           <label class="input-label" for="contactEmail">Email</label>
-          <input required class="input" id="contactEmail" type="email" name="email" autocomplete="email" inputmode="email" placeholder="name@company.com" data-i18n-placeholder="contact.form.email" aria-label="Email address">
+          <input required class="input" id="contactEmail" type="email" name="email" autocomplete="email" inputmode="email" placeholder="name@company.com" data-i18n-placeholder="contact.form.email" aria-label="Email address" maxlength="254">
           <label class="input-label" for="contactPhone">Phone (optional)</label>
-          <input class="input" id="contactPhone" type="tel" name="phone" autocomplete="tel" inputmode="tel" placeholder="Best number to reach you" data-i18n-placeholder="contact.form.phone" aria-label="Phone number">
+          <input class="input" id="contactPhone" type="tel" name="phone" autocomplete="tel" inputmode="tel" placeholder="Best number to reach you" data-i18n-placeholder="contact.form.phone" aria-label="Phone number" maxlength="25">
           <label class="input-label" for="contactOrderType">Order Type</label>
           <select class="input" id="contactOrderType" name="orderType" autocomplete="organization-title" aria-label="Order type">
             <option value="bulk_quote">Bulk Quote</option>
@@ -81,7 +81,8 @@
             <input class="input" id="contactAttachment" type="file" name="attachment" accept=".csv,.xlsx,.xls">
           </div>
           <label class="input-label" for="contactMessage">Message</label>
-          <textarea required class="input" id="contactMessage" name="message" autocomplete="on" placeholder="Tell us what you need and expected quantity" data-i18n-placeholder="contact.form.message" style="min-height:120px;" aria-label="Message"></textarea>
+          <textarea required class="input" id="contactMessage" name="message" autocomplete="on" placeholder="Tell us what you need and expected quantity" data-i18n-placeholder="contact.form.message" style="min-height:120px;" aria-label="Message" minlength="5" maxlength="2000"></textarea>
+          <small style="color:var(--muted);">Protected by reCAPTCHA when configured.</small>
 
           <button class="btn btn-primary" type="submit" data-i18n="contact.form.send">Send Message</button>
           <div style="font-size:12px; color:var(--muted); font-weight:800;">We respond within 2 hours during business hours.</div>
@@ -164,6 +165,7 @@
 
   <script src="./config.min.js"></script>
 
+  <script src="./js/security.js"></script>
   <script src="./js/store.min.js"></script>
   <script src="./js/notifications.min.js"></script>
   <script src="./js/i18n.js"></script>
@@ -190,12 +192,20 @@
         return btoa(binary);
       };
       const payload = {
-        name: form.name.value.trim(),
-        email: form.email.value.trim(),
-        phone: form.phone.value.trim(),
-        orderType: form.orderType?.value || "",
-        message: form.message.value.trim()
+        name: PPSSecurity.sanitizeText(form.name.value, { maxLength: 100 }),
+        email: PPSSecurity.sanitizeEmail(form.email.value),
+        phone: PPSSecurity.sanitizePhone(form.phone.value),
+        orderType: PPSSecurity.sanitizeText(form.orderType?.value || "", { maxLength: 80 }),
+        message: PPSSecurity.sanitizeText(form.message.value, { maxLength: 2000, multiline: true })
       };
+      if(!payload.name || !payload.email || !payload.message || !PPSSecurity.isValidEmail(payload.email) || !PPSSecurity.isValidPhone(payload.phone)){
+        status.textContent = "Enter a valid name, email, phone, and message.";
+        return;
+      }
+      if([payload.name, payload.email, payload.phone, payload.orderType, payload.message].some(PPSSecurity.containsSuspiciousInput)){
+        status.textContent = "Submission blocked due to unsafe input.";
+        return;
+      }
       if(file){
         if(file.size > MAX_BYTES){
           status.textContent = "Attachment too large (max 2MB). Please upload a smaller file or paste the list into your message.";
@@ -210,10 +220,12 @@
       }
 
       try{
-        const res = await fetch(`${PPS.API_BASE}/api/contact`,{
+        const apiBase = PPSSecurity.ensureSecureApiBase(PPS.API_BASE || window.API_BASE_URL || "");
+        const recaptchaToken = await PPSSecurity.getRecaptchaToken("contact_form");
+        const res = await fetch(`${apiBase}/api/contact`,{
           method:"POST",
           headers:{ "Content-Type":"application/json" },
-          body: JSON.stringify(payload)
+          body: JSON.stringify({ ...payload, recaptchaToken })
         });
         const data = await res.json().catch(()=> ({}));
         if(res.ok && data.ok){

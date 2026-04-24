@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { payments } from "@square/web-sdk";
+import { ensureSecureApiBase, getRecaptchaToken } from "../lib/security.js";
 
 function formatAmount(cents, currency = "CAD") {
   return new Intl.NumberFormat("en-CA", {
@@ -80,7 +81,7 @@ export default function SquareCardCheckout({
     event.preventDefault();
     if (disabled || busy) return;
 
-    const backendUrl = getBackendUrl();
+    const backendUrl = ensureSecureApiBase(getBackendUrl());
     if (!backendUrl) {
       setMessage({
         text: "VITE_BACKEND_URL is missing. Set it to your Render backend URL.",
@@ -109,6 +110,7 @@ export default function SquareCardCheckout({
         throw new Error(details || "Card tokenization failed.");
       }
 
+      const recaptchaToken = await getRecaptchaToken("card_payment");
       const response = await fetch(`${backendUrl}/api/pay`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -116,6 +118,7 @@ export default function SquareCardCheckout({
           token: tokenResult.token,
           amount: Math.round(Number(amountCents) || 0),
           currency,
+          recaptchaToken,
         }),
       });
 
@@ -161,6 +164,7 @@ export default function SquareCardCheckout({
       >
         {busy ? "Processing payment..." : `Pay ${formatAmount(amountCents, currency)}`}
       </button>
+      {window.RECAPTCHA_SITE_KEY ? <small style={{ color: "var(--muted)" }}>Protected by reCAPTCHA.</small> : null}
 
       {message.text ? (
         <div className={`status ${message.type || "muted"}`}>{message.text}</div>

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { categoryLabel, stockClass } from "../lib/catalog.js";
+import { containsSuspiciousInput, getRecaptchaToken, sanitizeText } from "../lib/security.js";
 
 function useQuery() {
   const { search } = useLocation();
@@ -100,11 +101,16 @@ export default function ProductDetail() {
     setReviewMsg(window.PPS_I18N?.t("product.reviews.submitting") || "Submitting review...");
     const payload = {
       rating,
-      name: event.target.name.value.trim(),
-      comment: event.target.comment.value.trim(),
+      name: sanitizeText(event.target.name.value, { maxLength: 64 }),
+      comment: sanitizeText(event.target.comment.value, { maxLength: 500, multiline: true }),
     };
+    if ([payload.name, payload.comment].some(containsSuspiciousInput)) {
+      setReviewMsg("Submission blocked due to unsafe input.");
+      return;
+    }
     try {
-      await window.PPS?.submitReview?.(product.id, payload);
+      const recaptchaToken = await getRecaptchaToken("product_review");
+      await window.PPS?.submitReview?.(product.id, { ...payload, recaptchaToken });
       setReviewMsg(window.PPS_I18N?.t("product.reviews.thanks") || "Thanks! Your review was added.");
       event.target.reset();
       setRating(5);
@@ -127,11 +133,11 @@ export default function ProductDetail() {
         </p>
       </section>
 
-      <div className="grid grid-split" style={{ gap: "24px" }}>
-        <div className="card fade-in">
+      <div className="grid grid-split product-detail-grid" style={{ gap: "24px" }}>
+        <div className="card fade-in product-detail-media">
           <img src={product.image} alt={displayName} loading="lazy" decoding="async" style={{ height: "420px" }} />
         </div>
-        <div className="card fade-in" style={{ padding: "18px" }}>
+        <div className="card fade-in product-detail-summary" style={{ padding: "18px" }}>
           <h2 style={{ margin: 0 }}>{displayName}</h2>
           <p style={{ color: "var(--muted)", marginTop: "8px" }}>{displayCategory}</p>
           {(() => {
@@ -171,6 +177,11 @@ export default function ProductDetail() {
                 ? (window.PPS_I18N?.t("product.stock.low") || "Almost out of stock")
                 : (window.PPS_I18N?.t("product.stock.in") || "In stock")}
           </div>
+          {product.stock > 0 && product.stock <= 10 ? (
+            <p className="stock-note">
+              {window.PPS_I18N?.t("product.stock.note.low") || "Running low right now. Contact us if you need a larger quantity reserved."}
+            </p>
+          ) : null}
           <p style={{ marginTop: "14px", color: "var(--text)", lineHeight: 1.5 }}>{desc || ""}</p>
 
           <div style={{ marginTop: "16px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
@@ -222,8 +233,9 @@ export default function ProductDetail() {
             </div>
           </div>
           <div style={{ display: "grid", gap: "10px" }}>
-            <input className="input" name="name" placeholder="Your name (optional)" data-i18n-placeholder="product.reviews.name" />
-            <textarea className="input" name="comment" rows="4" placeholder="Leave a review" data-i18n-placeholder="product.reviews.comment" />
+              <input className="input" name="name" placeholder="Your name (optional)" data-i18n-placeholder="product.reviews.name" maxLength="64" />
+              <textarea className="input" name="comment" rows="4" placeholder="Leave a review" data-i18n-placeholder="product.reviews.comment" maxLength="500" />
+              {window.RECAPTCHA_SITE_KEY ? <small style={{ color: "var(--muted)" }}>Protected by reCAPTCHA.</small> : null}
             <button className="btn btn-primary" type="submit" data-i18n="product.reviews.submit">
               Submit review
             </button>
@@ -234,4 +246,3 @@ export default function ProductDetail() {
     </>
   );
 }
-

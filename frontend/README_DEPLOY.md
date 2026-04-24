@@ -14,10 +14,14 @@
        - `CORS_ORIGINS` (comma-separated, do not use `*`)
        - `SQUARE_WEBHOOK_SIGNATURE_KEY`, `SQUARE_WEBHOOK_URL` (Square webhooks + signature verification)
      - Email (optional, for verification codes + receipts + contact/help/feedback):
-       - `EMAIL_USER`, `EMAIL_PASS`
-       - `ORDER_TO` (admin inbox for contact/help/feedback + new orders)
-       - Optional SMTP overrides: `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_SECURE`, `EMAIL_SERVICE`, `EMAIL_FROM`
-   - Ensure the service restarts on crash and has a health check hitting `/api/health`.
+     - `EMAIL_USER`, `EMAIL_PASS`
+     - `ORDER_TO` (admin inbox for contact/help/feedback + new orders)
+     - Optional SMTP overrides: `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_SECURE`, `EMAIL_SERVICE`, `EMAIL_FROM`
+       - Recommended deliverability settings:
+         - `EMAIL_FROM=no-reply@yourdomain.com`
+         - `EMAIL_REPLY_TO=orders@yourdomain.com`
+         - `EMAIL_ENVELOPE_FROM=bounces@yourdomain.com`
+     - Ensure the service restarts on crash and has a health check hitting `/api/health`.
 
 2) **Serve frontend over HTTPS**
    - Host `frontend/` (static) on your domain (S3+CloudFront, Netlify, Vercel, etc.).
@@ -41,3 +45,14 @@
    - Email diagnostics (backend):
      - `GET /api/health` shows `email.configured`
      - `GET /api/email/health` verifies SMTP login
+
+5) **Inbox placement matters: do this in DNS**
+   - Use a domain mailbox on your own domain, not a free Gmail `From` address, for example `orders@powerpolysupplies.com`.
+   - Add SPF for your sending provider.
+   - Enable DKIM signing in your provider and publish the DKIM records in DNS.
+   - Publish a DMARC record for your domain. A safe starting point is:
+     ```
+     v=DMARC1; p=none; rua=mailto:dmarc@yourdomain.com; adkim=s; aspf=s
+     ```
+   - After everything passes, move DMARC toward `quarantine` or `reject`.
+   - If possible, send through a transactional provider with a verified domain such as SendGrid instead of plain Gmail SMTP.

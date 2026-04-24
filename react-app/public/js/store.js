@@ -5,7 +5,7 @@
 // 3) localStorage override "pps_api_base" (handy for production hardcoding)
 // 4) same-origin for deployed setups
 // 5) localhost:5000 for local dev
-const DEFAULT_API_BASE = "http://127.0.0.1:5000";
+const DEFAULT_API_BASE = "https://powerpolysupplies.onrender.com";
 const DEFAULT_CAD_TO_USD = 0.74;
 const FAVORITES_KEY = "pps_favorites";
 const CART_KEY = "pps_cart";
@@ -84,14 +84,29 @@ function inferApiBase(){
     return out;
   }
 
-  if(window.API_BASE_URL) return normalizeApiBase(window.API_BASE_URL);
-  if(window.PPS_API_BASE) return normalizeApiBase(window.PPS_API_BASE);
+  function enforceHttps(value){
+    const raw = String(value || "").trim();
+    if(!raw) return "";
+    try{
+      const parsed = new URL(raw, window.location.origin);
+      const isLocalhost = parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1";
+      if(window.location.protocol === "https:" && parsed.protocol !== "https:" && !isLocalhost){
+        return DEFAULT_API_BASE;
+      }
+      return normalizeApiBase(parsed.toString());
+    }catch{
+      return "";
+    }
+  }
+
+  if(window.API_BASE_URL) return enforceHttps(window.API_BASE_URL);
+  if(window.PPS_API_BASE) return enforceHttps(window.PPS_API_BASE);
 
   const apiFromQuery = new URLSearchParams(window.location.search).get("api");
-  if(apiFromQuery) return normalizeApiBase(apiFromQuery);
+  if(apiFromQuery) return enforceHttps(apiFromQuery);
 
   const apiFromStorage = localStorage.getItem("pps_api_base");
-  if(apiFromStorage) return normalizeApiBase(apiFromStorage);
+  if(apiFromStorage) return enforceHttps(apiFromStorage);
 
   const host = window.location.hostname || "127.0.0.1";
   const protocol = window.location.protocol && window.location.protocol.startsWith("http")
@@ -106,7 +121,7 @@ function inferApiBase(){
     return normalizeApiBase(window.location.origin);
   }
 
-  return DEFAULT_API_BASE;
+  return enforceHttps(DEFAULT_API_BASE);
 }
 
 const API_BASE = inferApiBase();
@@ -499,4 +514,3 @@ function addItemsToCart(items){
 }
 
 window.PPS = { API_BASE, money, convertCents, getTieredPriceCents, getCurrency, setCurrency, pingBackend, loadProducts, fetchReviews, submitReview, getCart, setCart, updateCartBadge, addToCart, addItemsToCart, getFavorites, isFavorite, toggleFavorite, getSession, setSession, clearSession, setApiBaseOverride };
-

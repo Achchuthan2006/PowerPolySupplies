@@ -5,8 +5,13 @@ import HelpWidget from "./HelpWidget.jsx";
 export default function Layout({ children }) {
   return (
     <>
+      <a className="skip-link" href="#main-content">
+        Skip to main content
+      </a>
       <Header />
-      <div className="container page">{children}</div>
+      <main id="main-content" className="container page" tabIndex="-1">
+        {children}
+      </main>
       <Footer />
       <HelpWidget />
     </>

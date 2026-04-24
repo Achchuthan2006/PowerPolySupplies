@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { containsSuspiciousInput, ensureSecureApiBase, getRecaptchaToken, isValidEmail, sanitizeEmail, sanitizeText } from "../lib/security.js";
 
 export default function Feedback() {
   const [status, setStatus] = useState({ text: "", type: "muted" });
@@ -12,28 +13,33 @@ export default function Feedback() {
     event.preventDefault();
     const form = event.target;
     const payload = {
-      name: form.name.value.trim(),
-      email: form.email.value.trim(),
-      message: form.message.value.trim(),
+      name: sanitizeText(form.name.value, { maxLength: 100 }),
+      email: sanitizeEmail(form.email.value),
+      message: sanitizeText(form.message.value, { maxLength: 1500, multiline: true }),
     };
-    if (!payload.message) {
+    if (!payload.message || (payload.email && !isValidEmail(payload.email))) {
       setStatus({
         text: window.PPS_I18N?.t("feedback.status.missing") || "Please add your feedback message first.",
         type: "error"
       });
       return;
     }
+    if ([payload.name, payload.email, payload.message].some(containsSuspiciousInput)) {
+      setStatus({ text: "Submission blocked due to unsafe input.", type: "error" });
+      return;
+    }
     setBusy(true);
     setStatus({ text: window.PPS_I18N?.t("feedback.status.sending") || "Sending your feedback...", type: "muted" });
     try {
-      const apiBase = window.PPS?.API_BASE || "";
+      const apiBase = ensureSecureApiBase(window.PPS?.API_BASE || window.API_BASE_URL || "");
+      const recaptchaToken = await getRecaptchaToken("feedback_form");
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 15000);
       const res = await fetch(`${apiBase}/api/feedback`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         signal: controller.signal,
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ ...payload, recaptchaToken }),
       });
       clearTimeout(timeoutId);
       const data = await res.json().catch(() => ({}));
@@ -102,9 +108,10 @@ export default function Feedback() {
         <h3 data-i18n="feedback.form.title">Share your feedback</h3>
         <p data-i18n="feedback.form.desc">Tell us how we're doing - products, service, delivery. Your feedback helps us improve.</p>
         <form onSubmit={submitFeedback} style={{ display: "grid", gap: "10px" }}>
-          <input className="input" name="name" placeholder="Your name (optional)" data-i18n-placeholder="feedback.form.name" />
-          <input className="input" name="email" type="email" placeholder="Email (optional)" data-i18n-placeholder="feedback.form.email" />
-          <textarea className="input" name="message" rows="4" placeholder="Your feedback..." data-i18n-placeholder="feedback.form.message" />
+          <input className="input" name="name" placeholder="Your name (optional)" data-i18n-placeholder="feedback.form.name" maxLength="100" />
+          <input className="input" name="email" type="email" placeholder="Email (optional)" data-i18n-placeholder="feedback.form.email" autoComplete="email" maxLength="254" />
+          <textarea className="input" name="message" rows="4" placeholder="Your feedback..." data-i18n-placeholder="feedback.form.message" minLength="5" maxLength="1500" />
+          {window.RECAPTCHA_SITE_KEY ? <small style={{ color: "var(--muted)" }}>Protected by reCAPTCHA.</small> : null}
           <button className="btn btn-primary" type="submit" disabled={busy} data-i18n="feedback.form.submit">
             {busy
               ? (window.PPS_I18N?.t("feedback.status.sending") || "Sending your feedback...")
@@ -116,4 +123,3 @@ export default function Feedback() {
     </>
   );
 }
-

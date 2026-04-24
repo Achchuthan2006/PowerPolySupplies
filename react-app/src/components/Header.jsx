@@ -1,19 +1,100 @@
-import { Link, NavLink } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { Link, NavLink, useLocation } from "react-router-dom";
+import { useEffect, useId, useRef, useState } from "react";
 
 const navLinkClass = ({ isActive }) =>
   isActive ? "active" : undefined;
 
 export default function Header() {
+  const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [shopOpen, setShopOpen] = useState(false);
+  const menuButtonRef = useRef(null);
+  const navRef = useRef(null);
+  const navId = useId();
+  const shopMenuId = useId();
   const hasSession = Boolean(window.PPS?.getSession?.());
-  const accountActive = window.location.pathname === "/account.html";
+  const accountActive = location.pathname === "/account" || location.pathname === "/account.html";
+
+  const closeMenus = () => {
+    setMenuOpen(false);
+    setShopOpen(false);
+  };
 
   useEffect(() => {
     window.PPS?.updateCartBadge?.();
     window.PPS_I18N?.applyTranslations?.();
   }, []);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const body = document.body;
+    root.classList.toggle("mobile-menu-open", menuOpen);
+    body.classList.toggle("mobile-menu-open", menuOpen);
+
+    return () => {
+      root.classList.remove("mobile-menu-open");
+      body.classList.remove("mobile-menu-open");
+    };
+  }, [menuOpen]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 860) {
+        setMenuOpen(false);
+        setShopOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    setMenuOpen(false);
+    setShopOpen(false);
+  }, [location.pathname, location.search]);
+
+  useEffect(() => {
+    if (!menuOpen) {
+      return undefined;
+    }
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+        setShopOpen(false);
+        menuButtonRef.current?.focus();
+      }
+    };
+
+    const handlePointerDown = (event) => {
+      if (window.innerWidth > 860) {
+        return;
+      }
+      const target = event.target;
+      if (
+        navRef.current?.contains(target) ||
+        menuButtonRef.current?.contains(target)
+      ) {
+        return;
+      }
+      setMenuOpen(false);
+      setShopOpen(false);
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("pointerdown", handlePointerDown);
+
+    const firstFocusable = navRef.current?.querySelector(
+      'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    );
+    firstFocusable?.focus();
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("pointerdown", handlePointerDown);
+    };
+  }, [menuOpen]);
 
   const handleLangChange = (event) => {
     window.PPS_I18N?.setLang?.(event.target.value);
@@ -56,23 +137,52 @@ export default function Header() {
           </Link>
 
           <button
+            ref={menuButtonRef}
             className="menu-btn"
             type="button"
-            aria-label="Open menu"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            aria-controls={navId}
             data-i18n="nav.menu"
-            onClick={() => setMenuOpen((value) => !value)}
+            onClick={() => {
+              setMenuOpen((value) => {
+                const next = !value;
+                if (!next) {
+                  setShopOpen(false);
+                }
+                return next;
+              });
+            }}
           >
             Menu
           </button>
 
-          <nav className={`navlinks ${menuOpen ? "open" : ""}`} id="navLinks">
-            <NavLink to="/" className={navLinkClass} data-i18n="nav.home">
+          {menuOpen ? (
+            <button
+              className="menu-backdrop"
+              type="button"
+              aria-label="Close menu"
+              onClick={() => {
+                closeMenus();
+                menuButtonRef.current?.focus();
+              }}
+            />
+          ) : null}
+
+          <nav
+            ref={navRef}
+            className={`navlinks ${menuOpen ? "open" : ""}`}
+            id={navId}
+            aria-label="Primary"
+          >
+            <NavLink to="/" className={navLinkClass} data-i18n="nav.home" onClick={closeMenus}>
               Home
             </NavLink>
             <NavLink
               to="/specials"
               className={navLinkClass}
               data-i18n="nav.specials"
+              onClick={closeMenus}
             >
               Special Offers
             </NavLink>
@@ -81,53 +191,55 @@ export default function Header() {
               <button
                 className="dropbtn"
                 type="button"
+                aria-expanded={shopOpen}
+                aria-controls={shopMenuId}
                 onClick={() => setShopOpen((value) => !value)}
               >
                 <span data-i18n="nav.shop">Shop by Category</span>{" "}
                 <span className="caret" aria-hidden="true" />
               </button>
-              <div className="dropdown-menu">
-                <Link to="/products?cat=Garment%20Bags" data-i18n="nav.garment">
+              <div className="dropdown-menu" id={shopMenuId}>
+                <Link to="/products?cat=Garment%20Bags" data-i18n="nav.garment" onClick={closeMenus}>
                   Garment Cover Bags
                 </Link>
-                <Link to="/products?cat=Polybags" data-i18n="nav.polybags">
+                <Link to="/products?cat=Polybags" data-i18n="nav.polybags" onClick={closeMenus}>
                   Polybags
                 </Link>
-                <Link to="/products?cat=Hangers" data-i18n="nav.hangers">
+                <Link to="/products?cat=Hangers" data-i18n="nav.hangers" onClick={closeMenus}>
                   Hangers
                 </Link>
-                <Link to="/products?cat=Wraps" data-i18n="nav.wraps">
+                <Link to="/products?cat=Wraps" data-i18n="nav.wraps" onClick={closeMenus}>
                   Wraps
                 </Link>
-                <Link to="/products?cat=Racks" data-i18n="nav.racks">
+                <Link to="/products?cat=Racks" data-i18n="nav.racks" onClick={closeMenus}>
                   Racks
                 </Link>
               </div>
             </div>
 
-            <NavLink to="/about" className={navLinkClass} data-i18n="nav.about">
+            <NavLink to="/about" className={navLinkClass} data-i18n="nav.about" onClick={closeMenus}>
               About Us
             </NavLink>
-            <NavLink to="/contact" className={navLinkClass}>
+            <NavLink to="/contact" className={navLinkClass} onClick={closeMenus}>
               <span className="nav-icon phone-icon" aria-hidden="true" />
               <span data-i18n="nav.contact">Contact</span>
             </NavLink>
-            <NavLink to="/feedback" className={navLinkClass}>
+            <NavLink to="/feedback" className={navLinkClass} onClick={closeMenus}>
               <span className="nav-icon pen-icon" aria-hidden="true" />
               <span data-i18n="nav.feedback">Feedback</span>
             </NavLink>
             {hasSession ? (
-              <a href="/account.html" className={accountActive ? "active" : undefined}>
+              <Link to="/account" className={accountActive ? "active" : undefined} onClick={closeMenus}>
                 <span className="nav-icon user-icon" aria-hidden="true" />
                 <span data-i18n="nav.my_account">My Account</span>
-              </a>
+              </Link>
             ) : (
-              <NavLink to="/login" className={navLinkClass}>
+              <NavLink to="/login" className={navLinkClass} onClick={closeMenus}>
                 <span className="nav-icon user-icon" aria-hidden="true" />
                 <span data-i18n="nav.account">Account</span>
               </NavLink>
             )}
-            <NavLink to="/cart" className={navLinkClass}>
+            <NavLink to="/cart" className={navLinkClass} onClick={closeMenus}>
               <span className="nav-icon cart-icon" aria-hidden="true" />
               <span data-i18n="nav.cart">Cart</span>{" "}
               <span className="badge" data-cart-badge>
@@ -140,6 +252,7 @@ export default function Header() {
               action="/products"
               method="get"
               role="search"
+              onSubmit={closeMenus}
             >
               <input
                 type="search"
@@ -186,4 +299,3 @@ export default function Header() {
     </header>
   );
 }
-

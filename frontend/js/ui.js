@@ -2,17 +2,37 @@ function setupNavbar(){
   const menuBtn = document.getElementById("menuBtn");
   const navLinks = document.getElementById("navLinks");
   const dropdowns = Array.from(document.querySelectorAll(".dropdown"));
+  const syncMobileMenuState = ()=>{
+    if(!navLinks) return;
+    const isOpen = navLinks.classList.contains("open");
+    document.body.classList.toggle("mobile-menu-open", isOpen);
+    document.documentElement.classList.toggle("mobile-menu-open", isOpen);
+    if(menuBtn){
+      menuBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    }
+  };
+  const closeMenu = ()=>{
+    if(!navLinks) return;
+    navLinks.classList.remove("open");
+    dropdowns.forEach((dropdown)=> dropdown.classList.remove("open"));
+    syncMobileMenuState();
+  };
 
   if(menuBtn && navLinks){
     menuBtn.addEventListener("click", ()=>{
       navLinks.classList.toggle("open");
+      if(!navLinks.classList.contains("open")){
+        dropdowns.forEach((dropdown)=> dropdown.classList.remove("open"));
+      }
+      syncMobileMenuState();
     });
+    menuBtn.setAttribute("aria-expanded", "false");
   }
   if(navLinks){
     navLinks.addEventListener("click", (event)=>{
       const link = event.target.closest("a");
-      if(link && navLinks.classList.contains("open")){
-        navLinks.classList.remove("open");
+      if(link && navLinks.classList.contains("open") && !link.closest(".dropdown-menu")){
+        closeMenu();
       }
     });
 
@@ -37,8 +57,15 @@ function setupNavbar(){
       const target = event.target;
       if(!(target instanceof Node)) return;
       if(navLinks.contains(target) || menuBtn.contains(target)) return;
-      navLinks.classList.remove("open");
-      dropdowns.forEach(d=> d.classList.remove("open"));
+      closeMenu();
+    });
+  }
+
+  if(navLinks){
+    window.addEventListener("resize", ()=>{
+      if(window.innerWidth > 860 && navLinks.classList.contains("open")){
+        closeMenu();
+      }
     });
   }
 
@@ -56,6 +83,8 @@ function setupNavbar(){
       dropdown.classList.toggle("open");
     });
   });
+
+  syncMobileMenuState();
 }
 
 function decoratePromoTagline(){
@@ -1152,37 +1181,7 @@ function setupCountUp(){
 }
 
 function injectBottomNav(){
-  if(document.querySelector(".bottom-nav")) return;
-  const isMobile = window.matchMedia?.("(max-width: 860px)")?.matches;
-  if(!isMobile) return;
-
-  const nav = document.createElement("nav");
-  nav.className = "bottom-nav";
-  nav.setAttribute("aria-label", "Quick navigation");
-  nav.innerHTML = `
-    <a class="bottom-nav-item" href="./products.html">
-      <span class="bicon" aria-hidden="true">
-        <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      </span>
-      <span data-i18n="bottom.categories">Categories</span>
-    </a>
-    <a class="bottom-nav-item" href="#pps-search" data-bottom-search>
-      <span class="bicon" aria-hidden="true">
-        <svg viewBox="0 0 24 24"><path d="M10.5 18a7.5 7.5 0 1 1 5.3-2.2L21 21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M15 15l1.8 1.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      </span>
-      <span data-i18n="bottom.search">Search</span>
-    </a>
-    <a class="bottom-nav-item" href="./cart.html">
-      <span class="bicon" aria-hidden="true">
-        <svg viewBox="0 0 24 24"><path d="M6 6h14.2l-1.2 6H8.1L7.2 6H4V4h2a1 1 0 0 1 .99.86L7.8 6h12.42a1 1 0 0 1 .98 1.2l-1.4 7a1 1 0 0 1-.98.8H8a1 1 0 0 1-.99-.87L5.8 7H4V5h1.2L6 6zm2.5 12a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm9 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z" fill="currentColor"/></svg>
-      </span>
-      <span data-i18n="nav.cart">Cart</span>
-      <span class="bottom-badge" data-cart-badge>0</span>
-    </a>
-  `;
-  document.body.appendChild(nav);
-  window.PPS?.updateCartBadge?.();
-  window.PPS_I18N?.applyTranslations?.();
+  return;
 }
 
 function focusSmartSearch(){
@@ -1679,6 +1678,71 @@ function injectHelpWidget(){
   const closeBtn = document.getElementById("helpClose");
   const form = document.getElementById("helpForm");
   const status = document.getElementById("helpStatus");
+  const security = window.PPSSecurity || {
+    sanitizeText(value, options = {}){
+      const maxLength = Number(options.maxLength) || 500;
+      const multiline = !!options.multiline;
+      const text = String(value ?? "").replace(/[<>]/g, "").replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "");
+      const normalized = multiline ? text.replace(/\r\n/g, "\n").replace(/[^\S\n]+/g, " ").trim() : text.replace(/\s+/g, " ").trim();
+      return normalized.slice(0, maxLength);
+    },
+    sanitizeEmail(value){
+      return String(value || "").trim().toLowerCase();
+    },
+    isValidEmail(value){
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || "").trim());
+    },
+    containsSuspiciousInput(value){
+      return /<script|javascript:|onerror=|onload=|<iframe|data:text\/html/i.test(String(value || ""));
+    },
+    ensureSecureApiBase(value){
+      const raw = String(value || "").trim().replace(/\/+$/,"").replace(/\/api$/i,"");
+      if(!raw) return "";
+      try{
+        const parsed = new URL(raw, window.location.origin);
+        const isLocalhost = parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1";
+        if(window.location.protocol === "https:" && parsed.protocol !== "https:" && !isLocalhost){
+          throw new Error("Blocked insecure API endpoint.");
+        }
+        return parsed.toString().replace(/\/+$/,"");
+      }catch{
+        return "";
+      }
+    },
+    async getRecaptchaToken(action){
+      const siteKey = String(window.RECAPTCHA_SITE_KEY || "").trim();
+      if(!siteKey) return "";
+      const load = ()=> new Promise((resolve, reject)=>{
+        if(window.grecaptcha?.execute) return resolve(window.grecaptcha);
+        const existing = document.querySelector('script[data-recaptcha="true"]');
+        if(existing){
+          existing.addEventListener("load", ()=> resolve(window.grecaptcha), { once: true });
+          existing.addEventListener("error", ()=> reject(new Error("reCAPTCHA failed to load.")), { once: true });
+          return;
+        }
+        const script = document.createElement("script");
+        script.src = `https://www.google.com/recaptcha/api.js?render=${encodeURIComponent(siteKey)}`;
+        script.async = true;
+        script.defer = true;
+        script.dataset.recaptcha = "true";
+        script.onload = ()=> resolve(window.grecaptcha);
+        script.onerror = ()=> reject(new Error("reCAPTCHA failed to load."));
+        document.head.appendChild(script);
+      });
+      const grecaptcha = await load();
+      if(!grecaptcha?.ready || !grecaptcha?.execute) return "";
+      return await new Promise((resolve, reject)=>{
+        grecaptcha.ready(async ()=>{
+          try{
+            const token = await grecaptcha.execute(siteKey, { action });
+            resolve(String(token || "").trim());
+          }catch(err){
+            reject(err);
+          }
+        });
+      });
+    }
+  };
   const tabButtons = Array.from(wrap.querySelectorAll("[data-help-tab]"));
   const tabPanels = Array.from(wrap.querySelectorAll("[data-help-panel]"));
   const chatLog = document.getElementById("helpChatLog");
@@ -2106,10 +2170,14 @@ function injectHelpWidget(){
   if(form){
     form.addEventListener("submit", async (event)=>{
       event.preventDefault();
-      const name = String(form.name.value || "").trim();
-      const email = String(form.email.value || "").trim();
-      const message = String(form.message.value || "").trim();
-      if(!name || !email || !message) return;
+        const name = security.sanitizeText(form.name.value, { maxLength: 100 });
+        const email = security.sanitizeEmail(form.email.value);
+        const message = security.sanitizeText(form.message.value, { maxLength: 2000, multiline: true });
+        if(!name || !email || !message || !security.isValidEmail(email)) return;
+        if([name, email, message].some(security.containsSuspiciousInput)){
+          if(status) status.textContent = "Submission blocked due to unsafe input.";
+          return;
+        }
       const lang = window.PPS_I18N?.getLang?.() || "en";
       const copy = getHelpCopy(lang);
       const sendingText = copy?.sending || (window.PPS_I18N?.t("help.sending") || "Sending...");
@@ -2121,12 +2189,13 @@ function injectHelpWidget(){
       if(submitBtn) submitBtn.disabled = true;
 
       try{
-        const apiBase = window.PPS?.API_BASE || window.PPS_API_BASE || "";
-        const res = await fetch(`${apiBase}/api/help`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, message })
-        });
+          const apiBase = security.ensureSecureApiBase(window.PPS?.API_BASE || window.PPS_API_BASE || window.API_BASE_URL || "");
+          const recaptchaToken = await security.getRecaptchaToken("help_form");
+          const res = await fetch(`${apiBase}/api/help`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, email, message, recaptchaToken })
+          });
         const data = await res.json().catch(()=> ({}));
         if(!res.ok || !data.ok){
           throw new Error(data?.message || "Failed");
@@ -2404,8 +2473,8 @@ function showAuthModal(options = {}){
             <div class="pps-auth-mini"><a href="./contact.html">Need help?</a></div>
           </div>
 
-          <div class="pps-auth-mini" style="margin-top:10px;">
-            Social sign-in is enabled when OAuth is configured on the backend.
+          <div class="pps-auth-mini" id="ppsAuthOauthHint" style="margin-top:10px;">
+            Social sign-in is enabled when Google and Facebook OAuth are configured on the backend.
           </div>
         </div>
       </div>
@@ -2420,6 +2489,7 @@ function showAuthModal(options = {}){
   const passwordToggle = overlay.querySelector(".toggle-visibility");
   const googleBtn = overlay.querySelector('[data-auth-provider="google"]');
   const facebookBtn = overlay.querySelector('[data-auth-provider="facebook"]');
+  const oauthHint = overlay.querySelector("#ppsAuthOauthHint");
 
   const setStatus = (text, type = "muted") => {
     if(!statusEl) return;
@@ -2530,10 +2600,23 @@ function showAuthModal(options = {}){
       const fbOk = !!data?.providers?.facebook?.configured;
       if(googleBtn) googleBtn.disabled = !googleOk;
       if(facebookBtn) facebookBtn.disabled = !fbOk;
+      if(oauthHint){
+        if(googleOk && fbOk){
+          oauthHint.textContent = "Google and Facebook sign-in are ready.";
+        }else{
+          const missing = [];
+          if(!googleOk) missing.push("Google");
+          if(!fbOk) missing.push("Facebook");
+          oauthHint.textContent = `${missing.join(" and ")} sign-in is disabled until OAuth credentials are configured in backend/.env and the server is restarted.`;
+        }
+      }
     }catch{
       // Keep disabled on failure.
       if(googleBtn) googleBtn.disabled = true;
       if(facebookBtn) facebookBtn.disabled = true;
+      if(oauthHint){
+        oauthHint.textContent = "Social sign-in is unavailable because the OAuth status check failed. Confirm the backend is running and reachable over HTTPS.";
+      }
     }
   };
 
